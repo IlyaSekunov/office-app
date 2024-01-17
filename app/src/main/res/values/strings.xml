@@ -4,5 +4,6 @@
     <string name="registration">Регистрация</string>
     <string name="no_account">Нету аккаунта?</string>
     <string name="register">Зарегистрироваться</string>
+    <string name="enter">Войти</string>
     <string name="have_account">Есть аккаунт?</string>
 </resources>
