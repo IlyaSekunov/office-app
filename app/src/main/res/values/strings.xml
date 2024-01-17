@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Office App</string>
+    <string name="login">Вход</string>
+    <string name="registration">Регистрация</string>
+    <string name="no_account">Нету аккаунта?</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="have_account">Есть аккаунт?</string>
+</resources>
