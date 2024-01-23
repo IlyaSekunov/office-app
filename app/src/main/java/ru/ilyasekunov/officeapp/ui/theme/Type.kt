@@ -16,16 +16,48 @@ val interFontFamily = FontFamily(
 )
 
 val Typography = Typography(
-    displayLarge = TextStyle(
+    displayMedium = TextStyle(
         fontFamily = interFontFamily,
         fontWeight = FontWeight.Normal
     ),
-    titleSmall = TextStyle(
+    displayLarge = TextStyle(
         fontFamily = interFontFamily,
         fontWeight = FontWeight.Medium
     ),
-    labelMedium = TextStyle(
+    titleSmall = TextStyle(
         fontFamily = interFontFamily,
         fontWeight = FontWeight.Light
-    )
+    ),
+    titleMedium = TextStyle(
+        fontFamily = interFontFamily,
+        fontWeight = FontWeight.Normal
+    ),
+    titleLarge = TextStyle(
+        fontFamily = interFontFamily,
+        fontWeight = FontWeight.Medium
+    ),
+    bodySmall = TextStyle(
+        fontFamily = interFontFamily,
+        fontWeight = FontWeight.Light
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = interFontFamily,
+        fontWeight = FontWeight.Normal
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = interFontFamily,
+        fontWeight = FontWeight.Medium
+    ),
+    labelSmall = TextStyle(
+        fontFamily = interFontFamily,
+        fontWeight = FontWeight.Light
+    ),
+    labelMedium = TextStyle(
+        fontFamily = interFontFamily,
+        fontWeight = FontWeight.Normal
+    ),
+    labelLarge = TextStyle(
+        fontFamily = interFontFamily,
+        fontWeight = FontWeight.Medium
+    ),
 )

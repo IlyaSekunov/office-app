@@ -24,15 +24,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.ui.auth.EmailTextField
-import ru.ilyasekunov.officeapp.ui.auth.PasswordTextField
+import ru.ilyasekunov.officeapp.ui.components.EmailTextField
+import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
-fun LoginScreen(onRegisterClick: () -> Unit) {
-    val loginViewModel = viewModel<LoginViewModel>()
+fun LoginScreen(
+    loginUiState: LoginUiState,
+    onEmailValueChange: (String) -> Unit,
+    onPasswordValueChange: (String) -> Unit,
+    onLoginButtonClick: () -> Unit,
+    navigateToRegistration: () -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -42,30 +46,30 @@ fun LoginScreen(onRegisterClick: () -> Unit) {
         Spacer(modifier = Modifier.height(190.dp))
         Text(
             text = stringResource(R.string.login),
-            style = MaterialTheme.typography.displayLarge,
+            style = MaterialTheme.typography.displayMedium,
             fontSize = 36.sp
         )
         Spacer(modifier = Modifier.height(75.dp))
         EmailTextField(
-            value = loginViewModel.loginUiState.email,
-            onValueChange = loginViewModel::updateEmail,
+            value = loginUiState.email,
+            onValueChange = onEmailValueChange,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 12.dp, end = 12.dp)
         )
         Spacer(modifier = Modifier.height(30.dp))
         PasswordTextField(
-            value = loginViewModel.loginUiState.password,
-            onValueChange = loginViewModel::updatePassword,
+            value = loginUiState.password,
+            onValueChange = onPasswordValueChange,
             placeholder = "Пароль",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 12.dp, end = 12.dp)
         )
         Spacer(modifier = Modifier.height(40.dp))
-        LoginButton(onClick = loginViewModel::login)
+        LoginButton(onClick = onLoginButtonClick)
         Spacer(modifier = Modifier.height(28.dp))
-        RegisterSection(onRegisterClick = onRegisterClick)
+        RegisterSection(onRegisterClick = navigateToRegistration)
     }
 }
 
@@ -83,7 +87,7 @@ fun LoginButton(
     ) {
         Text(
             text = stringResource(R.string.enter),
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.labelLarge,
             fontSize = 16.sp
         )
     }
@@ -97,13 +101,13 @@ fun RegisterSection(
     Row(modifier = modifier) {
         Text(
             text = stringResource(R.string.no_account),
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelSmall,
             fontSize = 14.sp
         )
         Spacer(modifier = Modifier.width(3.dp))
         Text(
-            text = stringResource(R.string.enter),
-            style = MaterialTheme.typography.labelMedium,
+            text = stringResource(R.string.register),
+            style = MaterialTheme.typography.labelSmall,
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable { onRegisterClick() }
@@ -116,7 +120,13 @@ fun RegisterSection(
 fun LoginScreenPreview() {
     OfficeAppTheme {
         Surface {
-            LoginScreen(onRegisterClick = {})
+            LoginScreen(
+                loginUiState = LoginUiState(),
+                onEmailValueChange = {},
+                onPasswordValueChange = {},
+                onLoginButtonClick = {},
+                navigateToRegistration = {}
+            )
         }
     }
 }

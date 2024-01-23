@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.auth
+package ru.ilyasekunov.officeapp.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
@@ -6,13 +6,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
@@ -31,12 +28,12 @@ fun EmailTextField(
                 contentDescription = "email_icon"
             )
         },
-        textStyle = MaterialTheme.typography.labelMedium,
+        textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 16.sp),
         singleLine = true,
         placeholder = {
             Text(
                 text = "Email",
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.bodySmall,
                 fontSize = 16.sp
             )
         },

@@ -6,4 +6,8 @@
     <string name="register">Зарегистрироваться</string>
     <string name="enter">Войти</string>
     <string name="have_account">Есть аккаунт?</string>
+    <string name="top_bar_register_screen_title">Сведения о себе</string>
+    <string name="photo_picker_title">Фото</string>
+    <string name="office">Офис</string>
+    <string name="save">Сохранить</string>
 </resources>

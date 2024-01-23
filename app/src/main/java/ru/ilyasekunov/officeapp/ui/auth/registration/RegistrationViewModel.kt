@@ -10,7 +10,7 @@ import javax.inject.Inject
 data class RegistrationUiState(
     val email: String = "",
     val password: String = "",
-    val repeatedPassword: String = ""
+    val repeatedPassword: String = "",
 )
 
 @HiltViewModel

@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.auth
+package ru.ilyasekunov.officeapp.ui.components
 
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -42,11 +42,11 @@ fun PasswordTextField(
                 contentDescription = "lock_icon"
             )
         },
-        textStyle = MaterialTheme.typography.labelMedium,
+        textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 16.sp),
         placeholder = {
             Text(
                 text = placeholder,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.bodySmall,
                 fontSize = 16.sp
             )
         },

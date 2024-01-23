@@ -23,17 +23,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.ui.auth.EmailTextField
-import ru.ilyasekunov.officeapp.ui.auth.PasswordTextField
+import ru.ilyasekunov.officeapp.ui.components.EmailTextField
+import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
-fun RegistrationScreen(
-    onLoginClick: () -> Unit
+fun RegistrationMainScreen(
+    registrationUiState: RegistrationUiState,
+    onEmailValueChange: (String) -> Unit,
+    onPasswordValueChange: (String) -> Unit,
+    onRepeatPasswordValueChange: (String) -> Unit,
+    onRegisterButtonClick: () -> Unit,
+    navigateToLogin: () -> Unit
 ) {
-    val registrationViewModel = viewModel<RegistrationViewModel>()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -43,21 +46,21 @@ fun RegistrationScreen(
         Spacer(modifier = Modifier.height(150.dp))
         Text(
             text = stringResource(R.string.registration),
-            style = MaterialTheme.typography.displayLarge,
+            style = MaterialTheme.typography.displayMedium,
             fontSize = 36.sp
         )
         Spacer(modifier = Modifier.height(75.dp))
         EmailTextField(
-            value = registrationViewModel.registrationUiState.email,
-            onValueChange = registrationViewModel::updateEmail,
+            value = registrationUiState.email,
+            onValueChange = onEmailValueChange,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 12.dp, end = 12.dp)
         )
         Spacer(modifier = Modifier.height(30.dp))
         PasswordTextField(
-            value = registrationViewModel.registrationUiState.password,
-            onValueChange = registrationViewModel::updatePassword,
+            value = registrationUiState.password,
+            onValueChange = onPasswordValueChange,
             placeholder = "Пароль",
             modifier = Modifier
                 .fillMaxWidth()
@@ -65,17 +68,17 @@ fun RegistrationScreen(
         )
         Spacer(modifier = Modifier.height(30.dp))
         PasswordTextField(
-            value = registrationViewModel.registrationUiState.repeatedPassword,
-            onValueChange = registrationViewModel::updateRepeatedPassword,
+            value = registrationUiState.repeatedPassword,
+            onValueChange = onRepeatPasswordValueChange,
             placeholder = "Повторите пароль",
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 12.dp, end = 12.dp)
         )
         Spacer(modifier = Modifier.height(50.dp))
-        RegisterButton(onClick = registrationViewModel::register)
+        RegisterButton(onClick = onRegisterButtonClick)
         Spacer(modifier = Modifier.height(28.dp))
-        LoginSection(onLoginClick = onLoginClick)
+        LoginSection(onLoginClick = navigateToLogin)
     }
 }
 
@@ -92,7 +95,7 @@ fun RegisterButton(
     ) {
         Text(
             text = stringResource(R.string.register),
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleLarge,
             fontSize = 16.sp
         )
     }
@@ -106,13 +109,13 @@ fun LoginSection(
     Row(modifier = modifier) {
         Text(
             text = stringResource(R.string.have_account),
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelSmall,
             fontSize = 14.sp
         )
         Spacer(modifier = Modifier.width(3.dp))
         Text(
             text = stringResource(R.string.enter),
-            style = MaterialTheme.typography.labelMedium,
+            style = MaterialTheme.typography.labelSmall,
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable { onLoginClick() }
@@ -122,10 +125,17 @@ fun LoginSection(
 
 @Preview
 @Composable
-fun RegistrationScreenPreview() {
+fun RegistrationMainScreenPreview() {
     OfficeAppTheme {
         Surface {
-            RegistrationScreen(onLoginClick = {})
+            RegistrationMainScreen(
+                registrationUiState = RegistrationUiState(),
+                onEmailValueChange = {},
+                onPasswordValueChange = {},
+                onRepeatPasswordValueChange = {},
+                onRegisterButtonClick = {},
+                navigateToLogin = {}
+            )
         }
     }
 }
