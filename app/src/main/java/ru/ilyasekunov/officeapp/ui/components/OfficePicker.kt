@@ -19,15 +19,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -77,6 +82,7 @@ fun OfficePicker(
     onOfficeChange: (Office) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val density = LocalDensity.current.density
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -95,12 +101,18 @@ fun OfficePicker(
                 officeScrollState.findNearestToCenterOfScreenItem()
             }
         }
+        var layoutCenterDp by remember { mutableStateOf(0.dp) }
+        val officeWidthDp = 160.dp
         LazyRow(
-            contentPadding = PaddingValues(start = 130.dp, end = 130.dp),
+            contentPadding = PaddingValues(start = layoutCenterDp, end = layoutCenterDp),
             horizontalArrangement = Arrangement.spacedBy(30.dp),
             state = officeScrollState,
             flingBehavior = rememberSnapFlingBehavior(lazyListState = officeScrollState),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .onGloballyPositioned {
+                    layoutCenterDp = (it.size.center.x / density).dp - officeWidthDp / 2
+                }
         ) {
             items(
                 count = officeList.size,
@@ -118,7 +130,7 @@ fun OfficePicker(
                         }
                     },
                     isSelected = isSelected,
-                    modifier = Modifier.size(width = 160.dp, height = 170.dp)
+                    modifier = Modifier.size(width = officeWidthDp, height = 170.dp)
                 )
             }
         }
