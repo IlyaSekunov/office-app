@@ -5,15 +5,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.auth.login.LoginScreen
 import ru.ilyasekunov.officeapp.ui.auth.login.LoginViewModel
-
-const val LoginRoute = "login"
 
 fun NavGraphBuilder.loginScreen(
     navigateToRegistration: () -> Unit,
 ) {
-    composable(LoginRoute) {
+    composable(Screen.Login.route) {
         val loginViewModel = hiltViewModel<LoginViewModel>()
         LoginScreen(
             loginUiState = loginViewModel.loginUiState,
@@ -26,4 +25,4 @@ fun NavGraphBuilder.loginScreen(
 }
 
 fun NavController.navigateToLoginScreen(navOptions: NavOptions? = null) =
-    navigate(LoginRoute, navOptions)
+    navigate(Screen.Login.route, navOptions)

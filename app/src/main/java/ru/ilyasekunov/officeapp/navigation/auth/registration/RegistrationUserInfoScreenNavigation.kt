@@ -7,15 +7,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationUserInfoScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoViewModel
-
-const val RegistrationUserInfoRoute = "registration-info"
 
 fun NavGraphBuilder.registrationUserInfoScreen(
     navigateBack: () -> Unit
 ) {
-    composable(RegistrationUserInfoRoute) {
+    composable(Screen.RegistrationUserInfo.route) {
         val userInfoViewModel = hiltViewModel<UserInfoViewModel>()
         val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
             it?.let {
@@ -37,4 +36,4 @@ fun NavGraphBuilder.registrationUserInfoScreen(
 }
 
 fun NavController.navigateToRegistrationUserInfoScreen(navOptions: NavOptions? = null) =
-    navigate(RegistrationUserInfoRoute, navOptions)
+    navigate(Screen.RegistrationUserInfo.route, navOptions)

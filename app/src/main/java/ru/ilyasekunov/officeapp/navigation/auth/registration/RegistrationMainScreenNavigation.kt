@@ -5,16 +5,15 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationMainScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationViewModel
-
-const val RegistrationMainRoute = "registration-main"
 
 fun NavGraphBuilder.registrationMainScreen(
     navigateToLogin: () -> Unit,
     navigateToRegistrationUserInfo: () -> Unit
 ) {
-    composable(RegistrationMainRoute) {
+    composable(Screen.RegistrationMain.route) {
         val registrationViewModel = hiltViewModel<RegistrationViewModel>()
         RegistrationMainScreen(
             registrationUiState = registrationViewModel.registrationUiState,
@@ -31,4 +30,4 @@ fun NavGraphBuilder.registrationMainScreen(
 }
 
 fun NavController.navigateToRegistrationMainScreen(navOptions: NavOptions? = null) =
-    navigate(RegistrationMainRoute, navOptions)
+    navigate(Screen.RegistrationMain.route, navOptions)
