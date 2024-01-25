@@ -20,7 +20,6 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun OfficeAppTheme(
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     SetSystemBars()

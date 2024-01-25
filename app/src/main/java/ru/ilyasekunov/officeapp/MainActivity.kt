@@ -7,16 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import ru.ilyasekunov.officeapp.navigation.auth.AuthGraphRoute
-import ru.ilyasekunov.officeapp.navigation.auth.authGraph
+import ru.ilyasekunov.officeapp.preview.userInfoUiStatePreview
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
+import ru.ilyasekunov.officeapp.ui.userprofile.UserProfileScreen
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -36,16 +34,23 @@ fun OfficeApp() {
     OfficeAppTheme {
         Surface(
             modifier = Modifier
-                .safeDrawingPadding()
+                //.safeDrawingPadding()
                 .imePadding()
                 .imeNestedScroll()
         ) {
-            NavHost(
+            /*NavHost(
                 navController = navController,
                 startDestination = AuthGraphRoute
             ) {
                 authGraph(navController)
-            }
+            }*/
+            UserProfileScreen(
+                userInfoUiState = userInfoUiStatePreview,
+                onManageAccountClick = {},
+                onMyOfficeClick = {},
+                onMyIdeasClick = {},
+                onLogoutClick = {}
+            )
         }
     }
 }

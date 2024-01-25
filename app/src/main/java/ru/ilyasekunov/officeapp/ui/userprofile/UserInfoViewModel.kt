@@ -1,10 +1,11 @@
-package ru.ilyasekunov.officeapp.ui.user_profile
+package ru.ilyasekunov.officeapp.ui.userprofile
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import ru.ilyasekunov.officeapp.preview.officeListPreview
 import ru.ilyasekunov.officeapp.ui.components.Office
 import javax.inject.Inject
 
@@ -20,6 +21,8 @@ data class UserInfoUiState(
 class UserInfoViewModel @Inject constructor() : ViewModel() {
     var userInfoUiState by mutableStateOf(UserInfoUiState())
         private set
+
+    val officeList = officeListPreview
 
     fun updateName(name: String) {
         userInfoUiState = userInfoUiState.copy(name = name)

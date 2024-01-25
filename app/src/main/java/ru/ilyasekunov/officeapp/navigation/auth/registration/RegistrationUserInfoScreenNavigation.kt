@@ -8,7 +8,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationUserInfoScreen
-import ru.ilyasekunov.officeapp.ui.user_profile.UserInfoViewModel
+import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoViewModel
 
 const val RegistrationUserInfoRoute = "registration-info"
 
@@ -24,6 +24,7 @@ fun NavGraphBuilder.registrationUserInfoScreen(
         }
         RegistrationUserInfoScreen(
             userInfoUiState = userInfoViewModel.userInfoUiState,
+            officeList = userInfoViewModel.officeList,
             navigateBack = navigateBack,
             onPhotoPickerClick = { galleryLauncher.launch("image/*") },
             onNameValueChange = userInfoViewModel::updateName,

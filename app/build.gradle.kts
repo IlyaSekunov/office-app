@@ -72,9 +72,6 @@ dependencies {
     // UI Bars Customizing
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 
-    // Fonts
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.5.4")
-
     // Hilt
     implementation("com.google.dagger:hilt-android:2.48.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")

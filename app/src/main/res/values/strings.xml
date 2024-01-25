@@ -10,4 +10,8 @@
     <string name="photo_picker_title">Фото</string>
     <string name="office">Офис</string>
     <string name="save">Сохранить</string>
+    <string name="log_out">Выйти</string>
+    <string name="manage_account">Настроить профиль</string>
+    <string name="my_office">Мой офис</string>
+    <string name="my_ideas">Мои идеи</string>
 </resources>

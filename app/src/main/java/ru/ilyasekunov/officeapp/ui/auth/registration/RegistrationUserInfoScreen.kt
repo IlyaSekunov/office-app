@@ -31,19 +31,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.preview.officeListPreview
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.components.Office
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
-import ru.ilyasekunov.officeapp.ui.user_profile.SaveButton
+import ru.ilyasekunov.officeapp.ui.userprofile.SaveButton
 import ru.ilyasekunov.officeapp.ui.components.UserInfoTextField
-import ru.ilyasekunov.officeapp.ui.user_profile.UserInfoUiState
-import ru.ilyasekunov.officeapp.ui.components.officeList
+import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationUserInfoScreen(
     userInfoUiState: UserInfoUiState,
+    officeList: List<Office>,
     navigateBack: () -> Unit,
     onPhotoPickerClick: () -> Unit,
     onNameValueChange: (String) -> Unit,
@@ -160,7 +161,8 @@ fun RegistrationUserInfoScreenPreview() {
             onSurnameValueChange = {},
             onJobValueChange = {},
             onOfficeChange = {},
-            onSaveButtonClick = {}
+            onSaveButtonClick = {},
+            officeList = officeListPreview
         )
     }
 }
