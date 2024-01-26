@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.auth.registration
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,6 +42,7 @@ fun RegistrationMainScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
     ) {
         Spacer(modifier = Modifier.height(150.dp))
@@ -79,6 +81,7 @@ fun RegistrationMainScreen(
         RegisterButton(onClick = onRegisterButtonClick)
         Spacer(modifier = Modifier.height(28.dp))
         LoginSection(onLoginClick = navigateToLogin)
+        Spacer(modifier = Modifier.height(50.dp))
     }
 }
 

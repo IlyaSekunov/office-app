@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,12 +32,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.preview.officeListPreview
-import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.components.Office
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
-import ru.ilyasekunov.officeapp.ui.userprofile.SaveButton
 import ru.ilyasekunov.officeapp.ui.components.UserInfoTextField
+import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
+import ru.ilyasekunov.officeapp.ui.userprofile.SaveButton
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -74,7 +74,7 @@ fun RegistrationUserInfoScreen(
                 navigationIcon = {
                     IconButton(onClick = navigateBack) {
                         Icon(
-                            imageVector = Icons.Outlined.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                             contentDescription = "back_arrow",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(30.dp)
@@ -88,6 +88,7 @@ fun RegistrationUserInfoScreen(
                 )
             )
         },
+        containerColor = MaterialTheme.colorScheme.background,
         modifier = Modifier
             .fillMaxSize()
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
@@ -145,6 +146,7 @@ fun RegistrationUserInfoScreen(
                 onClick = onSaveButtonClick,
                 modifier = Modifier.size(width = 200.dp, height = 40.dp)
             )
+            Spacer(modifier = Modifier.height(30.dp))
         }
     }
 }
