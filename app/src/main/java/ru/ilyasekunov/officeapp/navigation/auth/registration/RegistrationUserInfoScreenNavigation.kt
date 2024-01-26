@@ -12,7 +12,8 @@ import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationUserInfoScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoViewModel
 
 fun NavGraphBuilder.registrationUserInfoScreen(
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    navigateToMainGraph: () -> Unit
 ) {
     composable(Screen.RegistrationUserInfo.route) {
         val userInfoViewModel = hiltViewModel<UserInfoViewModel>()
@@ -30,7 +31,10 @@ fun NavGraphBuilder.registrationUserInfoScreen(
             onSurnameValueChange = userInfoViewModel::updateSurname,
             onJobValueChange = userInfoViewModel::updateJob,
             onOfficeChange = userInfoViewModel::updateOffice,
-            onSaveButtonClick = userInfoViewModel::save
+            onSaveButtonClick = {
+                userInfoViewModel.save()
+                navigateToMainGraph()
+            }
         )
     }
 }

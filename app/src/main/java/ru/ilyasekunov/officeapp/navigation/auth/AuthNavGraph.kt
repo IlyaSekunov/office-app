@@ -4,6 +4,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.navigation
+import ru.ilyasekunov.officeapp.navigation.AuthGraphRoute
 import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.navigation.auth.login.loginScreen
 import ru.ilyasekunov.officeapp.navigation.auth.login.navigateToLoginScreen
@@ -11,8 +12,7 @@ import ru.ilyasekunov.officeapp.navigation.auth.registration.navigateToRegistrat
 import ru.ilyasekunov.officeapp.navigation.auth.registration.navigateToRegistrationUserInfoScreen
 import ru.ilyasekunov.officeapp.navigation.auth.registration.registrationMainScreen
 import ru.ilyasekunov.officeapp.navigation.auth.registration.registrationUserInfoScreen
-
-const val AuthGraphRoute = "auth"
+import ru.ilyasekunov.officeapp.navigation.navigateToMainGraph
 
 fun NavGraphBuilder.authGraph(navController: NavController) {
     navigation(
@@ -26,6 +26,17 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
                         .setLaunchSingleTop(true)
                         .setPopUpTo(
                             route = Screen.RegistrationMain.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
+            navigateToMainGraph = {
+                navController.navigateToMainGraph(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = AuthGraphRoute,
                             inclusive = true
                         )
                         .build()
@@ -59,6 +70,17 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
                     route = Screen.RegistrationMain.route,
                     inclusive = false,
                     saveState = true
+                )
+            },
+            navigateToMainGraph = {
+                navController.navigateToMainGraph(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = AuthGraphRoute,
+                            inclusive = true
+                        )
+                        .build()
                 )
             }
         )

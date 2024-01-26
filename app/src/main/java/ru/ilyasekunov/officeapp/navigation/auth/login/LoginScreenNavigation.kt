@@ -11,6 +11,7 @@ import ru.ilyasekunov.officeapp.ui.auth.login.LoginViewModel
 
 fun NavGraphBuilder.loginScreen(
     navigateToRegistration: () -> Unit,
+    navigateToMainGraph: () -> Unit
 ) {
     composable(Screen.Login.route) {
         val loginViewModel = hiltViewModel<LoginViewModel>()
@@ -18,8 +19,11 @@ fun NavGraphBuilder.loginScreen(
             loginUiState = loginViewModel.loginUiState,
             onEmailValueChange = loginViewModel::updateEmail,
             onPasswordValueChange = loginViewModel::updatePassword,
-            onLoginButtonClick = loginViewModel::login,
-            navigateToRegistration = navigateToRegistration
+            navigateToRegistration = navigateToRegistration,
+            onLoginButtonClick = {
+                loginViewModel.login()
+                navigateToMainGraph()
+            }
         )
     }
 }
