@@ -47,4 +47,8 @@ class UserInfoViewModel @Inject constructor() : ViewModel() {
     fun save() {
 
     }
+
+    fun logout() {
+
+    }
 }

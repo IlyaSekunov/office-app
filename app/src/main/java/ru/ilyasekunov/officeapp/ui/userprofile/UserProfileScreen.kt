@@ -8,21 +8,24 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -32,7 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.preview.userInfoUiStatePreview
+import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
@@ -41,56 +46,76 @@ fun UserProfileScreen(
     onManageAccountClick: () -> Unit,
     onMyOfficeClick: () -> Unit,
     onMyIdeasClick: () -> Unit,
-    onLogoutClick: () -> Unit
+    onLogoutClick: () -> Unit,
+    navigateToHomeScreen: () -> Unit,
+    navigateToFavouriteScreen: () -> Unit,
+    navigateToMyOfficeScreen: () -> Unit
 ) {
-    Column(
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        bottomBar = {
+            BottomNavigationBar(
+                selectedScreen = BottomNavigationScreen.Profile,
+                navigateToHomeScreen = navigateToHomeScreen,
+                navigateToFavouriteScreen = navigateToFavouriteScreen,
+                navigateToMyOfficeScreen = navigateToMyOfficeScreen,
+                navigateToProfileScreen = {},
+                modifier = Modifier.navigationBarsPadding()
+            )
+        },
         modifier = Modifier.fillMaxSize()
-    ) {
-        UserInfoSection(
-            userInfoUiState = userInfoUiState,
-            modifier = Modifier.fillMaxWidth()
-        )
+    ) { paddingValues ->
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
-            Option(
-                icon = painterResource(R.drawable.outline_manage_accounts_24),
-                text = stringResource(R.string.manage_account),
-                onClick = onManageAccountClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+            UserInfoSection(
+                userInfoUiState = userInfoUiState,
+                modifier = Modifier.fillMaxWidth()
             )
-            Option(
-                icon = painterResource(R.drawable.outline_person_pin_circle_24),
-                text = stringResource(R.string.my_office),
-                onClick = onMyOfficeClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
-            )
-            Option(
-                icon = painterResource(R.drawable.outline_lightbulb_24),
-                text = stringResource(R.string.my_ideas),
-                onClick = onMyIdeasClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
-            )
-            Divider(
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.log_out),
-                style = MaterialTheme.typography.bodyMedium,
-                fontSize = 15.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .clickable { onLogoutClick() }
-            )
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Option(
+                    icon = painterResource(R.drawable.outline_manage_accounts_24),
+                    text = stringResource(R.string.manage_account),
+                    onClick = onManageAccountClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+                )
+                Option(
+                    icon = painterResource(R.drawable.outline_person_pin_circle_24),
+                    text = stringResource(R.string.my_office),
+                    onClick = onMyOfficeClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+                )
+                Option(
+                    icon = painterResource(R.drawable.outline_lightbulb_24),
+                    text = stringResource(R.string.my_ideas),
+                    onClick = onMyIdeasClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+                )
+                Divider(
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.log_out),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .clickable { onLogoutClick() }
+                )
+            }
         }
     }
 }
@@ -109,8 +134,9 @@ fun UserInfoSection(
                     bottomEnd = 20.dp
                 )
             )
-            .shadow(
-                elevation = 2.dp,
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                 shape = RoundedCornerShape(
                     bottomStart = 20.dp,
                     bottomEnd = 20.dp
@@ -123,8 +149,8 @@ fun UserInfoSection(
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .statusBarsPadding()
-                .padding(top = 5.dp)
-                .size(width = 145.dp, height = 145.dp)
+                .padding(top = 15.dp)
+                .size(width = 150.dp, height = 150.dp)
                 .clip(MaterialTheme.shapes.extraLarge)
                 .border(
                     width = 1.dp,
@@ -192,18 +218,15 @@ fun UserInfoSectionPreview() {
 @Composable
 fun UserProfileScreenPreview() {
     OfficeAppTheme {
-        Surface {
-            UserProfileScreen(
-                userInfoUiState = UserInfoUiState(
-                    name = "Дмитрий",
-                    surname = "Комарницкий",
-                    job = "Сотрудник Tinkoff"
-                ),
-                onManageAccountClick = {},
-                onMyOfficeClick = {},
-                onMyIdeasClick = {},
-                onLogoutClick = {}
-            )
-        }
+        UserProfileScreen(
+            userInfoUiState = userInfoUiStatePreview,
+            onManageAccountClick = {},
+            onMyOfficeClick = {},
+            onMyIdeasClick = {},
+            onLogoutClick = {},
+            navigateToHomeScreen = {},
+            navigateToFavouriteScreen = {},
+            navigateToMyOfficeScreen = {}
+        )
     }
 }
