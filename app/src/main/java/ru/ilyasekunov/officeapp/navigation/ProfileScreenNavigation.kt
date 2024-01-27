@@ -1,10 +1,12 @@
 package ru.ilyasekunov.officeapp.navigation
 
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import ru.ilyasekunov.officeapp.MainActivity
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoViewModel
 import ru.ilyasekunov.officeapp.ui.userprofile.UserProfileScreen
 
@@ -17,7 +19,7 @@ fun NavGraphBuilder.profileScreen(
     navigateToFavouriteScreen: () -> Unit
 ) {
     composable(route = BottomNavigationScreen.Profile.route) {
-        val userInfoViewModel = hiltViewModel<UserInfoViewModel>()
+        val userInfoViewModel = viewModel<UserInfoViewModel>(LocalContext.current as MainActivity)
         UserProfileScreen(
             userInfoUiState = userInfoViewModel.userInfoUiState,
             onManageAccountClick = navigateToUserManageAccountScreen,

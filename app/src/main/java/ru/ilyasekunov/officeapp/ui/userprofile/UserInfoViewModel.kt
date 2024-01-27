@@ -4,8 +4,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.preview.officeListPreview
+import ru.ilyasekunov.officeapp.preview.userInfoUiStatePreview
 import ru.ilyasekunov.officeapp.ui.components.Office
 import javax.inject.Inject
 
@@ -23,6 +26,10 @@ class UserInfoViewModel @Inject constructor() : ViewModel() {
         private set
 
     val officeList = officeListPreview
+
+    init {
+        userInfoUiState = userInfoUiStatePreview
+    }
 
     fun updateName(name: String) {
         userInfoUiState = userInfoUiState.copy(name = name)

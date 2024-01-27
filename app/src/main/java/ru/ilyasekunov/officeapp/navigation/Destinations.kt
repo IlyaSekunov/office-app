@@ -8,6 +8,7 @@ sealed class Screen(val route: String) {
     data object Login : Screen("login")
     data object RegistrationMain : Screen("registration-main")
     data object RegistrationUserInfo : Screen("registration-user-info")
+    data object UserManageAccount : Screen("user-manage-account")
 }
 
 sealed class BottomNavigationScreen(

@@ -9,10 +9,16 @@ import ru.ilyasekunov.officeapp.navigation.auth.navigateToAuthGraph
 fun NavGraphBuilder.mainGraph(navController: NavController) {
     navigation(
         route = MainGraphRoute,
-        startDestination = BottomNavigationScreen.Home.route
+        startDestination = BottomNavigationScreen.Profile.route // BottomNavigationScreen.Home.route
     ) {
         profileScreen(
-            navigateToUserManageAccountScreen = { /*TODO*/ },
+            navigateToUserManageAccountScreen = {
+                navController.navigateToUserManageAccountScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
             navigateToMyOfficeScreen = { /*TODO*/ },
             navigateToMyIdeasScreen = { /*TODO*/ },
             navigateToAuthGraph = {
@@ -28,6 +34,23 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
             },
             navigateToHomeScreen = { /*TODO*/ },
             navigateToFavouriteScreen = { /*TODO*/ }
+        )
+        userManageAccountScreen(
+            navigateToHomeScreen = { /*TODO*/ },
+            navigateToFavouriteScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToProfileScreen = {
+                navController.navigateToProfileScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = Screen.UserManageAccount.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
+            navigateBack = navController::popBackStack
         )
     }
 }
