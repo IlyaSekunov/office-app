@@ -14,4 +14,8 @@
     <string name="manage_account">Настроить профиль</string>
     <string name="my_office">Мой офис</string>
     <string name="my_ideas">Мои идеи</string>
+    <string name="home_screen_label">Главная</string>
+    <string name="favourite_screen_label">Избранное</string>
+    <string name="my_office_screen_label">Мой офис</string>
+    <string name="profile_screen_label">Профиль</string>
 </resources>
