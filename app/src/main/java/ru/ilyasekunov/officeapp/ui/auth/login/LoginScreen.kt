@@ -36,7 +36,7 @@ fun LoginScreen(
     onEmailValueChange: (String) -> Unit,
     onPasswordValueChange: (String) -> Unit,
     onLoginButtonClick: () -> Unit,
-    navigateToRegistration: () -> Unit
+    navigateToRegistrationMainScreen: () -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -71,7 +71,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(40.dp))
         LoginButton(onClick = onLoginButtonClick)
         Spacer(modifier = Modifier.height(28.dp))
-        RegisterSection(onRegisterClick = navigateToRegistration)
+        RegisterSection(onRegisterClick = navigateToRegistrationMainScreen)
         Spacer(modifier = Modifier.height(50.dp))
     }
 }
@@ -128,7 +128,7 @@ fun LoginScreenPreview() {
                 onEmailValueChange = {},
                 onPasswordValueChange = {},
                 onLoginButtonClick = {},
-                navigateToRegistration = {}
+                navigateToRegistrationMainScreen = {}
             )
         }
     }
