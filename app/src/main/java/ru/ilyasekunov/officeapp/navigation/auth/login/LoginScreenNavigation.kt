@@ -19,7 +19,7 @@ fun NavGraphBuilder.loginScreen(
             loginUiState = loginViewModel.loginUiState,
             onEmailValueChange = loginViewModel::updateEmail,
             onPasswordValueChange = loginViewModel::updatePassword,
-            navigateToRegistration = navigateToRegistration,
+            navigateToRegistrationMainScreen = navigateToRegistration,
             onLoginButtonClick = {
                 loginViewModel.login()
                 navigateToMainGraph()

@@ -24,7 +24,7 @@ fun NavGraphBuilder.registrationMainScreen(
                 registrationViewModel.register()
                 navigateToRegistrationUserInfo()
             },
-            navigateToLogin = navigateToLogin
+            navigateToLoginScreen = navigateToLogin
         )
     }
 }
