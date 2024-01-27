@@ -65,14 +65,13 @@ fun PhotoPicker(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-            } else {
-                Icon(
-                    painter = painterResource(R.drawable.outline_photo_camera_24),
-                    contentDescription = "photo_icon",
-                    tint = Color.White,
-                    modifier = Modifier.size(30.dp)
-                )
             }
+            Icon(
+                painter = painterResource(R.drawable.outline_photo_camera_24),
+                contentDescription = "photo_icon",
+                tint = Color.White.copy(alpha = 0.8f),
+                modifier = Modifier.size(30.dp)
+            )
         }
     }
 }

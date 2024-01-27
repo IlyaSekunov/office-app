@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.components
 
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -28,7 +29,7 @@ fun BottomNavigationBar(
 ) {
     BottomNavigation(
         backgroundColor = MaterialTheme.colorScheme.background,
-        modifier = modifier
+        modifier = modifier.navigationBarsPadding()
     ) {
         bottomNavigationDestinations.forEach {
             val onClick = when (it) {
