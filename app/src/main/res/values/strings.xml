@@ -2,6 +2,7 @@
     <string name="app_name">Office App</string>
     <string name="login">Вход</string>
     <string name="registration">Регистрация</string>
+    <string name="end_registration">Завершить регистрацию</string>
     <string name="no_account">Нету аккаунта?</string>
     <string name="register">Зарегистрироваться</string>
     <string name="enter">Войти</string>

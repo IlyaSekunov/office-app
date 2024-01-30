@@ -142,6 +142,9 @@ fun RegistrationUserInfoScreen(
             Spacer(modifier = Modifier.height(30.dp))
             OfficePicker(
                 officeList = officeList,
+                initialSelectedOffice = userInfoUiState.office,
+                officeWidth = 160.dp,
+                officeHeight = 170.dp,
                 onOfficeChange = onOfficeChange
             )
             Spacer(modifier = Modifier.height(45.dp))

@@ -13,17 +13,6 @@ import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
 import javax.inject.Inject
 
-fun User.toUserInfoUiState(): UserInfoUiState =
-    UserInfoUiState(
-        email = email,
-        password = password,
-        name = name,
-        surname = surname,
-        job = job,
-        photo = photo,
-        office = office
-    )
-
 data class UserInfoUiState(
     val email: String = "",
     val password: String = "",
@@ -94,3 +83,14 @@ class UserViewModel @Inject constructor(
         }
     }
 }
+
+fun User.toUserInfoUiState(): UserInfoUiState =
+    UserInfoUiState(
+        email = email,
+        password = password,
+        name = name,
+        surname = surname,
+        job = job,
+        photo = photo,
+        office = office
+    )

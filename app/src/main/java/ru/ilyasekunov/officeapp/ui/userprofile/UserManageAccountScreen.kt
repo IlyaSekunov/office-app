@@ -154,6 +154,9 @@ fun UserManageAccountScreen(
             Spacer(modifier = Modifier.height(20.dp))
             OfficePicker(
                 officeList = officeList,
+                initialSelectedOffice = userInfoUiState.office,
+                officeWidth = 160.dp,
+                officeHeight = 170.dp,
                 onOfficeChange = onOfficeChange
             )
             Spacer(modifier = Modifier.height(45.dp))
