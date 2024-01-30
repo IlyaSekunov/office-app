@@ -49,5 +49,5 @@ val bottomNavigationDestinations =
         BottomNavigationScreen.Profile
     )
 
-const val AuthGraphRoute = "auth"
-const val MainGraphRoute = "app"
+const val AuthGraphRoute = "auth-graph"
+const val MainGraphRoute = "app-graph"

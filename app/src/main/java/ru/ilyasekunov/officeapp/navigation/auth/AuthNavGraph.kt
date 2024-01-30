@@ -65,6 +65,9 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
             }
         )
         registrationUserInfoScreen(
+            viewModelStoreOwnerProvider = {
+                navController.getBackStackEntry(Screen.RegistrationMain.route)
+            },
             navigateBack = {
                 navController.popBackStack(
                     route = Screen.RegistrationMain.route,

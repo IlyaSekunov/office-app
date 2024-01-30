@@ -2,31 +2,31 @@ package ru.ilyasekunov.officeapp.navigation
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import ru.ilyasekunov.officeapp.MainActivity
-import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoViewModel
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountScreen
+import ru.ilyasekunov.officeapp.ui.userprofile.UserViewModel
 
 fun NavGraphBuilder.userManageAccountScreen(
+    viewModelStoreOwnerProvider: () -> ViewModelStoreOwner,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    composable(route = Screen.UserManageAccount.route) {
-        val userInfoViewModel = viewModel<UserInfoViewModel>(LocalContext.current as MainActivity)
-        val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
-            it?.let {
+    composable(route = Screen.UserManageAccount.route) { backStackEntry ->
+        val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
+        val userInfoViewModel = hiltViewModel<UserViewModel>(viewModelStoreOwner)
+        val galleryLauncher =
+            rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
                 userInfoViewModel.updatePhotoUri(it.toString())
             }
-        }
         UserManageAccountScreen(
             userInfoUiState = userInfoViewModel.userInfoUiState,
             officeList = userInfoViewModel.officeList,

@@ -1,16 +1,17 @@
 package ru.ilyasekunov.officeapp.navigation
 
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import ru.ilyasekunov.officeapp.MainActivity
-import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoViewModel
 import ru.ilyasekunov.officeapp.ui.userprofile.UserProfileScreen
+import ru.ilyasekunov.officeapp.ui.userprofile.UserViewModel
 
 fun NavGraphBuilder.profileScreen(
+    viewModelStoreOwnerProvider: () -> ViewModelStoreOwner,
     navigateToUserManageAccountScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
     navigateToMyIdeasScreen: () -> Unit,
@@ -18,8 +19,9 @@ fun NavGraphBuilder.profileScreen(
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit
 ) {
-    composable(route = BottomNavigationScreen.Profile.route) {
-        val userInfoViewModel = viewModel<UserInfoViewModel>(LocalContext.current as MainActivity)
+    composable(route = BottomNavigationScreen.Profile.route) { backStackEntry ->
+        val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
+        val userInfoViewModel = hiltViewModel<UserViewModel>(viewModelStoreOwner)
         UserProfileScreen(
             userInfoUiState = userInfoViewModel.userInfoUiState,
             onManageAccountClick = navigateToUserManageAccountScreen,

@@ -21,7 +21,6 @@ fun NavGraphBuilder.registrationMainScreen(
             onPasswordValueChange = registrationViewModel::updatePassword,
             onRepeatPasswordValueChange = registrationViewModel::updateRepeatedPassword,
             onRegisterButtonClick = {
-                registrationViewModel.register()
                 navigateToRegistrationUserInfo()
             },
             navigateToLoginScreen = navigateToLogin

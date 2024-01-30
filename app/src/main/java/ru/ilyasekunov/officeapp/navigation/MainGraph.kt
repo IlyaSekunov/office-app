@@ -12,6 +12,9 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
         startDestination = BottomNavigationScreen.Profile.route // BottomNavigationScreen.Home.route
     ) {
         profileScreen(
+            viewModelStoreOwnerProvider = {
+                navController.getBackStackEntry(MainGraphRoute)
+            },
             navigateToUserManageAccountScreen = {
                 navController.navigateToUserManageAccountScreen(
                     navOptions = NavOptions.Builder()
@@ -36,6 +39,9 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
             navigateToFavouriteScreen = { /*TODO*/ }
         )
         userManageAccountScreen(
+            viewModelStoreOwnerProvider = {
+                navController.getBackStackEntry(MainGraphRoute)
+            },
             navigateToHomeScreen = { /*TODO*/ },
             navigateToFavouriteScreen = { /*TODO*/ },
             navigateToMyOfficeScreen = { /*TODO*/ },
