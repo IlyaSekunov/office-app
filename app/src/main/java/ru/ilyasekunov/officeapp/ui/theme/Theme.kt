@@ -22,22 +22,22 @@ private val LightColorScheme = lightColorScheme(
 fun OfficeAppTheme(
     content: @Composable () -> Unit
 ) {
-    SetSystemBars()
-    MaterialTheme(
-        colorScheme = LightColorScheme,
-        typography = Typography,
-        shapes = Shapes,
-        content = content
-    )
-}
-
-@Composable
-private fun SetSystemBars() {
     val systemUiController = rememberSystemUiController()
     SideEffect {
         systemUiController.setSystemBarsColor(
             color = Color.Transparent,
             darkIcons = true
         )
+        systemUiController.setNavigationBarColor(
+            color = LightColorScheme.background,
+            darkIcons = true
+        )
     }
+
+    MaterialTheme(
+        colorScheme = LightColorScheme,
+        typography = Typography,
+        shapes = Shapes,
+        content = content
+    )
 }
