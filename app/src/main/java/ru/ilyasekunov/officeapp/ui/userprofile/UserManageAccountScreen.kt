@@ -13,6 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,11 +33,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.data.model.Office
+import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
-import ru.ilyasekunov.officeapp.preview.officeListPreview
-import ru.ilyasekunov.officeapp.preview.userInfoUiStatePreview
+import ru.ilyasekunov.officeapp.preview.userInfoPreview
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.components.Office
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
 import ru.ilyasekunov.officeapp.ui.components.UserInfoTextField
@@ -164,13 +166,33 @@ fun UserManageAccountScreen(
     }
 }
 
+@Composable
+fun SaveButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        ),
+        modifier = modifier
+    ) {
+        Text(
+            text = stringResource(R.string.save),
+            style = MaterialTheme.typography.bodyLarge,
+            fontSize = 16.sp
+        )
+    }
+}
+
 @Preview
 @Composable
 fun UserManageAccountScreenPreview() {
     OfficeAppTheme {
         UserManageAccountScreen(
-            userInfoUiState = userInfoUiStatePreview,
-            officeList = officeListPreview,
+            userInfoUiState = userInfoPreview.toUserInfoUiState(),
+            officeList = officeList,
             onPhotoPickerClick = {},
             onNameValueChange = {},
             onSurnameValueChange = {},

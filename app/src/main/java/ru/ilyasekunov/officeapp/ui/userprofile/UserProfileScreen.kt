@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -35,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
-import ru.ilyasekunov.officeapp.preview.userInfoUiStatePreview
+import ru.ilyasekunov.officeapp.preview.userInfoPreview
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
@@ -66,7 +67,8 @@ fun UserProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = paddingValues.calculateBottomPadding(),)
+                .padding(bottom = paddingValues.calculateBottomPadding())
+                .imePadding()
                 .verticalScroll(rememberScrollState())
         ) {
             UserInfoSection(
@@ -204,7 +206,7 @@ fun UserInfoSectionPreview() {
     OfficeAppTheme {
         Surface {
             UserInfoSection(
-                userInfoUiState = userInfoUiStatePreview
+                userInfoUiState = userInfoPreview.toUserInfoUiState()
             )
         }
     }
@@ -215,7 +217,7 @@ fun UserInfoSectionPreview() {
 fun UserProfileScreenPreview() {
     OfficeAppTheme {
         UserProfileScreen(
-            userInfoUiState = userInfoUiStatePreview,
+            userInfoUiState = userInfoPreview.toUserInfoUiState(),
             onManageAccountClick = {},
             onMyOfficeClick = {},
             onMyIdeasClick = {},
