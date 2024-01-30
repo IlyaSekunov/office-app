@@ -36,13 +36,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.util.findNearestToCenterOfScreenItem
-
-data class Office(
-    val id: Int,
-    val imageUrl: String,
-    val address: String
-)
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
