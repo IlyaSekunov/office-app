@@ -7,12 +7,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,13 +34,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.preview.officeListPreview
-import ru.ilyasekunov.officeapp.ui.components.Office
+import ru.ilyasekunov.officeapp.data.model.Office
+import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
 import ru.ilyasekunov.officeapp.ui.components.UserInfoTextField
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
-import ru.ilyasekunov.officeapp.ui.userprofile.SaveButton
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,6 +100,7 @@ fun RegistrationUserInfoScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
+                .imePadding()
                 .padding(it)
         ) {
             PhotoPicker(
@@ -142,12 +145,29 @@ fun RegistrationUserInfoScreen(
                 onOfficeChange = onOfficeChange
             )
             Spacer(modifier = Modifier.height(45.dp))
-            SaveButton(
-                onClick = onSaveButtonClick,
-                modifier = Modifier.size(width = 200.dp, height = 40.dp)
-            )
+            EndRegistrationButton(onClick = onSaveButtonClick)
             Spacer(modifier = Modifier.height(30.dp))
         }
+    }
+}
+
+@Composable
+fun EndRegistrationButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        ),
+        modifier = modifier
+    ) {
+        Text(
+            text = stringResource(R.string.end_registration),
+            style = MaterialTheme.typography.bodyLarge,
+            fontSize = 16.sp
+        )
     }
 }
 
@@ -164,7 +184,7 @@ fun RegistrationUserInfoScreenPreview() {
             onJobValueChange = {},
             onOfficeChange = {},
             onSaveButtonClick = {},
-            officeList = officeListPreview
+            officeList = officeList
         )
     }
 }
