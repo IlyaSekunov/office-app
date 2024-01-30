@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,14 +67,25 @@ fun Office(
             modifier = officeImageModifier
         )
         Spacer(modifier = Modifier.height(7.dp))
-        Text(
-            text = office.address,
-            style = MaterialTheme.typography.bodyMedium,
-            fontSize = 14.sp,
-            maxLines = 1,
-            color = officeAddressColor,
-            modifier = Modifier.basicMarquee()
-        )
+        if (isSelected) {
+            Text(
+                text = office.address,
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 14.sp,
+                maxLines = 1,
+                color = officeAddressColor,
+                modifier = Modifier.basicMarquee()
+            )
+        } else {
+            Text(
+                text = office.address,
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 14.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = officeAddressColor
+            )
+        }
     }
 }
 
@@ -99,7 +111,8 @@ fun OfficePicker(
         Spacer(modifier = Modifier.height(36.dp))
 
         val coroutineScope = rememberCoroutineScope()
-        val contentPadding = Dp(LocalConfiguration.current.screenWidthDp.toFloat()) / 2 - officeWidth / 2
+        val contentPadding =
+            Dp(LocalConfiguration.current.screenWidthDp.toFloat()) / 2 - officeWidth / 2
         val officePagerState = rememberPagerState(
             initialPage = officeList.indexOf(initialSelectedOffice),
             pageCount = { officeList.size }
