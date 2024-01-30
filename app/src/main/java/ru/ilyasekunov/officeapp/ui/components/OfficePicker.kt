@@ -22,7 +22,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
@@ -43,21 +42,17 @@ fun Office(
     onClick: () -> Unit,
     modifier: Modifier
 ) {
+    val basicImageModifier = modifier
+        .clip(MaterialTheme.shapes.large)
+        .clickable { onClick() }
     val officeImageModifier = if (isSelected)
-        modifier
-            .clip(MaterialTheme.shapes.large)
-            .clickable { onClick() }
+        basicImageModifier
             .border(
                 width = 4.dp,
                 shape = MaterialTheme.shapes.large,
                 color = MaterialTheme.colorScheme.primary
             )
-    else modifier
-        .clip(MaterialTheme.shapes.large)
-        .clickable { onClick() }
-
-    val officeAddressColor =
-        if (isSelected) MaterialTheme.colorScheme.primary else Color.Unspecified
+    else basicImageModifier
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         AsyncImage(
@@ -73,7 +68,7 @@ fun Office(
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 14.sp,
                 maxLines = 1,
-                color = officeAddressColor,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.basicMarquee()
             )
         } else {
@@ -82,8 +77,7 @@ fun Office(
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 14.sp,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = officeAddressColor
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
