@@ -1,40 +1,15 @@
 package ru.ilyasekunov.officeapp.preview
 
-import ru.ilyasekunov.officeapp.ui.components.Office
-import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoUiState
+import ru.ilyasekunov.officeapp.data.model.User
+import ru.ilyasekunov.officeapp.data.officeList
 
-val officeListPreview = listOf(
-    Office(
-        id = 0,
-        imageUrl = "https://arearent.ru/upload/resize_cache/iblock/7e7/1250_600_1/ed79s3ywxiqn6myw26f70ndbkw23hc85.jpg",
-        "ул. Гагарина 6"
-    ),
-    Office(
-        id = 1,
-        imageUrl = "https://cdn.inmyroom.ru/uploads/photo/file/a8/a8e4/base_a8e4096a-9249-4fbe-870d-b08d03a78f24.jpg",
-        "ул.Коминтерна, д.164"
-    ),
-    Office(
-        id = 2,
-        imageUrl = "https://interiorizm.com/wp-content/uploads/2021/02/rabochee-mesto-s-vidom-na-more-interiorizm-05.jpg",
-        "ул.Большая Печерская, 5/9"
-    ),
-    Office(
-        id = 3,
-        imageUrl = "https://cdn.inmyroom.ru/uploads/photo/file/d5/d5c9/photos_show_big_d5c9a014-519c-4f3d-bd44-bfb7a8d0e52a.jpg",
-        "ул.Ковалихинская, д.8"
-    ),
-    Office(
-        id = 4,
-        imageUrl = "https://archello.s3.eu-central-1.amazonaws.com/images/2018/02/03/DFBridgesIISHOT07G20-0.1517653034.5896.jpg",
-        "ул.Горького, д.146"
-    )
-)
-
-val userInfoUiStatePreview = UserInfoUiState(
+val userInfoPreview = User(
+    id = 0,
+    email = "dktinkoff@yandex.ru",
+    password = "12345",
     name = "Дмитрий",
     surname = "Комарницкий",
     job = "Сотрудник Tinkoff",
     photo = "https://mir-s3-cdn-cf.behance.net/project_modules/2800_opt_1/2a58a155982241.599bb53fcaf9f.jpg",
-    office = officeListPreview[2]
+    office = officeList[2]
 )
