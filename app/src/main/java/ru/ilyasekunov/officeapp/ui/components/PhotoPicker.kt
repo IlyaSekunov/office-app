@@ -1,6 +1,5 @@
 package ru.ilyasekunov.officeapp.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,13 +24,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.AsyncImage
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
 fun PhotoPicker(
-    selectedPhoto: String?,
+    selectedPhoto: Any?,
     onPhotoPickerClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -59,8 +58,8 @@ fun PhotoPicker(
             contentAlignment = Alignment.Center
         ) {
             if (selectedPhoto != null) {
-                Image(
-                    painter = rememberAsyncImagePainter(selectedPhoto),
+                AsyncImage(
+                    model = selectedPhoto,
                     contentDescription = "selected_photo",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
