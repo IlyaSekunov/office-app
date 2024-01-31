@@ -68,7 +68,6 @@ fun UserProfileScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = paddingValues.calculateBottomPadding())
-                .imePadding()
                 .verticalScroll(rememberScrollState())
         ) {
             UserInfoSection(

@@ -5,10 +5,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,9 +29,20 @@ fun BottomNavigationBar(
     navigateToProfileScreen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
     BottomNavigation(
         backgroundColor = MaterialTheme.colorScheme.background,
-        modifier = modifier.navigationBarsPadding()
+        modifier = modifier
+            .navigationBarsPadding()
+            .drawBehind {
+                val strokeWidth = 1.dp.toPx()
+                drawLine(
+                    color = borderColor,
+                    start = Offset(x = 0f, y = -strokeWidth),
+                    end = Offset(x = size.width, y = -strokeWidth),
+                    strokeWidth = strokeWidth
+                )
+            }
     ) {
         bottomNavigationDestinations.forEach {
             val onClick = when (it) {
