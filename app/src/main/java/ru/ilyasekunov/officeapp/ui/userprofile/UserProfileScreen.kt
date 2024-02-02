@@ -1,14 +1,16 @@
 package ru.ilyasekunov.officeapp.ui.userprofile
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -16,7 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,15 +30,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.preview.userInfoPreview
+import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
@@ -98,9 +104,9 @@ fun UserProfileScreen(
                     .fillMaxWidth()
                     .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
             )
-            Divider(
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+            HorizontalDivider(
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -122,6 +128,22 @@ fun UserInfoSection(
     userInfoUiState: UserInfoUiState,
     modifier: Modifier = Modifier
 ) {
+    val imagePainter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(userInfoUiState.photo)
+            .size(coil.size.Size.ORIGINAL)
+            .build()
+    )
+    val imageModifier = Modifier
+        .statusBarsPadding()
+        .padding(top = 15.dp)
+        .size(width = 160.dp, height = 160.dp)
+        .clip(MaterialTheme.shapes.extraLarge)
+        .border(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.primary,
+            shape = MaterialTheme.shapes.extraLarge
+        )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -140,21 +162,34 @@ fun UserInfoSection(
                 )
             )
     ) {
-        AsyncImage(
-            model = userInfoUiState.photo,
-            contentDescription = "user_photo",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .statusBarsPadding()
-                .padding(top = 15.dp)
-                .size(width = 150.dp, height = 150.dp)
-                .clip(MaterialTheme.shapes.extraLarge)
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = MaterialTheme.shapes.extraLarge
+        when (imagePainter.state) {
+            is AsyncImagePainter.State.Loading -> {
+                LoadingScreen(
+                    circularProgressingColor = MaterialTheme.colorScheme.primary,
+                    circularProgressingWidth = 3.dp,
+                    circularProgressingSize = 30.dp,
+                    modifier = imageModifier
                 )
-        )
+            }
+
+            is AsyncImagePainter.State.Success -> {
+                Image(
+                    painter = imagePainter,
+                    contentDescription = "user_photo",
+                    contentScale = ContentScale.Crop,
+                    modifier = imageModifier
+                )
+            }
+
+            else -> {
+                NoPhoto(
+                    modifier = imageModifier
+                        .background(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                        )
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = "${userInfoUiState.name} ${userInfoUiState.surname}",
@@ -196,6 +231,30 @@ fun Option(
             style = MaterialTheme.typography.bodyMedium,
             fontSize = 16.sp
         )
+    }
+}
+
+@Composable
+fun NoPhoto(modifier: Modifier = Modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+    ) {
+        Text(
+            text = stringResource(R.string.no_photo),
+            style = MaterialTheme.typography.titleMedium,
+            fontSize = 20.sp
+        )
+    }
+}
+
+@Preview
+@Composable
+fun NoPhotoPreview() {
+    OfficeAppTheme {
+        Surface(color = MaterialTheme.colorScheme.background) {
+            NoPhoto(modifier = Modifier.size(100.dp))
+        }
     }
 }
 
