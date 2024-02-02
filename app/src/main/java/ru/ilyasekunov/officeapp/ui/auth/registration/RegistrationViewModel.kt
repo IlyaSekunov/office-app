@@ -19,19 +19,6 @@ data class RegistrationUiState(
     val userInfoUiState: UserInfoUiState = UserInfoUiState()
 )
 
-fun RegistrationUiState.toRegistrationForm(): RegistrationForm =
-    RegistrationForm(
-        email = email,
-        password = password,
-        userInfo = UserInfoForm(
-            name = userInfoUiState.name,
-            surname = userInfoUiState.surname,
-            job = userInfoUiState.job,
-            photo = userInfoUiState.photo,
-            officeId = userInfoUiState.office.id
-        )
-    )
-
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
     private val userRepository: UserRepository
@@ -70,7 +57,7 @@ class RegistrationViewModel @Inject constructor(
         )
     }
 
-    fun updatePhoto(photo: String?) {
+    fun updatePhoto(photo: ByteArray?) {
         registrationUiState = registrationUiState.copy(
             userInfoUiState = registrationUiState.userInfoUiState.copy(photo = photo)
         )
@@ -86,3 +73,16 @@ class RegistrationViewModel @Inject constructor(
         userRepository.register(registrationUiState.toRegistrationForm())
     }
 }
+
+fun RegistrationUiState.toRegistrationForm(): RegistrationForm =
+    RegistrationForm(
+        email = email,
+        password = password,
+        userInfo = UserInfoForm(
+            name = userInfoUiState.name,
+            surname = userInfoUiState.surname,
+            job = userInfoUiState.job,
+            photo = userInfoUiState.photo,
+            officeId = userInfoUiState.office.id
+        )
+    )
