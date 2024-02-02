@@ -120,7 +120,7 @@ fun UserManageAccountScreen(
             PhotoPicker(
                 selectedPhoto = userInfoUiState.photo,
                 onPhotoPickerClick = onPhotoPickerClick,
-                modifier = Modifier.size(150.dp)
+                modifier = Modifier.size(180.dp)
             )
             Spacer(modifier = Modifier.height(22.dp))
             UserInfoTextField(
