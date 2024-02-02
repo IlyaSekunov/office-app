@@ -54,6 +54,7 @@ fun UserManageAccountScreen(
     onJobValueChange: (String) -> Unit,
     onOfficeChange: (Office) -> Unit,
     onSaveButtonClick: () -> Unit,
+    isSaveButtonEnabled: Boolean,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -162,6 +163,7 @@ fun UserManageAccountScreen(
             Spacer(modifier = Modifier.height(45.dp))
             SaveButton(
                 onClick = onSaveButtonClick,
+                isEnabled = isSaveButtonEnabled,
                 modifier = Modifier.size(width = 200.dp, height = 40.dp)
             )
             Spacer(modifier = Modifier.height(30.dp))
@@ -172,6 +174,7 @@ fun UserManageAccountScreen(
 @Composable
 fun SaveButton(
     onClick: () -> Unit,
+    isEnabled: Boolean,
     modifier: Modifier = Modifier
 ) {
     Button(
@@ -179,6 +182,7 @@ fun SaveButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary
         ),
+        enabled = isEnabled,
         modifier = modifier
     ) {
         Text(
@@ -206,6 +210,7 @@ fun UserManageAccountScreenPreview() {
             navigateToFavouriteScreen = {},
             navigateToMyOfficeScreen = {},
             navigateToProfileScreen = {},
+            isSaveButtonEnabled = true,
             navigateBack = {}
         )
     }
