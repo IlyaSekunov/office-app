@@ -19,4 +19,5 @@
     <string name="favourite_screen_label">Избранное</string>
     <string name="my_office_screen_label">Мой офис</string>
     <string name="profile_screen_label">Профиль</string>
+    <string name="no_photo">Нет фото</string>
 </resources>
