@@ -1,25 +1,29 @@
 package ru.ilyasekunov.officeapp.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 
 @Composable
-fun LoadingScreen() {
+fun LoadingScreen(
+    circularProgressingColor: Color,
+    circularProgressingWidth: Dp,
+    circularProgressingSize: Dp,
+    modifier: Modifier = Modifier
+) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = 3.dp,
-            modifier = Modifier.size(30.dp)
+            color = circularProgressingColor,
+            strokeWidth = circularProgressingWidth,
+            modifier = Modifier.size(circularProgressingSize)
         )
     }
 }
