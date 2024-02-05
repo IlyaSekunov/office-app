@@ -62,59 +62,13 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.SortingFilter
-import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.home.FiltersUiState
-import ru.ilyasekunov.officeapp.ui.home.HomeViewModel
+import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
+import ru.ilyasekunov.officeapp.ui.home.SortingFiltersUiState
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
-
-data class OfficeFilterUiState(
-    val office: Office,
-    val isSelected: Boolean = false
-)
-
-data class SortingFiltersUiState(
-    val filters: List<SortingFilter>,
-    val selected: SortingFilter
-)
-
-@Composable
-fun FiltersScreen(
-    homeViewModel: HomeViewModel,
-    navigateToHomeScreen: () -> Unit,
-    navigateToFavouriteScreen: () -> Unit,
-    navigateToMyOfficeScreen: () -> Unit,
-    navigateToProfileScreen: () -> Unit,
-    navigateBack: () -> Unit,
-) {
-    if (homeViewModel.filtersUiState == null) {
-        homeViewModel.loadFiltersUiState()
-    }
-    if (homeViewModel.isLoading) {
-        LoadingScreen(
-            circularProgressingColor = MaterialTheme.colorScheme.primary,
-            circularProgressingWidth = 3.dp,
-            circularProgressingSize = 40.dp,
-            modifier = Modifier.fillMaxSize()
-        )
-    } else {
-        FiltersScreen(
-            filtersUiState = homeViewModel.filtersUiState!!,
-            onOfficeClick = homeViewModel::updateOfficeFilter,
-            onFilterClick = homeViewModel::updateSortingCategory,
-            onDiscardClick = homeViewModel::discardFilterChanges,
-            onShowClick = { /*TODO*/ },
-            navigateToHomeScreen = navigateToHomeScreen,
-            navigateToFavouriteScreen = navigateToFavouriteScreen,
-            navigateToMyOfficeScreen = navigateToMyOfficeScreen,
-            navigateToProfileScreen = navigateToProfileScreen,
-            navigateBack = navigateBack
-        )
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -224,8 +178,8 @@ fun FiltersTopAppBar(
                 fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier
-                    .clickable { onDiscardClick() }
                     .padding(end = 20.dp)
+                    .clickable { onDiscardClick() }
             )
         },
         colors = colors,

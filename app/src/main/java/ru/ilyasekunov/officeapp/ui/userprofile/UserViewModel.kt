@@ -64,11 +64,9 @@ class UserViewModel @Inject constructor(
         private set
     var isUserNewInfoUnsaved by mutableStateOf(false)
         private set
-    var officeList: List<Office> by mutableStateOf(emptyList())
 
     init {
         fetchUserInfo()
-        fetchOffices()
     }
 
     fun updateName(name: String) {
@@ -123,12 +121,6 @@ class UserViewModel @Inject constructor(
             user?.let {
                 userInfoUiState = it.toUserInfoUiState()
             }
-        }
-    }
-
-    private fun fetchOffices() {
-        viewModelScope.launch {
-            officeList = userRepository.findOfficeList()
         }
     }
 }

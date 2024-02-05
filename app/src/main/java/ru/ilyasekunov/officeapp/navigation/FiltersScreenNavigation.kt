@@ -22,7 +22,11 @@ fun NavGraphBuilder.filtersScreen(
         val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
         val homeViewModel = hiltViewModel<HomeViewModel>(viewModelStoreOwner)
         FiltersScreen(
-            homeViewModel = homeViewModel,
+            filtersUiState = homeViewModel.filtersUiState,
+            onOfficeClick = homeViewModel::updateOfficeFilter,
+            onFilterClick = homeViewModel::updateSortingCategory,
+            onDiscardClick = homeViewModel::discardFilterChanges,
+            onShowClick = { /*TODO*/ },
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,

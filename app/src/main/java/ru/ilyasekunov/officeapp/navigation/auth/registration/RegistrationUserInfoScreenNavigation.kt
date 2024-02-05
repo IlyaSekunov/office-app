@@ -30,10 +30,10 @@ fun NavGraphBuilder.registrationUserInfoScreen(
         val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
         val registrationViewModel = hiltViewModel<RegistrationViewModel>(viewModelStoreOwner)
         val contentResolver = LocalContext.current.contentResolver
-        val coroutineScope = rememberCoroutineScope { Dispatchers.IO }
+        val coroutineScope = rememberCoroutineScope()
         val galleryLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
-                coroutineScope.launch {
+                coroutineScope.launch(Dispatchers.IO) {
                     val bitmap = it.toBitmap(contentResolver)
                     val photo = bitmap.toByteArray()
                     registrationViewModel.updatePhoto(photo)

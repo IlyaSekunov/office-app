@@ -27,7 +27,6 @@ class RegistrationViewModel @Inject constructor(
 ) : ViewModel() {
     var registrationUiState by mutableStateOf(RegistrationUiState())
         private set
-    var officeList: List<Office> by mutableStateOf(emptyList())
 
     fun updateEmail(email: String) {
         registrationUiState = registrationUiState.copy(email = email)
@@ -74,12 +73,6 @@ class RegistrationViewModel @Inject constructor(
     fun register() {
         viewModelScope.launch {
             userRepository.register(registrationUiState.toRegistrationForm())
-        }
-    }
-
-    private fun fetchOffices() {
-        viewModelScope.launch {
-            officeList = userRepository.findOfficeList()
         }
     }
 }

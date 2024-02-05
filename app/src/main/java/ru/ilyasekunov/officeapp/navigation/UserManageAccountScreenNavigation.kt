@@ -14,6 +14,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserViewModel
 import ru.ilyasekunov.officeapp.util.toBitmap
@@ -31,10 +32,10 @@ fun NavGraphBuilder.userManageAccountScreen(
         val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
         val userInfoViewModel = hiltViewModel<UserViewModel>(viewModelStoreOwner)
         val contentResolver = LocalContext.current.contentResolver
-        val coroutineScope = rememberCoroutineScope { Dispatchers.IO }
+        val coroutineScope = rememberCoroutineScope()
         val galleryLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
-                coroutineScope.launch {
+                coroutineScope.launch(Dispatchers.IO) {
                     val bitmap = it.toBitmap(contentResolver)
                     val photo = bitmap.toByteArray()
                     userInfoViewModel.updatePhoto(photo)
@@ -42,7 +43,7 @@ fun NavGraphBuilder.userManageAccountScreen(
             }
         UserManageAccountScreen(
             userInfoUiState = userInfoViewModel.userInfoUiState,
-            officeList = userInfoViewModel.officeList,
+            officeList = officeList,
             onPhotoPickerClick = {
                 galleryLauncher.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
