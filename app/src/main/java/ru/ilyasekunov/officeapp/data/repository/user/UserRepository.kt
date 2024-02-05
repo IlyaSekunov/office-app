@@ -5,7 +5,7 @@ import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.User
 
 interface UserRepository {
-    fun findUser(): User?
-    fun findOfficeList(): List<Office>
-    fun register(registrationForm: RegistrationForm)
+    suspend fun findUser(): User?
+    suspend fun findOfficeList(): List<Office>
+    suspend fun register(registrationForm: RegistrationForm)
 }

@@ -7,15 +7,15 @@ import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.preview.userInfoPreview
 
 class UserRepositoryImpl : UserRepository {
-    override fun findUser(): User? {
+    override suspend fun findUser(): User? {
         return userInfoPreview
     }
 
-    override fun findOfficeList(): List<Office> {
+    override suspend fun findOfficeList(): List<Office> {
         return officeList
     }
 
-    override fun register(registrationForm: RegistrationForm) {
+    override suspend fun register(registrationForm: RegistrationForm) {
 
     }
 }

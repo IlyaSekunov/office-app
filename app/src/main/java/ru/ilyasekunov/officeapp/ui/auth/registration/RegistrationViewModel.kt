@@ -4,7 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
 import ru.ilyasekunov.officeapp.data.dto.UserInfoForm
 import ru.ilyasekunov.officeapp.data.model.Office
@@ -25,7 +27,7 @@ class RegistrationViewModel @Inject constructor(
 ) : ViewModel() {
     var registrationUiState by mutableStateOf(RegistrationUiState())
         private set
-    val officeList = userRepository.findOfficeList()
+    var officeList: List<Office> by mutableStateOf(emptyList())
 
     fun updateEmail(email: String) {
         registrationUiState = registrationUiState.copy(email = email)
@@ -70,7 +72,15 @@ class RegistrationViewModel @Inject constructor(
     }
 
     fun register() {
-        userRepository.register(registrationUiState.toRegistrationForm())
+        viewModelScope.launch {
+            userRepository.register(registrationUiState.toRegistrationForm())
+        }
+    }
+
+    private fun fetchOffices() {
+        viewModelScope.launch {
+            officeList = userRepository.findOfficeList()
+        }
     }
 }
 

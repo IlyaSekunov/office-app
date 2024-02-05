@@ -20,4 +20,9 @@
     <string name="my_office_screen_label">Мой офис</string>
     <string name="profile_screen_label">Профиль</string>
     <string name="no_photo">Нет фото</string>
+    <string name="search_for_best_ideas">Поиск лучших идей</string>
+    <string name="discard">Сбросить</string>
+    <string name="offices">Офисы</string>
+    <string name="sort_by">Сортировать по</string>
+    <string name="show">Показать</string>
 </resources>

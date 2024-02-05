@@ -64,10 +64,11 @@ class UserViewModel @Inject constructor(
         private set
     var isUserNewInfoUnsaved by mutableStateOf(false)
         private set
-    val officeList = userRepository.findOfficeList()
+    var officeList: List<Office> by mutableStateOf(emptyList())
 
     init {
         fetchUserInfo()
+        fetchOffices()
     }
 
     fun updateName(name: String) {
@@ -119,7 +120,15 @@ class UserViewModel @Inject constructor(
     private fun fetchUserInfo() {
         viewModelScope.launch {
             user = userRepository.findUser()
-            userInfoUiState = user!!.toUserInfoUiState()
+            user?.let {
+                userInfoUiState = it.toUserInfoUiState()
+            }
+        }
+    }
+
+    private fun fetchOffices() {
+        viewModelScope.launch {
+            officeList = userRepository.findOfficeList()
         }
     }
 }
