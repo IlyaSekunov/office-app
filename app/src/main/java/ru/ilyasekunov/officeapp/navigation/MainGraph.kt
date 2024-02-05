@@ -9,7 +9,7 @@ import ru.ilyasekunov.officeapp.navigation.auth.navigateToAuthGraph
 fun NavGraphBuilder.mainGraph(navController: NavController) {
     navigation(
         route = MainGraphRoute,
-        startDestination = BottomNavigationScreen.Profile.route // BottomNavigationScreen.Home.route
+        startDestination = Screen.FiltersScreen.route // BottomNavigationScreen.Home.route
     ) {
         profileScreen(
             viewModelStoreOwnerProvider = {
@@ -53,6 +53,22 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                             route = Screen.UserManageAccount.route,
                             inclusive = true
                         )
+                        .build()
+                )
+            },
+            navigateBack = navController::popBackStack
+        )
+        filtersScreen(
+            viewModelStoreOwnerProvider = {
+                navController.getBackStackEntry(MainGraphRoute)
+            },
+            navigateToHomeScreen = { /*TODO*/ },
+            navigateToFavouriteScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToProfileScreen = {
+                navController.navigateToProfileScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
                         .build()
                 )
             },
