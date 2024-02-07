@@ -114,8 +114,8 @@ fun UserManageAccountScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
             PhotoPicker(
                 selectedPhoto = userInfoUiState.photo,

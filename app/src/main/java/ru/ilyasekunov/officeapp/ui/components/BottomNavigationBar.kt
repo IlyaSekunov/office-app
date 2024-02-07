@@ -1,16 +1,18 @@
 package ru.ilyasekunov.officeapp.ui.components
 
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.BottomNavigation
-import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,10 +32,9 @@ fun BottomNavigationBar(
     modifier: Modifier = Modifier
 ) {
     val borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-    BottomNavigation(
-        backgroundColor = MaterialTheme.colorScheme.background,
+    NavigationBar(
+        containerColor = Color.Transparent,
         modifier = modifier
-            .navigationBarsPadding()
             .drawBehind {
                 val strokeWidth = 1.dp.toPx()
                 drawLine(
@@ -52,8 +53,8 @@ fun BottomNavigationBar(
                 BottomNavigationScreen.Profile -> navigateToProfileScreen
             }
             val label = stringResource(it.labelId)
-            BottomNavigationItem(
-                selected = selectedScreen == it,
+            NavigationBarItem(
+                selected = it == selectedScreen,
                 onClick = onClick,
                 icon = {
                     Icon(
@@ -69,8 +70,13 @@ fun BottomNavigationBar(
                         fontSize = 10.sp
                     )
                 },
-                selectedContentColor = MaterialTheme.colorScheme.primary,
-                unselectedContentColor = MaterialTheme.colorScheme.surfaceVariant
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.primary,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                    unselectedIconColor = MaterialTheme.colorScheme.surfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             )
         }
     }
@@ -80,12 +86,14 @@ fun BottomNavigationBar(
 @Composable
 fun BottomNavigationBarPreview() {
     OfficeAppTheme {
-        BottomNavigationBar(
-            selectedScreen = BottomNavigationScreen.Home,
-            navigateToHomeScreen = {},
-            navigateToFavouriteScreen = {},
-            navigateToMyOfficeScreen = {},
-            navigateToProfileScreen = {}
-        )
+        Surface {
+            BottomNavigationBar(
+                selectedScreen = BottomNavigationScreen.Home,
+                navigateToHomeScreen = {},
+                navigateToFavouriteScreen = {},
+                navigateToMyOfficeScreen = {},
+                navigateToProfileScreen = {}
+            )
+        }
     }
 }

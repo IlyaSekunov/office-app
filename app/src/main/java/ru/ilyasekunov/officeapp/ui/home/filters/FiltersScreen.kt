@@ -115,7 +115,7 @@ fun FiltersScreen(
             OfficeFiltersSection(
                 officeList = filtersUiState.officeFiltersUiState,
                 onOfficeClick = onOfficeClick,
-                officeFilterSize = DpSize(width = 325.dp, height = 80.dp),
+                officeFilterSize = DpSize(width = 345.dp, height = 80.dp),
                 modifier = Modifier.padding(start = 20.dp, end = 20.dp)
             )
             Spacer(modifier = Modifier.height(22.dp))
@@ -333,12 +333,12 @@ fun SortingFilters(
             label = "picked_horizontal_divider_offset"
         )
         HorizontalDivider(
-            thickness = 3.dp,
-            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .width(pickedCategoryDividerWidth)
                 .offset(y = (-1).dp)
-                .offset { animatedPickedCategoryDividerOffset }
+                .offset { animatedPickedCategoryDividerOffset },
+            thickness = 3.dp,
+            color = MaterialTheme.colorScheme.primary
         )
 
         Column {
