@@ -25,4 +25,10 @@
     <string name="offices">Офисы</string>
     <string name="sort_by">Сортировать по</string>
     <string name="show">Показать</string>
+    <string name="no_posts">Лента идей пока пуста</string>
+    <string name="suggest_idea_to_my_office">Предложить идею моему офису</string>
+    <string name="navigate_to_author">Перейти к автору</string>
+    <string name="edit">Редактировать</string>
+    <string name="delete">Удалить</string>
+    <string name="search_ideas">Поиск по идеям</string>
 </resources>

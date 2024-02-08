@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import java.io.ByteArrayOutputStream
+import java.time.LocalDateTime
 
 fun Uri?.toBitmap(contentResolver: ContentResolver): Bitmap? =
     this?.let {
@@ -24,4 +25,31 @@ fun Bitmap?.toByteArray(): ByteArray? =
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
             it.toByteArray()
         }
+    }
+
+fun LocalDateTime.toRussianString(): String {
+    val month = when (monthValue) {
+        1 -> "Янв"
+        2 -> "Фев"
+        3 -> "Мар"
+        4 -> "Апр"
+        5 -> "Мая"
+        6 -> "Июн"
+        7 -> "Июл"
+        8 -> "Авг"
+        9 -> "Сен"
+        10 -> "Окт"
+        11 -> "Нояб"
+        12 -> "Дек"
+        else -> throw RuntimeException("Incorrect month value - $monthValue")
+    }
+    return "$dayOfMonth $month $year в $hour:$minute"
+}
+
+fun Int.toThousandsString(): String =
+    if (this >= 1000) {
+        val result = (this / 1000f).toString().substring(startIndex = 0, endIndex = 3)
+        "${result}к"
+    } else {
+        this.toString()
     }

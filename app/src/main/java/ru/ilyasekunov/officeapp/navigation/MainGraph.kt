@@ -5,12 +5,56 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.navigation
 import ru.ilyasekunov.officeapp.navigation.auth.navigateToAuthGraph
+import ru.ilyasekunov.officeapp.navigation.home.filtersScreen
+import ru.ilyasekunov.officeapp.navigation.home.homeScreen
+import ru.ilyasekunov.officeapp.navigation.home.navigateToFiltersScreen
+import ru.ilyasekunov.officeapp.navigation.home.navigateToHomeScreen
+import ru.ilyasekunov.officeapp.navigation.userprofile.navigateToProfileScreen
+import ru.ilyasekunov.officeapp.navigation.userprofile.navigateToUserManageAccountScreen
+import ru.ilyasekunov.officeapp.navigation.userprofile.profileScreen
+import ru.ilyasekunov.officeapp.navigation.userprofile.userManageAccountScreen
 
 fun NavGraphBuilder.mainGraph(navController: NavController) {
     navigation(
         route = MainGraphRoute,
-        startDestination = Screen.FiltersScreen.route // BottomNavigationScreen.Home.route
+        startDestination = BottomNavigationScreen.Home.route
     ) {
+        homeScreen(
+            homeViewModelStoreOwnerProvider = {
+                navController.getBackStackEntry(MainGraphRoute)
+            },
+            userViewModelStoreOwnerProvider = {
+                navController.getBackStackEntry(MainGraphRoute)
+            },
+            navigateToIdeaDetailsScreen = { /*TODO*/ },
+            navigateToAuthorScreen = { /*TODO*/ },
+            navigateToEditIdeaScreen = { /*TODO*/ },
+            navigateToFavouriteScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToFiltersScreen = {
+                navController.navigateToFiltersScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = Screen.FiltersScreen.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
+            navigateToSuggestIdeaScreen = { /* TODO */ },
+            navigateToProfileScreen = {
+                navController.navigateToProfileScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = BottomNavigationScreen.Profile.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            }
+        )
         profileScreen(
             viewModelStoreOwnerProvider = {
                 navController.getBackStackEntry(MainGraphRoute)
@@ -35,14 +79,34 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToHomeScreen = { /*TODO*/ },
+            navigateToHomeScreen = {
+                navController.navigateToHomeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = BottomNavigationScreen.Home.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
             navigateToFavouriteScreen = { /*TODO*/ }
         )
         userManageAccountScreen(
             viewModelStoreOwnerProvider = {
                 navController.getBackStackEntry(MainGraphRoute)
             },
-            navigateToHomeScreen = { /*TODO*/ },
+            navigateToHomeScreen = {
+                navController.navigateToHomeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = BottomNavigationScreen.Home.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
             navigateToFavouriteScreen = { /*TODO*/ },
             navigateToMyOfficeScreen = { /*TODO*/ },
             navigateToProfileScreen = {
@@ -50,7 +114,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
                         .setPopUpTo(
-                            route = Screen.UserManageAccount.route,
+                            route = BottomNavigationScreen.Profile.route,
                             inclusive = true
                         )
                         .build()
@@ -62,7 +126,17 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
             viewModelStoreOwnerProvider = {
                 navController.getBackStackEntry(MainGraphRoute)
             },
-            navigateToHomeScreen = { /*TODO*/ },
+            navigateToHomeScreen = {
+                navController.navigateToHomeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = BottomNavigationScreen.Home.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
             navigateToFavouriteScreen = { /*TODO*/ },
             navigateToMyOfficeScreen = { /*TODO*/ },
             navigateToProfileScreen = {

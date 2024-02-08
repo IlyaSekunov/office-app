@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.navigation
+package ru.ilyasekunov.officeapp.navigation.userprofile
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.officeList
+import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserViewModel
 import ru.ilyasekunov.officeapp.util.toBitmap

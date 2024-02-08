@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.navigation
+package ru.ilyasekunov.officeapp.navigation.userprofile
 
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -7,6 +7,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserProfileScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserViewModel
 

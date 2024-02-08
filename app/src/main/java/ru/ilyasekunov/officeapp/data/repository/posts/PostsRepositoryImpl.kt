@@ -1,5 +1,10 @@
 package ru.ilyasekunov.officeapp.data.repository.posts
 
-class PostsRepositoryImpl : PostsRepository {
+import ru.ilyasekunov.officeapp.data.model.IdeaPost
+import ru.ilyasekunov.officeapp.preview.ideaPost
 
+class PostsRepositoryImpl : PostsRepository {
+    override suspend fun findPosts(): List<IdeaPost> {
+        return listOf(ideaPost)
+    }
 }

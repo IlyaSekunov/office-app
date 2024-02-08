@@ -74,21 +74,21 @@ import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 @Composable
 fun FiltersScreen(
     filtersUiState: FiltersUiState,
-    onOfficeClick: (OfficeFilterUiState) -> Unit,
-    onFilterClick: (SortingFilter) -> Unit,
-    onDiscardClick: () -> Unit,
-    onShowClick: () -> Unit,
+    applyNewFilters: (FiltersUiState) -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit,
 ) {
+    var newFiltersUiState by remember { mutableStateOf(filtersUiState) }
     Scaffold(
         topBar = {
             FiltersTopAppBar(
                 navigateBack = navigateBack,
-                onDiscardClick = onDiscardClick,
+                onDiscardClick = {
+                    newFiltersUiState = FiltersUiState.Default
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     scrolledContainerColor = MaterialTheme.colorScheme.background
@@ -113,19 +113,38 @@ fun FiltersScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             OfficeFiltersSection(
-                officeList = filtersUiState.officeFiltersUiState,
-                onOfficeClick = onOfficeClick,
+                officeList = newFiltersUiState.officeFiltersUiState,
+                onOfficeClick = { clickedOfficeFilterUiState ->
+                    newFiltersUiState = newFiltersUiState.copy(
+                        officeFiltersUiState = newFiltersUiState.officeFiltersUiState.map {
+                            if (it == clickedOfficeFilterUiState) {
+                                it.copy(isSelected = !it.isSelected)
+                            } else {
+                                it
+                            }
+                        }
+                    )
+                },
                 officeFilterSize = DpSize(width = 345.dp, height = 80.dp),
                 modifier = Modifier.padding(start = 20.dp, end = 20.dp)
             )
             Spacer(modifier = Modifier.height(22.dp))
             SortingFiltersSection(
-                sortingFiltersUiState = filtersUiState.sortingFiltersUiState,
-                onFilterClick = onFilterClick
+                sortingFiltersUiState = newFiltersUiState.sortingFiltersUiState,
+                onFilterClick = {
+                    newFiltersUiState = newFiltersUiState.copy(
+                        sortingFiltersUiState = newFiltersUiState.sortingFiltersUiState.copy(
+                            selected = it
+                        )
+                    )
+                }
             )
             Spacer(modifier = Modifier.height(46.dp))
             Button(
-                onClick = onShowClick,
+                onClick = {
+                    applyNewFilters(newFiltersUiState)
+                    navigateToHomeScreen()
+                },
                 shape = MaterialTheme.shapes.large,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary

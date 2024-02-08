@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "ru.ilyasekunov.officeapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -63,8 +63,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
 
     // Material
-    implementation("androidx.compose.material3:material3")
-    runtimeOnly("androidx.compose.material3:material3:1.2.0-rc01")
+    implementation("androidx.compose.material3:material3:1.2.0")
+    runtimeOnly("androidx.compose.material3:material3:1.2.0")
 
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -74,7 +74,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.6")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 
     // UI Bars Customizing
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")

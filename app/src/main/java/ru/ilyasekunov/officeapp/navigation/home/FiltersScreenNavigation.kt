@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.navigation
+package ru.ilyasekunov.officeapp.navigation.home
 
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -7,6 +7,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.home.HomeViewModel
 import ru.ilyasekunov.officeapp.ui.home.filters.FiltersScreen
 
@@ -23,10 +24,7 @@ fun NavGraphBuilder.filtersScreen(
         val homeViewModel = hiltViewModel<HomeViewModel>(viewModelStoreOwner)
         FiltersScreen(
             filtersUiState = homeViewModel.filtersUiState,
-            onOfficeClick = homeViewModel::updateOfficeFilter,
-            onFilterClick = homeViewModel::updateSortingCategory,
-            onDiscardClick = homeViewModel::discardFilterChanges,
-            onShowClick = { /*TODO*/ },
+            applyNewFilters = homeViewModel::updateFiltersUiState,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
