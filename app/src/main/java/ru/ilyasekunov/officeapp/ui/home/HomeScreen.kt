@@ -136,46 +136,70 @@ fun HomeScreen(
                     .padding(paddingValues)
             )
         } else {
-            LazyColumn(
+            IdeaPosts(
+                posts = posts,
+                isIdeaAuthorCurrentUser = isIdeaAuthorCurrentUser,
+                onDeletePostClick = onDeletePostClick,
+                onPostLikeClick = onPostLikeClick,
+                onPostDislikeClick = onPostDislikeClick,
+                onCommentClick = onCommentClick,
+                navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
+                navigateToAuthorScreen = navigateToAuthorScreen,
+                navigateToEditIdeaScreen = navigateToEditIdeaScreen,
                 contentPadding = PaddingValues(
-                    top = 13.dp,
-                    bottom = 13.dp
+                    top = 20.dp,
+                    bottom = 20.dp
                 ),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-            ) {
-                items(
-                    count = posts.size,
-                    key = { posts[it].id }
-                ) {
-                    IdeaPost(
-                        ideaPost = posts[it],
-                        isAuthorPostCurrentUser = isIdeaAuthorCurrentUser(posts[it].ideaAuthor),
-                        onPostClick = {
-                            navigateToIdeaDetailsScreen(posts[it].id)
-                        },
-                        onLikeClick = {
-                            onPostLikeClick(posts[it], !posts[it].isLikePressed)
-                        },
-                        onDislikeClick = {
-                            onPostDislikeClick(posts[it], !posts[it].isDislikePressed)
-                        },
-                        onCommentClick = {
-                            onCommentClick(posts[it])
-                        },
-                        navigateToAuthorScreen = navigateToAuthorScreen,
-                        navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                        onDeletePostClick = onDeletePostClick,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                top = 5.dp,
-                                end = 5.dp
-                            )
-                    )
-                }
-            }
+            )
+        }
+    }
+}
+
+@Composable
+fun IdeaPosts(
+    posts: List<IdeaPost>,
+    isIdeaAuthorCurrentUser: (IdeaAuthor) -> Boolean,
+    onDeletePostClick: (postId: Long) -> Unit,
+    onPostLikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
+    onPostDislikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
+    onCommentClick: (IdeaPost) -> Unit,
+    navigateToIdeaDetailsScreen: (postId: Long) -> Unit,
+    navigateToAuthorScreen: (authorId: Long) -> Unit,
+    navigateToEditIdeaScreen: (postId: Long) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
+) {
+    LazyColumn(
+        contentPadding = contentPadding,
+        modifier = modifier
+    ) {
+        items(
+            count = posts.size,
+            key = { posts[it].id }
+        ) {
+            IdeaPost(
+                ideaPost = posts[it],
+                isAuthorPostCurrentUser = isIdeaAuthorCurrentUser(posts[it].ideaAuthor),
+                onPostClick = {
+                    navigateToIdeaDetailsScreen(posts[it].id)
+                },
+                onLikeClick = {
+                    onPostLikeClick(posts[it], !posts[it].isLikePressed)
+                },
+                onDislikeClick = {
+                    onPostDislikeClick(posts[it], !posts[it].isDislikePressed)
+                },
+                onCommentClick = {
+                    onCommentClick(posts[it])
+                },
+                navigateToAuthorScreen = navigateToAuthorScreen,
+                navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+                onDeletePostClick = onDeletePostClick,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
@@ -269,9 +293,8 @@ fun IdeaPost(
             .background(MaterialTheme.colorScheme.background)
             .clickable { onPostClick() }
     ) {
-        val topPadding = 10.dp
+        val topPadding = 16.dp
         var isMenuVisible by remember { mutableStateOf(false) }
-        Spacer(modifier = Modifier.height(10.dp))
         MenuButton(
             onClick = { isMenuVisible = !isMenuVisible },
             modifier = Modifier
@@ -332,7 +355,9 @@ fun IdeaPost(
             if (ideaPost.attachedImages != null) {
                 AttachedImages(
                     attachedImages = ideaPost.attachedImages,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 5.dp, top = 15.dp, end = 5.dp)
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
