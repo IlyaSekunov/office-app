@@ -8,7 +8,7 @@ data class IdeaPost(
     val content: String,
     val date: LocalDateTime,
     val ideaAuthor: IdeaAuthor,
-    val attachedImages: List<ByteArray>? = null,
+    val attachedImages: List<ByteArray>,
     val office: Office,
     val likesCount: Int,
     val isLikePressed: Boolean,
