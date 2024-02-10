@@ -5,6 +5,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.navigation
 import ru.ilyasekunov.officeapp.navigation.auth.navigateToAuthGraph
+import ru.ilyasekunov.officeapp.navigation.home.editingidea.navigateToSuggestIdeaScreen
+import ru.ilyasekunov.officeapp.navigation.home.editingidea.suggestIdeaScreen
 import ru.ilyasekunov.officeapp.navigation.home.filtersScreen
 import ru.ilyasekunov.officeapp.navigation.home.homeScreen
 import ru.ilyasekunov.officeapp.navigation.home.navigateToFiltersScreen
@@ -42,7 +44,17 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToSuggestIdeaScreen = { /* TODO */ },
+            navigateToSuggestIdeaScreen = {
+                navController.navigateToSuggestIdeaScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = Screen.SuggestIdea.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
             navigateToProfileScreen = {
                 navController.navigateToProfileScreen(
                     navOptions = NavOptions.Builder()
@@ -126,6 +138,29 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
             viewModelStoreOwnerProvider = {
                 navController.getBackStackEntry(MainGraphRoute)
             },
+            navigateToHomeScreen = {
+                navController.navigateToHomeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = BottomNavigationScreen.Home.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
+            navigateToFavouriteScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToProfileScreen = {
+                navController.navigateToProfileScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
+            navigateBack = navController::popBackStack
+        )
+        suggestIdeaScreen(
             navigateToHomeScreen = {
                 navController.navigateToHomeScreen(
                     navOptions = NavOptions.Builder()

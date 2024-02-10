@@ -31,7 +31,7 @@ fun NavGraphBuilder.registrationUserInfoScreen(
         val registrationViewModel = hiltViewModel<RegistrationViewModel>(viewModelStoreOwner)
         val contentResolver = LocalContext.current.contentResolver
         val coroutineScope = rememberCoroutineScope()
-        val galleryLauncher =
+        val singleImagePicker =
             rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
                 coroutineScope.launch(Dispatchers.IO) {
                     val bitmap = it.toBitmap(contentResolver)
@@ -44,7 +44,7 @@ fun NavGraphBuilder.registrationUserInfoScreen(
             officeList = officeList,
             navigateBack = navigateBack,
             onPhotoPickerClick = {
-                galleryLauncher.launch(
+                singleImagePicker.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
             },

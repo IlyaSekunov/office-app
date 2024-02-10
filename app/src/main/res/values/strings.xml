@@ -31,4 +31,8 @@
     <string name="edit">Редактировать</string>
     <string name="delete">Удалить</string>
     <string name="search_ideas">Поиск по идеям</string>
+    <string name="publish">Опубликовать</string>
+    <string name="suggest_an_idea">Предложить идею</string>
+    <string name="title">Заголовок</string>
+    <string name="description">Описание</string>
 </resources>

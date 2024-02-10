@@ -34,7 +34,7 @@ fun NavGraphBuilder.userManageAccountScreen(
         val userInfoViewModel = hiltViewModel<UserViewModel>(viewModelStoreOwner)
         val contentResolver = LocalContext.current.contentResolver
         val coroutineScope = rememberCoroutineScope()
-        val galleryLauncher =
+        val singleImagePicker =
             rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
                 coroutineScope.launch(Dispatchers.IO) {
                     val bitmap = it.toBitmap(contentResolver)
@@ -46,7 +46,7 @@ fun NavGraphBuilder.userManageAccountScreen(
             userInfoUiState = userInfoViewModel.userInfoUiState,
             officeList = officeList,
             onPhotoPickerClick = {
-                galleryLauncher.launch(
+                singleImagePicker.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
             },

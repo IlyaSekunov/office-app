@@ -25,6 +25,7 @@ val ideaPost = IdeaPost(
     date = LocalDateTime.now(),
     ideaAuthor = ideaAuthor,
     office = officeList[1],
+    attachedImages = emptyList(),
     likesCount = 1123,
     isLikePressed = true,
     dislikesCount = 101,

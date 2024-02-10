@@ -16,7 +16,9 @@ private val LightColorScheme = lightColorScheme(
     outline = md_theme_light_outline,
     background = md_theme_light_background,
     onBackground = md_theme_light_onBackground,
-    surfaceVariant = md_theme_light_surfaceVariant
+    surfaceVariant = md_theme_light_surfaceVariant,
+    inverseSurface = md_theme_light_inverseSurface,
+    inverseOnSurface = md_theme_light_inverseOnSurface
 )
 
 @Composable

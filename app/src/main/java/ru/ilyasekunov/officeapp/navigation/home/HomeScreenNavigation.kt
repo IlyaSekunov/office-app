@@ -39,7 +39,7 @@ fun NavGraphBuilder.homeScreen(
             filtersUiState = homeViewModel.filtersUiState,
             onOfficeFilterRemoveClick = homeViewModel::removeOfficeFilter,
             onSortingFilterRemoveClick = homeViewModel::removeSortingFilter,
-            onDeletePostClick = {},
+            onDeletePostClick = homeViewModel::deletePost,
             onPostLikeClick = homeViewModel::updateLike,
             onPostDislikeClick = homeViewModel::updateDislike,
             onCommentClick = { /*TODO*/ },
