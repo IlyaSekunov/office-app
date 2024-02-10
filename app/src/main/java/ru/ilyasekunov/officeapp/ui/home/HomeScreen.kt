@@ -9,11 +9,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,6 +38,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -44,6 +50,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,7 +66,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.SortingFilter
 import ru.ilyasekunov.officeapp.data.defaultSortFilter
@@ -88,7 +97,7 @@ fun HomeScreen(
     filtersUiState: FiltersUiState,
     onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
     onSortingFilterRemoveClick: () -> Unit,
-    onDeletePostClick: (postId: Long) -> Unit,
+    onDeletePostClick: (IdeaPost) -> Unit,
     onPostLikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onPostDislikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onCommentClick: (IdeaPost) -> Unit,
@@ -101,6 +110,8 @@ fun HomeScreen(
     navigateToMyOfficeScreen: () -> Unit,
     navigateToProfileScreen: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         topBar = {
             HomeAppBar(
@@ -123,6 +134,9 @@ fun HomeScreen(
                 modifier = Modifier.background(MaterialTheme.colorScheme.background)
             )
         },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         floatingActionButton = {
             SuggestIdeaButton(onClick = navigateToSuggestIdeaScreen)
         },
@@ -139,7 +153,15 @@ fun HomeScreen(
             IdeaPosts(
                 posts = posts,
                 isIdeaAuthorCurrentUser = isIdeaAuthorCurrentUser,
-                onDeletePostClick = onDeletePostClick,
+                onDeletePostClick = {
+                    onDeletePostClick(it)
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = "Пост удален",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                },
                 onPostLikeClick = onPostLikeClick,
                 onPostDislikeClick = onPostDislikeClick,
                 onCommentClick = onCommentClick,
@@ -147,8 +169,8 @@ fun HomeScreen(
                 navigateToAuthorScreen = navigateToAuthorScreen,
                 navigateToEditIdeaScreen = navigateToEditIdeaScreen,
                 contentPadding = PaddingValues(
-                    top = 20.dp,
-                    bottom = 20.dp
+                    top = 18.dp,
+                    bottom = 18.dp
                 ),
                 modifier = Modifier
                     .fillMaxSize()
@@ -162,7 +184,7 @@ fun HomeScreen(
 fun IdeaPosts(
     posts: List<IdeaPost>,
     isIdeaAuthorCurrentUser: (IdeaAuthor) -> Boolean,
-    onDeletePostClick: (postId: Long) -> Unit,
+    onDeletePostClick: (IdeaPost) -> Unit,
     onPostLikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onPostDislikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onCommentClick: (IdeaPost) -> Unit,
@@ -174,6 +196,7 @@ fun IdeaPosts(
 ) {
     LazyColumn(
         contentPadding = contentPadding,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
     ) {
         items(
@@ -279,7 +302,7 @@ fun IdeaPost(
     onCommentClick: () -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
-    onDeletePostClick: (postId: Long) -> Unit,
+    onDeletePostClick: (IdeaPost) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -294,38 +317,6 @@ fun IdeaPost(
             .clickable { onPostClick() }
     ) {
         val topPadding = 16.dp
-        var isMenuVisible by remember { mutableStateOf(false) }
-        MenuButton(
-            onClick = { isMenuVisible = !isMenuVisible },
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(
-                    top = topPadding,
-                    end = 14.dp
-                )
-                .size(26.dp)
-        )
-        IdeaPostMenu(
-            expanded = isMenuVisible,
-            onDismissClick = { isMenuVisible = false },
-            isAuthorPostCurrentUser = isAuthorPostCurrentUser,
-            onSuggestIdeaToMyOfficeClick = { /*TODO*/ },
-            onNavigateToAuthorClick = {
-                navigateToAuthorScreen(ideaPost.ideaAuthor.id)
-            },
-            onEditClick = {
-                navigateToEditIdeaScreen(ideaPost.id)
-            },
-            onDeleteClick = {
-                onDeletePostClick(ideaPost.id)
-            },
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(
-                    top = topPadding,
-                    end = 14.dp
-                )
-        )
         Column(
             modifier = Modifier.padding(top = topPadding)
         ) {
@@ -352,19 +343,19 @@ fun IdeaPost(
                     .padding(start = 16.dp, end = 16.dp)
                     .heightIn(max = 85.dp)
             )
-            if (ideaPost.attachedImages != null) {
+            if (ideaPost.attachedImages.isNotEmpty()) {
                 AttachedImages(
                     attachedImages = ideaPost.attachedImages,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .aspectRatio(1f / 0.85f)
                         .padding(start = 5.dp, top = 15.dp, end = 5.dp)
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
             IdeaPostOffice(
                 office = ideaPost.office,
-                modifier = Modifier
-                    .padding(start = 16.dp)
+                modifier = Modifier.padding(start = 16.dp)
             )
             Spacer(modifier = Modifier.height(18.dp))
             LikesDislikesCommentsSection(
@@ -381,6 +372,48 @@ fun IdeaPost(
             )
             Spacer(modifier = Modifier.height(14.dp))
         }
+        MenuSection(
+            isAuthorPostCurrentUser = isAuthorPostCurrentUser,
+            navigateToAuthorScreen = {
+                navigateToAuthorScreen(ideaPost.ideaAuthor.id)
+            },
+            navigateToEditIdeaScreen = {
+                navigateToEditIdeaScreen(ideaPost.id)
+            },
+            onDeletePostClick = {
+                onDeletePostClick(ideaPost)
+            },
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = topPadding, end = 14.dp)
+        )
+    }
+}
+
+@Composable
+fun MenuSection(
+    isAuthorPostCurrentUser: Boolean,
+    navigateToAuthorScreen: () -> Unit,
+    navigateToEditIdeaScreen: () -> Unit,
+    onDeletePostClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier) {
+        var isMenuVisible by remember { mutableStateOf(false) }
+        MenuButton(
+            onClick = { isMenuVisible = !isMenuVisible },
+            modifier = Modifier.size(26.dp)
+        )
+        IdeaPostMenu(
+            expanded = isMenuVisible,
+            onDismissClick = { isMenuVisible = false },
+            isAuthorPostCurrentUser = isAuthorPostCurrentUser,
+            onSuggestIdeaToMyOfficeClick = { /*TODO*/ },
+            onNavigateToAuthorClick = navigateToAuthorScreen,
+            onEditClick = navigateToEditIdeaScreen,
+            onDeleteClick = onDeletePostClick,
+            modifier = Modifier.align(Alignment.TopEnd)
+        )
     }
 }
 
@@ -394,9 +427,10 @@ fun IdeaPostAuthor(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(ideaAuthor.photo),
+        AsyncImage(
+            model = ideaAuthor.photo,
             contentDescription = "idea_post_author_photo",
+            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(60.dp)
                 .clip(CircleShape)
@@ -415,7 +449,6 @@ fun IdeaPostAuthor(
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
-            Spacer(modifier = Modifier.height(15.dp))
         }
     }
 }
@@ -480,8 +513,6 @@ fun SearchTextField(
     onFiltersClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var fieldHeight by remember { mutableStateOf(0.dp) }
-    val density = LocalDensity.current.density
     val shape = MaterialTheme.shapes.small
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -490,6 +521,7 @@ fun SearchTextField(
             .fillMaxWidth()
             .clip(shape)
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
+            .height(IntrinsicSize.Min)
     ) {
         TextField(
             value = searchValue,
@@ -518,16 +550,12 @@ fun SearchTextField(
                 unfocusedIndicatorColor = Color.Transparent
             ),
             singleLine = true,
-            modifier = Modifier
-                .weight(1f)
-                .onGloballyPositioned {
-                    fieldHeight = (it.size.height / density).dp
-                }
+            modifier = Modifier.weight(1f)
         )
         VerticalDivider(
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.outline,
-            modifier = Modifier.height((0.68 * fieldHeight.value).dp)
+            modifier = Modifier.fillMaxHeight(0.7f)
         )
         Icon(
             painter = painterResource(R.drawable.baseline_tune_24),
@@ -540,7 +568,6 @@ fun SearchTextField(
                         bottomStart = CornerSize(0.dp)
                     )
                 )
-                .heightIn(max = fieldHeight)
                 .fillMaxHeight()
                 .clickable { onFiltersClick() }
                 .padding(
@@ -751,43 +778,27 @@ fun AttachedImages(
     val attachedImagesPagerState = rememberPagerState(
         pageCount = { attachedImages.size }
     )
-    Box {
-        Box(
-            contentAlignment = Alignment.Center,
+    Box(modifier = modifier) {
+        HorizontalPager(
+            state = attachedImagesPagerState,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            AsyncImage(
+                model = attachedImages[it],
+                contentDescription = "attached_image_${it}",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(MaterialTheme.shapes.large)
+            )
+        }
+        CurrentImageSection(
+            currentImage = attachedImagesPagerState.currentPage + 1,
+            imageCount = attachedImagesPagerState.pageCount,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 15.dp, end = 15.dp)
-                .clip(MaterialTheme.shapes.small)
-                .background(
-                    color = Color.Black.copy(alpha = 0.75f),
-                    shape = MaterialTheme.shapes.small
-                )
-        ) {
-            Text(
-                text = "${attachedImagesPagerState.currentPage}/${attachedImagesPagerState.pageCount}",
-                style = MaterialTheme.typography.labelMedium,
-                fontSize = 14.sp,
-                color = Color.White,
-                modifier = Modifier.padding(3.dp)
-            )
-        }
-        var imageHeight by remember { mutableStateOf(0.dp) }
-        val density = LocalDensity.current.density
-        HorizontalPager(
-            state = attachedImagesPagerState,
-            contentPadding = PaddingValues(horizontal = 5.dp),
-            modifier = modifier
-        ) {
-            Image(
-                painter = rememberAsyncImagePainter(attachedImages[it]),
-                contentDescription = "attached_image_${it}",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .onGloballyPositioned { coordinates ->
-                        imageHeight = (coordinates.size.width / density * 0.85).dp
-                    }
-            )
-        }
+        )
     }
 }
 
@@ -890,6 +901,7 @@ fun ActionItem(
             tint = color,
             modifier = Modifier
                 .padding(start = 10.dp, top = 6.dp, end = 7.dp, bottom = 6.dp)
+                .size(18.dp)
         )
         Text(
             text = count.toThousandsString(),
@@ -923,6 +935,31 @@ fun SuggestIdeaButton(
     }
 }
 
+@Composable
+fun CurrentImageSection(
+    currentImage: Int,
+    imageCount: Int,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .clip(MaterialTheme.shapes.small)
+            .background(
+                color = Color.Black.copy(alpha = 0.75f),
+                shape = MaterialTheme.shapes.small
+            )
+    ) {
+        Text(
+            text = "$currentImage/$imageCount",
+            style = MaterialTheme.typography.labelMedium,
+            fontSize = 14.sp,
+            color = Color.White,
+            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+        )
+    }
+}
+
 @Preview
 @Composable
 fun IdeaPostPreview() {
@@ -931,7 +968,7 @@ fun IdeaPostPreview() {
             IdeaPost(
                 ideaPost = ideaPost,
                 isAuthorPostCurrentUser = true,
-                onPostClick = { /*TODO*/ },
+                onPostClick = {},
                 onLikeClick = {},
                 onDislikeClick = {},
                 onCommentClick = {},
@@ -950,7 +987,7 @@ fun HomeAppBarPreview() {
         HomeAppBar(
             searchValue = "",
             onSearchValueChange = {},
-            onFiltersClick = { /*TODO*/ },
+            onFiltersClick = {},
             filtersUiState = FiltersUiState.Default,
             onSortingFilterRemoveClick = {},
             onOfficeFilterRemoveClick = {},
@@ -993,7 +1030,7 @@ fun SortingCategoryFilterPreview() {
         Surface {
             SortingCategoryFilter(
                 sortingFilter = sortingFilters[2],
-                onRemoveClick = { /*TODO*/ }
+                onRemoveClick = {}
             )
         }
     }
