@@ -99,16 +99,19 @@ class UserViewModel @Inject constructor(
     }
 
     fun save() {
-        user = user?.copy(
-            email = userInfoUiState.email,
-            password = userInfoUiState.password,
-            name = userInfoUiState.name,
-            surname = userInfoUiState.surname,
-            job = userInfoUiState.job,
-            photo = userInfoUiState.photo,
-            office = userInfoUiState.office
-        )
-        isUserNewInfoUnsaved = false
+        viewModelScope.launch {
+            user = user!!.copy(
+                email = userInfoUiState.email,
+                password = userInfoUiState.password,
+                name = userInfoUiState.name,
+                surname = userInfoUiState.surname,
+                job = userInfoUiState.job,
+                photo = userInfoUiState.photo,
+                office = userInfoUiState.office
+            )
+            isUserNewInfoUnsaved = false
+            userRepository.saveChanges(user!!)
+        }
     }
 
     fun logout() {
