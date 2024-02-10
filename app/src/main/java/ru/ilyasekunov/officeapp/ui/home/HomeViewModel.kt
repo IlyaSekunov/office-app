@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.SortingFilter
 import ru.ilyasekunov.officeapp.data.defaultSortFilter
@@ -55,6 +56,7 @@ class HomeViewModel @Inject constructor(
         private set
 
     init {
+        observePosts()
         fetchPosts()
     }
 
@@ -87,52 +89,82 @@ class HomeViewModel @Inject constructor(
     }
 
     fun updateLike(post: IdeaPost, isPressed: Boolean) {
-        posts = posts.map {
-            if (it.id == post.id) {
-                if (it.isDislikePressed) {
-                    it.copy(
+        viewModelScope.launch {
+            val likesCount = if (isPressed) post.likesCount + 1 else post.likesCount - 1
+            val changedPost =
+                if (post.isDislikePressed) {
+                    post.copy(
                         isDislikePressed = false,
-                        dislikesCount = it.dislikesCount - 1,
+                        dislikesCount = post.dislikesCount - 1,
                         isLikePressed = isPressed,
-                        likesCount = if (isPressed) it.likesCount + 1 else it.likesCount - 1
+                        likesCount = likesCount
                     )
                 } else {
-                    it.copy(
+                    post.copy(
                         isLikePressed = isPressed,
-                        likesCount = if (isPressed) it.likesCount + 1 else it.likesCount - 1
+                        likesCount = likesCount
                     )
                 }
-            } else {
-                it
+            posts = posts.map {
+                if (it.id == post.id) {
+                    changedPost
+                } else {
+                    it
+                }
             }
+            postsRepository.updatePost(changedPost)
         }
     }
 
     fun updateDislike(post: IdeaPost, isPressed: Boolean) {
-        posts = posts.map {
-            if (it.id == post.id) {
-                if (it.isLikePressed) {
-                    it.copy(
-                        isLikePressed = false,
-                        likesCount = it.likesCount - 1,
-                        isDislikePressed = isPressed,
-                        dislikesCount = if (isPressed) it.dislikesCount + 1 else it.dislikesCount - 1
-                    )
-                } else {
-                    it.copy(
-                        isDislikePressed = isPressed,
-                        dislikesCount = if (isPressed) it.dislikesCount + 1 else it.dislikesCount - 1
-                    )
-                }
+        viewModelScope.launch {
+            val dislikesCount = if (isPressed) post.dislikesCount + 1 else post.dislikesCount - 1
+            val changedPost = if (post.isLikePressed) {
+                post.copy(
+                    isLikePressed = false,
+                    likesCount = post.likesCount - 1,
+                    isDislikePressed = isPressed,
+                    dislikesCount = dislikesCount
+                )
             } else {
-                it
+                post.copy(
+                    isDislikePressed = isPressed,
+                    dislikesCount = dislikesCount
+                )
             }
+            posts = posts.map {
+                if (it.id == post.id) {
+                    changedPost
+                } else {
+                    it
+                }
+            }
+            postsRepository.updatePost(changedPost)
+        }
+    }
+
+    fun deletePost(post: IdeaPost) {
+        viewModelScope.launch {
+            posts -= post
+            postsRepository.deletePostById(post.id)
         }
     }
 
     private fun fetchPosts() {
         viewModelScope.launch {
             posts = postsRepository.findPosts()
+        }
+    }
+
+    private fun observePosts() {
+        viewModelScope.launch {
+            while (true) {
+                val fetchedPosts = postsRepository.findPosts()
+                if (fetchedPosts != posts) {
+                    posts = fetchedPosts
+                }
+                delay(5000)
+            }
         }
     }
 }
