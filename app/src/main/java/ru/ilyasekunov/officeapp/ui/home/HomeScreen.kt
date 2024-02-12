@@ -1,6 +1,10 @@
 package ru.ilyasekunov.officeapp.ui.home
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -47,6 +51,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,6 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.SortingFilter
@@ -795,6 +801,7 @@ fun AttachedImages(
         CurrentImageSection(
             currentImage = attachedImagesPagerState.currentPage + 1,
             imageCount = attachedImagesPagerState.pageCount,
+            durationVisibility = 3000L,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 15.dp, end = 15.dp)
@@ -939,24 +946,46 @@ fun SuggestIdeaButton(
 fun CurrentImageSection(
     currentImage: Int,
     imageCount: Int,
+    durationVisibility: Long,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .clip(MaterialTheme.shapes.small)
-            .background(
-                color = Color.Black.copy(alpha = 0.75f),
-                shape = MaterialTheme.shapes.small
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(currentImage, imageCount) {
+        visible = true
+        delay(durationVisibility)
+        visible = false
+    }
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = 200
             )
+        ),
+        exit = fadeOut(
+            animationSpec = tween(
+                durationMillis = 200
+            )
+        ),
+        modifier = modifier
     ) {
-        Text(
-            text = "$currentImage/$imageCount",
-            style = MaterialTheme.typography.labelMedium,
-            fontSize = 14.sp,
-            color = Color.White,
-            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.small)
+                .background(
+                    color = Color.Black.copy(alpha = 0.75f),
+                    shape = MaterialTheme.shapes.small
+                )
+        ) {
+            Text(
+                text = "$currentImage/$imageCount",
+                style = MaterialTheme.typography.labelMedium,
+                fontSize = 12.sp,
+                color = Color.White,
+                modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+            )
+        }
     }
 }
 

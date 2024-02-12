@@ -107,7 +107,7 @@ fun RegistrationUserInfoScreen(
                 selectedPhoto = userInfoUiState.photo,
                 onPhotoPickerClick = onPhotoPickerClick,
                 modifier = Modifier
-                    .size(150.dp)
+                    .size(180.dp)
             )
             Spacer(modifier = Modifier.height(36.dp))
             UserInfoTextField(
