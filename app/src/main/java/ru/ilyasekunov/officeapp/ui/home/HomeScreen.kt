@@ -801,7 +801,7 @@ fun AttachedImages(
         CurrentImageSection(
             currentImage = attachedImagesPagerState.currentPage + 1,
             imageCount = attachedImagesPagerState.pageCount,
-            durationVisibility = 3000L,
+            durationVisibility = 5000L,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = 15.dp, end = 15.dp)
@@ -974,7 +974,7 @@ fun CurrentImageSection(
             modifier = Modifier
                 .clip(MaterialTheme.shapes.small)
                 .background(
-                    color = Color.Black.copy(alpha = 0.75f),
+                    color = Color.Black.copy(alpha = 0.5f),
                     shape = MaterialTheme.shapes.small
                 )
         ) {
@@ -983,7 +983,7 @@ fun CurrentImageSection(
                 style = MaterialTheme.typography.labelMedium,
                 fontSize = 12.sp,
                 color = Color.White,
-                modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+                modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp)
             )
         }
     }

@@ -8,6 +8,8 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
+import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
+import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
 import ru.ilyasekunov.officeapp.ui.userprofile.UserProfileScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserViewModel
 
@@ -20,7 +22,11 @@ fun NavGraphBuilder.profileScreen(
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit
 ) {
-    composable(route = BottomNavigationScreen.Profile.route) { backStackEntry ->
+    composable(
+        route = BottomNavigationScreen.Profile.route,
+        enterTransition = { enterSlideLeft() },
+        exitTransition = { exitSlideRight() }
+    ) { backStackEntry ->
         val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
         val userInfoViewModel = hiltViewModel<UserViewModel>(viewModelStoreOwner)
         UserProfileScreen(

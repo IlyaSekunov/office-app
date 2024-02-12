@@ -16,6 +16,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.navigation.Screen
+import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
+import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationUserInfoScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationViewModel
 import ru.ilyasekunov.officeapp.util.toBitmap
@@ -26,7 +28,11 @@ fun NavGraphBuilder.registrationUserInfoScreen(
     navigateBack: () -> Unit,
     navigateToMainGraph: () -> Unit
 ) {
-    composable(Screen.RegistrationUserInfo.route) { backStackEntry ->
+    composable(
+        Screen.RegistrationUserInfo.route,
+        enterTransition = { enterSlideLeft() },
+        exitTransition = { exitSlideRight() }
+    ) { backStackEntry ->
         val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
         val registrationViewModel = hiltViewModel<RegistrationViewModel>(viewModelStoreOwner)
         val contentResolver = LocalContext.current.contentResolver

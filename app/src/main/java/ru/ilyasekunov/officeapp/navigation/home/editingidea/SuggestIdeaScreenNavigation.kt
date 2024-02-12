@@ -13,6 +13,8 @@ import androidx.navigation.compose.composable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.navigation.Screen
+import ru.ilyasekunov.officeapp.ui.animations.enterSlideUp
+import ru.ilyasekunov.officeapp.ui.animations.exitSlideDown
 import ru.ilyasekunov.officeapp.ui.home.editingtidea.EditingIdeaViewModel
 import ru.ilyasekunov.officeapp.ui.home.editingtidea.SuggestIdeaScreen
 import ru.ilyasekunov.officeapp.util.toBitmap
@@ -25,7 +27,11 @@ fun NavGraphBuilder.suggestIdeaScreen(
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    composable(route = Screen.SuggestIdea.route) {
+    composable(
+        route = Screen.SuggestIdea.route,
+        enterTransition = { enterSlideUp() },
+        exitTransition = { exitSlideDown() }
+    ) {
         val editingIdeaViewModel = hiltViewModel<EditingIdeaViewModel>()
         val coroutineScope = rememberCoroutineScope()
         val contentResolver = LocalContext.current.contentResolver

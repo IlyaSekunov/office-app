@@ -16,6 +16,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.navigation.Screen
+import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
+import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserViewModel
 import ru.ilyasekunov.officeapp.util.toBitmap
@@ -29,7 +31,11 @@ fun NavGraphBuilder.userManageAccountScreen(
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    composable(route = Screen.UserManageAccount.route) { backStackEntry ->
+    composable(
+        route = Screen.UserManageAccount.route,
+        enterTransition = { enterSlideLeft() },
+        exitTransition = { exitSlideRight() }
+    ) { backStackEntry ->
         val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
         val userInfoViewModel = hiltViewModel<UserViewModel>(viewModelStoreOwner)
         val contentResolver = LocalContext.current.contentResolver
