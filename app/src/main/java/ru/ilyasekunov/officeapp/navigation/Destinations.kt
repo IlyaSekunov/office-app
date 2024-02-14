@@ -2,15 +2,24 @@ package ru.ilyasekunov.officeapp.navigation
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import ru.ilyasekunov.officeapp.R
 
-sealed class Screen(val route: String) {
+sealed class Screen(val route: String, val arguments: List<NamedNavArgument> = emptyList()) {
     data object Login : Screen("login")
     data object RegistrationMain : Screen("registration-main")
     data object RegistrationUserInfo : Screen("registration-user-info")
     data object UserManageAccount : Screen("user-manage-account")
     data object FiltersScreen : Screen("filters")
     data object SuggestIdea : Screen("suggest-idea")
+    data object EditIdea : Screen(
+        route = "edit-idea/{postId}",
+        arguments = listOf(
+            navArgument("postId") { type = NavType.LongType }
+        )
+    )
 }
 
 sealed class BottomNavigationScreen(

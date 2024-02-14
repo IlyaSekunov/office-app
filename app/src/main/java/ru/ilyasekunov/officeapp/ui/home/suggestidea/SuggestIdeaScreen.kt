@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.home.editidea
+package ru.ilyasekunov.officeapp.ui.home.suggestidea
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -52,11 +52,12 @@ import coil.request.ImageRequest
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
 fun SuggestIdeaScreen(
-    editingIdeaUiState: EditIdeaUiState,
+    suggestIdeaUiState: SuggestIdeaUiState,
     onTitleValueChange: (String) -> Unit,
     onIdeaBodyValueChange: (String) -> Unit,
     onRemoveImageClick: (image: AttachedImage) -> Unit,
@@ -108,7 +109,9 @@ fun SuggestIdeaScreen(
             )
             val writingIdeaSectionBorderWidth = 1.dp
             EditingIdeaSection(
-                editingIdeaUiState = editingIdeaUiState,
+                title = suggestIdeaUiState.title,
+                content = suggestIdeaUiState.content,
+                attachedImages = suggestIdeaUiState.attachedImages,
                 onTitleValueChange = onTitleValueChange,
                 onIdeaBodyValueChange = onIdeaBodyValueChange,
                 onRemoveImageClick = onRemoveImageClick,
@@ -129,7 +132,9 @@ fun SuggestIdeaScreen(
 
 @Composable
 fun EditingIdeaSection(
-    editingIdeaUiState: EditIdeaUiState,
+    title: String,
+    content: String,
+    attachedImages: List<AttachedImage>,
     onTitleValueChange: (String) -> Unit,
     onIdeaBodyValueChange: (String) -> Unit,
     onAttachImagesButtonClick: () -> Unit,
@@ -138,7 +143,9 @@ fun EditingIdeaSection(
 ) {
     Column(modifier = modifier) {
         TextFieldsWithImagesSection(
-            editingIdeaUiState = editingIdeaUiState,
+            title = title,
+            content = content,
+            attachedImages = attachedImages,
             onTitleValueChange = onTitleValueChange,
             onIdeaBodyValueChange = onIdeaBodyValueChange,
             onRemoveImageClick = onRemoveImageClick,
@@ -160,7 +167,9 @@ fun EditingIdeaSection(
 
 @Composable
 fun TextFieldsWithImagesSection(
-    editingIdeaUiState: EditIdeaUiState,
+    title: String,
+    content: String,
+    attachedImages: List<AttachedImage>,
     onTitleValueChange: (String) -> Unit,
     onIdeaBodyValueChange: (String) -> Unit,
     onRemoveImageClick: (AttachedImage) -> Unit,
@@ -175,7 +184,7 @@ fun TextFieldsWithImagesSection(
             cursorColor = MaterialTheme.colorScheme.primary
         )
         TextField(
-            value = editingIdeaUiState.title,
+            value = title,
             onValueChange = onTitleValueChange,
             textStyle = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
             placeholder = {
@@ -197,7 +206,7 @@ fun TextFieldsWithImagesSection(
             modifier = Modifier.padding(horizontal = 8.dp)
         )
         TextField(
-            value = editingIdeaUiState.body,
+            value = content,
             onValueChange = onIdeaBodyValueChange,
             textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
             placeholder = {
@@ -213,9 +222,9 @@ fun TextFieldsWithImagesSection(
                 .fillMaxWidth()
                 .padding(horizontal = 14.dp)
         )
-        if (editingIdeaUiState.attachedImages.isNotEmpty()) {
+        if (attachedImages.isNotEmpty()) {
             AttachedImages(
-                images = editingIdeaUiState.attachedImages,
+                images = attachedImages,
                 imageSize = DpSize(width = 190.dp, height = 170.dp),
                 onRemoveClick = onRemoveImageClick,
                 contentPadding = PaddingValues(horizontal = 18.dp)
@@ -384,7 +393,7 @@ fun AttachImagesButton(
 fun SuggestIdeaScreenPreview() {
     OfficeAppTheme {
         SuggestIdeaScreen(
-            editingIdeaUiState = EditIdeaUiState(),
+            suggestIdeaUiState = SuggestIdeaUiState(),
             onTitleValueChange = {},
             onIdeaBodyValueChange = {},
             onRemoveImageClick = {},
