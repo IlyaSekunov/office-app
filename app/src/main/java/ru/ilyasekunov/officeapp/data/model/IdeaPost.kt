@@ -8,11 +8,11 @@ data class IdeaPost(
     val content: String,
     val date: LocalDateTime,
     val ideaAuthor: IdeaAuthor,
-    val attachedImages: List<ByteArray>,
+    val attachedImages: List<Any>,
     val office: Office,
     val likesCount: Int,
     val isLikePressed: Boolean,
     val dislikesCount: Int,
     val isDislikePressed: Boolean,
-    val commentsCount: Int,
+    val commentsCount: Int
 )
