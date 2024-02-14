@@ -156,6 +156,7 @@ fun HomeScreen(
                     .padding(paddingValues)
             )
         } else {
+            val snackbarDeletedPost = stringResource(R.string.post_deleted)
             IdeaPosts(
                 posts = posts,
                 isIdeaAuthorCurrentUser = isIdeaAuthorCurrentUser,
@@ -163,7 +164,7 @@ fun HomeScreen(
                     onDeletePostClick(it)
                     coroutineScope.launch {
                         snackbarHostState.showSnackbar(
-                            message = "Пост удален",
+                            message = snackbarDeletedPost,
                             duration = SnackbarDuration.Short
                         )
                     }
@@ -778,7 +779,7 @@ fun MenuButton(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AttachedImages(
-    attachedImages: List<ByteArray>,
+    attachedImages: List<Any>,
     modifier: Modifier = Modifier
 ) {
     val attachedImagesPagerState = rememberPagerState(
