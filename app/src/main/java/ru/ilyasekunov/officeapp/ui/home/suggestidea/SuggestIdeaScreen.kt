@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.home.editingtidea
+package ru.ilyasekunov.officeapp.ui.home.editidea
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -56,7 +56,7 @@ import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
 fun SuggestIdeaScreen(
-    editingIdeaUiState: EditingIdeaUiState,
+    editingIdeaUiState: EditIdeaUiState,
     onTitleValueChange: (String) -> Unit,
     onIdeaBodyValueChange: (String) -> Unit,
     onRemoveImageClick: (image: AttachedImage) -> Unit,
@@ -129,7 +129,7 @@ fun SuggestIdeaScreen(
 
 @Composable
 fun EditingIdeaSection(
-    editingIdeaUiState: EditingIdeaUiState,
+    editingIdeaUiState: EditIdeaUiState,
     onTitleValueChange: (String) -> Unit,
     onIdeaBodyValueChange: (String) -> Unit,
     onAttachImagesButtonClick: () -> Unit,
@@ -160,7 +160,7 @@ fun EditingIdeaSection(
 
 @Composable
 fun TextFieldsWithImagesSection(
-    editingIdeaUiState: EditingIdeaUiState,
+    editingIdeaUiState: EditIdeaUiState,
     onTitleValueChange: (String) -> Unit,
     onIdeaBodyValueChange: (String) -> Unit,
     onRemoveImageClick: (AttachedImage) -> Unit,
@@ -384,7 +384,7 @@ fun AttachImagesButton(
 fun SuggestIdeaScreenPreview() {
     OfficeAppTheme {
         SuggestIdeaScreen(
-            editingIdeaUiState = EditingIdeaUiState(),
+            editingIdeaUiState = EditIdeaUiState(),
             onTitleValueChange = {},
             onIdeaBodyValueChange = {},
             onRemoveImageClick = {},

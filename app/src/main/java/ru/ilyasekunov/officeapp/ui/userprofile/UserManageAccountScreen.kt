@@ -36,7 +36,6 @@ import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
-import ru.ilyasekunov.officeapp.preview.userInfoPreview
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
@@ -54,7 +53,7 @@ fun UserManageAccountScreen(
     onJobValueChange: (String) -> Unit,
     onOfficeChange: (Office) -> Unit,
     onSaveButtonClick: () -> Unit,
-    isSaveButtonEnabled: Boolean,
+    isSaveButtonEnabled: () -> Boolean,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -125,8 +124,8 @@ fun UserManageAccountScreen(
             Spacer(modifier = Modifier.height(22.dp))
             UserInfoTextField(
                 value = userInfoUiState.name,
-                label = "Имя",
-                placeholder = "Ваше имя",
+                label = stringResource(R.string.name),
+                placeholder = stringResource(R.string.your_name),
                 onValueChange = onNameValueChange,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -135,8 +134,8 @@ fun UserManageAccountScreen(
             Spacer(modifier = Modifier.height(20.dp))
             UserInfoTextField(
                 value = userInfoUiState.surname,
-                label = "Фамилия",
-                placeholder = "Ваша фамилия",
+                label = stringResource(R.string.surname),
+                placeholder = stringResource(R.string.your_surname),
                 onValueChange = onSurnameValueChange,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -145,8 +144,8 @@ fun UserManageAccountScreen(
             Spacer(modifier = Modifier.height(20.dp))
             UserInfoTextField(
                 value = userInfoUiState.job,
-                label = "Должность",
-                placeholder = "Ваша должность",
+                label = stringResource(R.string.job),
+                placeholder = stringResource(R.string.your_job),
                 onValueChange = onJobValueChange,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -163,7 +162,7 @@ fun UserManageAccountScreen(
             Spacer(modifier = Modifier.height(45.dp))
             SaveButton(
                 onClick = onSaveButtonClick,
-                isEnabled = isSaveButtonEnabled,
+                isEnabled = isSaveButtonEnabled(),
                 modifier = Modifier.size(width = 200.dp, height = 40.dp)
             )
             Spacer(modifier = Modifier.height(30.dp))
@@ -198,19 +197,19 @@ fun SaveButton(
 fun UserManageAccountScreenPreview() {
     OfficeAppTheme {
         UserManageAccountScreen(
-            userInfoUiState = userInfoPreview.toUserInfoUiState(),
+            userInfoUiState = UserInfoUiState.Empty,
             officeList = officeList,
-            onPhotoPickerClick = {},
             onNameValueChange = {},
             onSurnameValueChange = {},
             onJobValueChange = {},
             onOfficeChange = {},
+            onPhotoPickerClick = {},
             onSaveButtonClick = {},
             navigateToHomeScreen = {},
             navigateToFavouriteScreen = {},
             navigateToMyOfficeScreen = {},
             navigateToProfileScreen = {},
-            isSaveButtonEnabled = true,
+            isSaveButtonEnabled = { true },
             navigateBack = {}
         )
     }

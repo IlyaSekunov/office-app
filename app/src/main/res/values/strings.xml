@@ -29,10 +29,18 @@
     <string name="suggest_idea_to_my_office">Предложить идею моему офису</string>
     <string name="navigate_to_author">Перейти к автору</string>
     <string name="edit">Редактировать</string>
+    <string name="editing">Редактирование</string>
     <string name="delete">Удалить</string>
     <string name="search_ideas">Поиск по идеям</string>
     <string name="publish">Опубликовать</string>
     <string name="suggest_an_idea">Предложить идею</string>
     <string name="title">Заголовок</string>
     <string name="description">Описание</string>
+    <string name="post_deleted">Пост удален</string>
+    <string name="name">Имя</string>
+    <string name="your_name">Ваше имя</string>
+    <string name="surname">Фамилия</string>
+    <string name="your_surname">Ваша фамилия</string>
+    <string name="job">Должность</string>
+    <string name="your_job">Ваша должность</string>
 </resources>

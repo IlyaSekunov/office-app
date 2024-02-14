@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,11 +41,57 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.data.model.Office
+import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.preview.userInfoPreview
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
+
+data class UserInfoUiState(
+    val email: String = "",
+    val password: String = "",
+    val name: String = "",
+    val surname: String = "",
+    val job: String = "",
+    val photo: Any? = null,
+    val office: Office = officeList[0]
+) {
+    companion object {
+        val Empty = UserInfoUiState()
+        val Saver = mapSaver(
+            save = {
+                mapOf(
+                    "email" to it.email,
+                    "password" to it.password,
+                    "name" to it.name,
+                    "surname" to it.surname,
+                    "job" to it.job,
+                    "photo" to it.photo,
+                    "office_id" to it.office.id,
+                    "office_imageUrl" to it.office.imageUrl,
+                    "office_address" to it.office.address
+                )
+            },
+            restore = {
+                UserInfoUiState(
+                    email = it["email"].toString(),
+                    password = it["password"].toString(),
+                    name = it["name"].toString(),
+                    surname = it["surname"].toString(),
+                    job = it["job"].toString(),
+                    photo = it["photo"],
+                    office = Office(
+                        id = (it["office_id"] as Int),
+                        imageUrl = it["office_imageUrl"].toString(),
+                        address = it["office_address"].toString()
+                    )
+                )
+            }
+        )
+    }
+}
 
 @Composable
 fun UserProfileScreen(
