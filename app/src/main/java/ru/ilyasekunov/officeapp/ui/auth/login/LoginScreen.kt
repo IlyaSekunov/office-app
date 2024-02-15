@@ -65,7 +65,7 @@ fun LoginScreen(
         PasswordTextField(
             value = loginUiState.password,
             onValueChange = onPasswordValueChange,
-            placeholder = "Пароль",
+            placeholder = stringResource(R.string.password),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 12.dp, end = 12.dp)

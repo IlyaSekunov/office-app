@@ -65,7 +65,7 @@ fun RegistrationMainScreen(
         PasswordTextField(
             value = registrationUiState.password,
             onValueChange = onPasswordValueChange,
-            placeholder = "Пароль",
+            placeholder = stringResource(R.string.password),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 12.dp, end = 12.dp)
@@ -74,7 +74,7 @@ fun RegistrationMainScreen(
         PasswordTextField(
             value = registrationUiState.repeatedPassword,
             onValueChange = onRepeatPasswordValueChange,
-            placeholder = "Повторите пароль",
+            placeholder = stringResource(R.string.repeat_password),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 12.dp, end = 12.dp)

@@ -112,8 +112,8 @@ fun RegistrationUserInfoScreen(
             Spacer(modifier = Modifier.height(36.dp))
             UserInfoTextField(
                 value = userInfoUiState.name,
-                label = "Имя",
-                placeholder = "Ваше имя",
+                label = stringResource(R.string.name),
+                placeholder = stringResource(R.string.your_name),
                 onValueChange = onNameValueChange,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,8 +122,8 @@ fun RegistrationUserInfoScreen(
             Spacer(modifier = Modifier.height(30.dp))
             UserInfoTextField(
                 value = userInfoUiState.surname,
-                label = "Фамилия",
-                placeholder = "Ваша фамилия",
+                label = stringResource(R.string.surname),
+                placeholder = stringResource(R.string.your_surname),
                 onValueChange = onSurnameValueChange,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -132,8 +132,8 @@ fun RegistrationUserInfoScreen(
             Spacer(modifier = Modifier.height(30.dp))
             UserInfoTextField(
                 value = userInfoUiState.job,
-                label = "Должность",
-                placeholder = "Ваша должность",
+                label = stringResource(R.string.job),
+                placeholder = stringResource(R.string.your_job),
                 onValueChange = onJobValueChange,
                 modifier = Modifier
                     .fillMaxWidth()

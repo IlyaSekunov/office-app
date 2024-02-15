@@ -43,4 +43,7 @@
     <string name="your_surname">Ваша фамилия</string>
     <string name="job">Должность</string>
     <string name="your_job">Ваша должность</string>
+    <string name="password">Пароль</string>
+    <string name="repeat_password">Повторите пароль</string>
+    <string name="email">Email</string>
 </resources>
