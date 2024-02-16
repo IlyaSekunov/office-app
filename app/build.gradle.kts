@@ -62,6 +62,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
 
+    implementation("com.valentinilk.shimmer:compose-shimmer:1.2.0")
+
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 

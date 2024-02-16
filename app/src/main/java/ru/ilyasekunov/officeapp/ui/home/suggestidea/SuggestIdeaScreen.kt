@@ -1,5 +1,12 @@
 package ru.ilyasekunov.officeapp.ui.home.suggestidea
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,10 +40,16 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -47,8 +60,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.valentinilk.shimmer.shimmer
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
@@ -306,31 +322,85 @@ fun AttachedImage(
             .size(coil.size.Size.ORIGINAL)
             .build()
     )
-    Box(modifier = modifier) {
-        Image(
-            painter = imagePainter,
-            contentDescription = "attached_image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
-        )
+
+    var isVisible by rememberSaveable { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
+    val animationDuration = 300
+    val rotation = remember { Animatable(0f) }
+
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = scaleIn(tween(animationDuration)) + fadeIn(tween(animationDuration)),
+        exit = scaleOut(
+            animationSpec = tween(animationDuration),
+            targetScale = 0.2f
+        ) + fadeOut(tween(animationDuration)),
+        modifier = modifier
+    ) {
         Box(
-            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .padding(top = 8.dp, end = 8.dp)
-                .clip(CircleShape)
-                .clickable { onRemoveClick() }
-                .background(Color.White)
-                .align(Alignment.TopEnd)
+                .fillMaxSize()
+                .rotate(rotation.value)
         ) {
-            Icon(
-                painter = painterResource(R.drawable.baseline_close_24),
-                contentDescription = "close_icon",
-                tint = MaterialTheme.colorScheme.primary,
+            when (imagePainter.state) {
+                is AsyncImagePainter.State.Success -> {
+                    Image(
+                        painter = imagePainter,
+                        contentDescription = "attached_image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                else -> {
+                    Box(
+                        modifier = Modifier
+                            .shimmer()
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    )
+                }
+            }
+            CloseIconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        isVisible = false
+                        rotation.animateTo(
+                            targetValue = 45f,
+                            animationSpec = tween(animationDuration)
+                        )
+                        onRemoveClick()
+                    }
+                },
                 modifier = Modifier
-                    .size(20.dp)
-                    .padding(4.dp)
+                    .padding(top = 8.dp, end = 8.dp)
+                    .size(26.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .align(Alignment.TopEnd)
             )
         }
+    }
+}
+
+@Composable
+fun CloseIconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .clickable { onClick() }
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.baseline_close_24),
+            contentDescription = "close_icon",
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier
+                .padding(4.dp)
+                .fillMaxSize()
+        )
     }
 }
 
