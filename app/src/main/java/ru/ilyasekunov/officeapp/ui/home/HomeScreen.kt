@@ -2,6 +2,7 @@ package ru.ilyasekunov.officeapp.ui.home
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -61,6 +62,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -69,6 +72,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -87,6 +91,8 @@ import ru.ilyasekunov.officeapp.data.sortingFilters
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.preview.ideaAuthor
 import ru.ilyasekunov.officeapp.preview.ideaPost
+import ru.ilyasekunov.officeapp.ui.animations.dislikePressedAnimation
+import ru.ilyasekunov.officeapp.ui.animations.likePressedAnimation
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.theme.dislikePressedColor
@@ -863,22 +869,18 @@ fun LikesDislikesCommentsSection(
     Row(
         modifier = modifier
     ) {
-        val likeColor =
-            if (isLikePressed) likePressedColor else MaterialTheme.colorScheme.surfaceVariant
-        val dislikeColor =
-            if (isDislikePressed) dislikePressedColor else MaterialTheme.colorScheme.surfaceVariant
-        ActionItem(
-            iconId = R.drawable.outline_thumb_up_24,
-            count = likesCount,
-            color = likeColor,
-            onClick = onLikeClick
+        LikeButton(
+            onClick = onLikeClick,
+            iconSize = 18.dp,
+            isPressed = isLikePressed,
+            count = likesCount
         )
         Spacer(modifier = Modifier.width(15.dp))
-        ActionItem(
-            iconId = R.drawable.outline_thumb_down_24,
-            count = dislikesCount,
-            color = dislikeColor,
-            onClick = onDislikeClick
+        DislikeButton(
+            onClick = onDislikeClick,
+            iconSize = 18.dp,
+            isPressed = isDislikePressed,
+            count = dislikesCount
         )
         Spacer(modifier = Modifier.width(15.dp))
         ActionItem(
@@ -886,6 +888,122 @@ fun LikesDislikesCommentsSection(
             count = commentsCount,
             color = MaterialTheme.colorScheme.surfaceVariant,
             onClick = onCommentClick
+        )
+    }
+}
+
+@Composable
+fun LikeButton(
+    onClick: () -> Unit,
+    iconSize: Dp,
+    isPressed: Boolean,
+    count: Int,
+    modifier: Modifier = Modifier
+) {
+    val animatedIconRotation = remember { Animatable(0f) }
+    val animatedIconScale = remember { Animatable(1f) }
+    var isAnimationRunning by remember { mutableStateOf(false) }
+    if (isAnimationRunning) {
+        LaunchedEffect(Unit) {
+            likePressedAnimation(
+                animatableScale = animatedIconScale,
+                animatableRotation = animatedIconRotation
+            ).join()
+            isAnimationRunning = false
+        }
+    }
+
+    val color = if (isPressed) likePressedColor else MaterialTheme.colorScheme.surfaceVariant
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clip(MaterialTheme.shapes.large)
+            .clickable {
+                onClick()
+                if (!isPressed) {
+                    isAnimationRunning = true
+                }
+            }
+            .background(color.copy(alpha = 0.2f))
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.outline_thumb_up_24),
+            contentDescription = "like_icon",
+            tint = color,
+            modifier = Modifier
+                .padding(start = 10.dp, top = 6.dp, end = 7.dp, bottom = 6.dp)
+                .size(iconSize)
+                .graphicsLayer {
+                    scaleX = animatedIconScale.value
+                    scaleY = animatedIconScale.value
+                    transformOrigin = TransformOrigin(0f, 1f)
+                    rotationZ = animatedIconRotation.value
+                }
+        )
+        Text(
+            text = count.toThousandsString(),
+            style = MaterialTheme.typography.labelMedium,
+            fontSize = 14.sp,
+            color = color,
+            modifier = Modifier.padding(end = 10.dp)
+        )
+    }
+}
+
+@Composable
+fun DislikeButton(
+    onClick: () -> Unit,
+    iconSize: Dp,
+    isPressed: Boolean,
+    count: Int,
+    modifier: Modifier = Modifier
+) {
+    val animatedIconRotation = remember { Animatable(0f) }
+    val animatedIconScale = remember { Animatable(1f) }
+    var isAnimationRunning by remember { mutableStateOf(false) }
+    if (isAnimationRunning) {
+        LaunchedEffect(Unit) {
+            dislikePressedAnimation(
+                animatableScale = animatedIconScale,
+                animatableRotation = animatedIconRotation
+            ).join()
+            isAnimationRunning = false
+        }
+    }
+
+    val color = if (isPressed) dislikePressedColor else MaterialTheme.colorScheme.surfaceVariant
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clip(MaterialTheme.shapes.large)
+            .clickable {
+                onClick()
+                if (!isPressed) {
+                    isAnimationRunning = true
+                }
+            }
+            .background(color.copy(alpha = 0.2f))
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.outline_thumb_down_24),
+            contentDescription = "like_icon",
+            tint = color,
+            modifier = Modifier
+                .padding(start = 10.dp, top = 6.dp, end = 7.dp, bottom = 6.dp)
+                .size(iconSize)
+                .graphicsLayer {
+                    scaleX = animatedIconScale.value
+                    scaleY = animatedIconScale.value
+                    transformOrigin = TransformOrigin(1f, 0f)
+                    rotationZ = animatedIconRotation.value
+                }
+        )
+        Text(
+            text = count.toThousandsString(),
+            style = MaterialTheme.typography.labelMedium,
+            fontSize = 14.sp,
+            color = color,
+            modifier = Modifier.padding(end = 10.dp)
         )
     }
 }
