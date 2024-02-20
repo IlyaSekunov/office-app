@@ -9,7 +9,7 @@ import ru.ilyasekunov.officeapp.preview.userInfoPreview
 class MockUserDatasource : UserDatasource {
     private var user: User? = userInfoPreview
 
-    override suspend fun findUser(): User? = user
+    override suspend fun user(): User? = user
 
     override suspend fun register(registrationForm: RegistrationForm) {
         user = registrationForm.toUser()

@@ -32,7 +32,7 @@ class UserViewModel @Inject constructor(
 
     private fun fetchUserInfo() {
         viewModelScope.launch {
-            user = userRepository.findUser()
+            user = userRepository.user()
         }
     }
 }

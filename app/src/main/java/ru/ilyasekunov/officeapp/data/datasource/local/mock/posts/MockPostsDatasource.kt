@@ -2,6 +2,7 @@ package ru.ilyasekunov.officeapp.data.datasource.local.mock.posts
 
 import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
+import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.preview.ideaPost
@@ -16,8 +17,12 @@ class MockPostsDatasource : PostsDatasource {
         }
     }
 
-    override suspend fun findPosts(): List<IdeaPost> {
+    override suspend fun posts(): List<IdeaPost> {
         return posts
+    }
+
+    override suspend fun posts(filtersDto: FiltersDto, page: Int, pageSize: Int): List<IdeaPost> {
+        TODO("Not yet implemented")
     }
 
     override suspend fun findPostById(postId: Long): IdeaPost? {

@@ -9,8 +9,8 @@ import javax.inject.Inject
 class PostsRepositoryImpl @Inject constructor(
     private val postsDatasource: PostsDatasource
 ) : PostsRepository {
-    override suspend fun findPosts(): List<IdeaPost> {
-        return postsDatasource.findPosts()
+    override suspend fun posts(): List<IdeaPost> {
+        return postsDatasource.posts()
     }
 
     override suspend fun publishPost(post: PublishPostDto) {

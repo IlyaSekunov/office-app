@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
-import androidx.compose.runtime.saveable.mapSaver
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -156,7 +155,7 @@ class HomeViewModel @Inject constructor(
     fun updateLike(post: IdeaPost, isPressed: Boolean) {
         viewModelScope.launch {
             val likesCount = if (isPressed) post.likesCount + 1 else post.likesCount - 1
-            val userId = userRepository.findUser()!!.id
+            val userId = userRepository.user()!!.id
             val changedPost =
                 if (post.isDislikePressed) {
                     post.copy(
@@ -189,7 +188,7 @@ class HomeViewModel @Inject constructor(
     fun updateDislike(post: IdeaPost, isPressed: Boolean) {
         viewModelScope.launch {
             val dislikesCount = if (isPressed) post.dislikesCount + 1 else post.dislikesCount - 1
-            val userId = userRepository.findUser()!!.id
+            val userId = userRepository.user()!!.id
             val changedPost = if (post.isLikePressed) {
                 post.copy(
                     isLikePressed = false,
@@ -227,14 +226,14 @@ class HomeViewModel @Inject constructor(
 
     private fun fetchPosts() {
         viewModelScope.launch {
-            posts = postsRepository.findPosts()
+            posts = postsRepository.posts()
         }
     }
 
     private fun observePosts() {
         viewModelScope.launch {
             while (true) {
-                val fetchedPosts = postsRepository.findPosts()
+                val fetchedPosts = postsRepository.posts()
                 if (fetchedPosts != posts) {
                     posts = fetchedPosts
                 }

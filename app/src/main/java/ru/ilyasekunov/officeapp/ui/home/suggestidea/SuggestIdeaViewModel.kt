@@ -65,7 +65,7 @@ class SuggestIdeaViewModel @Inject constructor(
 
     fun publishPost() {
         viewModelScope.launch {
-            val user = userRepository.findUser()!!
+            val user = userRepository.user()!!
             val ideaAuthor = user.toIdeaAuthor()
             val publishPostDto = PublishPostDto(
                 title = suggestIdeaUiState.title,
