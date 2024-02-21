@@ -1,8 +1,24 @@
-package ru.ilyasekunov.officeapp.data
+package ru.ilyasekunov.officeapp.data.datasource.local.mock
 
 import ru.ilyasekunov.officeapp.data.model.Office
+import ru.ilyasekunov.officeapp.data.model.SortingCategory
+import ru.ilyasekunov.officeapp.data.model.User
+import ru.ilyasekunov.officeapp.preview.ideaPost
+import ru.ilyasekunov.officeapp.preview.userInfoPreview
 
-val officeList = listOf(
+var User: User? = userInfoPreview
+
+var Token: String? = "user"
+
+val Posts = mutableListOf(ideaPost)
+
+val SortingCategories = listOf(
+    SortingCategory(id = 0, name = "Лайкам"),
+    SortingCategory(id = 1, name = "Дизлайкам"),
+    SortingCategory(id = 2, name = "Комментариям")
+)
+
+val Offices = listOf(
     Office(
         id = 0,
         imageUrl = "https://arearent.ru/upload/resize_cache/iblock/7e7/1250_600_1/ed79s3ywxiqn6myw26f70ndbkw23hc85.jpg",

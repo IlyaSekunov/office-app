@@ -1,33 +1,22 @@
 package ru.ilyasekunov.officeapp.data.datasource.local.mock.user
 
 import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
-import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
-import ru.ilyasekunov.officeapp.data.model.User
-import ru.ilyasekunov.officeapp.data.officeList
-import ru.ilyasekunov.officeapp.preview.userInfoPreview
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.Offices
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.User
+import ru.ilyasekunov.officeapp.data.dto.UserDto
 
 class MockUserDatasource : UserDatasource {
-    private var user: User? = userInfoPreview
+    override suspend fun user() = User
 
-    override suspend fun user(): User? = user
-
-    override suspend fun register(registrationForm: RegistrationForm) {
-        user = registrationForm.toUser()
-    }
-
-    override suspend fun saveChanges(user: User) {
-        this.user = user
-    }
-
-    private fun RegistrationForm.toUser(): User =
-        User(
-            id = 0,
-            email = email,
-            password = password,
-            name = userInfo.name,
-            surname = userInfo.surname,
-            job = userInfo.job,
-            photo = userInfo.photo,
-            office = officeList[userInfo.officeId]
+    override suspend fun saveChanges(userDto: UserDto) {
+        User = User?.copy(
+            name = userDto.name,
+            surname = userDto.surname,
+            job = userDto.job,
+            photo = userDto.photo,
+            office = Offices.find { it.id == userDto.officeId }!!
         )
+    }
+
+    override suspend fun availableOffices() = Offices
 }

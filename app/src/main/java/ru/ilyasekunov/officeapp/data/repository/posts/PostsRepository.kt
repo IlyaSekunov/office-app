@@ -2,6 +2,7 @@ package ru.ilyasekunov.officeapp.data.repository.posts
 
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
+import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
 interface PostsRepository {
@@ -14,4 +15,5 @@ interface PostsRepository {
     suspend fun removeLike(postId: Long, userId: Long)
     suspend fun pressDislike(postId: Long, userId: Long)
     suspend fun removeDislike(postId: Long, userId: Long)
+    suspend fun filters(): Filters
 }

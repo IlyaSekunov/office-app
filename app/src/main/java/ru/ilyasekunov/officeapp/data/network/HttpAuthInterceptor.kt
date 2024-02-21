@@ -11,7 +11,7 @@ class HttpAuthInterceptor(
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
         val url = request.url.encodedPath
-        if (!url.contains("auth")) {
+        if (!url.contains("auth") || !url.contains("available-offices")) {
             val token = runBlocking { tokenDatasource.token() }
             token?.let {
                 val tokenHeader = "Bearer $it"

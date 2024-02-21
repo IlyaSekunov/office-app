@@ -10,6 +10,7 @@ import retrofit2.http.Query
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
+import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
 interface PostsDatasource {
@@ -45,4 +46,7 @@ interface PostsDatasource {
 
     @DELETE("posts/{postId}/dislike")
     suspend fun removeDislike(@Path("postId") postId: Long, userId: Long)
+
+    @GET("filters")
+    suspend fun filters(): Filters
 }

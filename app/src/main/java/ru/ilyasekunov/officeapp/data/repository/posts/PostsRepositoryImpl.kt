@@ -3,6 +3,7 @@ package ru.ilyasekunov.officeapp.data.repository.posts
 import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
+import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import javax.inject.Inject
 
@@ -43,5 +44,9 @@ class PostsRepositoryImpl @Inject constructor(
 
     override suspend fun removeDislike(postId: Long, userId: Long) {
         postsDatasource.removeDislike(postId, userId)
+    }
+
+    override suspend fun filters(): Filters {
+        return postsDatasource.filters()
     }
 }

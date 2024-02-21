@@ -1,57 +1,57 @@
 package ru.ilyasekunov.officeapp.data.datasource.local.mock.posts
 
 import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.Offices
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.Posts
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.SortingCategories
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
+import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
-import ru.ilyasekunov.officeapp.preview.ideaPost
 import java.time.LocalDateTime
 
 class MockPostsDatasource : PostsDatasource {
-    private val posts = mutableListOf(ideaPost)
-
     override suspend fun publishPost(post: PublishPostDto) {
-        synchronized(this) {
-            posts.add(post.toIdeaPost())
+        synchronized(Posts) {
+            Posts += post.toIdeaPost()
         }
     }
 
-    override suspend fun posts(): List<IdeaPost> {
-        return posts
-    }
+    override suspend fun posts(): List<IdeaPost> = Posts
+
 
     override suspend fun posts(filtersDto: FiltersDto, page: Int, pageSize: Int): List<IdeaPost> {
         TODO("Not yet implemented")
     }
 
     override suspend fun findPostById(postId: Long): IdeaPost? {
-        return posts.find { it.id == postId }
+        return Posts.find { it.id == postId }
     }
 
     override suspend fun editPostById(postId: Long, editedPost: EditPostDto) {
-        val post = posts.find { it.id == postId }
+        val post = Posts.find { it.id == postId }
         post?.let {
             val updatedPost = it.copy(
                 title = editedPost.title,
                 content = editedPost.content,
                 attachedImages = editedPost.attachedImages
             )
-            posts[posts.indexOf(it)] = updatedPost
+            Posts[Posts.indexOf(it)] = updatedPost
         }
     }
 
     override suspend fun deletePostById(postId: Long) {
-        val post = posts.find { it.id == postId }
+        val post = Posts.find { it.id == postId }
         post?.let {
-            posts -= it
+            Posts -= it
         }
     }
 
     override suspend fun pressLike(postId: Long, userId: Long) {
-        val post = posts.find { it.id == postId }
+        val post = Posts.find { it.id == postId }
         post?.let {
-            posts[posts.indexOf(it)] = it.copy(
+            Posts[Posts.indexOf(it)] = it.copy(
                 isLikePressed = true,
                 likesCount = it.likesCount + 1
             )
@@ -62,9 +62,9 @@ class MockPostsDatasource : PostsDatasource {
     }
 
     override suspend fun removeLike(postId: Long, userId: Long) {
-        val post = posts.find { it.id == postId }
+        val post = Posts.find { it.id == postId }
         post?.let {
-            posts[posts.indexOf(it)] = it.copy(
+            Posts[Posts.indexOf(it)] = it.copy(
                 isLikePressed = false,
                 likesCount = it.likesCount - 1
             )
@@ -72,9 +72,9 @@ class MockPostsDatasource : PostsDatasource {
     }
 
     override suspend fun pressDislike(postId: Long, userId: Long) {
-        val post = posts.find { it.id == postId }
+        val post = Posts.find { it.id == postId }
         post?.let {
-            posts[posts.indexOf(it)] = it.copy(
+            Posts[Posts.indexOf(it)] = it.copy(
                 isDislikePressed = true,
                 dislikesCount = it.dislikesCount + 1
             )
@@ -85,18 +85,25 @@ class MockPostsDatasource : PostsDatasource {
     }
 
     override suspend fun removeDislike(postId: Long, userId: Long) {
-        val post = posts.find { it.id == postId }
+        val post = Posts.find { it.id == postId }
         post?.let {
-            posts[posts.indexOf(it)] = it.copy(
+            Posts[Posts.indexOf(it)] = it.copy(
                 isDislikePressed = false,
                 dislikesCount = it.dislikesCount - 1
             )
         }
     }
 
+    override suspend fun filters(): Filters {
+        return Filters(
+            offices = Offices,
+            sortingCategories = SortingCategories
+        )
+    }
+
     private fun PublishPostDto.toIdeaPost(): IdeaPost =
         IdeaPost(
-            id = if (posts.isNotEmpty()) posts.maxOf { it.id } + 1 else 0,
+            id = if (Posts.isNotEmpty()) Posts.maxOf { it.id } + 1 else 0,
             title = title,
             content = content,
             date = LocalDateTime.now(),

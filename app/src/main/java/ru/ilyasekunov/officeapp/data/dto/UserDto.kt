@@ -1,12 +1,6 @@
 package ru.ilyasekunov.officeapp.data.dto
 
-data class RegistrationForm(
-    val email: String,
-    val password: String,
-    val userInfo: UserInfoForm
-)
-
-data class UserInfoForm(
+data class UserDto(
     val name: String,
     val surname: String,
     val job: String,
