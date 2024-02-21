@@ -81,13 +81,13 @@ import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.ideaAuthor
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.ideaPost
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
-import ru.ilyasekunov.officeapp.preview.ideaAuthor
-import ru.ilyasekunov.officeapp.preview.ideaPost
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.animations.dislikePressedAnimation
 import ru.ilyasekunov.officeapp.ui.animations.likePressedAnimation

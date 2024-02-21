@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
-import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
@@ -152,8 +151,8 @@ fun RegistrationUserInfoScreen(
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 OfficePicker(
-                    officeList = officeList,
-                        initialSelectedOffice = registrationUiState.userInfoUiState.currentOffice!!,
+                    officeList = registrationUiState.availableOffices,
+                    initialSelectedOffice = registrationUiState.userInfoUiState.currentOffice!!,
                     officeWidth = 170.dp,
                     officeHeight = 180.dp,
                     onOfficeChange = onOfficeChange

@@ -61,8 +61,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
-import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.home.FiltersUiState
@@ -405,7 +405,13 @@ fun SortingFilter(
 fun OfficeFilterPreview() {
     OfficeAppTheme {
         OfficeFilter(
-            officeFilterUiState = OfficeFilterUiState(office = officeList[0]),
+            officeFilterUiState = OfficeFilterUiState(
+                office = Office(
+                    id = 0,
+                    imageUrl = "",
+                    address = "Пушкинская"
+                )
+            ),
             onOfficeClick = {},
             modifier = Modifier.size(width = 325.dp, height = 80.dp)
         )

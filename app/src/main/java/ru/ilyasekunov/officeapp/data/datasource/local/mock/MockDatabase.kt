@@ -1,16 +1,13 @@
 package ru.ilyasekunov.officeapp.data.datasource.local.mock
 
+import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
+import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.data.model.User
-import ru.ilyasekunov.officeapp.preview.ideaPost
-import ru.ilyasekunov.officeapp.preview.userInfoPreview
-
-var User: User? = userInfoPreview
+import java.time.LocalDateTime
 
 var Token: String? = "user"
-
-val Posts = mutableListOf(ideaPost)
 
 val SortingCategories = listOf(
     SortingCategory(id = 0, name = "Лайкам"),
@@ -45,3 +42,45 @@ val Offices = listOf(
         address = "ул.Горького, д.146"
     )
 )
+
+val userInfoPreview = User(
+    id = 0,
+    email = "dktinkoff@yandex.ru",
+    password = "12345",
+    name = "Дмитрий",
+    surname = "Комарницкий",
+    job = "Сотрудник Tinkoff",
+    office = Offices[2]
+)
+
+var User: User? = userInfoPreview
+
+val ideaAuthor = IdeaAuthor(
+    id = 1,
+    name = "Дмитрий",
+    surname = "Комарницкий",
+    job = "Сотрудник Tinkoff"
+)
+
+val ideaPost = IdeaPost(
+    id = 0,
+    title = "Растительные вставки для стола",
+    content = "Нас окружает живая природа. Она помогает человечеству выжить. К примеру, без растений мы не смогли бы прожить и дня.\n" +
+            "\n" +
+            "Они дарят нам кислород, из них мы не смогли б прожить и дня.\n" +
+            "\n" +
+            "Также растения незаменимы для производства лекарств.\n" +
+            "\n" +
+            "Многие растения могут излечить даже самых больных людей. Я очень люблю изучать специальную литературу, в которой рассказывается о пользе растений. ",
+    date = LocalDateTime.now(),
+    ideaAuthor = ideaAuthor,
+    office = Offices[1],
+    attachedImages = emptyList(),
+    likesCount = 1123,
+    isLikePressed = true,
+    dislikesCount = 101,
+    isDislikePressed = false,
+    commentsCount = 342
+)
+
+val Posts = mutableListOf(ideaPost)

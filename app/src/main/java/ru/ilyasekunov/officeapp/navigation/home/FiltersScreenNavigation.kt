@@ -22,8 +22,8 @@ fun NavGraphBuilder.filtersScreen(
     navigateBack: () -> Unit
 ) {
     composable(route = Screen.FiltersScreen.route) { backStackEntry ->
-        val homeViewModelStoreOwner = remember(backStackEntry) { homeViewModelStoreOwnerProvider() }
-        val homeViewModel = hiltViewModel<HomeViewModel>(homeViewModelStoreOwner)
+        val viewModelStoreOwner = remember(backStackEntry) { homeViewModelStoreOwnerProvider() }
+        val homeViewModel = hiltViewModel<HomeViewModel>(viewModelStoreOwner)
         val filtersViewModel = hiltViewModel<FiltersViewModel>()
         LaunchedEffect(homeViewModel.filtersUiState) {
             filtersViewModel.updateFiltersUiState(homeViewModel.filtersUiState)

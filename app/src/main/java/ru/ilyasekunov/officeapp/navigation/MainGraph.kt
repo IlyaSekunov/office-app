@@ -24,6 +24,9 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
         startDestination = BottomNavigationScreen.Home.route
     ) {
         homeScreen(
+            viewModelStoreOwnerProvider = {
+                navController.getBackStackEntry(BottomNavigationScreen.Home.route)
+            },
             navigateToIdeaDetailsScreen = { /*TODO*/ },
             navigateToAuthorScreen = { /*TODO*/ },
             navigateToEditIdeaScreen = { postId ->
@@ -133,7 +136,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
         )
         filtersScreen(
             homeViewModelStoreOwnerProvider = {
-                navController.getBackStackEntry(MainGraphRoute)
+                navController.getBackStackEntry(BottomNavigationScreen.Home.route)
             },
             navigateToHomeScreen = {
                 navController.navigateToHomeScreen(
@@ -141,7 +144,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .setLaunchSingleTop(true)
                         .setPopUpTo(
                             route = BottomNavigationScreen.Home.route,
-                            inclusive = true
+                            inclusive = false
                         )
                         .build()
                 )
