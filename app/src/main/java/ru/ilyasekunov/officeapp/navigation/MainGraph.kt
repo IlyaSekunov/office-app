@@ -25,7 +25,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
     ) {
         homeScreen(
             viewModelStoreOwnerProvider = {
-                navController.getBackStackEntry(BottomNavigationScreen.Home.route)
+                navController.getBackStackEntry(MainGraphRoute)
             },
             navigateToIdeaDetailsScreen = { /*TODO*/ },
             navigateToAuthorScreen = { /*TODO*/ },
@@ -98,10 +98,6 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                 navController.navigateToHomeScreen(
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
-                        .setPopUpTo(
-                            route = BottomNavigationScreen.Home.route,
-                            inclusive = true
-                        )
                         .build()
                 )
             },
@@ -136,7 +132,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
         )
         filtersScreen(
             homeViewModelStoreOwnerProvider = {
-                navController.getBackStackEntry(BottomNavigationScreen.Home.route)
+                navController.getBackStackEntry(MainGraphRoute)
             },
             navigateToHomeScreen = {
                 navController.navigateToHomeScreen(
@@ -144,7 +140,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .setLaunchSingleTop(true)
                         .setPopUpTo(
                             route = BottomNavigationScreen.Home.route,
-                            inclusive = false
+                            inclusive = true
                         )
                         .build()
                 )
@@ -165,10 +161,6 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                 navController.navigateToHomeScreen(
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
-                        .setPopUpTo(
-                            route = BottomNavigationScreen.Home.route,
-                            inclusive = true
-                        )
                         .build()
                 )
             },
@@ -188,10 +180,6 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                 navController.navigateToHomeScreen(
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
-                        .setPopUpTo(
-                            route = BottomNavigationScreen.Home.route,
-                            inclusive = true
-                        )
                         .build()
                 )
             },
