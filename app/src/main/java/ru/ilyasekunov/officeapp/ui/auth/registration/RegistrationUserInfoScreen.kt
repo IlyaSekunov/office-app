@@ -26,6 +26,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -36,120 +39,137 @@ import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.officeList
+import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
 import ru.ilyasekunov.officeapp.ui.components.UserInfoTextField
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
-import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationUserInfoScreen(
-    userInfoUiState: UserInfoUiState,
-    officeList: List<Office>,
-    navigateBack: () -> Unit,
+    registrationUiState: RegistrationUiState,
     onPhotoPickerClick: () -> Unit,
     onNameValueChange: (String) -> Unit,
     onSurnameValueChange: (String) -> Unit,
     onJobValueChange: (String) -> Unit,
     onOfficeChange: (Office) -> Unit,
-    onSaveButtonClick: () -> Unit
+    onSaveButtonClick: () -> Unit,
+    navigateBack: () -> Unit,
+    navigateToHomeScreen: () -> Unit
 ) {
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
-        state = rememberTopAppBarState(),
-        snapAnimationSpec = spring(
-            dampingRatio = Spring.DampingRatioNoBouncy,
-            stiffness = Spring.StiffnessMediumLow,
-            visibilityThreshold = null
+    if (registrationUiState.isLoading) {
+        LoadingScreen(
+            circularProgressingColor = MaterialTheme.colorScheme.primary,
+            circularProgressingWidth = 3.dp,
+            circularProgressingSize = 40.dp,
+            modifier = Modifier.fillMaxSize()
         )
-    )
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.top_bar_register_screen_title),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontSize = 20.sp
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = navigateBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = "back_arrow",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(30.dp)
-                        )
-                    }
-                },
-                scrollBehavior = topAppBarScrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    scrolledContainerColor = MaterialTheme.colorScheme.background
-                )
+    } else {
+        val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
+            state = rememberTopAppBarState(),
+            snapAnimationSpec = spring(
+                dampingRatio = Spring.DampingRatioNoBouncy,
+                stiffness = Spring.StiffnessMediumLow,
+                visibilityThreshold = null
             )
-        },
-        containerColor = MaterialTheme.colorScheme.background,
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        )
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(R.string.top_bar_register_screen_title),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontSize = 20.sp
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = navigateBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                contentDescription = "back_arrow",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(30.dp)
+                            )
+                        }
+                    },
+                    scrollBehavior = topAppBarScrollBehavior,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        scrolledContainerColor = MaterialTheme.colorScheme.background
+                    )
+                )
+            },
+            containerColor = MaterialTheme.colorScheme.background,
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .imePadding()
-                .padding(it)
+                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
         ) {
-            PhotoPicker(
-                selectedPhoto = userInfoUiState.photo,
-                onPhotoPickerClick = onPhotoPickerClick,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .size(180.dp)
-            )
-            Spacer(modifier = Modifier.height(36.dp))
-            UserInfoTextField(
-                value = userInfoUiState.name,
-                label = stringResource(R.string.name),
-                placeholder = stringResource(R.string.your_name),
-                onValueChange = onNameValueChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 12.dp, end = 12.dp)
-            )
-            Spacer(modifier = Modifier.height(30.dp))
-            UserInfoTextField(
-                value = userInfoUiState.surname,
-                label = stringResource(R.string.surname),
-                placeholder = stringResource(R.string.your_surname),
-                onValueChange = onSurnameValueChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 12.dp, end = 12.dp)
-            )
-            Spacer(modifier = Modifier.height(30.dp))
-            UserInfoTextField(
-                value = userInfoUiState.job,
-                label = stringResource(R.string.job),
-                placeholder = stringResource(R.string.your_job),
-                onValueChange = onJobValueChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 12.dp, end = 12.dp)
-            )
-            Spacer(modifier = Modifier.height(30.dp))
-            OfficePicker(
-                officeList = officeList,
-                initialSelectedOffice = userInfoUiState.office,
-                officeWidth = 170.dp,
-                officeHeight = 180.dp,
-                onOfficeChange = onOfficeChange
-            )
-            Spacer(modifier = Modifier.height(45.dp))
-            EndRegistrationButton(onClick = onSaveButtonClick)
-            Spacer(modifier = Modifier.height(30.dp))
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .imePadding()
+                    .padding(it)
+            ) {
+                PhotoPicker(
+                    selectedPhoto = registrationUiState.userInfoUiState.photo,
+                    onPhotoPickerClick = onPhotoPickerClick,
+                    modifier = Modifier
+                        .size(180.dp)
+                )
+                Spacer(modifier = Modifier.height(36.dp))
+                UserInfoTextField(
+                    value = registrationUiState.userInfoUiState.name,
+                    label = stringResource(R.string.name),
+                    placeholder = stringResource(R.string.your_name),
+                    onValueChange = onNameValueChange,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 12.dp, end = 12.dp)
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+                UserInfoTextField(
+                    value = registrationUiState.userInfoUiState.surname,
+                    label = stringResource(R.string.surname),
+                    placeholder = stringResource(R.string.your_surname),
+                    onValueChange = onSurnameValueChange,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 12.dp, end = 12.dp)
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+                UserInfoTextField(
+                    value = registrationUiState.userInfoUiState.job,
+                    label = stringResource(R.string.job),
+                    placeholder = stringResource(R.string.your_job),
+                    onValueChange = onJobValueChange,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 12.dp, end = 12.dp)
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+                OfficePicker(
+                    officeList = officeList,
+                        initialSelectedOffice = registrationUiState.userInfoUiState.currentOffice!!,
+                    officeWidth = 170.dp,
+                    officeHeight = 180.dp,
+                    onOfficeChange = onOfficeChange
+                )
+                Spacer(modifier = Modifier.height(45.dp))
+                EndRegistrationButton(onClick = onSaveButtonClick)
+                Spacer(modifier = Modifier.height(30.dp))
+            }
+        }
+    }
+
+    // Observe isRegistrationSuccess to navigate to home screen
+    val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
+    LaunchedEffect(registrationUiState) {
+        if (registrationUiState.isRegistrationSuccess) {
+            currentNavigateToHomeScreen()
         }
     }
 }
@@ -179,15 +199,15 @@ fun EndRegistrationButton(
 fun RegistrationUserInfoScreenPreview() {
     OfficeAppTheme {
         RegistrationUserInfoScreen(
-            userInfoUiState = UserInfoUiState(),
-            navigateBack = {},
+            registrationUiState = RegistrationUiState(),
             onPhotoPickerClick = {},
             onNameValueChange = {},
             onSurnameValueChange = {},
             onJobValueChange = {},
             onOfficeChange = {},
             onSaveButtonClick = {},
-            officeList = officeList
+            navigateBack = {},
+            navigateToHomeScreen = {}
         )
     }
 }

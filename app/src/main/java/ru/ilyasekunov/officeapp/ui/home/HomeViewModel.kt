@@ -2,100 +2,26 @@ package ru.ilyasekunov.officeapp.ui.home
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ru.ilyasekunov.officeapp.data.SortingFilter
-import ru.ilyasekunov.officeapp.data.defaultSortFilter
+import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
-import ru.ilyasekunov.officeapp.data.officeList
+import ru.ilyasekunov.officeapp.data.model.SortingCategory
+import ru.ilyasekunov.officeapp.data.model.User
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
-import ru.ilyasekunov.officeapp.data.sortingFilters
 import javax.inject.Inject
 
 data class FiltersUiState(
-    val sortingFiltersUiState: SortingFiltersUiState,
-    val officeFiltersUiState: List<OfficeFilterUiState>
-) {
-    companion object {
-        val Default = FiltersUiState(
-            sortingFiltersUiState = SortingFiltersUiState(
-                filters = sortingFilters,
-                selected = defaultSortFilter
-            ),
-            officeFiltersUiState = officeList.map {
-                OfficeFilterUiState(office = it)
-            }
-        )
-        val Saver = object : Saver<FiltersUiState, Map<String, Any>> {
-            override fun restore(value: Map<String, Any>): FiltersUiState {
-                val savedSortingFiltersStateMap = (value["saved_sorting_filters_ui_state"] as Map<*, *>)
-                val savedOfficeFiltersStateMap = (value["saved_office_filters_ui_state"] as List<*>)
-                val sortingFiltersUiState = SortingFiltersUiState(
-                    selected = SortingFilter(
-                        id = (savedSortingFiltersStateMap["sorting_selected_id"] as Int),
-                        name = (savedSortingFiltersStateMap["sorting_selected_name"] as String)
-                    ),
-                    filters = (savedSortingFiltersStateMap["sorting_filters_list"] as List<*>).map {
-                        it as Map<*, *>
-                        SortingFilter(
-                            id = (it["sorting_selected_id"] as Int),
-                            name = (it["sorting_selected_name"] as String)
-                        )
-                    }
-                )
-                val officeFiltersUiState = savedOfficeFiltersStateMap.map {
-                    it as Map<*, *>
-                    OfficeFilterUiState(
-                        isSelected = (it["is_selected"] as Boolean),
-                        office = Office(
-                            id = (it["office_id"] as Int),
-                            imageUrl = (it["office_imageUrl"] as String),
-                            address = (it["office_address"] as String)
-                        )
-                    )
-                }
-                return FiltersUiState(
-                    sortingFiltersUiState = sortingFiltersUiState,
-                    officeFiltersUiState = officeFiltersUiState
-                )
-            }
-
-            override fun SaverScope.save(value: FiltersUiState): Map<String, Any> {
-                val savedFilterUiStateList = value.officeFiltersUiState.map {
-                    mapOf<String, Any>(
-                        "is_selected" to it.isSelected,
-                        "office_id" to it.office.id,
-                        "office_imageUrl" to it.office.imageUrl,
-                        "office_address" to it.office.address
-                    )
-                }
-                val sortingFilterUiStateMap = mutableMapOf<String, Any>(
-                    "sorting_selected_id" to value.sortingFiltersUiState.selected.id,
-                    "sorting_selected_name" to value.sortingFiltersUiState.selected.name
-                )
-                sortingFilterUiStateMap +=
-                    "sorting_filters_list" to value.sortingFiltersUiState.filters.map {
-                        mapOf<String, Any>(
-                            "sorting_selected_id" to it.id,
-                            "sorting_selected_name" to it.name
-                        )
-                    }
-                return mapOf(
-                    "saved_office_filters_ui_state" to savedFilterUiStateList,
-                    "saved_sorting_filters_ui_state" to sortingFilterUiStateMap
-                )
-            }
-        }
-    }
-}
+    val sortingFiltersUiState: SortingFiltersUiState = SortingFiltersUiState(),
+    val officeFiltersUiState: List<OfficeFilterUiState> = emptyList(),
+    val isLoading: Boolean = false
+)
 
 data class OfficeFilterUiState(
     val office: Office,
@@ -103,8 +29,22 @@ data class OfficeFilterUiState(
 )
 
 data class SortingFiltersUiState(
-    val filters: List<SortingFilter>,
-    val selected: SortingFilter
+    val filters: List<SortingCategory> = emptyList(),
+    val selected: SortingCategory? = null
+)
+
+data class PostsUiState(
+    val posts: List<IdeaPost> = emptyList(),
+    val isLoading: Boolean = false
+)
+
+data class CurrentUserUiState(
+    val user: User? = null,
+    val isLoading: Boolean = false
+)
+
+data class SearchUiState(
+    val value: String = ""
 )
 
 @HiltViewModel
@@ -112,24 +52,27 @@ class HomeViewModel @Inject constructor(
     private val postsRepository: PostsRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    var posts: List<IdeaPost> by mutableStateOf(emptyList())
+    var postsUiState by mutableStateOf(PostsUiState())
         private set
-    var filtersUiState by mutableStateOf(FiltersUiState.Default)
+    var filtersUiState by mutableStateOf(FiltersUiState())
         private set
-    var searchUiState by mutableStateOf("")
+    var searchUiState by mutableStateOf(SearchUiState())
         private set
+    private var currentUserUiState by mutableStateOf(CurrentUserUiState())
 
     init {
         observePosts()
-        fetchPosts()
+        loadPosts()
+        loadFilters()
+        loadCurrentUser()
     }
 
     fun updateFiltersUiState(filtersUiState: FiltersUiState) {
         this.filtersUiState = filtersUiState
     }
 
-    fun updateSearch(searchValue: String) {
-        searchUiState = searchValue
+    fun updateSearchValue(searchValue: String) {
+        searchUiState = searchUiState.copy(value = searchValue)
     }
 
     fun removeOfficeFilter(officeFilter: OfficeFilterUiState) {
@@ -145,10 +88,9 @@ class HomeViewModel @Inject constructor(
     }
 
     fun removeSortingFilter() {
+        val sortingFiltersUiState = filtersUiState.sortingFiltersUiState
         filtersUiState = filtersUiState.copy(
-            sortingFiltersUiState = filtersUiState.sortingFiltersUiState.copy(
-                selected = defaultSortFilter
-            )
+            sortingFiltersUiState = sortingFiltersUiState.copy(selected = null)
         )
     }
 
@@ -170,13 +112,7 @@ class HomeViewModel @Inject constructor(
                         likesCount = likesCount
                     )
                 }
-            posts = posts.map {
-                if (it.id == post.id) {
-                    changedPost
-                } else {
-                    it
-                }
-            }
+            updatePost(changedPost)
             if (isPressed) {
                 postsRepository.pressLike(changedPost.id, userId)
             } else {
@@ -202,13 +138,7 @@ class HomeViewModel @Inject constructor(
                     dislikesCount = dislikesCount
                 )
             }
-            posts = posts.map {
-                if (it.id == post.id) {
-                    changedPost
-                } else {
-                    it
-                }
-            }
+            updatePost(changedPost)
             if (isPressed) {
                 postsRepository.pressDislike(changedPost.id, userId)
             } else {
@@ -219,14 +149,76 @@ class HomeViewModel @Inject constructor(
 
     fun deletePost(post: IdeaPost) {
         viewModelScope.launch {
-            posts -= post
+            updateIsPostsLoading(true)
+            postsUiState = postsUiState.copy(
+                posts = postsUiState.posts - post
+            )
             postsRepository.deletePostById(post.id)
+            updateIsPostsLoading(false)
         }
     }
 
-    private fun fetchPosts() {
+    fun isIdeaAuthorCurrentUser(ideaAuthor: IdeaAuthor) = ideaAuthor.id == currentUserUiState.user!!.id
+
+    private fun updateIsPostsLoading(isLoading: Boolean) {
+        postsUiState = postsUiState.copy(isLoading = isLoading)
+    }
+
+    private fun updatePost(updatedPost: IdeaPost) {
+        postsUiState = postsUiState.copy(
+            posts = postsUiState.posts.map {
+                if (it.id == updatedPost.id) {
+                    updatedPost
+                } else {
+                    it
+                }
+            }
+        )
+    }
+
+    private fun updatePosts(posts: List<IdeaPost>) {
+        postsUiState = postsUiState.copy(posts = posts)
+    }
+
+    private fun updateIsCurrentUserLoading(isLoading: Boolean) {
+        currentUserUiState = currentUserUiState.copy(isLoading = isLoading)
+    }
+
+    private fun updateIsFiltersLoading(isLoading: Boolean) {
+        filtersUiState = filtersUiState.copy(isLoading = isLoading)
+    }
+
+    private fun loadCurrentUser() {
         viewModelScope.launch {
-            posts = postsRepository.posts()
+            updateIsCurrentUserLoading(true)
+            currentUserUiState = currentUserUiState.copy(
+                user = userRepository.user()
+            )
+            updateIsCurrentUserLoading(false)
+        }
+    }
+
+    private fun loadPosts() {
+        viewModelScope.launch {
+            updateIsPostsLoading(true)
+            updatePosts(postsRepository.posts())
+            updateIsPostsLoading(false)
+        }
+    }
+
+    private fun loadFilters() {
+        viewModelScope.launch {
+            updateIsFiltersLoading(true)
+            val filters = postsRepository.filters()
+            filtersUiState = FiltersUiState(
+                sortingFiltersUiState = SortingFiltersUiState(
+                    filters = filters.sortingCategories
+                ),
+                officeFiltersUiState = filters.offices.map {
+                    OfficeFilterUiState(office = it)
+                }
+            )
+            updateIsFiltersLoading(false)
         }
     }
 
@@ -234,8 +226,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             while (true) {
                 val fetchedPosts = postsRepository.posts()
-                if (fetchedPosts != posts) {
-                    posts = fetchedPosts
+                if (fetchedPosts != postsUiState.posts) {
+                    updatePosts(fetchedPosts)
                 }
                 delay(5000)
             }

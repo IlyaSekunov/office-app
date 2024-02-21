@@ -40,10 +40,12 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -67,6 +69,7 @@ import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
+import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
@@ -85,63 +88,80 @@ fun SuggestIdeaScreen(
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            SuggestIdeaTopBar(
-                onCloseClick = navigateBack,
-                onPublishClick = onPublishClick,
-                modifier = Modifier.padding(start = 10.dp, end = 15.dp)
-            )
-        },
-        bottomBar = {
-            BottomNavigationBar(
-                selectedScreen = BottomNavigationScreen.Home,
-                navigateToHomeScreen = navigateToHomeScreen,
-                navigateToFavouriteScreen = navigateToFavouriteScreen,
-                navigateToMyOfficeScreen = navigateToMyOfficeScreen,
-                navigateToProfileScreen = navigateToProfileScreen
-            )
-        },
-        modifier = Modifier.fillMaxSize()
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(top = 10.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.suggest_an_idea),
-                style = MaterialTheme.typography.titleLarge,
-                fontSize = 24.sp,
-                modifier = Modifier.padding(start = 20.dp)
-            )
-            Spacer(modifier = Modifier.height(14.dp))
-
-            val writingIdeaSectionShape = MaterialTheme.shapes.large.copy(
-                bottomStart = CornerSize(0.dp),
-                bottomEnd = CornerSize(0.dp)
-            )
-            val writingIdeaSectionBorderWidth = 1.dp
-            EditingIdeaSection(
-                title = suggestIdeaUiState.title,
-                content = suggestIdeaUiState.content,
-                attachedImages = suggestIdeaUiState.attachedImages,
-                onTitleValueChange = onTitleValueChange,
-                onIdeaBodyValueChange = onIdeaBodyValueChange,
-                onRemoveImageClick = onRemoveImageClick,
-                onAttachImagesButtonClick = onAttachImagesButtonClick,
+    if (suggestIdeaUiState.isLoading) {
+        LoadingScreen(
+            circularProgressingColor = MaterialTheme.colorScheme.primary,
+            circularProgressingWidth = 3.dp,
+            circularProgressingSize = 40.dp,
+            modifier = Modifier.fillMaxSize()
+        )
+    } else {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            topBar = {
+                SuggestIdeaTopBar(
+                    onCloseClick = navigateBack,
+                    onPublishClick = onPublishClick,
+                    modifier = Modifier.padding(start = 10.dp, end = 15.dp)
+                )
+            },
+            bottomBar = {
+                BottomNavigationBar(
+                    selectedScreen = BottomNavigationScreen.Home,
+                    navigateToHomeScreen = navigateToHomeScreen,
+                    navigateToFavouriteScreen = navigateToFavouriteScreen,
+                    navigateToMyOfficeScreen = navigateToMyOfficeScreen,
+                    navigateToProfileScreen = navigateToProfileScreen
+                )
+            },
+            modifier = Modifier.fillMaxSize()
+        ) { paddingValues ->
+            Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .clip(writingIdeaSectionShape)
-                    .offset(y = writingIdeaSectionBorderWidth)
-                    .border(
-                        width = writingIdeaSectionBorderWidth,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                        shape = writingIdeaSectionShape
-                    )
-            )
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(top = 10.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.suggest_an_idea),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(start = 20.dp)
+                )
+                Spacer(modifier = Modifier.height(14.dp))
+
+                val writingIdeaSectionShape = MaterialTheme.shapes.large.copy(
+                    bottomStart = CornerSize(0.dp),
+                    bottomEnd = CornerSize(0.dp)
+                )
+                val writingIdeaSectionBorderWidth = 1.dp
+                EditingIdeaSection(
+                    title = suggestIdeaUiState.title,
+                    content = suggestIdeaUiState.content,
+                    attachedImages = suggestIdeaUiState.attachedImages,
+                    onTitleValueChange = onTitleValueChange,
+                    onIdeaBodyValueChange = onIdeaBodyValueChange,
+                    onRemoveImageClick = onRemoveImageClick,
+                    onAttachImagesButtonClick = onAttachImagesButtonClick,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(writingIdeaSectionShape)
+                        .offset(y = writingIdeaSectionBorderWidth)
+                        .border(
+                            width = writingIdeaSectionBorderWidth,
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                            shape = writingIdeaSectionShape
+                        )
+                )
+            }
+        }
+    }
+
+    // Observe isPublished state to navigate to home screen
+    val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
+    LaunchedEffect(suggestIdeaUiState) {
+        if (suggestIdeaUiState.isPublished) {
+            currentNavigateToHomeScreen()
         }
     }
 }

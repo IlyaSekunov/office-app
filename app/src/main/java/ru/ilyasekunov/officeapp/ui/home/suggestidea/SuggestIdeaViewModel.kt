@@ -18,7 +18,10 @@ import javax.inject.Inject
 data class SuggestIdeaUiState(
     val title: String = "",
     val content: String = "",
-    val attachedImages: List<AttachedImage> = emptyList()
+    val attachedImages: List<AttachedImage> = emptyList(),
+    val isLoading: Boolean = false,
+    val isPublished: Boolean = false,
+    val errorMessage: String? = null
 )
 
 @HiltViewModel
@@ -65,6 +68,7 @@ class SuggestIdeaViewModel @Inject constructor(
 
     fun publishPost() {
         viewModelScope.launch {
+            updateIsLoading(true)
             val user = userRepository.user()!!
             val ideaAuthor = user.toIdeaAuthor()
             val publishPostDto = PublishPostDto(
@@ -75,7 +79,21 @@ class SuggestIdeaViewModel @Inject constructor(
                 attachedImages = suggestIdeaUiState.attachedImages.map { (it.image as ByteArray) }
             )
             postsRepository.publishPost(publishPostDto)
+            updateIsLoading(false)
+            updateIsPublished(true)
         }
+    }
+
+    private fun updateIsLoading(isLoading: Boolean) {
+        suggestIdeaUiState = suggestIdeaUiState.copy(isLoading = isLoading)
+    }
+
+    private fun updateIsPublished(isPublished: Boolean) {
+        suggestIdeaUiState = suggestIdeaUiState.copy(isPublished = isPublished)
+    }
+
+    private fun updateErrorMessage(errorMessage: String?) {
+        suggestIdeaUiState = suggestIdeaUiState.copy(errorMessage = errorMessage)
     }
 }
 

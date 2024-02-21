@@ -16,7 +16,10 @@ data class EditIdeaUiState(
     val postId: Long,
     val title: String = "",
     val content: String = "",
-    val attachedImages: List<AttachedImage> = emptyList()
+    val attachedImages: List<AttachedImage> = emptyList(),
+    val isLoading: Boolean = false,
+    val isPublished: Boolean = false,
+    val errorMessage: String? = null
 ) {
     companion object {
         val Empty = EditIdeaUiState(
@@ -37,8 +40,6 @@ class EditIdeaViewModel @Inject constructor(
     private val postsRepository: PostsRepository
 ): ViewModel() {
     var editIdeaUiState by mutableStateOf(EditIdeaUiState.Empty)
-        private set
-    var isLoading by mutableStateOf(false)
         private set
 
     fun updateTitle(title: String) {
@@ -77,21 +78,34 @@ class EditIdeaViewModel @Inject constructor(
 
     fun loadPostById(postId: Long) {
         viewModelScope.launch {
-            isLoading = true
+            updateIsLoading(true)
             val ideaPost = postsRepository.findPostById(postId)
             ideaPost?.let {
                 editIdeaUiState = it.toEditIdeaUiState()
             }
-            isLoading = false
+            updateIsLoading(false)
         }
     }
 
     fun editPost() {
         viewModelScope.launch {
-            isLoading = true
+            updateIsLoading(true)
             postsRepository.editPostById(editIdeaUiState.postId, editIdeaUiState.toEditPostDto())
-            isLoading = false
+            updateIsLoading(false)
+            updateIsPublished(true)
         }
+    }
+
+    private fun updateIsLoading(isLoading: Boolean) {
+        editIdeaUiState = editIdeaUiState.copy(isLoading = isLoading)
+    }
+
+    private fun updateIsPublished(isPublished: Boolean) {
+        editIdeaUiState = editIdeaUiState.copy(isPublished = isPublished)
+    }
+
+    private fun updateErrorMessage(errorMessage: String?) {
+        editIdeaUiState = editIdeaUiState.copy(errorMessage = errorMessage)
     }
 }
 

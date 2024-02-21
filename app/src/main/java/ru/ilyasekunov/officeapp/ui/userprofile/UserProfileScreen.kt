@@ -25,7 +25,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.mapSaver
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,143 +43,114 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.data.model.Office
-import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
-import ru.ilyasekunov.officeapp.preview.userInfoPreview
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
-data class UserInfoUiState(
-    val email: String = "",
-    val password: String = "",
-    val name: String = "",
-    val surname: String = "",
-    val job: String = "",
-    val photo: Any? = null,
-    val office: Office = officeList[0]
-) {
-    companion object {
-        val Empty = UserInfoUiState()
-        val Saver = mapSaver(
-            save = {
-                mapOf(
-                    "email" to it.email,
-                    "password" to it.password,
-                    "name" to it.name,
-                    "surname" to it.surname,
-                    "job" to it.job,
-                    "photo" to it.photo,
-                    "office_id" to it.office.id,
-                    "office_imageUrl" to it.office.imageUrl,
-                    "office_address" to it.office.address
-                )
-            },
-            restore = {
-                UserInfoUiState(
-                    email = it["email"].toString(),
-                    password = it["password"].toString(),
-                    name = it["name"].toString(),
-                    surname = it["surname"].toString(),
-                    job = it["job"].toString(),
-                    photo = it["photo"],
-                    office = Office(
-                        id = (it["office_id"] as Int),
-                        imageUrl = it["office_imageUrl"].toString(),
-                        address = it["office_address"].toString()
-                    )
-                )
-            }
-        )
-    }
-}
-
 @Composable
 fun UserProfileScreen(
-    userInfoUiState: UserInfoUiState,
+    userProfileUiState: UserProfileUiState,
     onManageAccountClick: () -> Unit,
     onMyOfficeClick: () -> Unit,
     onMyIdeasClick: () -> Unit,
     onLogoutClick: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
-    navigateToMyOfficeScreen: () -> Unit
+    navigateToMyOfficeScreen: () -> Unit,
+    navigateToAuthGraph: () -> Unit
 ) {
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        bottomBar = {
-            BottomNavigationBar(
-                selectedScreen = BottomNavigationScreen.Profile,
-                navigateToHomeScreen = navigateToHomeScreen,
-                navigateToFavouriteScreen = navigateToFavouriteScreen,
-                navigateToMyOfficeScreen = navigateToMyOfficeScreen,
-                navigateToProfileScreen = {}
-            )
-        },
-        modifier = Modifier.fillMaxSize()
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = paddingValues.calculateBottomPadding())
-                .verticalScroll(rememberScrollState())
-        ) {
-            UserInfoSection(
-                userInfoUiState = userInfoUiState,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Option(
-                icon = painterResource(R.drawable.outline_manage_accounts_24),
-                text = stringResource(R.string.manage_account),
-                onClick = onManageAccountClick,
+    if (userProfileUiState.isLoading) {
+        LoadingScreen(
+            circularProgressingColor = MaterialTheme.colorScheme.primary,
+            circularProgressingWidth = 3.dp,
+            circularProgressingSize = 40.dp,
+            modifier = Modifier.fillMaxSize()
+        )
+    } else {
+        Scaffold(
+            containerColor = MaterialTheme.colorScheme.background,
+            bottomBar = {
+                BottomNavigationBar(
+                    selectedScreen = BottomNavigationScreen.Profile,
+                    navigateToHomeScreen = navigateToHomeScreen,
+                    navigateToFavouriteScreen = navigateToFavouriteScreen,
+                    navigateToMyOfficeScreen = navigateToMyOfficeScreen,
+                    navigateToProfileScreen = {}
+                )
+            },
+            modifier = Modifier.fillMaxSize()
+        ) { paddingValues ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
-            )
-            Option(
-                icon = painterResource(R.drawable.outline_person_pin_circle_24),
-                text = stringResource(R.string.my_office),
-                onClick = onMyOfficeClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
-            )
-            Option(
-                icon = painterResource(R.drawable.outline_lightbulb_24),
-                text = stringResource(R.string.my_ideas),
-                onClick = onMyIdeasClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
-            )
-            HorizontalDivider(
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp),
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.log_out),
-                style = MaterialTheme.typography.bodyMedium,
-                fontSize = 15.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .clickable { onLogoutClick() }
-            )
-            Spacer(modifier = Modifier.height(30.dp))
+                    .fillMaxSize()
+                    .padding(bottom = paddingValues.calculateBottomPadding())
+                    .verticalScroll(rememberScrollState())
+            ) {
+                UserInfoSection(
+                    userProfileUiState = userProfileUiState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Option(
+                    icon = painterResource(R.drawable.outline_manage_accounts_24),
+                    text = stringResource(R.string.manage_account),
+                    onClick = onManageAccountClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+                )
+                Option(
+                    icon = painterResource(R.drawable.outline_person_pin_circle_24),
+                    text = stringResource(R.string.my_office),
+                    onClick = onMyOfficeClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+                )
+                Option(
+                    icon = painterResource(R.drawable.outline_lightbulb_24),
+                    text = stringResource(R.string.my_ideas),
+                    onClick = onMyIdeasClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = stringResource(R.string.log_out),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .clickable { onLogoutClick() }
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+            }
+        }
+    }
+
+    // Observe isLoggedOut to navigate to auth graph
+    val currentOnNavigateToAuthGraph by rememberUpdatedState(navigateToAuthGraph)
+    LaunchedEffect(userProfileUiState) {
+        if (userProfileUiState.isLoggedOut) {
+            currentOnNavigateToAuthGraph()
         }
     }
 }
 
 @Composable
 fun UserInfoSection(
-    userInfoUiState: UserInfoUiState,
+    userProfileUiState: UserProfileUiState,
     modifier: Modifier = Modifier
 ) {
     val imagePainter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(userInfoUiState.photo)
+            .data(userProfileUiState.photo)
             .size(coil.size.Size.ORIGINAL)
             .build()
     )
@@ -239,13 +212,13 @@ fun UserInfoSection(
         }
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = "${userInfoUiState.name} ${userInfoUiState.surname}",
+            text = "${userProfileUiState.name} ${userProfileUiState.surname}",
             style = MaterialTheme.typography.titleMedium,
             fontSize = 24.sp
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = userInfoUiState.job,
+            text = userProfileUiState.job,
             style = MaterialTheme.typography.titleMedium,
             fontSize = 15.sp
         )
@@ -311,7 +284,11 @@ fun UserInfoSectionPreview() {
     OfficeAppTheme {
         Surface {
             UserInfoSection(
-                userInfoUiState = userInfoPreview.toUserInfoUiState()
+                userProfileUiState = UserProfileUiState(
+                    name = "Дмитрий",
+                    surname = "Комарницкий",
+                    job = "Сотрудник Tinkoff"
+                )
             )
         }
     }
@@ -322,14 +299,19 @@ fun UserInfoSectionPreview() {
 fun UserProfileScreenPreview() {
     OfficeAppTheme {
         UserProfileScreen(
-            userInfoUiState = userInfoPreview.toUserInfoUiState(),
+            userProfileUiState = UserProfileUiState(
+                name = "Дмитрий",
+                surname = "Комарницкий",
+                job = "Сотрудник Tinkoff"
+            ),
             onManageAccountClick = {},
             onMyOfficeClick = {},
             onMyIdeasClick = {},
             onLogoutClick = {},
             navigateToHomeScreen = {},
             navigateToFavouriteScreen = {},
-            navigateToMyOfficeScreen = {}
+            navigateToMyOfficeScreen = {},
+            navigateToAuthGraph = {}
         )
     }
 }

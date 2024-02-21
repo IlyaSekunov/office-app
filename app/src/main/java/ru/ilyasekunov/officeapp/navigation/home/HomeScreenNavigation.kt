@@ -1,8 +1,6 @@
 package ru.ilyasekunov.officeapp.navigation.home
 
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -10,11 +8,8 @@ import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.home.HomeScreen
 import ru.ilyasekunov.officeapp.ui.home.HomeViewModel
-import ru.ilyasekunov.officeapp.ui.userprofile.UserViewModel
 
 fun NavGraphBuilder.homeScreen(
-    homeViewModelStoreOwnerProvider: () -> ViewModelStoreOwner,
-    userViewModelStoreOwnerProvider: () -> ViewModelStoreOwner,
     navigateToIdeaDetailsScreen: (postId: Long) -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
@@ -24,18 +19,13 @@ fun NavGraphBuilder.homeScreen(
     navigateToMyOfficeScreen: () -> Unit,
     navigateToProfileScreen: () -> Unit
 ) {
-    composable(route = BottomNavigationScreen.Home.route) { backStackEntry ->
-        val homeViewModelStoreOwner = remember(backStackEntry) { homeViewModelStoreOwnerProvider() }
-        val userViewModelStoreOwner = remember(backStackEntry) { userViewModelStoreOwnerProvider() }
-        val homeViewModel = hiltViewModel<HomeViewModel>(homeViewModelStoreOwner)
-        val userViewModel = hiltViewModel<UserViewModel>(userViewModelStoreOwner)
+    composable(route = BottomNavigationScreen.Home.route) {
+        val homeViewModel = hiltViewModel<HomeViewModel>()
         HomeScreen(
-            posts = homeViewModel.posts,
-            isIdeaAuthorCurrentUser = {
-                it.id == userViewModel.user!!.id
-            },
-            searchValue = homeViewModel.searchUiState,
-            onSearchValueChange = homeViewModel::updateSearch,
+            postsUiState = homeViewModel.postsUiState,
+            isIdeaAuthorCurrentUser = homeViewModel::isIdeaAuthorCurrentUser,
+            searchUiState = homeViewModel.searchUiState,
+            onSearchValueChange = homeViewModel::updateSearchValue,
             filtersUiState = homeViewModel.filtersUiState,
             onOfficeFilterRemoveClick = homeViewModel::removeOfficeFilter,
             onSortingFilterRemoveClick = homeViewModel::removeSortingFilter,

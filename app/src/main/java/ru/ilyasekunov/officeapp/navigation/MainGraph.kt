@@ -24,12 +24,6 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
         startDestination = BottomNavigationScreen.Home.route
     ) {
         homeScreen(
-            homeViewModelStoreOwnerProvider = {
-                navController.getBackStackEntry(MainGraphRoute)
-            },
-            userViewModelStoreOwnerProvider = {
-                navController.getBackStackEntry(MainGraphRoute)
-            },
             navigateToIdeaDetailsScreen = { /*TODO*/ },
             navigateToAuthorScreen = { /*TODO*/ },
             navigateToEditIdeaScreen = { postId ->
@@ -77,9 +71,6 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
             }
         )
         profileScreen(
-            viewModelStoreOwnerProvider = {
-                navController.getBackStackEntry(MainGraphRoute)
-            },
             navigateToUserManageAccountScreen = {
                 navController.navigateToUserManageAccountScreen(
                     navOptions = NavOptions.Builder()
@@ -114,9 +105,6 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
             navigateToFavouriteScreen = { /*TODO*/ }
         )
         userManageAccountScreen(
-            viewModelStoreOwnerProvider = {
-                navController.getBackStackEntry(MainGraphRoute)
-            },
             navigateToHomeScreen = {
                 navController.navigateToHomeScreen(
                     navOptions = NavOptions.Builder()
@@ -144,7 +132,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
             navigateBack = navController::popBackStack
         )
         filtersScreen(
-            viewModelStoreOwnerProvider = {
+            homeViewModelStoreOwnerProvider = {
                 navController.getBackStackEntry(MainGraphRoute)
             },
             navigateToHomeScreen = {

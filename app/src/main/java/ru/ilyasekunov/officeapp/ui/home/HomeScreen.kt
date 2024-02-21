@@ -81,16 +81,14 @@ import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.data.SortingFilter
-import ru.ilyasekunov.officeapp.data.defaultSortFilter
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
-import ru.ilyasekunov.officeapp.data.officeList
-import ru.ilyasekunov.officeapp.data.sortingFilters
+import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.preview.ideaAuthor
 import ru.ilyasekunov.officeapp.preview.ideaPost
+import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.animations.dislikePressedAnimation
 import ru.ilyasekunov.officeapp.ui.animations.likePressedAnimation
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
@@ -103,9 +101,9 @@ import java.time.LocalDateTime
 
 @Composable
 fun HomeScreen(
-    posts: List<IdeaPost>,
+    postsUiState: PostsUiState,
     isIdeaAuthorCurrentUser: (IdeaAuthor) -> Boolean,
-    searchValue: String,
+    searchUiState: SearchUiState,
     onSearchValueChange: (String) -> Unit,
     filtersUiState: FiltersUiState,
     onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
@@ -128,7 +126,7 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             HomeAppBar(
-                searchValue = searchValue,
+                searchUiState = searchUiState,
                 onSearchValueChange = onSearchValueChange,
                 onFiltersClick = navigateToFiltersScreen,
                 filtersUiState = filtersUiState,
@@ -156,7 +154,14 @@ fun HomeScreen(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
-        if (posts.isEmpty()) {
+        if (postsUiState.isLoading) {
+            LoadingScreen(
+                circularProgressingColor = MaterialTheme.colorScheme.primary,
+                circularProgressingWidth = 3.dp,
+                circularProgressingSize = 40.dp,
+                modifier = Modifier.fillMaxSize()
+            )
+        } else if (postsUiState.posts.isEmpty()) {
             NoPostsAvailable(
                 modifier = Modifier
                     .fillMaxSize()
@@ -165,7 +170,7 @@ fun HomeScreen(
         } else {
             val snackbarDeletedPost = stringResource(R.string.post_deleted)
             IdeaPosts(
-                posts = posts,
+                posts = postsUiState.posts,
                 isIdeaAuthorCurrentUser = isIdeaAuthorCurrentUser,
                 onDeletePostClick = {
                     onDeletePostClick(it)
@@ -243,7 +248,7 @@ fun IdeaPosts(
 
 @Composable
 fun HomeAppBar(
-    searchValue: String,
+    searchUiState: SearchUiState,
     onSearchValueChange: (String) -> Unit,
     filtersUiState: FiltersUiState,
     onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
@@ -251,7 +256,9 @@ fun HomeAppBar(
     onFiltersClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val showSortingFilter = filtersUiState.sortingFiltersUiState.selected != defaultSortFilter
+    val sortingFiltersUiState = filtersUiState.sortingFiltersUiState
+    val officeFilterUiState = filtersUiState.officeFiltersUiState
+    val showSortingFilter = sortingFiltersUiState.selected != null
     val showOfficeFilters = filtersUiState.officeFiltersUiState.any { it.isSelected }
     Column(
         modifier = modifier
@@ -264,7 +271,7 @@ fun HomeAppBar(
             )
     ) {
         SearchTextField(
-            searchValue = searchValue,
+            searchValue = searchUiState.value,
             onSearchValueChange = onSearchValueChange,
             onFiltersClick = onFiltersClick
         )
@@ -272,7 +279,7 @@ fun HomeAppBar(
             Spacer(modifier = Modifier.height(20.dp))
             if (showOfficeFilters) {
                 AppliedOfficeFilters(
-                    officeFilters = filtersUiState.officeFiltersUiState,
+                    officeFilters = officeFilterUiState,
                     onOfficeFilterRemoveClick = onOfficeFilterRemoveClick
                 )
             }
@@ -281,7 +288,7 @@ fun HomeAppBar(
                     Spacer(modifier = Modifier.height(30.dp))
                 }
                 AppliedSortingFilter(
-                    sortingFilter = filtersUiState.sortingFiltersUiState.selected,
+                    sortingCategory = sortingFiltersUiState.selected!!,
                     onSortingFilterRemoveClick = onSortingFilterRemoveClick
                 )
             }
@@ -470,7 +477,7 @@ fun IdeaPostAuthor(
 
 @Composable
 fun AppliedSortingFilter(
-    sortingFilter: SortingFilter,
+    sortingCategory: SortingCategory,
     onSortingFilterRemoveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -486,7 +493,7 @@ fun AppliedSortingFilter(
         )
         Spacer(modifier = Modifier.width(8.dp))
         SortingCategoryFilter(
-            sortingFilter = sortingFilter,
+            sortingCategory = sortingCategory,
             onRemoveClick = { onSortingFilterRemoveClick() }
         )
     }
@@ -664,7 +671,7 @@ fun OfficeFilterSearch(
 
 @Composable
 fun SortingCategoryFilter(
-    sortingFilter: SortingFilter,
+    sortingCategory: SortingCategory,
     onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -675,7 +682,7 @@ fun SortingCategoryFilter(
         modifier = modifier.height(30.dp)
     ) {
         Text(
-            text = sortingFilter.name,
+            text = sortingCategory.name,
             style = MaterialTheme.typography.labelMedium,
             fontSize = 14.sp,
             modifier = Modifier
@@ -804,7 +811,7 @@ fun AttachedImages(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(MaterialTheme.shapes.large)
+                    .clip(MaterialTheme.shapes.medium)
             )
         }
         CurrentImageSection(
@@ -1135,10 +1142,10 @@ fun IdeaPostPreview() {
 fun HomeAppBarPreview() {
     OfficeAppTheme {
         HomeAppBar(
-            searchValue = "",
+            searchUiState = SearchUiState(),
             onSearchValueChange = {},
             onFiltersClick = {},
-            filtersUiState = FiltersUiState.Default,
+            filtersUiState = FiltersUiState(),
             onSortingFilterRemoveClick = {},
             onOfficeFilterRemoveClick = {},
             modifier = Modifier.fillMaxWidth()
@@ -1165,7 +1172,11 @@ fun OfficeFilterSearchPreview() {
     OfficeAppTheme {
         Surface {
             OfficeFilterSearch(
-                office = officeList[3],
+                office = Office(
+                    id = 1,
+                    imageUrl = "",
+                    address = ""
+                ),
                 size = DpSize(width = 190.dp, height = 50.dp),
                 onRemoveClick = {}
             )
@@ -1179,7 +1190,7 @@ fun SortingCategoryFilterPreview() {
     OfficeAppTheme {
         Surface {
             SortingCategoryFilter(
-                sortingFilter = sortingFilters[2],
+                sortingCategory = SortingCategory(id = 0, "Комментариям"),
                 onRemoveClick = {}
             )
         }
@@ -1192,7 +1203,11 @@ fun IdeaPostOfficePreview() {
     OfficeAppTheme {
         Surface {
             IdeaPostOffice(
-                office = officeList[1]
+                office = Office(
+                    id = 1,
+                    imageUrl = "",
+                    address = ""
+                )
             )
         }
     }

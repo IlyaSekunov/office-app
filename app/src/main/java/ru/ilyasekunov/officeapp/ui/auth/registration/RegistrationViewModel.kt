@@ -8,25 +8,34 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
-import ru.ilyasekunov.officeapp.data.dto.UserInfoForm
+import ru.ilyasekunov.officeapp.data.dto.UserDto
 import ru.ilyasekunov.officeapp.data.model.Office
+import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
-import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoUiState
+import ru.ilyasekunov.officeapp.ui.userprofile.UserProfileUiState
 import javax.inject.Inject
 
 data class RegistrationUiState(
     val email: String = "",
     val password: String = "",
     val repeatedPassword: String = "",
-    val userInfoUiState: UserInfoUiState = UserInfoUiState()
+    val userInfoUiState: UserProfileUiState = UserProfileUiState(),
+    val availableOffices: List<Office> = emptyList(),
+    val isLoading: Boolean = false,
+    val isRegistrationSuccess: Boolean = false
 )
 
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
     var registrationUiState by mutableStateOf(RegistrationUiState())
         private set
+
+    init {
+        loadAvailableOffices()
+    }
 
     fun updateEmail(email: String) {
         registrationUiState = registrationUiState.copy(email = email)
@@ -66,13 +75,37 @@ class RegistrationViewModel @Inject constructor(
 
     fun updateOffice(office: Office) {
         registrationUiState = registrationUiState.copy(
-            userInfoUiState = registrationUiState.userInfoUiState.copy(office = office)
+            userInfoUiState = registrationUiState.userInfoUiState.copy(currentOffice = office)
         )
     }
 
     fun register() {
         viewModelScope.launch {
-            userRepository.register(registrationUiState.toRegistrationForm())
+            updateIsLoading(true)
+            //authRepository.register(registrationUiState.toRegistrationForm())
+            updateIsLoading(false)
+            updateIsRegistrationSuccess(true)
+        }
+    }
+
+    private fun updateAvailableOffices(availableOffices: List<Office>) {
+        registrationUiState = registrationUiState.copy(availableOffices = availableOffices)
+    }
+
+    private fun updateIsLoading(isLoading: Boolean) {
+        registrationUiState = registrationUiState.copy(isLoading = isLoading)
+    }
+
+    private fun updateIsRegistrationSuccess(isRegistrationSuccess: Boolean) {
+        registrationUiState = registrationUiState.copy(isRegistrationSuccess = isRegistrationSuccess)
+    }
+
+    private fun loadAvailableOffices() {
+        viewModelScope.launch {
+            updateIsLoading(true)
+            updateAvailableOffices(userRepository.availableOffices())
+            updateOffice(registrationUiState.availableOffices[0])
+            updateIsLoading(false)
         }
     }
 }
@@ -81,11 +114,11 @@ fun RegistrationUiState.toRegistrationForm(): RegistrationForm =
     RegistrationForm(
         email = email,
         password = password,
-        userInfo = UserInfoForm(
+        userInfo = UserDto(
             name = userInfoUiState.name,
             surname = userInfoUiState.surname,
             job = userInfoUiState.job,
             photo = userInfoUiState.photo,
-            officeId = userInfoUiState.office.id
+            officeId = userInfoUiState.currentOffice!!.id
         )
     )

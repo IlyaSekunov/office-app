@@ -54,14 +54,10 @@ fun NavGraphBuilder.editIdeaScreen(
 
         EditIdeaScreen(
             editingIdeaUiState = editIdeaViewModel.editIdeaUiState,
-            isLoading = editIdeaViewModel.isLoading,
             onTitleValueChange = editIdeaViewModel::updateTitle,
             onIdeaBodyValueChange = editIdeaViewModel::updateContent,
             onRemoveImageClick = editIdeaViewModel::removeImage,
-            onPublishClick = {
-                editIdeaViewModel.editPost()
-                navigateToHomeScreen()
-            },
+            onPublishClick = editIdeaViewModel::editPost,
             onAttachImagesButtonClick = {
                 multipleImagePicker.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)

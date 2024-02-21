@@ -55,10 +55,7 @@ fun NavGraphBuilder.suggestIdeaScreen(
             onTitleValueChange = suggestIdeaViewModel::updateTitle,
             onIdeaBodyValueChange = suggestIdeaViewModel::updateContent,
             onRemoveImageClick = suggestIdeaViewModel::removeImage,
-            onPublishClick = {
-                suggestIdeaViewModel.publishPost()
-                navigateToHomeScreen()
-            },
+            onPublishClick = suggestIdeaViewModel::publishPost,
             onAttachImagesButtonClick = {
                 multipleImagePicker.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)

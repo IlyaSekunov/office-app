@@ -14,7 +14,6 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
@@ -35,6 +34,8 @@ fun NavGraphBuilder.registrationUserInfoScreen(
     ) { backStackEntry ->
         val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
         val registrationViewModel = hiltViewModel<RegistrationViewModel>(viewModelStoreOwner)
+
+        // Initialize image picker
         val contentResolver = LocalContext.current.contentResolver
         val coroutineScope = rememberCoroutineScope()
         val singleImagePicker =
@@ -45,10 +46,9 @@ fun NavGraphBuilder.registrationUserInfoScreen(
                     registrationViewModel.updatePhoto(photo)
                 }
             }
+
         RegistrationUserInfoScreen(
-            userInfoUiState = registrationViewModel.registrationUiState.userInfoUiState,
-            officeList = officeList,
-            navigateBack = navigateBack,
+            registrationUiState = registrationViewModel.registrationUiState,
             onPhotoPickerClick = {
                 singleImagePicker.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -58,10 +58,9 @@ fun NavGraphBuilder.registrationUserInfoScreen(
             onSurnameValueChange = registrationViewModel::updateSurname,
             onJobValueChange = registrationViewModel::updateJob,
             onOfficeChange = registrationViewModel::updateOffice,
-            onSaveButtonClick = {
-                registrationViewModel.register()
-                navigateToMainGraph()
-            }
+            onSaveButtonClick = registrationViewModel::register,
+            navigateBack = navigateBack,
+            navigateToHomeScreen = navigateToMainGraph
         )
     }
 }

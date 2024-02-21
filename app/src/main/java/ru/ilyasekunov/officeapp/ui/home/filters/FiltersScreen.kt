@@ -43,7 +43,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,7 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.data.SortingFilter
+import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.data.officeList
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
@@ -75,23 +74,21 @@ import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 @Composable
 fun FiltersScreen(
     filtersUiState: FiltersUiState,
-    applyNewFilters: (FiltersUiState) -> Unit,
+    onSortingCategoryClick: (SortingCategory) -> Unit,
+    onOfficeFilterClick: (OfficeFilterUiState) -> Unit,
+    onResetClick: () -> Unit,
+    onShowClick: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit,
 ) {
-    var newFiltersUiState by rememberSaveable(stateSaver = FiltersUiState.Saver) {
-        mutableStateOf(filtersUiState)
-    }
     Scaffold(
         topBar = {
             FiltersTopAppBar(
                 navigateBack = navigateBack,
-                onDiscardClick = {
-                    newFiltersUiState = FiltersUiState.Default
-                },
+                onResetClick = onResetClick,
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     scrolledContainerColor = MaterialTheme.colorScheme.background
@@ -116,38 +113,19 @@ fun FiltersScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             OfficeFiltersSection(
-                officeList = newFiltersUiState.officeFiltersUiState,
-                onOfficeClick = { clickedOfficeFilterUiState ->
-                    newFiltersUiState = newFiltersUiState.copy(
-                        officeFiltersUiState = newFiltersUiState.officeFiltersUiState.map {
-                            if (it == clickedOfficeFilterUiState) {
-                                it.copy(isSelected = !it.isSelected)
-                            } else {
-                                it
-                            }
-                        }
-                    )
-                },
+                officeList = filtersUiState.officeFiltersUiState,
+                onOfficeClick = onOfficeFilterClick,
                 officeFilterSize = DpSize(width = 345.dp, height = 80.dp),
                 modifier = Modifier.padding(start = 20.dp, end = 20.dp)
             )
             Spacer(modifier = Modifier.height(22.dp))
             SortingFiltersSection(
-                sortingFiltersUiState = newFiltersUiState.sortingFiltersUiState,
-                onFilterClick = {
-                    newFiltersUiState = newFiltersUiState.copy(
-                        sortingFiltersUiState = newFiltersUiState.sortingFiltersUiState.copy(
-                            selected = it
-                        )
-                    )
-                }
+                sortingFiltersUiState = filtersUiState.sortingFiltersUiState,
+                onFilterClick = onSortingCategoryClick
             )
             Spacer(modifier = Modifier.height(46.dp))
             Button(
-                onClick = {
-                    applyNewFilters(newFiltersUiState)
-                    navigateToHomeScreen()
-                },
+                onClick = onShowClick,
                 shape = MaterialTheme.shapes.large,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
@@ -171,7 +149,7 @@ fun FiltersScreen(
 @Composable
 fun FiltersTopAppBar(
     navigateBack: () -> Unit,
-    onDiscardClick: () -> Unit,
+    onResetClick: () -> Unit,
     colors: TopAppBarColors,
     modifier: Modifier = Modifier
 ) {
@@ -201,7 +179,7 @@ fun FiltersTopAppBar(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier
                     .padding(end = 20.dp)
-                    .clickable { onDiscardClick() }
+                    .clickable { onResetClick() }
             )
         },
         colors = colors,
@@ -302,7 +280,7 @@ fun OfficeFilter(
 @Composable
 fun SortingFiltersSection(
     sortingFiltersUiState: SortingFiltersUiState,
-    onFilterClick: (SortingFilter) -> Unit,
+    onFilterClick: (SortingCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -329,7 +307,7 @@ fun SortingFiltersSection(
 @Composable
 fun SortingFilters(
     sortingFiltersUiState: SortingFiltersUiState,
-    onFilterClick: (SortingFilter) -> Unit,
+    onFilterClick: (SortingCategory) -> Unit,
     modifier: Modifier
 ) {
     val filters = sortingFiltersUiState.filters
@@ -392,7 +370,7 @@ fun SortingFilters(
 
 @Composable
 fun SortingFilter(
-    sortingCategory: SortingFilter,
+    sortingCategory: SortingCategory,
     isSelected: Boolean,
     modifier: Modifier = Modifier
 ) {
