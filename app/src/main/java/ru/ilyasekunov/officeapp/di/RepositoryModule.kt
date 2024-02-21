@@ -4,8 +4,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import ru.ilyasekunov.officeapp.data.datasource.AuthDatasource
 import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
+import ru.ilyasekunov.officeapp.data.datasource.TokenDatasource
 import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.auth.MockAuthDatasourceImpl
+import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
+import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
@@ -24,4 +29,15 @@ object RepositoryModule {
     @Singleton
     fun providePostsRepository(postsDatasource: PostsDatasource): PostsRepository =
         PostsRepositoryImpl(postsDatasource)
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(
+    /*authDatasource: AuthDatasource*/
+        tokenDatasource: TokenDatasource
+    ): AuthRepository =
+        AuthRepositoryImpl(
+            authDatasource = MockAuthDatasourceImpl(),
+            tokenDatasource = tokenDatasource
+        )
 }
