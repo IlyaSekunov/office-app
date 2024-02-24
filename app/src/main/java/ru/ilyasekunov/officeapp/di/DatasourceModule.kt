@@ -6,14 +6,15 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import retrofit2.Retrofit
+import kotlinx.coroutines.CoroutineDispatcher
+import ru.ilyasekunov.officeapp.data.api.AuthApi
+import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
 import ru.ilyasekunov.officeapp.data.datasource.TokenDatasource
+import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDatasourceImpl
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.posts.MockPostsDatasource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.user.MockUserDatasource
-import ru.ilyasekunov.officeapp.data.datasource.AuthDatasource
-import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
-import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
+import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDatasource
 import javax.inject.Singleton
 
 @Module
@@ -34,6 +35,8 @@ object DatasourceModule {
 
     @Provides
     @Singleton
-    fun provideAuthDatasource(retrofit: Retrofit): AuthDatasource =
-        retrofit.create(AuthDatasource::class.java)
+    fun provideAuthRemoteDatasource(
+        authApi: AuthApi,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
+    ): AuthRemoteDatasource = AuthRemoteDatasource(authApi, ioDispatcher)
 }
