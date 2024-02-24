@@ -11,17 +11,18 @@ class HttpAuthInterceptor(
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
         val url = request.url.encodedPath
-        if (!url.contains("auth") || !url.contains("available-offices")) {
-            val token = runBlocking { tokenDatasource.token() }
-            token?.let {
-                val tokenHeader = "Bearer $it"
-                request = request.newBuilder()
-                    .addHeader(
-                        name = "Authorization",
-                        value = tokenHeader
-                    )
-                    .build()
-            }
+        if (url.contains("register") || url.contains("login")) {
+            return chain.proceed(request)
+        }
+        val token = runBlocking { tokenDatasource.token() }
+        token?.let {
+            val tokenHeader = "Bearer $it"
+            request = request.newBuilder()
+                .addHeader(
+                    name = "Authorization",
+                    value = tokenHeader
+                )
+                .build()
         }
         return chain.proceed(request)
     }
