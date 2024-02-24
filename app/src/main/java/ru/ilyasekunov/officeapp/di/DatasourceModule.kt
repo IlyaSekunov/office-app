@@ -9,9 +9,8 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
-import ru.ilyasekunov.officeapp.data.datasource.TokenDatasource
 import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
-import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDatasourceImpl
+import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDatasource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.posts.MockPostsDatasource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.user.MockUserDatasource
 import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDatasource
@@ -30,8 +29,10 @@ object DatasourceModule {
 
     @Provides
     @Singleton
-    fun provideUserLocalDatasource(dataStore: DataStore<Preferences>): TokenDatasource =
-        TokenLocalDatasourceImpl(dataStore)
+    fun provideTokenLocalDatasource(
+        dataStore: DataStore<Preferences>,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
+    ): TokenLocalDatasource = TokenLocalDatasource(dataStore, ioDispatcher)
 
     @Provides
     @Singleton

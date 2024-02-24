@@ -5,8 +5,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
-import ru.ilyasekunov.officeapp.data.datasource.TokenDatasource
 import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
+import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDatasource
 import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDatasource
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepositoryImpl
@@ -33,7 +33,7 @@ object RepositoryModule {
     @Singleton
     fun provideAuthRepository(
         authRemoteDatasource: AuthRemoteDatasource,
-        tokenDatasource: TokenDatasource
+        tokenDatasource: TokenLocalDatasource
     ): AuthRepository =
         AuthRepositoryImpl(authRemoteDatasource, tokenDatasource)
 }
