@@ -10,7 +10,7 @@ import kotlinx.coroutines.withContext
 import ru.ilyasekunov.officeapp.data.api.TokenApi
 import javax.inject.Inject
 
-class TokenLocalDatasource @Inject constructor(
+class TokenLocalDataSource(
     private val dataStore: DataStore<Preferences>,
     private val ioDispatcher: CoroutineDispatcher
 ) : TokenApi {

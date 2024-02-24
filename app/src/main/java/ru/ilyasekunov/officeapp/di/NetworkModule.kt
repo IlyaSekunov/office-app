@@ -7,8 +7,9 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDatasource
+import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.network.HttpAuthInterceptor
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 private const val BASE_URl = "http://10.0.2.2:8080/"
@@ -18,13 +19,16 @@ private const val BASE_URl = "http://10.0.2.2:8080/"
 object NetworkModule {
     @Provides
     @Singleton
+    @AuthInterceptor
     fun provideHttpAuthInterceptor(
-        tokenDatasource: TokenLocalDatasource
+        tokenDatasource: TokenLocalDataSource
     ): HttpAuthInterceptor = HttpAuthInterceptor(tokenDatasource)
 
     @Provides
     @Singleton
-    fun provideRetrofit(httpAuthInterceptor: HttpAuthInterceptor): Retrofit {
+    fun provideRetrofit(
+        @AuthInterceptor httpAuthInterceptor: HttpAuthInterceptor
+    ): Retrofit {
         val httpClient = OkHttpClient.Builder()
             .addInterceptor(httpAuthInterceptor)
             .build()
@@ -35,3 +39,7 @@ object NetworkModule {
             .build()
     }
 }
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class AuthInterceptor

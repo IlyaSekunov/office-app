@@ -5,9 +5,8 @@ import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
-import javax.inject.Inject
 
-class PostsRepositoryImpl @Inject constructor(
+class PostsRepositoryImpl(
     private val postsDatasource: PostsDatasource
 ) : PostsRepository {
     override suspend fun posts(): List<IdeaPost> {

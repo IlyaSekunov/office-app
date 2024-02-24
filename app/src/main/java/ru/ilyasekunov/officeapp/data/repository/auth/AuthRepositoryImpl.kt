@@ -3,16 +3,15 @@ package ru.ilyasekunov.officeapp.data.repository.auth
 import okio.IOException
 import retrofit2.HttpException
 import ru.ilyasekunov.officeapp.data.ResponseResult
-import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDatasource
-import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDatasource
+import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
+import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDataSource
 import ru.ilyasekunov.officeapp.data.dto.LoginForm
 import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
 import ru.ilyasekunov.officeapp.data.model.User
-import javax.inject.Inject
 
-class AuthRepositoryImpl @Inject constructor(
-    private val authDatasource: AuthRemoteDatasource,
-    private val tokenDatasource: TokenLocalDatasource
+class AuthRepositoryImpl(
+    private val authDatasource: AuthRemoteDataSource,
+    private val tokenDatasource: TokenLocalDataSource
 ) : AuthRepository {
     override suspend fun register(registrationForm: RegistrationForm): ResponseResult<String> {
         return try {

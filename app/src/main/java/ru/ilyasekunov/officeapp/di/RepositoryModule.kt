@@ -6,8 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
 import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
-import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDatasource
-import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDatasource
+import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
+import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDataSource
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
@@ -21,19 +21,21 @@ import javax.inject.Singleton
 object RepositoryModule {
     @Provides
     @Singleton
-    fun provideUserRepository(userDatasource: UserDatasource): UserRepository =
+    fun provideUserRepository(
+        @MockDataSource userDatasource: UserDatasource
+    ): UserRepository =
         UserRepositoryImpl(userDatasource)
 
     @Provides
     @Singleton
-    fun providePostsRepository(postsDatasource: PostsDatasource): PostsRepository =
-        PostsRepositoryImpl(postsDatasource)
+    fun providePostsRepository(
+        @MockDataSource postsDatasource: PostsDatasource
+    ): PostsRepository = PostsRepositoryImpl(postsDatasource)
 
     @Provides
     @Singleton
     fun provideAuthRepository(
-        authRemoteDatasource: AuthRemoteDatasource,
-        tokenDatasource: TokenLocalDatasource
-    ): AuthRepository =
-        AuthRepositoryImpl(authRemoteDatasource, tokenDatasource)
+        authRemoteDatasource: AuthRemoteDataSource,
+        tokenDatasource: TokenLocalDataSource
+    ): AuthRepository = AuthRepositoryImpl(authRemoteDatasource, tokenDatasource)
 }

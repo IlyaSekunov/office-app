@@ -9,8 +9,7 @@ import ru.ilyasekunov.officeapp.data.model.User
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Singleton
-class AuthRemoteDatasource @Inject constructor(
+class AuthRemoteDataSource(
     private val authApi: AuthApi,
     private val ioDispatcher: CoroutineDispatcher
 ) {

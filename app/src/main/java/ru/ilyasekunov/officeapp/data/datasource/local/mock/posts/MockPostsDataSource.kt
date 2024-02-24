@@ -11,7 +11,7 @@ import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import java.time.LocalDateTime
 
-class MockPostsDatasource : PostsDatasource {
+class MockPostsDataSource : PostsDatasource {
     override suspend fun publishPost(post: PublishPostDto) {
         synchronized(Posts) {
             Posts += post.toIdeaPost()

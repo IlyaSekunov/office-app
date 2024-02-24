@@ -8,12 +8,15 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import ru.ilyasekunov.officeapp.data.api.AuthApi
+import ru.ilyasekunov.officeapp.data.api.PostsApi
 import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
 import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
-import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDatasource
-import ru.ilyasekunov.officeapp.data.datasource.local.mock.posts.MockPostsDatasource
-import ru.ilyasekunov.officeapp.data.datasource.local.mock.user.MockUserDatasource
-import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDatasource
+import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.posts.MockPostsDataSource
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.user.MockUserDataSource
+import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDataSource
+import ru.ilyasekunov.officeapp.data.datasource.remote.PostsRemoteDataSource
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Module
@@ -21,23 +24,41 @@ import javax.inject.Singleton
 object DatasourceModule {
     @Provides
     @Singleton
-    fun providePostsDatasource(): PostsDatasource = MockPostsDatasource()
+    @MockDataSource
+    fun provideMockPostsDataSource(): PostsDatasource = MockPostsDataSource()
 
     @Provides
     @Singleton
-    fun provideUserRemoteDatasource(): UserDatasource = MockUserDatasource()
+    @RemoteDataSource
+    fun providePostsRemoteDataSource(
+        postsApi: PostsApi,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
+    ): PostsDatasource = PostsRemoteDataSource(postsApi, ioDispatcher)
 
     @Provides
     @Singleton
-    fun provideTokenLocalDatasource(
+    @MockDataSource
+    fun provideUserMockDataSource(): UserDatasource = MockUserDataSource()
+
+    @Provides
+    @Singleton
+    fun provideTokenLocalDataSource(
         dataStore: DataStore<Preferences>,
         @IoDispatcher ioDispatcher: CoroutineDispatcher
-    ): TokenLocalDatasource = TokenLocalDatasource(dataStore, ioDispatcher)
+    ): TokenLocalDataSource = TokenLocalDataSource(dataStore, ioDispatcher)
 
     @Provides
     @Singleton
-    fun provideAuthRemoteDatasource(
+    fun provideAuthRemoteDataSource(
         authApi: AuthApi,
         @IoDispatcher ioDispatcher: CoroutineDispatcher
-    ): AuthRemoteDatasource = AuthRemoteDatasource(authApi, ioDispatcher)
+    ): AuthRemoteDataSource = AuthRemoteDataSource(authApi, ioDispatcher)
 }
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class MockDataSource
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class RemoteDataSource

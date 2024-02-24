@@ -5,7 +5,7 @@ import ru.ilyasekunov.officeapp.data.datasource.local.mock.Offices
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.User
 import ru.ilyasekunov.officeapp.data.dto.UserDto
 
-class MockUserDatasource : UserDatasource {
+class MockUserDataSource : UserDatasource {
     override suspend fun user() = User
 
     override suspend fun saveChanges(userDto: UserDto) {

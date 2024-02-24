@@ -4,9 +4,8 @@ import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
 import ru.ilyasekunov.officeapp.data.dto.UserDto
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.User
-import javax.inject.Inject
 
-class UserRepositoryImpl @Inject constructor(
+class UserRepositoryImpl(
     private val userDatasource: UserDatasource
 ) : UserRepository {
     override suspend fun user(): User? {
