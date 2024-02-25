@@ -4,10 +4,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
+import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
 import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
-import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
-import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDataSource
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
@@ -23,8 +23,7 @@ object RepositoryModule {
     @Singleton
     fun provideUserRepository(
         @MockDataSource userDatasource: UserDatasource
-    ): UserRepository =
-        UserRepositoryImpl(userDatasource)
+    ): UserRepository = UserRepositoryImpl(userDatasource)
 
     @Provides
     @Singleton
@@ -35,7 +34,7 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideAuthRepository(
-        authRemoteDatasource: AuthRemoteDataSource,
-        tokenDatasource: TokenLocalDataSource
-    ): AuthRepository = AuthRepositoryImpl(authRemoteDatasource, tokenDatasource)
+        @RemoteDataSource authDatasource: AuthDataSource,
+        @LocalDataSource tokenDatasource: TokenDataSource
+    ): AuthRepository = AuthRepositoryImpl(authDatasource, tokenDatasource)
 }

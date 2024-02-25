@@ -7,7 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
+import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
 import ru.ilyasekunov.officeapp.data.network.HttpAuthInterceptor
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -21,7 +21,7 @@ object NetworkModule {
     @Singleton
     @AuthInterceptor
     fun provideHttpAuthInterceptor(
-        tokenDatasource: TokenLocalDataSource
+        @LocalDataSource tokenDatasource: TokenDataSource
     ): HttpAuthInterceptor = HttpAuthInterceptor(tokenDatasource)
 
     @Provides

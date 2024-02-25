@@ -7,13 +7,12 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import ru.ilyasekunov.officeapp.data.api.TokenApi
-import javax.inject.Inject
+import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
 
 class TokenLocalDataSource(
     private val dataStore: DataStore<Preferences>,
     private val ioDispatcher: CoroutineDispatcher
-) : TokenApi {
+) : TokenDataSource {
 
     override suspend fun token(): String? =
         withContext(ioDispatcher) {

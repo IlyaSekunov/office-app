@@ -3,10 +3,10 @@ package ru.ilyasekunov.officeapp.data.network
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
-import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
+import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
 
 class HttpAuthInterceptor(
-    private val tokenDatasource: TokenLocalDataSource
+    private val tokenDatasource: TokenDataSource
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()

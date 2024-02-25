@@ -3,15 +3,15 @@ package ru.ilyasekunov.officeapp.data.repository.auth
 import okio.IOException
 import retrofit2.HttpException
 import ru.ilyasekunov.officeapp.data.ResponseResult
-import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
-import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDataSource
+import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
+import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
 import ru.ilyasekunov.officeapp.data.dto.LoginForm
 import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
 import ru.ilyasekunov.officeapp.data.model.User
 
 class AuthRepositoryImpl(
-    private val authDatasource: AuthRemoteDataSource,
-    private val tokenDatasource: TokenLocalDataSource
+    private val authDatasource: AuthDataSource,
+    private val tokenDatasource: TokenDataSource
 ) : AuthRepository {
     override suspend fun register(registrationForm: RegistrationForm): ResponseResult<String> {
         return try {

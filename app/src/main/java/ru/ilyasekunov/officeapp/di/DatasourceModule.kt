@@ -9,13 +9,17 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.api.PostsApi
+import ru.ilyasekunov.officeapp.data.api.UserApi
+import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
+import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
 import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.posts.MockPostsDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.user.MockUserDataSource
 import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDataSource
 import ru.ilyasekunov.officeapp.data.datasource.remote.PostsRemoteDataSource
+import ru.ilyasekunov.officeapp.data.datasource.remote.UserRemoteDataSource
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -42,17 +46,26 @@ object DatasourceModule {
 
     @Provides
     @Singleton
-    fun provideTokenLocalDataSource(
-        dataStore: DataStore<Preferences>,
+    @RemoteDataSource
+    fun provideUserRemoteDataSource(
+        userApi: UserApi,
         @IoDispatcher ioDispatcher: CoroutineDispatcher
-    ): TokenLocalDataSource = TokenLocalDataSource(dataStore, ioDispatcher)
+    ): UserDatasource = UserRemoteDataSource(userApi, ioDispatcher)
 
     @Provides
     @Singleton
+    @LocalDataSource
+    fun provideTokenLocalDataSource(
+        dataStore: DataStore<Preferences>,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
+    ): TokenDataSource = TokenLocalDataSource(dataStore, ioDispatcher)
+
+    @Provides
+    @RemoteDataSource
     fun provideAuthRemoteDataSource(
         authApi: AuthApi,
         @IoDispatcher ioDispatcher: CoroutineDispatcher
-    ): AuthRemoteDataSource = AuthRemoteDataSource(authApi, ioDispatcher)
+    ): AuthDataSource = AuthRemoteDataSource(authApi, ioDispatcher)
 }
 
 @Qualifier
@@ -62,3 +75,7 @@ annotation class MockDataSource
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class RemoteDataSource
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class LocalDataSource
