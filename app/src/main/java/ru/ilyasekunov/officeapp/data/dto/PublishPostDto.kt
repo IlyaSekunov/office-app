@@ -8,5 +8,5 @@ data class PublishPostDto(
     val content: String,
     val author: IdeaAuthor,
     val office: Office,
-    val attachedImages: List<Any>
+    val attachedImages: List<String>
 )

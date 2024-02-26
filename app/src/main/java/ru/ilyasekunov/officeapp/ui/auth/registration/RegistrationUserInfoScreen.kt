@@ -114,14 +114,14 @@ fun RegistrationUserInfoScreen(
                     .padding(it)
             ) {
                 PhotoPicker(
-                    selectedPhoto = registrationUiState.userInfoUiState.photo,
+                    selectedPhoto = registrationUiState.userInfoRegistrationUiState.photo,
                     onPhotoPickerClick = onPhotoPickerClick,
                     modifier = Modifier
                         .size(180.dp)
                 )
                 Spacer(modifier = Modifier.height(36.dp))
                 UserInfoTextField(
-                    value = registrationUiState.userInfoUiState.name,
+                    value = registrationUiState.userInfoRegistrationUiState.name,
                     label = stringResource(R.string.name),
                     placeholder = stringResource(R.string.your_name),
                     onValueChange = onNameValueChange,
@@ -131,7 +131,7 @@ fun RegistrationUserInfoScreen(
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 UserInfoTextField(
-                    value = registrationUiState.userInfoUiState.surname,
+                    value = registrationUiState.userInfoRegistrationUiState.surname,
                     label = stringResource(R.string.surname),
                     placeholder = stringResource(R.string.your_surname),
                     onValueChange = onSurnameValueChange,
@@ -141,7 +141,7 @@ fun RegistrationUserInfoScreen(
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 UserInfoTextField(
-                    value = registrationUiState.userInfoUiState.job,
+                    value = registrationUiState.userInfoRegistrationUiState.job,
                     label = stringResource(R.string.job),
                     placeholder = stringResource(R.string.your_job),
                     onValueChange = onJobValueChange,
@@ -152,7 +152,7 @@ fun RegistrationUserInfoScreen(
                 Spacer(modifier = Modifier.height(30.dp))
                 OfficePicker(
                     officeList = registrationUiState.availableOffices,
-                    initialSelectedOffice = registrationUiState.userInfoUiState.currentOffice!!,
+                    initialSelectedOffice = registrationUiState.userInfoRegistrationUiState.currentOffice!!,
                     officeWidth = 170.dp,
                     officeHeight = 180.dp,
                     onOfficeChange = onOfficeChange

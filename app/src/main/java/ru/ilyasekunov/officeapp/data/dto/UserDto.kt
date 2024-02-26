@@ -4,6 +4,6 @@ data class UserDto(
     val name: String,
     val surname: String,
     val job: String,
-    val photo: Any? = null,
+    val photo: String? = null,
     val officeId: Int
 )

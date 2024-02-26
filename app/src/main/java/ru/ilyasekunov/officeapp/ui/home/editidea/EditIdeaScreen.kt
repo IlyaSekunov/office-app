@@ -10,16 +10,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
@@ -41,6 +46,8 @@ fun EditIdeaScreen(
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
     if (editingIdeaUiState.isLoading) {
         LoadingScreen(
             circularProgressingColor = MaterialTheme.colorScheme.primary,
@@ -57,6 +64,9 @@ fun EditIdeaScreen(
                     onPublishClick = onPublishClick,
                     modifier = Modifier.padding(start = 10.dp, end = 15.dp)
                 )
+            },
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
             },
             bottomBar = {
                 BottomNavigationBar(
@@ -110,9 +120,14 @@ fun EditIdeaScreen(
         }
     }
 
-    // Observe isPublished state to navigate to home screen
+    // Observe state to navigate to home screen or show snackbars
     val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
     LaunchedEffect(editingIdeaUiState) {
+        if (editingIdeaUiState.errorMessage != null) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(message = editingIdeaUiState.errorMessage)
+            }
+        }
         if (editingIdeaUiState.isPublished) {
             currentNavigateToHomeScreen()
         }

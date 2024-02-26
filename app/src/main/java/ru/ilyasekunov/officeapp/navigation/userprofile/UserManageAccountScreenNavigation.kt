@@ -3,22 +3,16 @@ package ru.ilyasekunov.officeapp.navigation.userprofile
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountViewModel
-import ru.ilyasekunov.officeapp.util.toBitmap
-import ru.ilyasekunov.officeapp.util.toByteArray
 
 fun NavGraphBuilder.userManageAccountScreen(
     navigateToHomeScreen: () -> Unit,
@@ -35,15 +29,9 @@ fun NavGraphBuilder.userManageAccountScreen(
         val userManageAccountViewModel = hiltViewModel<UserManageAccountViewModel>()
 
         // Initialize image picker
-        val contentResolver = LocalContext.current.contentResolver
-        val coroutineScope = rememberCoroutineScope()
         val singleImagePicker =
             rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
-                coroutineScope.launch(Dispatchers.IO) {
-                    val bitmap = it.toBitmap(contentResolver)
-                    val photo = bitmap.toByteArray()
-                    userManageAccountViewModel.updatePhoto(photo)
-                }
+                userManageAccountViewModel.updatePhoto(it)
             }
 
         UserManageAccountScreen(

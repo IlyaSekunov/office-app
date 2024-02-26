@@ -50,7 +50,8 @@ val userInfoPreview = User(
     name = "Дмитрий",
     surname = "Комарницкий",
     job = "Сотрудник Tinkoff",
-    office = Offices[2]
+    office = Offices[2],
+    photo = ""
 )
 
 var User: User? = userInfoPreview

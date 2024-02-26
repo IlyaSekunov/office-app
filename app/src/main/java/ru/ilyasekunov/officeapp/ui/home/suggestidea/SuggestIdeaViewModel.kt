@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.home.suggestidea
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,9 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import ru.ilyasekunov.officeapp.data.ResponseResult
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.User
+import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
 import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
@@ -27,7 +30,8 @@ data class SuggestIdeaUiState(
 @HiltViewModel
 class SuggestIdeaViewModel @Inject constructor(
     private val postsRepository: PostsRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val imagesRepository: ImagesRepository
 ) : ViewModel() {
     var suggestIdeaUiState by mutableStateOf(SuggestIdeaUiState())
         private set
@@ -46,16 +50,14 @@ class SuggestIdeaViewModel @Inject constructor(
         )
     }
 
-    fun attachImage(image: ByteArray) {
+    fun attachImage(image: Uri) {
         viewModelScope.launch {
             synchronized(suggestIdeaUiState) {
                 val imageId = if (suggestIdeaUiState.attachedImages.isNotEmpty()) {
                     suggestIdeaUiState.attachedImages.maxOf { it.id } + 1
                 } else 0
                 val attachedImage = AttachedImage(id = imageId, image = image)
-                if (!suggestIdeaUiState.attachedImages.contains(attachedImage)) {
-                    attachImage(attachedImage)
-                }
+                attachImage(attachedImage)
             }
         }
     }
@@ -69,6 +71,12 @@ class SuggestIdeaViewModel @Inject constructor(
     fun publishPost() {
         viewModelScope.launch {
             updateIsLoading(true)
+            val uploadedImages = uploadImagesFromUris()
+            if (suggestIdeaUiState.errorMessage != null) {
+                updateIsLoading(false)
+                return@launch
+            }
+
             val user = userRepository.user()!!
             val ideaAuthor = user.toIdeaAuthor()
             val publishPostDto = PublishPostDto(
@@ -76,12 +84,28 @@ class SuggestIdeaViewModel @Inject constructor(
                 content = suggestIdeaUiState.content,
                 author = ideaAuthor,
                 office = user.office,
-                attachedImages = suggestIdeaUiState.attachedImages.map { (it.image as ByteArray) }
+                attachedImages = uploadedImages
             )
             postsRepository.publishPost(publishPostDto)
             updateIsLoading(false)
             updateIsPublished(true)
         }
+    }
+
+    private suspend fun uploadImagesFromUris(): List<String> {
+        val imagesUrls = ArrayList<String>()
+        suggestIdeaUiState.attachedImages.forEach {
+            when (val response = imagesRepository.uploadImage(it.image as Uri)) {
+                is ResponseResult.Success -> {
+                    imagesUrls += response.value
+                }
+                is ResponseResult.Failure -> {
+                    updateErrorMessage(response.message)
+                    return emptyList()
+                }
+            }
+        }
+        return imagesUrls
     }
 
     private fun updateIsLoading(isLoading: Boolean) {

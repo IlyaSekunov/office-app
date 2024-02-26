@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.auth.registration
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,28 +8,38 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
-import ru.ilyasekunov.officeapp.data.dto.UserDto
+import ru.ilyasekunov.officeapp.data.ResponseResult
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
+import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
-import ru.ilyasekunov.officeapp.ui.userprofile.UserProfileUiState
 import javax.inject.Inject
 
 data class RegistrationUiState(
     val email: String = "",
     val password: String = "",
     val repeatedPassword: String = "",
-    val userInfoUiState: UserProfileUiState = UserProfileUiState(),
+    val userInfoRegistrationUiState: UserInfoRegistrationUiState = UserInfoRegistrationUiState(),
     val availableOffices: List<Office> = emptyList(),
     val isLoading: Boolean = false,
     val isRegistrationSuccess: Boolean = false
 )
 
+data class UserInfoRegistrationUiState(
+    val name: String = "",
+    val surname: String = "",
+    val job: String = "",
+    val photo: Uri? = null,
+    val currentOffice: Office? = null,
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
+)
+
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val imagesRepository: ImagesRepository
 ) : ViewModel() {
     var registrationUiState by mutableStateOf(RegistrationUiState())
         private set
@@ -51,38 +62,60 @@ class RegistrationViewModel @Inject constructor(
 
     fun updateName(name: String) {
         registrationUiState = registrationUiState.copy(
-            userInfoUiState = registrationUiState.userInfoUiState.copy(name = name)
+            userInfoRegistrationUiState = registrationUiState.userInfoRegistrationUiState.copy(name = name)
         )
     }
 
     fun updateSurname(surname: String) {
         registrationUiState = registrationUiState.copy(
-            userInfoUiState = registrationUiState.userInfoUiState.copy(surname = surname)
+            userInfoRegistrationUiState = registrationUiState.userInfoRegistrationUiState.copy(
+                surname = surname
+            )
         )
     }
 
     fun updateJob(job: String) {
         registrationUiState = registrationUiState.copy(
-            userInfoUiState = registrationUiState.userInfoUiState.copy(job = job)
+            userInfoRegistrationUiState = registrationUiState.userInfoRegistrationUiState.copy(job = job)
         )
     }
 
-    fun updatePhoto(photo: ByteArray?) {
+    fun updatePhoto(photo: Uri?) {
         registrationUiState = registrationUiState.copy(
-            userInfoUiState = registrationUiState.userInfoUiState.copy(photo = photo)
+            userInfoRegistrationUiState = registrationUiState.userInfoRegistrationUiState.copy(photo = photo)
         )
     }
 
     fun updateOffice(office: Office) {
         registrationUiState = registrationUiState.copy(
-            userInfoUiState = registrationUiState.userInfoUiState.copy(currentOffice = office)
+            userInfoRegistrationUiState = registrationUiState.userInfoRegistrationUiState.copy(
+                currentOffice = office
+            )
         )
     }
 
     fun register() {
         viewModelScope.launch {
             updateIsLoading(true)
-            //authRepository.register(registrationUiState.toRegistrationForm())
+            /*val uploadedUserPhoto = uploadUserPhoto()
+            if (registrationUiState.userInfoRegistrationUiState.errorMessage != null) {
+                updateIsLoading(false)
+                return@launch
+            }
+
+            val userInfo = registrationUiState.userInfoRegistrationUiState
+            val registrationForm = RegistrationForm(
+                email = registrationUiState.email,
+                password = registrationUiState.password,
+                userInfo = UserDto(
+                    name = userInfo.name,
+                    surname = userInfo.surname,
+                    job = userInfo.job,
+                    officeId = userInfo.currentOffice!!.id,
+                    photo = uploadedUserPhoto
+                )
+            )
+            authRepository.register(registrationForm)*/
             updateIsLoading(false)
             updateIsRegistrationSuccess(true)
         }
@@ -97,7 +130,8 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private fun updateIsRegistrationSuccess(isRegistrationSuccess: Boolean) {
-        registrationUiState = registrationUiState.copy(isRegistrationSuccess = isRegistrationSuccess)
+        registrationUiState =
+            registrationUiState.copy(isRegistrationSuccess = isRegistrationSuccess)
     }
 
     private fun loadAvailableOffices() {
@@ -108,17 +142,27 @@ class RegistrationViewModel @Inject constructor(
             updateIsLoading(false)
         }
     }
-}
 
-fun RegistrationUiState.toRegistrationForm(): RegistrationForm =
-    RegistrationForm(
-        email = email,
-        password = password,
-        userInfo = UserDto(
-            name = userInfoUiState.name,
-            surname = userInfoUiState.surname,
-            job = userInfoUiState.job,
-            photo = userInfoUiState.photo,
-            officeId = userInfoUiState.currentOffice!!.id
+    private fun updateUserInfoErrorMessage(errorMessage: String?) {
+        registrationUiState = registrationUiState.copy(
+            userInfoRegistrationUiState = registrationUiState.userInfoRegistrationUiState.copy(
+                errorMessage = errorMessage
+            )
         )
-    )
+    }
+
+    private suspend fun uploadUserPhoto(): String? {
+        val pickedPhoto = registrationUiState.userInfoRegistrationUiState.photo
+        return pickedPhoto?.let {
+            when (val response = imagesRepository.uploadImage(it)) {
+                is ResponseResult.Success -> {
+                    response.value
+                }
+                is ResponseResult.Failure -> {
+                    updateUserInfoErrorMessage(response.message)
+                    return null
+                }
+            }
+        }
+    }
+}

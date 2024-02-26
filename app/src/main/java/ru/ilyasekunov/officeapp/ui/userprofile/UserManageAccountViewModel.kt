@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.userprofile
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,8 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import ru.ilyasekunov.officeapp.data.ResponseResult
 import ru.ilyasekunov.officeapp.data.dto.UserDto
 import ru.ilyasekunov.officeapp.data.model.Office
+import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
 import javax.inject.Inject
 
@@ -17,12 +20,14 @@ data class UserManageAccountUiState(
     val mutableUserProfileUiState: UserProfileUiState = UserProfileUiState(),
     val availableOffices: List<Office> = emptyList(),
     val isLoading: Boolean = false,
-    val isChangesSaved: Boolean = false
+    val isChangesSaved: Boolean = false,
+    val errorMessage: String? = null
 )
 
 @HiltViewModel
 class UserManageAccountViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val imagesRepository: ImagesRepository
 ) : ViewModel() {
     var userManageAccountUiState by mutableStateOf(UserManageAccountUiState())
         private set
@@ -60,7 +65,7 @@ class UserManageAccountViewModel @Inject constructor(
         )
     }
 
-    fun updatePhoto(photo: Any?) {
+    fun updatePhoto(photo: Uri?) {
         val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
         userManageAccountUiState = userManageAccountUiState.copy(
             mutableUserProfileUiState = userProfileUiState.copy(photo = photo)
@@ -71,7 +76,20 @@ class UserManageAccountViewModel @Inject constructor(
         viewModelScope.launch {
             updateIsLoading(true)
             val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
-            userRepository.saveChanges(userProfileUiState.toUserDto())
+            val uploadedUserPhoto = uploadUserPhoto()
+            if (userManageAccountUiState.errorMessage != null) {
+                updateIsLoading(false)
+                return@launch
+            }
+
+            val userDto = UserDto(
+                name = userProfileUiState.name,
+                surname = userProfileUiState.surname,
+                job = userProfileUiState.job,
+                photo = uploadedUserPhoto,
+                officeId = userProfileUiState.currentOffice!!.id
+            )
+            userRepository.saveChanges(userDto)
             updateIsLoading(false)
             updateIsChangesSaved(true)
         }
@@ -101,6 +119,12 @@ class UserManageAccountViewModel @Inject constructor(
         )
     }
 
+    private fun updateErrorMessage(errorMessage: String?) {
+        userManageAccountUiState = userManageAccountUiState.copy(
+            errorMessage = errorMessage
+        )
+    }
+
     private fun loadUserProfile() {
         viewModelScope.launch {
             updateIsLoading(true)
@@ -125,13 +149,19 @@ class UserManageAccountViewModel @Inject constructor(
             updateIsLoading(false)
         }
     }
-}
 
-fun UserProfileUiState.toUserDto(): UserDto =
-    UserDto(
-        name = name,
-        surname = surname,
-        job = job,
-        officeId = currentOffice!!.id,
-        photo = photo
-    )
+    private suspend fun uploadUserPhoto(): String? {
+        val pickedPhoto = userManageAccountUiState.mutableUserProfileUiState.photo
+        return pickedPhoto?.let {
+            when (val response = imagesRepository.uploadImage(it as Uri)) {
+                is ResponseResult.Success -> {
+                    response.value
+                }
+                is ResponseResult.Failure -> {
+                    updateErrorMessage(response.message)
+                    return null
+                }
+            }
+        }
+    }
+}
