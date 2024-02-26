@@ -4,11 +4,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
 import ru.ilyasekunov.officeapp.data.network.HttpAuthInterceptor
+import ru.ilyasekunov.officeapp.data.network.HttpImgurTokenInterceptor
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -22,12 +24,17 @@ object NetworkModule {
     @AuthInterceptor
     fun provideHttpAuthInterceptor(
         @LocalDataSource tokenDatasource: TokenDataSource
-    ): HttpAuthInterceptor = HttpAuthInterceptor(tokenDatasource)
+    ): Interceptor = HttpAuthInterceptor(tokenDatasource)
+
+    @Provides
+    @Singleton
+    @ImgurTokenInterceptor
+    fun provideHttpImgurTokenInterceptor(): Interceptor = HttpImgurTokenInterceptor()
 
     @Provides
     @Singleton
     fun provideRetrofit(
-        @AuthInterceptor httpAuthInterceptor: HttpAuthInterceptor
+        @AuthInterceptor httpAuthInterceptor: Interceptor
     ): Retrofit {
         val httpClient = OkHttpClient.Builder()
             .addInterceptor(httpAuthInterceptor)
@@ -43,3 +50,7 @@ object NetworkModule {
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class AuthInterceptor
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ImgurTokenInterceptor

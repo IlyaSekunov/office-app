@@ -5,11 +5,14 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
+import ru.ilyasekunov.officeapp.data.datasource.ImagesUploaderDataSource
 import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
 import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
 import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepositoryImpl
+import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
+import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
@@ -37,4 +40,10 @@ object RepositoryModule {
         @RemoteDataSource authDatasource: AuthDataSource,
         @LocalDataSource tokenDatasource: TokenDataSource
     ): AuthRepository = AuthRepositoryImpl(authDatasource, tokenDatasource)
+
+    @Provides
+    @Singleton
+    fun provideImagesRepository(
+        @RemoteDataSource imagesUploaderDataSource: ImagesUploaderDataSource
+    ): ImagesRepository = ImagesRepositoryImpl(imagesUploaderDataSource)
 }

@@ -4,11 +4,18 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import ru.ilyasekunov.officeapp.data.api.AuthApi
+import ru.ilyasekunov.officeapp.data.api.ImgurApi
 import ru.ilyasekunov.officeapp.data.api.PostsApi
 import ru.ilyasekunov.officeapp.data.api.UserApi
+import ru.ilyasekunov.officeapp.data.network.HttpImgurTokenInterceptor
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+
+private const val IMGUR_URL = "https://api.imgur.com"
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -26,4 +33,22 @@ object ApiModule {
     @Singleton
     fun provideUserApi(retrofit: Retrofit): UserApi =
         retrofit.create(UserApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideImgurApi(
+        @ImgurTokenInterceptor httpImgurTokenInterceptor: Interceptor
+    ): ImgurApi {
+        val httpClient = OkHttpClient.Builder()
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(120, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .addInterceptor(httpImgurTokenInterceptor)
+            .build()
+        return Retrofit.Builder()
+            .baseUrl(IMGUR_URL)
+            .client(httpClient)
+            .build()
+            .create(ImgurApi::class.java)
+    }
 }

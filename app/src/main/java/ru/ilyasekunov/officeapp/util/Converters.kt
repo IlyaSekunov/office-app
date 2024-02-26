@@ -7,6 +7,8 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.time.LocalDateTime
 
 fun Uri?.toBitmap(contentResolver: ContentResolver): Bitmap? =
@@ -53,3 +55,21 @@ fun Int.toThousandsString(): String =
     } else {
         this.toString()
     }
+
+fun Uri.copyStreamToFile(contentResolver: ContentResolver): File {
+    val outputFile = File.createTempFile("temp", null)
+
+    contentResolver.openInputStream(this)?.use { input ->
+        val outputStream = FileOutputStream(outputFile)
+        outputStream.use { output ->
+            val buffer = ByteArray(4 * 1024) // buffer size
+            while (true) {
+                val byteCount = input.read(buffer)
+                if (byteCount < 0) break
+                output.write(buffer, 0, byteCount)
+            }
+            output.flush()
+        }
+    }
+    return outputFile
+}
