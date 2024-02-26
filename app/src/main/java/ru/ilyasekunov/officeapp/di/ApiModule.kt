@@ -7,11 +7,11 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.api.ImgurApi
 import ru.ilyasekunov.officeapp.data.api.PostsApi
 import ru.ilyasekunov.officeapp.data.api.UserApi
-import ru.ilyasekunov.officeapp.data.network.HttpImgurTokenInterceptor
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -48,6 +48,7 @@ object ApiModule {
         return Retrofit.Builder()
             .baseUrl(IMGUR_URL)
             .client(httpClient)
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(ImgurApi::class.java)
     }
