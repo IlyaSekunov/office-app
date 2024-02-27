@@ -92,7 +92,6 @@ fun SuggestIdeaScreen(
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     if (suggestIdeaUiState.isLoading) {
         LoadingScreen(
@@ -172,13 +171,11 @@ fun SuggestIdeaScreen(
     val retryLabel = stringResource(R.string.retry)
     LaunchedEffect(suggestIdeaUiState.errorMessage) {
         if (suggestIdeaUiState.errorMessage != null) {
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(
-                    message = suggestIdeaUiState.errorMessage,
-                    actionLabel = retryLabel,
-                    duration = SnackbarDuration.Long
-                )
-            }
+            snackbarHostState.showSnackbar(
+                message = suggestIdeaUiState.errorMessage,
+                actionLabel = retryLabel,
+                duration = SnackbarDuration.Long
+            )
         }
     }
 

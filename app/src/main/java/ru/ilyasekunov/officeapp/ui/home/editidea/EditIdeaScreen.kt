@@ -18,14 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
@@ -47,7 +45,6 @@ fun EditIdeaScreen(
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     if (editingIdeaUiState.isLoading) {
         LoadingScreen(
@@ -125,13 +122,11 @@ fun EditIdeaScreen(
     val retryLabel = stringResource(R.string.retry)
     LaunchedEffect(editingIdeaUiState.errorMessage) {
         if (editingIdeaUiState.errorMessage != null) {
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(
-                    message = editingIdeaUiState.errorMessage,
-                    actionLabel = retryLabel,
-                    duration = SnackbarDuration.Long
-                )
-            }
+            snackbarHostState.showSnackbar(
+                message = editingIdeaUiState.errorMessage,
+                actionLabel = retryLabel,
+                duration = SnackbarDuration.Long
+            )
         }
     }
 
