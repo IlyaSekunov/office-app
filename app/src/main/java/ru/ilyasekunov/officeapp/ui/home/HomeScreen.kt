@@ -921,7 +921,10 @@ fun LikeButton(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clip(MaterialTheme.shapes.large)
-            .clickable {
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
                 onClick()
                 if (!isPressed) {
                     isAnimationRunning = true
@@ -979,7 +982,10 @@ fun DislikeButton(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clip(MaterialTheme.shapes.large)
-            .clickable {
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) {
                 onClick()
                 if (!isPressed) {
                     isAnimationRunning = true
@@ -1023,7 +1029,11 @@ fun ActionItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clip(MaterialTheme.shapes.large)
-            .clickable { onClick() }
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = onClick
+            )
             .background(color.copy(alpha = 0.2f))
     ) {
         Icon(
