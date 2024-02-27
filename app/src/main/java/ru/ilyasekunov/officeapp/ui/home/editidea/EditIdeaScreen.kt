@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -120,14 +121,23 @@ fun EditIdeaScreen(
         }
     }
 
-    // Observe state to navigate to home screen or show snackbars
-    val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
-    LaunchedEffect(editingIdeaUiState) {
+    // Observe errorMessage state to show snackbars
+    val retryLabel = stringResource(R.string.retry)
+    LaunchedEffect(editingIdeaUiState.errorMessage) {
         if (editingIdeaUiState.errorMessage != null) {
             coroutineScope.launch {
-                snackbarHostState.showSnackbar(message = editingIdeaUiState.errorMessage)
+                snackbarHostState.showSnackbar(
+                    message = editingIdeaUiState.errorMessage,
+                    actionLabel = retryLabel,
+                    duration = SnackbarDuration.Long
+                )
             }
         }
+    }
+
+    // Observe isPublished state to navigate to home screen
+    val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
+    LaunchedEffect(editingIdeaUiState.isPublished) {
         if (editingIdeaUiState.isPublished) {
             currentNavigateToHomeScreen()
         }

@@ -34,6 +34,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -110,7 +112,9 @@ fun SuggestIdeaScreen(
                 )
             },
             snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState)
+                SnackbarHost(hostState = snackbarHostState) {
+                    Snackbar(snackbarData = it)
+                }
             },
             bottomBar = {
                 BottomNavigationBar(
@@ -164,14 +168,23 @@ fun SuggestIdeaScreen(
         }
     }
 
-    // Observe state to navigate to home screen or show snackbars
-    val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
-    LaunchedEffect(suggestIdeaUiState) {
+    // Observe errorMessage state to show snackbars
+    val retryLabel = stringResource(R.string.retry)
+    LaunchedEffect(suggestIdeaUiState.errorMessage) {
         if (suggestIdeaUiState.errorMessage != null) {
             coroutineScope.launch {
-                snackbarHostState.showSnackbar(suggestIdeaUiState.errorMessage)
+                snackbarHostState.showSnackbar(
+                    message = suggestIdeaUiState.errorMessage,
+                    actionLabel = retryLabel,
+                    duration = SnackbarDuration.Long
+                )
             }
         }
+    }
+
+    // Observe isPublished state to navigate to home screen
+    val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
+    LaunchedEffect(suggestIdeaUiState.isPublished) {
         if (suggestIdeaUiState.isPublished) {
             currentNavigateToHomeScreen()
         }
