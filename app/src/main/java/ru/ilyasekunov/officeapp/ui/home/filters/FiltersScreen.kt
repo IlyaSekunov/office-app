@@ -64,6 +64,7 @@ import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
+import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.home.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
@@ -84,62 +85,66 @@ fun FiltersScreen(
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            FiltersTopAppBar(
-                navigateBack = navigateBack,
-                onResetClick = onResetClick,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    scrolledContainerColor = MaterialTheme.colorScheme.background
+    if (filtersUiState.isLoading) {
+        LoadingScreen()
+    } else {
+        Scaffold(
+            topBar = {
+                FiltersTopAppBar(
+                    navigateBack = navigateBack,
+                    onResetClick = onResetClick,
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background,
+                        scrolledContainerColor = MaterialTheme.colorScheme.background
+                    )
                 )
-            )
-        },
-        bottomBar = {
-            BottomNavigationBar(
-                selectedScreen = BottomNavigationScreen.Home,
-                navigateToHomeScreen = navigateToHomeScreen,
-                navigateToFavouriteScreen = navigateToFavouriteScreen,
-                navigateToMyOfficeScreen = navigateToMyOfficeScreen,
-                navigateToProfileScreen = navigateToProfileScreen
-            )
-        },
-        modifier = Modifier.fillMaxSize()
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(top = 5.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            OfficeFiltersSection(
-                officeList = filtersUiState.officeFiltersUiState,
-                onOfficeClick = onOfficeFilterClick,
-                officeFilterSize = DpSize(width = 345.dp, height = 80.dp),
-                modifier = Modifier.padding(start = 20.dp, end = 20.dp)
-            )
-            Spacer(modifier = Modifier.height(22.dp))
-            SortingFiltersSection(
-                sortingFiltersUiState = filtersUiState.sortingFiltersUiState,
-                onFilterClick = onSortingCategoryClick
-            )
-            Spacer(modifier = Modifier.height(46.dp))
-            Button(
-                onClick = onShowClick,
-                shape = MaterialTheme.shapes.large,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                ),
-                contentPadding = PaddingValues(12.dp),
+            },
+            bottomBar = {
+                BottomNavigationBar(
+                    selectedScreen = BottomNavigationScreen.Home,
+                    navigateToHomeScreen = navigateToHomeScreen,
+                    navigateToFavouriteScreen = navigateToFavouriteScreen,
+                    navigateToMyOfficeScreen = navigateToMyOfficeScreen,
+                    navigateToProfileScreen = navigateToProfileScreen
+                )
+            },
+            modifier = Modifier.fillMaxSize()
+        ) { paddingValues ->
+            Column(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .fillMaxWidth()
+                    .padding(paddingValues)
+                    .padding(top = 5.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
-                Text(
-                    text = stringResource(R.string.show),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontSize = 16.sp
+                OfficeFiltersSection(
+                    officeList = filtersUiState.officeFiltersUiState,
+                    onOfficeClick = onOfficeFilterClick,
+                    officeFilterSize = DpSize(width = 345.dp, height = 80.dp),
+                    modifier = Modifier.padding(start = 20.dp, end = 20.dp)
                 )
+                Spacer(modifier = Modifier.height(22.dp))
+                SortingFiltersSection(
+                    sortingFiltersUiState = filtersUiState.sortingFiltersUiState,
+                    onFilterClick = onSortingCategoryClick
+                )
+                Spacer(modifier = Modifier.height(46.dp))
+                Button(
+                    onClick = onShowClick,
+                    shape = MaterialTheme.shapes.large,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
+                    contentPadding = PaddingValues(12.dp),
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(R.string.show),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontSize = 16.sp
+                    )
+                }
             }
         }
     }

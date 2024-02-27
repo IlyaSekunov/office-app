@@ -62,12 +62,7 @@ fun UserManageAccountScreen(
     navigateBack: () -> Unit
 ) {
     if (userManageAccountUiState.isLoading) {
-        LoadingScreen(
-            circularProgressingColor = MaterialTheme.colorScheme.primary,
-            circularProgressingWidth = 3.dp,
-            circularProgressingSize = 40.dp,
-            modifier = Modifier.fillMaxSize()
-        )
+        LoadingScreen()
     } else {
         val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
             state = rememberTopAppBarState(),

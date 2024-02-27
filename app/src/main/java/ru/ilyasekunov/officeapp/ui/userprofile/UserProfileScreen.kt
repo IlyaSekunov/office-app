@@ -61,12 +61,7 @@ fun UserProfileScreen(
     navigateToAuthGraph: () -> Unit
 ) {
     if (userProfileUiState.isLoading) {
-        LoadingScreen(
-            circularProgressingColor = MaterialTheme.colorScheme.primary,
-            circularProgressingWidth = 3.dp,
-            circularProgressingSize = 40.dp,
-            modifier = Modifier.fillMaxSize()
-        )
+        LoadingScreen()
     } else {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,

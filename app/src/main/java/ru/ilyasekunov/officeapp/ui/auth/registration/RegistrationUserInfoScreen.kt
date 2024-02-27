@@ -58,12 +58,7 @@ fun RegistrationUserInfoScreen(
     navigateToHomeScreen: () -> Unit
 ) {
     if (registrationUiState.isLoading) {
-        LoadingScreen(
-            circularProgressingColor = MaterialTheme.colorScheme.primary,
-            circularProgressingWidth = 3.dp,
-            circularProgressingSize = 40.dp,
-            modifier = Modifier.fillMaxSize()
-        )
+        LoadingScreen()
     } else {
         val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
             state = rememberTopAppBarState(),

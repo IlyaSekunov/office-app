@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.EmailTextField
 import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
@@ -39,51 +40,55 @@ fun RegistrationMainScreen(
     onRegisterButtonClick: () -> Unit,
     navigateToLoginScreen: () -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .imePadding()
-            .background(color = MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(modifier = Modifier.height(150.dp))
-        Text(
-            text = stringResource(R.string.registration),
-            style = MaterialTheme.typography.displayMedium,
-            fontSize = 36.sp
-        )
-        Spacer(modifier = Modifier.height(75.dp))
-        EmailTextField(
-            value = registrationUiState.email,
-            onValueChange = onEmailValueChange,
+    if (registrationUiState.isLoading) {
+        LoadingScreen()
+    } else {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp, end = 12.dp)
-        )
-        Spacer(modifier = Modifier.height(30.dp))
-        PasswordTextField(
-            value = registrationUiState.password,
-            onValueChange = onPasswordValueChange,
-            placeholder = stringResource(R.string.password),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp, end = 12.dp)
-        )
-        Spacer(modifier = Modifier.height(30.dp))
-        PasswordTextField(
-            value = registrationUiState.repeatedPassword,
-            onValueChange = onRepeatPasswordValueChange,
-            placeholder = stringResource(R.string.repeat_password),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp, end = 12.dp)
-        )
-        Spacer(modifier = Modifier.height(50.dp))
-        RegisterButton(onClick = onRegisterButtonClick)
-        Spacer(modifier = Modifier.height(28.dp))
-        LoginSection(onLoginClick = navigateToLoginScreen)
-        Spacer(modifier = Modifier.height(50.dp))
+                .fillMaxSize()
+                .imePadding()
+                .background(color = MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.height(150.dp))
+            Text(
+                text = stringResource(R.string.registration),
+                style = MaterialTheme.typography.displayMedium,
+                fontSize = 36.sp
+            )
+            Spacer(modifier = Modifier.height(75.dp))
+            EmailTextField(
+                value = registrationUiState.email,
+                onValueChange = onEmailValueChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(30.dp))
+            PasswordTextField(
+                value = registrationUiState.password,
+                onValueChange = onPasswordValueChange,
+                placeholder = stringResource(R.string.password),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(30.dp))
+            PasswordTextField(
+                value = registrationUiState.repeatedPassword,
+                onValueChange = onRepeatPasswordValueChange,
+                placeholder = stringResource(R.string.repeat_password),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(50.dp))
+            RegisterButton(onClick = onRegisterButtonClick)
+            Spacer(modifier = Modifier.height(28.dp))
+            LoginSection(onLoginClick = navigateToLoginScreen)
+            Spacer(modifier = Modifier.height(50.dp))
+        }
     }
 }
 

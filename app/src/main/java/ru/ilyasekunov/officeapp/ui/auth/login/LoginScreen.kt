@@ -20,6 +20,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -27,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.EmailTextField
 import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
@@ -37,44 +41,57 @@ fun LoginScreen(
     onEmailValueChange: (String) -> Unit,
     onPasswordValueChange: (String) -> Unit,
     onLoginButtonClick: () -> Unit,
-    navigateToRegistrationMainScreen: () -> Unit
+    navigateToRegistrationMainScreen: () -> Unit,
+    navigateToHomeScreen: () -> Unit
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .fillMaxSize()
-            .imePadding()
-            .background(color = MaterialTheme.colorScheme.background)
-            .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(modifier = Modifier.height(190.dp))
-        Text(
-            text = stringResource(R.string.login),
-            style = MaterialTheme.typography.displayMedium,
-            fontSize = 36.sp
-        )
-        Spacer(modifier = Modifier.height(75.dp))
-        EmailTextField(
-            value = loginUiState.email,
-            onValueChange = onEmailValueChange,
+    if (loginUiState.isLoading) {
+        LoadingScreen()
+    } else {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp, end = 12.dp)
-        )
-        Spacer(modifier = Modifier.height(30.dp))
-        PasswordTextField(
-            value = loginUiState.password,
-            onValueChange = onPasswordValueChange,
-            placeholder = stringResource(R.string.password),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 12.dp, end = 12.dp)
-        )
-        Spacer(modifier = Modifier.height(40.dp))
-        LoginButton(onClick = onLoginButtonClick)
-        Spacer(modifier = Modifier.height(28.dp))
-        RegisterSection(onRegisterClick = navigateToRegistrationMainScreen)
-        Spacer(modifier = Modifier.height(50.dp))
+                .fillMaxSize()
+                .imePadding()
+                .background(color = MaterialTheme.colorScheme.background)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(modifier = Modifier.height(190.dp))
+            Text(
+                text = stringResource(R.string.login),
+                style = MaterialTheme.typography.displayMedium,
+                fontSize = 36.sp
+            )
+            Spacer(modifier = Modifier.height(75.dp))
+            EmailTextField(
+                value = loginUiState.email,
+                onValueChange = onEmailValueChange,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(30.dp))
+            PasswordTextField(
+                value = loginUiState.password,
+                onValueChange = onPasswordValueChange,
+                placeholder = stringResource(R.string.password),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, end = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(40.dp))
+            LoginButton(onClick = onLoginButtonClick)
+            Spacer(modifier = Modifier.height(28.dp))
+            RegisterSection(onRegisterClick = navigateToRegistrationMainScreen)
+            Spacer(modifier = Modifier.height(50.dp))
+        }
+    }
+
+    // Observe isLoggedIn to navigate to home screen after successful logging
+    val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
+    LaunchedEffect(loginUiState) {
+        if (loginUiState.isLoggedIn) {
+            currentNavigateToHomeScreen()
+        }
     }
 }
 
@@ -130,7 +147,8 @@ fun LoginScreenPreview() {
                 onEmailValueChange = {},
                 onPasswordValueChange = {},
                 onLoginButtonClick = {},
-                navigateToRegistrationMainScreen = {}
+                navigateToRegistrationMainScreen = {},
+                navigateToHomeScreen = {}
             )
         }
     }

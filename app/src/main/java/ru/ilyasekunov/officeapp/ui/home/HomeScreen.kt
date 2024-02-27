@@ -155,12 +155,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         if (postsUiState.isLoading) {
-            LoadingScreen(
-                circularProgressingColor = MaterialTheme.colorScheme.primary,
-                circularProgressingWidth = 3.dp,
-                circularProgressingSize = 40.dp,
-                modifier = Modifier.fillMaxSize()
-            )
+            LoadingScreen()
         } else if (postsUiState.posts.isEmpty()) {
             NoPostsAvailable(
                 modifier = Modifier
