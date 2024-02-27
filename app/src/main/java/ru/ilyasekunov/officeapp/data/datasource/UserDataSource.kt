@@ -6,7 +6,7 @@ import ru.ilyasekunov.officeapp.data.dto.UserDto
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.User
 
-interface UserDatasource {
+interface UserDataSource {
     suspend fun user(): User?
     @PATCH("users")
     suspend fun saveChanges(userDto: UserDto)

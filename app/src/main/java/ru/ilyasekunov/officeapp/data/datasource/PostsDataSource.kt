@@ -13,7 +13,7 @@ import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
-interface PostsDatasource {
+interface PostsDataSource {
     @POST("posts")
     suspend fun publishPost(@Body post: PublishPostDto)
     suspend fun posts(): List<IdeaPost>

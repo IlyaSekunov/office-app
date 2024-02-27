@@ -12,7 +12,7 @@ import ru.ilyasekunov.officeapp.data.ResponseResult
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
-import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
+import ru.ilyasekunov.officeapp.data.repository.office.OfficeRepository
 import javax.inject.Inject
 
 data class RegistrationUiState(
@@ -20,9 +20,15 @@ data class RegistrationUiState(
     val password: String = "",
     val repeatedPassword: String = "",
     val userInfoRegistrationUiState: UserInfoRegistrationUiState = UserInfoRegistrationUiState(),
+    val isLoading: Boolean = false,
+    val isRegistrationSuccess: Boolean = false,
+    val errorMessage: String? = null
+)
+
+data class AvailableOfficesUiState(
     val availableOffices: List<Office> = emptyList(),
     val isLoading: Boolean = false,
-    val isRegistrationSuccess: Boolean = false
+    val isErrorWhileLoading: Boolean = true,
 )
 
 data class UserInfoRegistrationUiState(
@@ -38,10 +44,12 @@ data class UserInfoRegistrationUiState(
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val userRepository: UserRepository,
-    private val imagesRepository: ImagesRepository
+    private val imagesRepository: ImagesRepository,
+    private val officeRepository: OfficeRepository
 ) : ViewModel() {
     var registrationUiState by mutableStateOf(RegistrationUiState())
+        private set
+    var availableOfficesUiState by mutableStateOf(AvailableOfficesUiState())
         private set
 
     init {
@@ -122,11 +130,15 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private fun updateAvailableOffices(availableOffices: List<Office>) {
-        registrationUiState = registrationUiState.copy(availableOffices = availableOffices)
+        availableOfficesUiState = availableOfficesUiState.copy(availableOffices = availableOffices)
     }
 
     private fun updateIsLoading(isLoading: Boolean) {
         registrationUiState = registrationUiState.copy(isLoading = isLoading)
+    }
+
+    private fun updateAvailableOfficesIsLoading(isLoading: Boolean) {
+        availableOfficesUiState = availableOfficesUiState.copy(isLoading = isLoading)
     }
 
     private fun updateIsRegistrationSuccess(isRegistrationSuccess: Boolean) {
@@ -134,12 +146,21 @@ class RegistrationViewModel @Inject constructor(
             registrationUiState.copy(isRegistrationSuccess = isRegistrationSuccess)
     }
 
-    private fun loadAvailableOffices() {
+    fun loadAvailableOffices() {
         viewModelScope.launch {
-            updateIsLoading(true)
-            updateAvailableOffices(userRepository.availableOffices())
-            updateOffice(registrationUiState.availableOffices[0])
-            updateIsLoading(false)
+            updateAvailableOfficesIsLoading(true)
+            when (val availableOfficesResponse = officeRepository.availableOffices()) {
+                is ResponseResult.Success -> {
+                    updateAvailableOfficeIsError(false)
+                    updateAvailableOffices(availableOfficesResponse.value)
+                    updateOffice(availableOfficesUiState.availableOffices[0])
+                }
+
+                is ResponseResult.Failure -> {
+                    updateAvailableOfficeIsError(true)
+                }
+            }
+            updateAvailableOfficesIsLoading(false)
         }
     }
 
@@ -151,6 +172,14 @@ class RegistrationViewModel @Inject constructor(
         )
     }
 
+    private fun updateRegistrationErrorMessage(errorMessage: String?) {
+        registrationUiState = registrationUiState.copy(errorMessage = errorMessage)
+    }
+
+    private fun updateAvailableOfficeIsError(isErrorWhileLoading: Boolean) {
+        availableOfficesUiState = availableOfficesUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
+    }
+
     private suspend fun uploadUserPhoto(): String? {
         val pickedPhoto = registrationUiState.userInfoRegistrationUiState.photo
         return pickedPhoto?.let {
@@ -158,6 +187,7 @@ class RegistrationViewModel @Inject constructor(
                 is ResponseResult.Success -> {
                     response.value
                 }
+
                 is ResponseResult.Failure -> {
                     updateUserInfoErrorMessage(response.message)
                     return null

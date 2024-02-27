@@ -1,13 +1,13 @@
 package ru.ilyasekunov.officeapp.data.repository.posts
 
-import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
+import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
 class PostsRepositoryImpl(
-    private val postsDatasource: PostsDatasource
+    private val postsDatasource: PostsDataSource
 ) : PostsRepository {
     override suspend fun posts(): List<IdeaPost> {
         return postsDatasource.posts()

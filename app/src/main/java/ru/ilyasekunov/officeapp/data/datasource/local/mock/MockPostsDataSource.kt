@@ -1,9 +1,6 @@
-package ru.ilyasekunov.officeapp.data.datasource.local.mock.posts
+package ru.ilyasekunov.officeapp.data.datasource.local.mock
 
-import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
-import ru.ilyasekunov.officeapp.data.datasource.local.mock.Offices
-import ru.ilyasekunov.officeapp.data.datasource.local.mock.Posts
-import ru.ilyasekunov.officeapp.data.datasource.local.mock.SortingCategories
+import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
@@ -11,7 +8,7 @@ import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import java.time.LocalDateTime
 
-class MockPostsDataSource : PostsDatasource {
+class MockPostsDataSource : PostsDataSource {
     override suspend fun publishPost(post: PublishPostDto) {
         synchronized(Posts) {
             Posts += post.toIdeaPost()

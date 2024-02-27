@@ -10,18 +10,22 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.api.ImgurApi
+import ru.ilyasekunov.officeapp.data.api.OfficeApi
 import ru.ilyasekunov.officeapp.data.api.PostsApi
 import ru.ilyasekunov.officeapp.data.api.UserApi
 import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.datasource.ImagesUploaderDataSource
-import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
+import ru.ilyasekunov.officeapp.data.datasource.OfficeDataSource
+import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
-import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
+import ru.ilyasekunov.officeapp.data.datasource.UserDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
-import ru.ilyasekunov.officeapp.data.datasource.local.mock.posts.MockPostsDataSource
-import ru.ilyasekunov.officeapp.data.datasource.local.mock.user.MockUserDataSource
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockOfficeDataSource
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockPostsDataSource
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockUserDataSource
 import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDataSource
 import ru.ilyasekunov.officeapp.data.datasource.remote.ImgurRemoteDataSource
+import ru.ilyasekunov.officeapp.data.datasource.remote.OfficeRemoteDataSource
 import ru.ilyasekunov.officeapp.data.datasource.remote.PostsRemoteDataSource
 import ru.ilyasekunov.officeapp.data.datasource.remote.UserRemoteDataSource
 import javax.inject.Qualifier
@@ -33,7 +37,7 @@ object DatasourceModule {
     @Provides
     @Singleton
     @MockDataSource
-    fun provideMockPostsDataSource(): PostsDatasource = MockPostsDataSource()
+    fun provideMockPostsDataSource(): PostsDataSource = MockPostsDataSource()
 
     @Provides
     @Singleton
@@ -41,12 +45,12 @@ object DatasourceModule {
     fun providePostsRemoteDataSource(
         postsApi: PostsApi,
         @IoDispatcher ioDispatcher: CoroutineDispatcher
-    ): PostsDatasource = PostsRemoteDataSource(postsApi, ioDispatcher)
+    ): PostsDataSource = PostsRemoteDataSource(postsApi, ioDispatcher)
 
     @Provides
     @Singleton
     @MockDataSource
-    fun provideUserMockDataSource(): UserDatasource = MockUserDataSource()
+    fun provideUserMockDataSource(): UserDataSource = MockUserDataSource()
 
     @Provides
     @Singleton
@@ -54,7 +58,7 @@ object DatasourceModule {
     fun provideUserRemoteDataSource(
         userApi: UserApi,
         @IoDispatcher ioDispatcher: CoroutineDispatcher
-    ): UserDatasource = UserRemoteDataSource(userApi, ioDispatcher)
+    ): UserDataSource = UserRemoteDataSource(userApi, ioDispatcher)
 
     @Provides
     @Singleton
@@ -79,6 +83,19 @@ object DatasourceModule {
         contentResolver: ContentResolver,
         @IoDispatcher ioDispatcher: CoroutineDispatcher
     ): ImagesUploaderDataSource = ImgurRemoteDataSource(imgurApi, contentResolver, ioDispatcher)
+
+    @Provides
+    @Singleton
+    @MockDataSource
+    fun provideMockOfficeDataSource(): OfficeDataSource = MockOfficeDataSource()
+
+    @Provides
+    @Singleton
+    @RemoteDataSource
+    fun provideOfficeRemoteDataSource(
+        officeApi: OfficeApi,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
+    ): OfficeDataSource = OfficeRemoteDataSource(officeApi, ioDispatcher)
 }
 
 @Qualifier

@@ -1,11 +1,9 @@
-package ru.ilyasekunov.officeapp.data.datasource.local.mock.user
+package ru.ilyasekunov.officeapp.data.datasource.local.mock
 
-import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
-import ru.ilyasekunov.officeapp.data.datasource.local.mock.Offices
-import ru.ilyasekunov.officeapp.data.datasource.local.mock.User
+import ru.ilyasekunov.officeapp.data.datasource.UserDataSource
 import ru.ilyasekunov.officeapp.data.dto.UserDto
 
-class MockUserDataSource : UserDatasource {
+class MockUserDataSource : UserDataSource {
     override suspend fun user() = User
 
     override suspend fun saveChanges(userDto: UserDto) {

@@ -6,13 +6,16 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.datasource.ImagesUploaderDataSource
-import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
+import ru.ilyasekunov.officeapp.data.datasource.OfficeDataSource
+import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
-import ru.ilyasekunov.officeapp.data.datasource.UserDatasource
+import ru.ilyasekunov.officeapp.data.datasource.UserDataSource
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepositoryImpl
+import ru.ilyasekunov.officeapp.data.repository.office.OfficeRepository
+import ru.ilyasekunov.officeapp.data.repository.office.OfficeRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
@@ -25,13 +28,13 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideUserRepository(
-        @MockDataSource userDatasource: UserDatasource
+        @MockDataSource userDatasource: UserDataSource
     ): UserRepository = UserRepositoryImpl(userDatasource)
 
     @Provides
     @Singleton
     fun providePostsRepository(
-        @MockDataSource postsDatasource: PostsDatasource
+        @MockDataSource postsDatasource: PostsDataSource
     ): PostsRepository = PostsRepositoryImpl(postsDatasource)
 
     @Provides
@@ -46,4 +49,10 @@ object RepositoryModule {
     fun provideImagesRepository(
         @RemoteDataSource imagesUploaderDataSource: ImagesUploaderDataSource
     ): ImagesRepository = ImagesRepositoryImpl(imagesUploaderDataSource)
+
+    @Provides
+    @Singleton
+    fun provideOfficeRepository(
+        @MockDataSource officeDataSource: OfficeDataSource
+    ) : OfficeRepository = OfficeRepositoryImpl(officeDataSource)
 }

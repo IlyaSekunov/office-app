@@ -48,17 +48,24 @@ import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 @Composable
 fun RegistrationUserInfoScreen(
     registrationUiState: RegistrationUiState,
+    availableOfficesUiState: AvailableOfficesUiState,
     onPhotoPickerClick: () -> Unit,
     onNameValueChange: (String) -> Unit,
     onSurnameValueChange: (String) -> Unit,
     onJobValueChange: (String) -> Unit,
     onOfficeChange: (Office) -> Unit,
     onSaveButtonClick: () -> Unit,
+    onRetryButtonClick: () -> Unit,
     navigateBack: () -> Unit,
     navigateToHomeScreen: () -> Unit
 ) {
-    if (registrationUiState.isLoading) {
+    if (registrationUiState.isLoading || availableOfficesUiState.isLoading) {
         LoadingScreen()
+    } else if (availableOfficesUiState.isErrorWhileLoading) {
+        ErrorScreen(
+            message = stringResource(R.string.available_offices_error_while_loading),
+            onRetryButtonClick = onRetryButtonClick
+        )
     } else {
         val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
             state = rememberTopAppBarState(),
@@ -146,7 +153,7 @@ fun RegistrationUserInfoScreen(
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 OfficePicker(
-                    officeList = registrationUiState.availableOffices,
+                    officeList = availableOfficesUiState.availableOffices,
                     initialSelectedOffice = registrationUiState.userInfoRegistrationUiState.currentOffice!!,
                     officeWidth = 170.dp,
                     officeHeight = 180.dp,
@@ -194,6 +201,7 @@ fun RegistrationUserInfoScreenPreview() {
     OfficeAppTheme {
         RegistrationUserInfoScreen(
             registrationUiState = RegistrationUiState(),
+            availableOfficesUiState = AvailableOfficesUiState(),
             onPhotoPickerClick = {},
             onNameValueChange = {},
             onSurnameValueChange = {},
@@ -201,6 +209,7 @@ fun RegistrationUserInfoScreenPreview() {
             onOfficeChange = {},
             onSaveButtonClick = {},
             navigateBack = {},
+            onRetryButtonClick = {},
             navigateToHomeScreen = {}
         )
     }

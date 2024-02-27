@@ -2,6 +2,7 @@ package ru.ilyasekunov.officeapp.ui.auth.registration
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,18 +11,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,7 +48,7 @@ fun RegistrationMainScreen(
 ) {
     if (registrationUiState.isLoading) {
         LoadingScreen()
-    } else {
+    }  else {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -133,6 +139,59 @@ fun LoginSection(
     }
 }
 
+@Composable
+fun ErrorScreen(
+    message: String,
+    onRetryButtonClick: () -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Text(
+            text = message,
+            fontSize = 16.sp,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.surfaceVariant
+        )
+        Spacer(modifier = Modifier.height(30.dp))
+        RetryButton(
+            onClick = onRetryButtonClick
+        )
+    }
+}
+
+@Composable
+fun RetryButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.primary)
+            .clickable { onClick() }
+            .padding(horizontal = 10.dp, vertical = 5.dp)
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.baseline_refresh_24),
+            contentDescription = "refresh_button",
+            tint = MaterialTheme.colorScheme.onPrimary,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = stringResource(R.string.retry),
+            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
 @Preview
 @Composable
 fun RegistrationMainScreenPreview() {
@@ -143,8 +202,20 @@ fun RegistrationMainScreenPreview() {
                 onEmailValueChange = {},
                 onPasswordValueChange = {},
                 onRepeatPasswordValueChange = {},
-                onRegisterButtonClick = {},
-                navigateToLoginScreen = {}
+                onRegisterButtonClick = {}
+            ) {}
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ErrorScreenPreview() {
+    OfficeAppTheme {
+        Surface {
+            ErrorScreen(
+                message = "Ошибка",
+                onRetryButtonClick = {}
             )
         }
     }

@@ -3,7 +3,7 @@ package ru.ilyasekunov.officeapp.data.datasource.remote
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import ru.ilyasekunov.officeapp.data.api.PostsApi
-import ru.ilyasekunov.officeapp.data.datasource.PostsDatasource
+import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
@@ -13,7 +13,7 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 class PostsRemoteDataSource(
     private val postsApi: PostsApi,
     private val ioDispatcher: CoroutineDispatcher
-) : PostsDatasource {
+) : PostsDataSource {
     override suspend fun publishPost(post: PublishPostDto) =
         withContext(ioDispatcher) {
             postsApi.publishPost(post)

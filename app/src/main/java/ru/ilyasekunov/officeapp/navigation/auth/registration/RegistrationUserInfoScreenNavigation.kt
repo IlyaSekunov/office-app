@@ -37,6 +37,7 @@ fun NavGraphBuilder.registrationUserInfoScreen(
 
         RegistrationUserInfoScreen(
             registrationUiState = registrationViewModel.registrationUiState,
+            availableOfficesUiState = registrationViewModel.availableOfficesUiState,
             onPhotoPickerClick = {
                 singleImagePicker.launch(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -48,6 +49,7 @@ fun NavGraphBuilder.registrationUserInfoScreen(
             onOfficeChange = registrationViewModel::updateOffice,
             onSaveButtonClick = registrationViewModel::register,
             navigateBack = navigateBack,
+            onRetryButtonClick = registrationViewModel::loadAvailableOffices,
             navigateToHomeScreen = navigateToMainGraph
         )
     }
