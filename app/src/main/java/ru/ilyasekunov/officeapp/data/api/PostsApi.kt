@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.data.api
 
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -15,39 +16,39 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
 interface PostsApi {
     @POST("posts")
-    suspend fun publishPost(@Body post: PublishPostDto)
+    suspend fun publishPost(@Body post: PublishPostDto): Response<Unit>
 
     @GET("posts")
     suspend fun posts(
         @Body filtersDto: FiltersDto,
         @Query("page") page: Int,
         @Query("page_size") pageSize: Int = 10
-    ): List<IdeaPost>
+    ): Response<List<IdeaPost>>
 
     @PATCH("posts/{postId}")
     suspend fun editPostById(
         @Path("postId") postId: Long,
         @Body editedPost: EditPostDto
-    )
+    ): Response<Unit>
 
     @DELETE("posts/{postId}")
-    suspend fun deletePostById(@Path("postId") postId: Long)
+    suspend fun deletePostById(@Path("postId") postId: Long): Response<Unit>
 
     @POST("posts/{postId}/like")
-    suspend fun pressLike(@Path("postId") postId: Long, userId: Long)
+    suspend fun pressLike(@Path("postId") postId: Long): Response<Unit>
 
     @DELETE("posts/{postId}/like")
-    suspend fun removeLike(@Path("postId") postId: Long, userId: Long)
+    suspend fun removeLike(@Path("postId") postId: Long): Response<Unit>
 
     @POST("posts/{postId}/dislike")
-    suspend fun pressDislike(@Path("postId") postId: Long, userId: Long)
+    suspend fun pressDislike(@Path("postId") postId: Long): Response<Unit>
 
     @DELETE("posts/{postId}/dislike")
-    suspend fun removeDislike(@Path("postId") postId: Long, userId: Long)
+    suspend fun removeDislike(@Path("postId") postId: Long): Response<Unit>
 
     @GET("filters")
-    suspend fun filters(): Filters
+    suspend fun filters(): Response<Filters>
 
-    suspend fun posts(): List<IdeaPost>
-    suspend fun findPostById(postId: Long): IdeaPost?
+    suspend fun posts(): Response<List<IdeaPost>>
+    suspend fun findPostById(postId: Long): Response<IdeaPost?>
 }

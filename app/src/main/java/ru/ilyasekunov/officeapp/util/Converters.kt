@@ -6,10 +6,19 @@ import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import retrofit2.HttpException
+import retrofit2.Response
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDateTime
+
+fun <T> Response<T>.toResult(): Result<T> =
+    if (isSuccessful) {
+        Result.success(body()!!)
+    } else {
+        Result.failure(HttpException(this))
+    }
 
 fun Uri?.toBitmap(contentResolver: ContentResolver): Bitmap? =
     this?.let {

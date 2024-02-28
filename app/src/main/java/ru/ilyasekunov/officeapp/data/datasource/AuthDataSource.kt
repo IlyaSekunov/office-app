@@ -9,4 +9,5 @@ interface AuthDataSource {
     suspend fun userInfo(): Result<User>
     suspend fun login(loginForm: LoginForm): Result<String>
     suspend fun updateToken(): Result<String>
+    suspend fun logout(): Result<Unit>
 }

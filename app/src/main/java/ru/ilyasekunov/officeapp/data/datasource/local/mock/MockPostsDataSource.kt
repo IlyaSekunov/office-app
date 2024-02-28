@@ -5,28 +5,35 @@ import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.model.Filters
+import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
+import ru.ilyasekunov.officeapp.data.model.User
 import java.time.LocalDateTime
 
 class MockPostsDataSource : PostsDataSource {
-    override suspend fun publishPost(post: PublishPostDto) {
+    override suspend fun publishPost(post: PublishPostDto): Result<Unit> {
         synchronized(Posts) {
             Posts += post.toIdeaPost()
         }
+        return Result.success(Unit)
     }
 
-    override suspend fun posts(): List<IdeaPost> = Posts
+    override suspend fun posts(): Result<List<IdeaPost>> = Result.success(Posts)
 
 
-    override suspend fun posts(filtersDto: FiltersDto, page: Int, pageSize: Int): List<IdeaPost> {
+    override suspend fun posts(
+        filtersDto: FiltersDto,
+        page: Int,
+        pageSize: Int
+    ): Result<List<IdeaPost>> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun findPostById(postId: Long): IdeaPost? {
-        return Posts.find { it.id == postId }
+    override suspend fun findPostById(postId: Long): Result<IdeaPost?> {
+        return Result.success(Posts.find { it.id == postId })
     }
 
-    override suspend fun editPostById(postId: Long, editedPost: EditPostDto) {
+    override suspend fun editPostById(postId: Long, editedPost: EditPostDto): Result<Unit> {
         val post = Posts.find { it.id == postId }
         post?.let {
             val updatedPost = it.copy(
@@ -36,16 +43,18 @@ class MockPostsDataSource : PostsDataSource {
             )
             Posts[Posts.indexOf(it)] = updatedPost
         }
+        return Result.success(Unit)
     }
 
-    override suspend fun deletePostById(postId: Long) {
+    override suspend fun deletePostById(postId: Long): Result<Unit> {
         val post = Posts.find { it.id == postId }
         post?.let {
             Posts -= it
         }
+        return Result.success(Unit)
     }
 
-    override suspend fun pressLike(postId: Long, userId: Long) {
+    override suspend fun pressLike(postId: Long): Result<Unit> {
         val post = Posts.find { it.id == postId }
         post?.let {
             Posts[Posts.indexOf(it)] = it.copy(
@@ -53,12 +62,13 @@ class MockPostsDataSource : PostsDataSource {
                 likesCount = it.likesCount + 1
             )
             if (post.isDislikePressed) {
-                removeDislike(postId, userId)
+                removeDislike(postId)
             }
         }
+        return Result.success(Unit)
     }
 
-    override suspend fun removeLike(postId: Long, userId: Long) {
+    override suspend fun removeLike(postId: Long): Result<Unit> {
         val post = Posts.find { it.id == postId }
         post?.let {
             Posts[Posts.indexOf(it)] = it.copy(
@@ -66,9 +76,10 @@ class MockPostsDataSource : PostsDataSource {
                 likesCount = it.likesCount - 1
             )
         }
+        return Result.success(Unit)
     }
 
-    override suspend fun pressDislike(postId: Long, userId: Long) {
+    override suspend fun pressDislike(postId: Long): Result<Unit> {
         val post = Posts.find { it.id == postId }
         post?.let {
             Posts[Posts.indexOf(it)] = it.copy(
@@ -76,12 +87,13 @@ class MockPostsDataSource : PostsDataSource {
                 dislikesCount = it.dislikesCount + 1
             )
             if (post.isLikePressed) {
-                removeLike(postId, userId)
+                removeLike(postId)
             }
         }
+        return Result.success(Unit)
     }
 
-    override suspend fun removeDislike(postId: Long, userId: Long) {
+    override suspend fun removeDislike(postId: Long): Result<Unit> {
         val post = Posts.find { it.id == postId }
         post?.let {
             Posts[Posts.indexOf(it)] = it.copy(
@@ -89,12 +101,15 @@ class MockPostsDataSource : PostsDataSource {
                 dislikesCount = it.dislikesCount - 1
             )
         }
+        return Result.success(Unit)
     }
 
-    override suspend fun filters(): Filters {
-        return Filters(
-            offices = Offices,
-            sortingCategories = SortingCategories
+    override suspend fun filters(): Result<Filters> {
+        return Result.success(
+            Filters(
+                offices = Offices,
+                sortingCategories = SortingCategories
+            )
         )
     }
 
@@ -104,9 +119,9 @@ class MockPostsDataSource : PostsDataSource {
             title = title,
             content = content,
             date = LocalDateTime.now(),
-            ideaAuthor = author,
+            ideaAuthor = User!!.toIdeaAuthor(),
             attachedImages = attachedImages,
-            office = office,
+            office = User!!.office,
             likesCount = 0,
             dislikesCount = 0,
             commentsCount = 0,
@@ -114,3 +129,12 @@ class MockPostsDataSource : PostsDataSource {
             isDislikePressed = false
         )
 }
+
+fun User.toIdeaAuthor(): IdeaAuthor =
+    IdeaAuthor(
+        id = id,
+        name = name,
+        surname = surname,
+        job = job,
+        photo = photo
+    )

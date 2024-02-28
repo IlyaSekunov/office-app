@@ -2,12 +2,12 @@ package ru.ilyasekunov.officeapp.data.datasource.remote
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import retrofit2.HttpException
 import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.dto.LoginForm
 import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
 import ru.ilyasekunov.officeapp.data.model.User
+import ru.ilyasekunov.officeapp.util.toResult
 
 class AuthRemoteDataSource(
     private val authApi: AuthApi,
@@ -15,45 +15,26 @@ class AuthRemoteDataSource(
 ) : AuthDataSource {
     override suspend fun register(registrationForm: RegistrationForm): Result<String> =
         withContext(ioDispatcher) {
-            authApi.register(registrationForm).run {
-                if (isSuccessful) {
-                    Result.success(body()!!)
-                } else {
-                    Result.failure(HttpException(this))
-                }
-            }
+            authApi.register(registrationForm).toResult()
         }
 
     override suspend fun userInfo(): Result<User> =
         withContext(ioDispatcher) {
-            authApi.userInfo().run {
-                if (isSuccessful) {
-                    Result.success(body()!!)
-                } else {
-                    Result.failure(HttpException(this))
-                }
-            }
+            authApi.userInfo().toResult()
         }
 
     override suspend fun login(loginForm: LoginForm): Result<String> =
         withContext(ioDispatcher) {
-            authApi.login(loginForm).run {
-                if (isSuccessful) {
-                    Result.success(body()!!)
-                } else {
-                    Result.failure(HttpException(this))
-                }
-            }
+            authApi.login(loginForm).toResult()
         }
 
     override suspend fun updateToken(): Result<String> =
         withContext(ioDispatcher) {
-            authApi.updateToken().run {
-                if (isSuccessful) {
-                    Result.success(body()!!)
-                } else {
-                    Result.failure(HttpException(this))
-                }
-            }
+            authApi.updateToken().toResult()
+        }
+
+    override suspend fun logout(): Result<Unit> =
+        withContext(ioDispatcher) {
+            authApi.logout().toResult()
         }
 }

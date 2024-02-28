@@ -105,7 +105,7 @@ class RegistrationViewModel @Inject constructor(
     fun register() {
         viewModelScope.launch {
             updateIsLoading(true)
-            val photoUrlResult = uploadUserPhoto()
+            /*val photoUrlResult = uploadUserPhoto()
             if (photoUrlResult.isFailure) {
                 updateIsLoading(false)
                 return@launch
@@ -124,7 +124,7 @@ class RegistrationViewModel @Inject constructor(
                     photo = photoUrl
                 )
             )
-            authRepository.register(registrationForm)
+            authRepository.register(registrationForm)*/
             updateIsLoading(false)
             updateIsNetworkError(false)
             updateIsRegistrationSuccess(true)

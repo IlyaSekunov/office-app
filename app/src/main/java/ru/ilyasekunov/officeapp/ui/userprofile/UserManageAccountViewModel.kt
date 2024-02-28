@@ -80,6 +80,8 @@ class UserManageAccountViewModel @Inject constructor(
                 updateIsNetworkError(true)
                 updateIsLoading(false)
                 return@launch
+            } else {
+                updateIsNetworkError(false)
             }
             val photoUrl = photoUrlResult.getOrThrow()
             val userDto = UserDto(
@@ -90,6 +92,7 @@ class UserManageAccountViewModel @Inject constructor(
                 officeId = userProfileUiState.currentOffice!!.id
             )
             userRepository.saveChanges(userDto)
+            updateIsNetworkError(false)
             updateIsLoading(false)
             updateIsChangesSaved(true)
         }
@@ -128,10 +131,15 @@ class UserManageAccountViewModel @Inject constructor(
     private fun loadUserProfile() {
         viewModelScope.launch {
             updateIsLoading(true)
-            val user = userRepository.user()!!
-            val userProfileUiState = user.toUserProfileUiState()
-            updateCurrentUserProfileUiState(userProfileUiState)
-            updateMutableUserProfileUiState(userProfileUiState)
+            val userResult = userRepository.user()
+            if (userResult.isSuccess) {
+                val user = userResult.getOrThrow()
+                val userProfileUiState = user!!.toUserProfileUiState()
+                updateCurrentUserProfileUiState(userProfileUiState)
+                updateMutableUserProfileUiState(userProfileUiState)
+            } else {
+                updateIsNetworkError(true)
+            }
             updateIsLoading(false)
         }
     }
@@ -139,12 +147,17 @@ class UserManageAccountViewModel @Inject constructor(
     private fun loadAvailableOffices() {
         viewModelScope.launch {
             updateIsLoading(true)
-            val availableOffices = userRepository.availableOffices()
-            if (availableOffices.isNotEmpty()) {
-                updateAvailableOffices(availableOffices)
-                if (userManageAccountUiState.mutableUserProfileUiState.currentOffice == null) {
-                    updateOffice(userManageAccountUiState.availableOffices[0])
+            val availableOfficesResult = userRepository.availableOffices()
+            if (availableOfficesResult.isSuccess) {
+                val availableOffices = availableOfficesResult.getOrThrow()
+                if (availableOffices.isNotEmpty()) {
+                    updateAvailableOffices(availableOffices)
+                    if (userManageAccountUiState.mutableUserProfileUiState.currentOffice == null) {
+                        updateOffice(userManageAccountUiState.availableOffices[0])
+                    }
                 }
+            } else {
+                updateIsNetworkError(true)
             }
             updateIsLoading(false)
         }

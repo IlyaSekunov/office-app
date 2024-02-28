@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
@@ -20,7 +21,8 @@ import javax.inject.Inject
 data class FiltersUiState(
     val sortingFiltersUiState: SortingFiltersUiState = SortingFiltersUiState(),
     val officeFiltersUiState: List<OfficeFilterUiState> = emptyList(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isErrorWhileLoading: Boolean = false
 )
 
 data class OfficeFilterUiState(
@@ -35,12 +37,14 @@ data class SortingFiltersUiState(
 
 data class PostsUiState(
     val posts: List<IdeaPost> = emptyList(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isErrorWhileLoading: Boolean = false
 )
 
 data class CurrentUserUiState(
     val user: User? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isErrorWhileLoading: Boolean = false
 )
 
 data class SearchUiState(
@@ -97,7 +101,6 @@ class HomeViewModel @Inject constructor(
     fun updateLike(post: IdeaPost, isPressed: Boolean) {
         viewModelScope.launch {
             val likesCount = if (isPressed) post.likesCount + 1 else post.likesCount - 1
-            val userId = userRepository.user()!!.id
             val changedPost =
                 if (post.isDislikePressed) {
                     post.copy(
@@ -114,9 +117,9 @@ class HomeViewModel @Inject constructor(
                 }
             updatePost(changedPost)
             if (isPressed) {
-                postsRepository.pressLike(changedPost.id, userId)
+                postsRepository.pressLike(changedPost.id)
             } else {
-                postsRepository.removeLike(changedPost.id, userId)
+                postsRepository.removeLike(changedPost.id)
             }
         }
     }
@@ -124,7 +127,6 @@ class HomeViewModel @Inject constructor(
     fun updateDislike(post: IdeaPost, isPressed: Boolean) {
         viewModelScope.launch {
             val dislikesCount = if (isPressed) post.dislikesCount + 1 else post.dislikesCount - 1
-            val userId = userRepository.user()!!.id
             val changedPost = if (post.isLikePressed) {
                 post.copy(
                     isLikePressed = false,
@@ -140,9 +142,9 @@ class HomeViewModel @Inject constructor(
             }
             updatePost(changedPost)
             if (isPressed) {
-                postsRepository.pressDislike(changedPost.id, userId)
+                postsRepository.pressDislike(changedPost.id)
             } else {
-                postsRepository.removeDislike(changedPost.id, userId)
+                postsRepository.removeDislike(changedPost.id)
             }
         }
     }
@@ -158,7 +160,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun isIdeaAuthorCurrentUser(ideaAuthor: IdeaAuthor) = ideaAuthor.id == currentUserUiState.user!!.id
+    fun isIdeaAuthorCurrentUser(ideaAuthor: IdeaAuthor) =
+        ideaAuthor.id == currentUserUiState.user!!.id
 
     private fun updateIsPostsLoading(isLoading: Boolean) {
         postsUiState = postsUiState.copy(isLoading = isLoading)
@@ -188,12 +191,35 @@ class HomeViewModel @Inject constructor(
         filtersUiState = filtersUiState.copy(isLoading = isLoading)
     }
 
+    private fun updateIsErrorWhileUserLoading(isErrorWhileLoading: Boolean) {
+        currentUserUiState = currentUserUiState.copy(
+            isErrorWhileLoading = isErrorWhileLoading
+        )
+    }
+
+    private fun updateIsErrorWhileFiltersLoading(isErrorWhileLoading: Boolean) {
+        filtersUiState = filtersUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
+    }
+
+    private fun updateIsErrorWhilePostsLoading(isErrorWhileLoading: Boolean) {
+        postsUiState = postsUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
+    }
+
+    private fun updateUser(user: User?) {
+        currentUserUiState = currentUserUiState.copy(user = user)
+    }
+
     private fun loadCurrentUser() {
         viewModelScope.launch {
             updateIsCurrentUserLoading(true)
-            currentUserUiState = currentUserUiState.copy(
-                user = userRepository.user()
-            )
+            val userResult = userRepository.user()
+            if (userResult.isSuccess) {
+                val user = userResult.getOrThrow()
+                updateIsErrorWhileUserLoading(false)
+                updateUser(user)
+            } else {
+                updateIsErrorWhileUserLoading(true)
+            }
             updateIsCurrentUserLoading(false)
         }
     }
@@ -201,7 +227,14 @@ class HomeViewModel @Inject constructor(
     private fun loadPosts() {
         viewModelScope.launch {
             updateIsPostsLoading(true)
-            updatePosts(postsRepository.posts())
+            val postsResult = postsRepository.posts()
+            if (postsResult.isSuccess) {
+                val posts = postsResult.getOrThrow()
+                updatePosts(posts)
+                updateIsErrorWhilePostsLoading(false)
+            } else {
+                updateIsErrorWhilePostsLoading(true)
+            }
             updateIsPostsLoading(false)
         }
     }
@@ -209,15 +242,14 @@ class HomeViewModel @Inject constructor(
     private fun loadFilters() {
         viewModelScope.launch {
             updateIsFiltersLoading(true)
-            val filters = postsRepository.filters()
-            filtersUiState = FiltersUiState(
-                sortingFiltersUiState = SortingFiltersUiState(
-                    filters = filters.sortingCategories
-                ),
-                officeFiltersUiState = filters.offices.map {
-                    OfficeFilterUiState(office = it)
-                }
-            )
+            val filtersResult = postsRepository.filters()
+            if (filtersResult.isSuccess) {
+                val filters = filtersResult.getOrThrow()
+                filtersUiState = filters.toFiltersUiState()
+                updateIsErrorWhileFiltersLoading(false)
+            } else {
+                updateIsErrorWhileFiltersLoading(true)
+            }
             updateIsFiltersLoading(false)
         }
     }
@@ -225,12 +257,28 @@ class HomeViewModel @Inject constructor(
     private fun observePosts() {
         viewModelScope.launch {
             while (true) {
-                val fetchedPosts = postsRepository.posts()
-                if (fetchedPosts != postsUiState.posts) {
-                    updatePosts(fetchedPosts)
+                val postsResult = postsRepository.posts()
+                if (postsResult.isSuccess) {
+                    val posts = postsResult.getOrThrow()
+                    if (posts != postsUiState.posts) {
+                        updatePosts(posts)
+                    }
+                    updateIsErrorWhilePostsLoading(false)
+                } else {
+                    updateIsErrorWhilePostsLoading(true)
                 }
                 delay(5000)
             }
         }
     }
 }
+
+fun Filters.toFiltersUiState(): FiltersUiState =
+    FiltersUiState(
+        sortingFiltersUiState = SortingFiltersUiState(
+            filters = sortingCategories
+        ),
+        officeFiltersUiState = offices.map {
+            OfficeFilterUiState(office = it)
+        }
+    )

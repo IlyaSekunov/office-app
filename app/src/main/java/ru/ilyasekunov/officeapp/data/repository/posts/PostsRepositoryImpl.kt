@@ -9,43 +9,43 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 class PostsRepositoryImpl(
     private val postsDatasource: PostsDataSource
 ) : PostsRepository {
-    override suspend fun posts(): List<IdeaPost> {
+    override suspend fun posts(): Result<List<IdeaPost>> {
         return postsDatasource.posts()
     }
 
-    override suspend fun publishPost(post: PublishPostDto) {
-        postsDatasource.publishPost(post)
+    override suspend fun publishPost(post: PublishPostDto): Result<Unit> {
+        return postsDatasource.publishPost(post)
     }
 
-    override suspend fun editPostById(postId: Long, editedPostDto: EditPostDto) {
-        postsDatasource.editPostById(postId, editedPostDto)
+    override suspend fun editPostById(postId: Long, editedPostDto: EditPostDto): Result<Unit> {
+        return postsDatasource.editPostById(postId, editedPostDto)
     }
 
-    override suspend fun findPostById(postId: Long): IdeaPost? {
+    override suspend fun findPostById(postId: Long): Result<IdeaPost?> {
         return postsDatasource.findPostById(postId)
     }
 
-    override suspend fun deletePostById(postId: Long) {
-        postsDatasource.deletePostById(postId)
+    override suspend fun deletePostById(postId: Long): Result<Unit> {
+        return postsDatasource.deletePostById(postId)
     }
 
-    override suspend fun pressLike(postId: Long, userId: Long) {
-        postsDatasource.pressLike(postId, userId)
+    override suspend fun pressLike(postId: Long): Result<Unit> {
+        return postsDatasource.pressLike(postId)
     }
 
-    override suspend fun removeLike(postId: Long, userId: Long) {
-        postsDatasource.removeLike(postId, userId)
+    override suspend fun removeLike(postId: Long): Result<Unit> {
+        return postsDatasource.removeLike(postId)
     }
 
-    override suspend fun pressDislike(postId: Long, userId: Long) {
-        postsDatasource.pressDislike(postId, userId)
+    override suspend fun pressDislike(postId: Long): Result<Unit> {
+        return postsDatasource.pressDislike(postId)
     }
 
-    override suspend fun removeDislike(postId: Long, userId: Long) {
-        postsDatasource.removeDislike(postId, userId)
+    override suspend fun removeDislike(postId: Long): Result<Unit> {
+        return postsDatasource.removeDislike(postId)
     }
 
-    override suspend fun filters(): Filters {
+    override suspend fun filters(): Result<Filters> {
         return postsDatasource.filters()
     }
 }

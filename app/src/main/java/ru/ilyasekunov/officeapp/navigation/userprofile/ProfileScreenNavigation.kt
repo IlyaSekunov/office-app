@@ -31,6 +31,7 @@ fun NavGraphBuilder.profileScreen(
             onMyOfficeClick = navigateToMyOfficeScreen,
             onMyIdeasClick = navigateToMyIdeasScreen,
             onLogoutClick = userProfileViewModel::logout,
+            onRetryUserLoadClick = userProfileViewModel::loadUserProfile,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,

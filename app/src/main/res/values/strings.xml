@@ -47,6 +47,5 @@
     <string name="repeat_password">Повторите пароль</string>
     <string name="email">Email</string>
     <string name="retry">Повторить</string>
-    <string name="available_offices_error_while_loading">Ошибка при загрузке доступных офисов</string>
     <string name="error_connecting_to_server">Ошибка соединения с сервером</string>
 </resources>

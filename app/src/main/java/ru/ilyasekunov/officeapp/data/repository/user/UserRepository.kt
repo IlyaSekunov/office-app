@@ -5,7 +5,7 @@ import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.User
 
 interface UserRepository {
-    suspend fun user(): User?
-    suspend fun saveChanges(user: UserDto)
-    suspend fun availableOffices(): List<Office>
+    suspend fun user(): Result<User?>
+    suspend fun saveChanges(user: UserDto): Result<Unit>
+    suspend fun availableOffices(): Result<List<Office>>
 }

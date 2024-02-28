@@ -16,4 +16,6 @@ interface AuthApi {
     suspend fun login(loginForm: LoginForm): Response<String>
     @GET("auth/update-token")
     suspend fun updateToken(): Response<String>
+    @POST("auth/logout")
+    suspend fun logout(): Response<Unit>
 }

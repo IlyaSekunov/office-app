@@ -78,9 +78,15 @@ class EditIdeaViewModel @Inject constructor(
     fun loadPostById(postId: Long) {
         viewModelScope.launch {
             updateIsLoading(true)
-            val ideaPost = postsRepository.findPostById(postId)
-            ideaPost?.let {
-                editIdeaUiState = it.toEditIdeaUiState()
+            val ideaPostResult = postsRepository.findPostById(postId)
+            if (ideaPostResult.isSuccess) {
+                val ideaPost = ideaPostResult.getOrThrow()
+                ideaPost?.let {
+                    editIdeaUiState = it.toEditIdeaUiState()
+                }
+                updateIsNetworkError(false)
+            } else {
+                updateIsNetworkError(true)
             }
             updateIsLoading(false)
         }

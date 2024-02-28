@@ -45,4 +45,9 @@ class AuthRepositoryImpl(
             }
         }
     }
+
+    override suspend fun logout(): Result<Unit> {
+        tokenDatasource.deleteToken()
+        return Result.success(Unit)
+    }
 }

@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.User
+import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
 import javax.inject.Inject
 
@@ -19,18 +20,35 @@ data class UserProfileUiState(
     val photo: Any? = null,
     val currentOffice: Office? = null,
     val isLoading: Boolean = false,
+    val isErrorWhileUserLoading: Boolean = false,
+    val isErrorWhileLoggingOut: Boolean = false,
     val isLoggedOut: Boolean = false
 )
 
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     var userProfileUiState by mutableStateOf(UserProfileUiState())
         private set
 
     init {
         loadUserProfile()
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            updateIsLoading(true)
+            val logoutResult = authRepository.logout()
+            if (logoutResult.isSuccess) {
+                updateIsErrorWhileLoggingOut(false)
+                updateIsLoggedOut(true)
+            } else {
+                updateIsErrorWhileLoggingOut(true)
+            }
+            updateIsLoading(false)
+        }
     }
 
     private fun updateIsLoading(isLoading: Boolean) {
@@ -41,17 +59,31 @@ class UserProfileViewModel @Inject constructor(
         userProfileUiState = userProfileUiState.copy(isLoggedOut = isLoggedOut)
     }
 
-    private fun loadUserProfile() {
-        viewModelScope.launch {
-            updateIsLoading(true)
-            val user = userRepository.user()!!
-            userProfileUiState = user.toUserProfileUiState()
-            updateIsLoading(false)
-        }
+    private fun updateIsErrorWhileUserLoading(isErrorWhileUserLoading: Boolean) {
+        userProfileUiState = userProfileUiState.copy(
+            isErrorWhileUserLoading = isErrorWhileUserLoading
+        )
     }
 
-    fun logout() {
-        updateIsLoggedOut(true)
+    private fun updateIsErrorWhileLoggingOut(isErrorWhileLoggingOut: Boolean) {
+        userProfileUiState = userProfileUiState.copy(
+            isErrorWhileLoggingOut = isErrorWhileLoggingOut
+        )
+    }
+
+    fun loadUserProfile() {
+        viewModelScope.launch {
+            updateIsLoading(true)
+            val userResult = userRepository.user()
+            if (userResult.isSuccess) {
+                val user = userResult.getOrThrow()!!
+                userProfileUiState = user.toUserProfileUiState()
+                updateIsErrorWhileUserLoading(false)
+            } else {
+                updateIsErrorWhileUserLoading(true)
+            }
+            updateIsLoading(false)
+        }
     }
 }
 

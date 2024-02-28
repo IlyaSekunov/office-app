@@ -7,9 +7,9 @@ import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.User
 
 interface UserDataSource {
-    suspend fun user(): User?
+    suspend fun user(): Result<User?>
     @PATCH("users")
-    suspend fun saveChanges(userDto: UserDto)
+    suspend fun saveChanges(userDto: UserDto): Result<Unit>
     @GET("users/available-offices")
-    suspend fun availableOffices(): List<Office>
+    suspend fun availableOffices(): Result<List<Office>>
 }

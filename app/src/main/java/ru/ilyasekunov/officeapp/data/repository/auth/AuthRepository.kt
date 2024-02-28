@@ -8,4 +8,5 @@ interface AuthRepository {
     suspend fun register(registrationForm: RegistrationForm): Result<String>
     suspend fun userInfo(): Result<User?>
     suspend fun login(loginForm: LoginForm): Result<String>
+    suspend fun logout(): Result<Unit>
 }

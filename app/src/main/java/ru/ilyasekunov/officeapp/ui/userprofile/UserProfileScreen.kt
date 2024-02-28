@@ -22,11 +22,15 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +49,7 @@ import coil.request.ImageRequest
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.auth.registration.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
@@ -55,13 +60,20 @@ fun UserProfileScreen(
     onMyOfficeClick: () -> Unit,
     onMyIdeasClick: () -> Unit,
     onLogoutClick: () -> Unit,
+    onRetryUserLoadClick: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
     navigateToAuthGraph: () -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
     if (userProfileUiState.isLoading) {
         LoadingScreen()
+    } else if (userProfileUiState.isErrorWhileUserLoading) {
+        ErrorScreen(
+            message = stringResource(R.string.error_connecting_to_server),
+            onRetryButtonClick = onRetryUserLoadClick
+        )
     } else {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
@@ -129,9 +141,49 @@ fun UserProfileScreen(
         }
     }
 
-    // Observe isLoggedOut to navigate to auth graph
+    UserProfileScreenObserveIsErrorWhileLoggingOut(
+        userProfileUiState = userProfileUiState,
+        snackbarHostState = snackbarHostState,
+        onActionPerformedClick = onLogoutClick
+    )
+
+    UserProfileScreenObserveIsLoggedOut(
+        userProfileUiState = userProfileUiState,
+        navigateToAuthGraph = navigateToAuthGraph
+    )
+}
+
+@Composable
+fun UserProfileScreenObserveIsErrorWhileLoggingOut(
+    userProfileUiState: UserProfileUiState,
+    snackbarHostState: SnackbarHostState,
+    onActionPerformedClick: () -> Unit
+) {
+    val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
+    val retryLabel = stringResource(R.string.retry)
+    val networkErrorMessage = stringResource(R.string.error_connecting_to_server)
+    LaunchedEffect(userProfileUiState.isErrorWhileLoggingOut) {
+        if (userProfileUiState.isErrorWhileLoggingOut) {
+            snackbarHostState.showSnackbar(
+                message = networkErrorMessage,
+                actionLabel = retryLabel,
+                duration = SnackbarDuration.Long
+            ).also {
+                if (it == SnackbarResult.ActionPerformed) {
+                    currentOnActionPerformedClick()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UserProfileScreenObserveIsLoggedOut(
+    userProfileUiState: UserProfileUiState,
+    navigateToAuthGraph: () -> Unit
+) {
     val currentOnNavigateToAuthGraph by rememberUpdatedState(navigateToAuthGraph)
-    LaunchedEffect(userProfileUiState) {
+    LaunchedEffect(userProfileUiState.isLoggedOut) {
         if (userProfileUiState.isLoggedOut) {
             currentOnNavigateToAuthGraph()
         }
@@ -303,6 +355,7 @@ fun UserProfileScreenPreview() {
             onMyOfficeClick = {},
             onMyIdeasClick = {},
             onLogoutClick = {},
+            onRetryUserLoadClick = {},
             navigateToHomeScreen = {},
             navigateToFavouriteScreen = {},
             navigateToMyOfficeScreen = {},

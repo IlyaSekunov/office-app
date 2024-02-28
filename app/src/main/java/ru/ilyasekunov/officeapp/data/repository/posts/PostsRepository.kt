@@ -6,14 +6,14 @@ import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
 interface PostsRepository {
-    suspend fun posts(): List<IdeaPost>
-    suspend fun publishPost(post: PublishPostDto)
-    suspend fun editPostById(postId: Long, editedPostDto: EditPostDto)
-    suspend fun findPostById(postId: Long): IdeaPost?
-    suspend fun deletePostById(postId: Long)
-    suspend fun pressLike(postId: Long, userId: Long)
-    suspend fun removeLike(postId: Long, userId: Long)
-    suspend fun pressDislike(postId: Long, userId: Long)
-    suspend fun removeDislike(postId: Long, userId: Long)
-    suspend fun filters(): Filters
+    suspend fun posts(): Result<List<IdeaPost>>
+    suspend fun publishPost(post: PublishPostDto): Result<Unit>
+    suspend fun editPostById(postId: Long, editedPostDto: EditPostDto): Result<Unit>
+    suspend fun findPostById(postId: Long): Result<IdeaPost?>
+    suspend fun deletePostById(postId: Long): Result<Unit>
+    suspend fun pressLike(postId: Long): Result<Unit>
+    suspend fun removeLike(postId: Long): Result<Unit>
+    suspend fun pressDislike(postId: Long): Result<Unit>
+    suspend fun removeDislike(postId: Long): Result<Unit>
+    suspend fun filters(): Result<Filters>
 }

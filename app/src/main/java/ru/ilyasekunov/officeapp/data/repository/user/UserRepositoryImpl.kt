@@ -8,15 +8,15 @@ import ru.ilyasekunov.officeapp.data.model.User
 class UserRepositoryImpl(
     private val userDatasource: UserDataSource
 ) : UserRepository {
-    override suspend fun user(): User? {
+    override suspend fun user(): Result<User?> {
         return userDatasource.user()
     }
 
-    override suspend fun saveChanges(user: UserDto) {
-        userDatasource.saveChanges(user)
+    override suspend fun saveChanges(user: UserDto): Result<Unit> {
+        return userDatasource.saveChanges(user)
     }
 
-    override suspend fun availableOffices(): List<Office> {
+    override suspend fun availableOffices(): Result<List<Office>> {
         return userDatasource.availableOffices()
     }
 }

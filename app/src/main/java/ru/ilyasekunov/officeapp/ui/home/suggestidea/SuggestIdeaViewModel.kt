@@ -9,11 +9,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
-import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
-import ru.ilyasekunov.officeapp.data.model.User
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
-import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
 import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
 import javax.inject.Inject
 
@@ -29,7 +26,6 @@ data class SuggestIdeaUiState(
 @HiltViewModel
 class SuggestIdeaViewModel @Inject constructor(
     private val postsRepository: PostsRepository,
-    private val userRepository: UserRepository,
     private val imagesRepository: ImagesRepository
 ) : ViewModel() {
     var suggestIdeaUiState by mutableStateOf(SuggestIdeaUiState())
@@ -77,19 +73,19 @@ class SuggestIdeaViewModel @Inject constructor(
                 return@launch
             }
 
-            val user = userRepository.user()!!
-            val ideaAuthor = user.toIdeaAuthor()
             val publishPostDto = PublishPostDto(
                 title = suggestIdeaUiState.title,
                 content = suggestIdeaUiState.content,
-                author = ideaAuthor,
-                office = user.office,
                 attachedImages = uploadedImages
             )
-            postsRepository.publishPost(publishPostDto)
+            val publishResult = postsRepository.publishPost(publishPostDto)
+            if (publishResult.isSuccess) {
+                updateIsNetworkError(false)
+                updateIsPublished(true)
+            } else {
+                updateIsNetworkError(true)
+            }
             updateIsLoading(false)
-            updateIsNetworkError(false)
-            updateIsPublished(true)
         }
     }
 
@@ -120,12 +116,3 @@ class SuggestIdeaViewModel @Inject constructor(
         suggestIdeaUiState = suggestIdeaUiState.copy(isNetworkError = isNetworkError)
     }
 }
-
-fun User.toIdeaAuthor(): IdeaAuthor =
-    IdeaAuthor(
-        id = id,
-        name = name,
-        surname = surname,
-        job = job,
-        photo = photo
-    )
