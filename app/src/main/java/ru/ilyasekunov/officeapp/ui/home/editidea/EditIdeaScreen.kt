@@ -13,6 +13,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,12 +34,13 @@ import ru.ilyasekunov.officeapp.ui.home.suggestidea.SuggestIdeaTopBar
 
 @Composable
 fun EditIdeaScreen(
-    editingIdeaUiState: EditIdeaUiState,
+    editIdeaUiState: EditIdeaUiState,
     onTitleValueChange: (String) -> Unit,
     onIdeaBodyValueChange: (String) -> Unit,
     onRemoveImageClick: (image: AttachedImage) -> Unit,
     onPublishClick: () -> Unit,
     onAttachImagesButtonClick: () -> Unit,
+    onRetryClick: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -46,7 +48,7 @@ fun EditIdeaScreen(
     navigateBack: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    if (editingIdeaUiState.isLoading) {
+    if (editIdeaUiState.isLoading) {
         LoadingScreen()
     } else {
         Scaffold(
@@ -92,9 +94,9 @@ fun EditIdeaScreen(
                 )
                 val writingIdeaSectionBorderWidth = 1.dp
                 EditingIdeaSection(
-                    title = editingIdeaUiState.title,
-                    content = editingIdeaUiState.content,
-                    attachedImages = editingIdeaUiState.attachedImages,
+                    title = editIdeaUiState.title,
+                    content = editIdeaUiState.content,
+                    attachedImages = editIdeaUiState.attachedImages,
                     onTitleValueChange = onTitleValueChange,
                     onIdeaBodyValueChange = onIdeaBodyValueChange,
                     onRemoveImageClick = onRemoveImageClick,
@@ -113,22 +115,50 @@ fun EditIdeaScreen(
         }
     }
 
-    // Observe errorMessage state to show snackbars
+    EditIdeaScreenObserveNetworkError(
+        editIdeaUiState = editIdeaUiState,
+        snackbarHostState = snackbarHostState,
+        onActionPerformedClick = onRetryClick
+    )
+
+    EditIdeaScreenObserveIsPublished(
+        editIdeaUiState = editIdeaUiState,
+        navigateToHomeScreen = navigateToHomeScreen
+    )
+}
+
+@Composable
+fun EditIdeaScreenObserveNetworkError(
+    editIdeaUiState: EditIdeaUiState,
+    snackbarHostState: SnackbarHostState,
+    onActionPerformedClick: () -> Unit,
+) {
     val retryLabel = stringResource(R.string.retry)
-    LaunchedEffect(editingIdeaUiState.errorMessage) {
-        if (editingIdeaUiState.errorMessage != null) {
+    val serverErrorMessage = stringResource(R.string.error_connecting_to_server)
+    val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
+    LaunchedEffect(editIdeaUiState.isNetworkError) {
+        if (editIdeaUiState.isNetworkError) {
             snackbarHostState.showSnackbar(
-                message = editingIdeaUiState.errorMessage,
+                message = serverErrorMessage,
                 actionLabel = retryLabel,
                 duration = SnackbarDuration.Long
-            )
+            ).also {
+                if (it == SnackbarResult.ActionPerformed) {
+                    currentOnActionPerformedClick()
+                }
+            }
         }
     }
+}
 
-    // Observe isPublished state to navigate to home screen
+@Composable
+fun EditIdeaScreenObserveIsPublished(
+    editIdeaUiState: EditIdeaUiState,
+    navigateToHomeScreen: () -> Unit
+) {
     val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
-    LaunchedEffect(editingIdeaUiState.isPublished) {
-        if (editingIdeaUiState.isPublished) {
+    LaunchedEffect(editIdeaUiState.isPublished) {
+        if (editIdeaUiState.isPublished) {
             currentNavigateToHomeScreen()
         }
     }

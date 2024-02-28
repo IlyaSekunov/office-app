@@ -8,7 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.ilyasekunov.officeapp.data.ResponseResult
+import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
+import ru.ilyasekunov.officeapp.data.dto.UserDto
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
@@ -22,7 +23,7 @@ data class RegistrationUiState(
     val userInfoRegistrationUiState: UserInfoRegistrationUiState = UserInfoRegistrationUiState(),
     val isLoading: Boolean = false,
     val isRegistrationSuccess: Boolean = false,
-    val errorMessage: String? = null
+    val isNetworkError: Boolean = false
 )
 
 data class AvailableOfficesUiState(
@@ -37,8 +38,7 @@ data class UserInfoRegistrationUiState(
     val job: String = "",
     val photo: Uri? = null,
     val currentOffice: Office? = null,
-    val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val isLoading: Boolean = false
 )
 
 @HiltViewModel
@@ -105,11 +105,12 @@ class RegistrationViewModel @Inject constructor(
     fun register() {
         viewModelScope.launch {
             updateIsLoading(true)
-            /*val uploadedUserPhoto = uploadUserPhoto()
-            if (registrationUiState.userInfoRegistrationUiState.errorMessage != null) {
+            val photoUrlResult = uploadUserPhoto()
+            if (photoUrlResult.isFailure) {
                 updateIsLoading(false)
                 return@launch
             }
+            val photoUrl = photoUrlResult.getOrThrow()
 
             val userInfo = registrationUiState.userInfoRegistrationUiState
             val registrationForm = RegistrationForm(
@@ -120,11 +121,12 @@ class RegistrationViewModel @Inject constructor(
                     surname = userInfo.surname,
                     job = userInfo.job,
                     officeId = userInfo.currentOffice!!.id,
-                    photo = uploadedUserPhoto
+                    photo = photoUrl
                 )
             )
-            authRepository.register(registrationForm)*/
+            authRepository.register(registrationForm)
             updateIsLoading(false)
+            updateIsNetworkError(false)
             updateIsRegistrationSuccess(true)
         }
     }
@@ -142,57 +144,48 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private fun updateIsRegistrationSuccess(isRegistrationSuccess: Boolean) {
-        registrationUiState =
-            registrationUiState.copy(isRegistrationSuccess = isRegistrationSuccess)
+        registrationUiState = registrationUiState.copy(
+            isRegistrationSuccess = isRegistrationSuccess
+        )
+    }
+
+    private fun updateIsNetworkError(isNetworkError: Boolean) {
+        registrationUiState = registrationUiState.copy(isNetworkError = isNetworkError)
     }
 
     fun loadAvailableOffices() {
         viewModelScope.launch {
             updateAvailableOfficesIsLoading(true)
-            when (val availableOfficesResponse = officeRepository.availableOffices()) {
-                is ResponseResult.Success -> {
-                    updateAvailableOfficeIsError(false)
-                    updateAvailableOffices(availableOfficesResponse.value)
-                    updateOffice(availableOfficesUiState.availableOffices[0])
-                }
-
-                is ResponseResult.Failure -> {
-                    updateAvailableOfficeIsError(true)
-                }
+            val availableOfficesResult = officeRepository.availableOffices()
+            if (availableOfficesResult.isSuccess) {
+                updateAvailableOfficeIsError(false)
+                val availableOffices = availableOfficesResult.getOrThrow()
+                updateAvailableOffices(availableOffices)
+                updateOffice(availableOffices[0])
+            } else {
+                updateAvailableOfficeIsError(true)
             }
             updateAvailableOfficesIsLoading(false)
         }
     }
 
-    private fun updateUserInfoErrorMessage(errorMessage: String?) {
-        registrationUiState = registrationUiState.copy(
-            userInfoRegistrationUiState = registrationUiState.userInfoRegistrationUiState.copy(
-                errorMessage = errorMessage
-            )
+    private fun updateAvailableOfficeIsError(isErrorWhileLoading: Boolean) {
+        availableOfficesUiState = availableOfficesUiState.copy(
+            isErrorWhileLoading = isErrorWhileLoading
         )
     }
 
-    private fun updateRegistrationErrorMessage(errorMessage: String?) {
-        registrationUiState = registrationUiState.copy(errorMessage = errorMessage)
-    }
-
-    private fun updateAvailableOfficeIsError(isErrorWhileLoading: Boolean) {
-        availableOfficesUiState = availableOfficesUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
-    }
-
-    private suspend fun uploadUserPhoto(): String? {
-        val pickedPhoto = registrationUiState.userInfoRegistrationUiState.photo
-        return pickedPhoto?.let {
-            when (val response = imagesRepository.uploadImage(it)) {
-                is ResponseResult.Success -> {
-                    response.value
-                }
-
-                is ResponseResult.Failure -> {
-                    updateUserInfoErrorMessage(response.message)
-                    return null
-                }
+    private suspend fun uploadUserPhoto(): Result<String?> {
+        val pickedPhotoUri = registrationUiState.userInfoRegistrationUiState.photo
+        return pickedPhotoUri?.let {
+            val photoUrlResult = imagesRepository.uploadImage(it)
+            if (photoUrlResult.isSuccess) {
+                val photoUrl = photoUrlResult.getOrThrow()
+                Result.success(photoUrl)
+            } else {
+                updateIsNetworkError(true)
+                photoUrlResult
             }
-        }
+        } ?: Result.success(null)
     }
 }

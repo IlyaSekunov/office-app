@@ -7,40 +7,42 @@ import kotlinx.coroutines.withContext
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import ru.ilyasekunov.officeapp.data.ResponseResult
+import retrofit2.HttpException
 import ru.ilyasekunov.officeapp.data.api.ImgurApi
-import ru.ilyasekunov.officeapp.data.datasource.ImagesUploaderDataSource
 import ru.ilyasekunov.officeapp.data.datasource.ImageUrl
-import ru.ilyasekunov.officeapp.util.copyStreamToFile
+import ru.ilyasekunov.officeapp.data.datasource.ImagesUploaderDataSource
+import ru.ilyasekunov.officeapp.util.copyUriContentToFile
+import java.io.File
 
 class ImgurRemoteDataSource(
     private val imgurApi: ImgurApi,
     private val contentResolver: ContentResolver,
     private val ioDispatcher: CoroutineDispatcher
 ) : ImagesUploaderDataSource {
-    override suspend fun uploadImage(imageUri: Uri): ResponseResult<ImageUrl> =
+    override suspend fun uploadImage(imageUri: Uri): Result<ImageUrl> =
         withContext(ioDispatcher) {
-            val imageFile = try {
-                imageUri.copyStreamToFile(contentResolver)
-            } catch (e: Exception) {
-                return@withContext ResponseResult.failure("Error while converting uri to file")
-            }
+            val imageFile = File.createTempFile("temp", null)
+            copyUriContentToFile(
+                source = imageUri,
+                destination = imageFile,
+                contentResolver = contentResolver
+            )
 
             val imagePart = MultipartBody.Part.createFormData(
-                "image",
-                imageFile.name,
-                imageFile.asRequestBody()
+                name = "image",
+                filename = imageFile.name,
+                body = imageFile.asRequestBody()
             )
 
-            val response = imgurApi.uploadFile(
+            imgurApi.uploadFile(
                 image = imagePart,
                 name = imageFile.name.toRequestBody()
-            )
-
-            if (response.isSuccessful) {
-                ResponseResult.success(response.body()!!.upload.link)
-            } else {
-                ResponseResult.failure("Unknown network error")
+            ).run {
+                if (isSuccessful) {
+                    Result.success(body()!!.upload.link)
+                } else {
+                    Result.failure(HttpException(this))
+                }
             }
         }
 }

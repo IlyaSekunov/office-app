@@ -45,6 +45,7 @@ fun NavGraphBuilder.userManageAccountScreen(
             onSurnameValueChange = userManageAccountViewModel::updateSurname,
             onJobValueChange = userManageAccountViewModel::updateJob,
             onOfficeChange = userManageAccountViewModel::updateOffice,
+            onRetryClick = userManageAccountViewModel::save,
             onSaveButtonClick = userManageAccountViewModel::save,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,

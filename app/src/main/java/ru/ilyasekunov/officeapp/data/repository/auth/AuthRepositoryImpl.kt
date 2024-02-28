@@ -1,8 +1,5 @@
 package ru.ilyasekunov.officeapp.data.repository.auth
 
-import okio.IOException
-import retrofit2.HttpException
-import ru.ilyasekunov.officeapp.data.ResponseResult
 import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
 import ru.ilyasekunov.officeapp.data.dto.LoginForm
@@ -13,44 +10,39 @@ class AuthRepositoryImpl(
     private val authDatasource: AuthDataSource,
     private val tokenDatasource: TokenDataSource
 ) : AuthRepository {
-    override suspend fun register(registrationForm: RegistrationForm): ResponseResult<String> {
-        return try {
-            val token = authDatasource.register(registrationForm)
+    override suspend fun register(registrationForm: RegistrationForm): Result<String> {
+        val tokenResult = authDatasource.register(registrationForm)
+        return if (tokenResult.isSuccess) {
+            val token = tokenResult.getOrThrow()
             tokenDatasource.putToken(token)
-            ResponseResult.success(token)
-        } catch (httpException: HttpException) {
-            ResponseResult.failure("Cannot send a request to a server")
-        } catch (ioException: IOException) {
-            ResponseResult.failure("Cannot save a token")
-        }
+            Result.success(token)
+        } else tokenResult
     }
 
-    override suspend fun userInfo(): ResponseResult<User?> {
-        return try {
-            val user = authDatasource.userInfo()
+    override suspend fun userInfo(): Result<User?> {
+        val userResult = authDatasource.userInfo()
+        return if (userResult.isSuccess) {
+            val user = userResult.getOrThrow()
             updateToken()
-            ResponseResult.success(user)
-        } catch (httpException: HttpException) {
-            ResponseResult.failure("Cannot send a request to a server")
-        } catch (ioException: IOException) {
-            ResponseResult.failure("Cannot save a token")
-        }
+            Result.success(user)
+        } else userResult
     }
 
-    override suspend fun login(loginForm: LoginForm): ResponseResult<String> {
-        return try {
-            val token = authDatasource.login(loginForm)
+    override suspend fun login(loginForm: LoginForm): Result<String> {
+        val loginResult = authDatasource.login(loginForm)
+        return if (loginResult.isSuccess) {
+            val token = loginResult.getOrThrow()
             tokenDatasource.putToken(token)
-            ResponseResult.success(token)
-        } catch (httpException: HttpException) {
-            ResponseResult.failure("Cannot send a request to a server")
-        } catch (ioException: IOException) {
-            ResponseResult.failure("Cannot save a token")
-        }
+            Result.success(token)
+        } else loginResult
     }
 
     private suspend fun updateToken() {
-        val newToken = authDatasource.updateToken()
-        tokenDatasource.putToken(newToken)
+        authDatasource.updateToken().also {
+            if (it.isSuccess) {
+                val newToken = it.getOrThrow()
+                tokenDatasource.putToken(newToken)
+            }
+        }
     }
 }

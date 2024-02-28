@@ -2,6 +2,7 @@ package ru.ilyasekunov.officeapp.data.datasource.remote
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.dto.LoginForm
@@ -12,23 +13,47 @@ class AuthRemoteDataSource(
     private val authApi: AuthApi,
     private val ioDispatcher: CoroutineDispatcher
 ) : AuthDataSource {
-    override suspend fun register(registrationForm: RegistrationForm): String =
+    override suspend fun register(registrationForm: RegistrationForm): Result<String> =
         withContext(ioDispatcher) {
-            authApi.register(registrationForm)
+            authApi.register(registrationForm).run {
+                if (isSuccessful) {
+                    Result.success(body()!!)
+                } else {
+                    Result.failure(HttpException(this))
+                }
+            }
         }
 
-    override suspend fun userInfo(): User =
+    override suspend fun userInfo(): Result<User> =
         withContext(ioDispatcher) {
-            authApi.userInfo()
+            authApi.userInfo().run {
+                if (isSuccessful) {
+                    Result.success(body()!!)
+                } else {
+                    Result.failure(HttpException(this))
+                }
+            }
         }
 
-    override suspend fun login(loginForm: LoginForm): String =
+    override suspend fun login(loginForm: LoginForm): Result<String> =
         withContext(ioDispatcher) {
-            authApi.login(loginForm)
+            authApi.login(loginForm).run {
+                if (isSuccessful) {
+                    Result.success(body()!!)
+                } else {
+                    Result.failure(HttpException(this))
+                }
+            }
         }
 
-    override suspend fun updateToken(): String =
+    override suspend fun updateToken(): Result<String> =
         withContext(ioDispatcher) {
-            authApi.updateToken()
+            authApi.updateToken().run {
+                if (isSuccessful) {
+                    Result.success(body()!!)
+                } else {
+                    Result.failure(HttpException(this))
+                }
+            }
         }
 }

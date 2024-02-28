@@ -63,7 +63,7 @@ fun RegistrationUserInfoScreen(
         LoadingScreen()
     } else if (availableOfficesUiState.isErrorWhileLoading) {
         ErrorScreen(
-            message = stringResource(R.string.available_offices_error_while_loading),
+            message = stringResource(R.string.error_connecting_to_server),
             onRetryButtonClick = onRetryButtonClick
         )
     } else {

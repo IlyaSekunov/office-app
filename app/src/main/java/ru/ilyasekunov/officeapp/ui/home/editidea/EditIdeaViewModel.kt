@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.ilyasekunov.officeapp.data.ResponseResult
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
@@ -22,7 +21,7 @@ data class EditIdeaUiState(
     val attachedImages: List<AttachedImage> = emptyList(),
     val isLoading: Boolean = false,
     val isPublished: Boolean = false,
-    val errorMessage: String? = null
+    val isNetworkError: Boolean = false
 ) {
     companion object {
         val Empty = EditIdeaUiState(
@@ -91,7 +90,7 @@ class EditIdeaViewModel @Inject constructor(
         viewModelScope.launch {
             updateIsLoading(true)
             val uploadedImages = uploadImagesFromUris()
-            if (editIdeaUiState.errorMessage != null) {
+            if (editIdeaUiState.isNetworkError) {
                 updateIsLoading(false)
                 return@launch
             }
@@ -102,6 +101,7 @@ class EditIdeaViewModel @Inject constructor(
             )
             postsRepository.editPostById(editIdeaUiState.postId, editPostDto)
             updateIsLoading(false)
+            updateIsNetworkError(false)
             updateIsPublished(true)
         }
     }
@@ -110,14 +110,13 @@ class EditIdeaViewModel @Inject constructor(
         val imagesToConvert = editIdeaUiState.attachedImages.filter { it.image is Uri }
         val imagesUrls = ArrayList<String>()
         imagesToConvert.forEach {
-            when (val response = imagesRepository.uploadImage(it.image as Uri)) {
-                is ResponseResult.Success -> {
-                    imagesUrls += response.value
-                }
-                is ResponseResult.Failure -> {
-                    updateErrorMessage(response.message)
-                    return emptyList()
-                }
+            val imageUrlResponse = imagesRepository.uploadImage(it.image as Uri)
+            if (imageUrlResponse.isSuccess) {
+                val imageUrl = imageUrlResponse.getOrThrow()
+                imagesUrls += imageUrl
+            } else {
+                updateIsNetworkError(true)
+                return emptyList()
             }
         }
         return imagesUrls
@@ -131,8 +130,8 @@ class EditIdeaViewModel @Inject constructor(
         editIdeaUiState = editIdeaUiState.copy(isPublished = isPublished)
     }
 
-    private fun updateErrorMessage(errorMessage: String?) {
-        editIdeaUiState = editIdeaUiState.copy(errorMessage = errorMessage)
+    private fun updateIsNetworkError(isNetworkError: Boolean) {
+        editIdeaUiState = editIdeaUiState.copy(isNetworkError = isNetworkError)
     }
 }
 

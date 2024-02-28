@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.ilyasekunov.officeapp.data.ResponseResult
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.User
@@ -24,7 +23,7 @@ data class SuggestIdeaUiState(
     val attachedImages: List<AttachedImage> = emptyList(),
     val isLoading: Boolean = false,
     val isPublished: Boolean = false,
-    val errorMessage: String? = null
+    val isNetworkError: Boolean = false
 )
 
 @HiltViewModel
@@ -52,9 +51,10 @@ class SuggestIdeaViewModel @Inject constructor(
 
     fun attachImage(image: Uri) {
         viewModelScope.launch {
+            val attachedImages = suggestIdeaUiState.attachedImages
             synchronized(suggestIdeaUiState) {
-                val imageId = if (suggestIdeaUiState.attachedImages.isNotEmpty()) {
-                    suggestIdeaUiState.attachedImages.maxOf { it.id } + 1
+                val imageId = if (attachedImages.isNotEmpty()) {
+                    attachedImages.maxOf { it.id } + 1
                 } else 0
                 val attachedImage = AttachedImage(id = imageId, image = image)
                 attachImage(attachedImage)
@@ -72,7 +72,7 @@ class SuggestIdeaViewModel @Inject constructor(
         viewModelScope.launch {
             updateIsLoading(true)
             val uploadedImages = uploadImagesFromUris()
-            if (suggestIdeaUiState.errorMessage != null) {
+            if (suggestIdeaUiState.isNetworkError) {
                 updateIsLoading(false)
                 return@launch
             }
@@ -88,6 +88,7 @@ class SuggestIdeaViewModel @Inject constructor(
             )
             postsRepository.publishPost(publishPostDto)
             updateIsLoading(false)
+            updateIsNetworkError(false)
             updateIsPublished(true)
         }
     }
@@ -95,14 +96,13 @@ class SuggestIdeaViewModel @Inject constructor(
     private suspend fun uploadImagesFromUris(): List<String> {
         val imagesUrls = ArrayList<String>()
         suggestIdeaUiState.attachedImages.forEach {
-            when (val response = imagesRepository.uploadImage(it.image as Uri)) {
-                is ResponseResult.Success -> {
-                    imagesUrls += response.value
-                }
-                is ResponseResult.Failure -> {
-                    updateErrorMessage(response.message)
-                    return emptyList()
-                }
+            val imageUrlResult = imagesRepository.uploadImage(it.image as Uri)
+            if (imageUrlResult.isSuccess) {
+                val imageUrl = imageUrlResult.getOrThrow()
+                imagesUrls += imageUrl
+            } else {
+                updateIsNetworkError(true)
+                return emptyList()
             }
         }
         return imagesUrls
@@ -116,8 +116,8 @@ class SuggestIdeaViewModel @Inject constructor(
         suggestIdeaUiState = suggestIdeaUiState.copy(isPublished = isPublished)
     }
 
-    private fun updateErrorMessage(errorMessage: String?) {
-        suggestIdeaUiState = suggestIdeaUiState.copy(errorMessage = errorMessage)
+    private fun updateIsNetworkError(isNetworkError: Boolean) {
+        suggestIdeaUiState = suggestIdeaUiState.copy(isNetworkError = isNetworkError)
     }
 }
 

@@ -56,11 +56,9 @@ fun Int.toThousandsString(): String =
         this.toString()
     }
 
-fun Uri.copyStreamToFile(contentResolver: ContentResolver): File {
-    val outputFile = File.createTempFile("temp", null)
-
-    contentResolver.openInputStream(this)?.use { input ->
-        val outputStream = FileOutputStream(outputFile)
+fun copyUriContentToFile(source: Uri, destination: File, contentResolver: ContentResolver) {
+    contentResolver.openInputStream(source)?.use { input ->
+        val outputStream = FileOutputStream(destination)
         outputStream.use { output ->
             val buffer = ByteArray(4 * 1024) // buffer size
             while (true) {
@@ -71,5 +69,4 @@ fun Uri.copyStreamToFile(contentResolver: ContentResolver): File {
             output.flush()
         }
     }
-    return outputFile
 }

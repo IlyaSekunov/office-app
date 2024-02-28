@@ -20,6 +20,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -27,6 +31,7 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +48,7 @@ import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
 import ru.ilyasekunov.officeapp.ui.components.UserInfoTextField
+import ru.ilyasekunov.officeapp.ui.home.suggestidea.SuggestIdeaUiState
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,12 +61,14 @@ fun UserManageAccountScreen(
     onJobValueChange: (String) -> Unit,
     onOfficeChange: (Office) -> Unit,
     onSaveButtonClick: () -> Unit,
+    onRetryClick: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
     if (userManageAccountUiState.isLoading) {
         LoadingScreen()
     } else {
@@ -176,9 +184,49 @@ fun UserManageAccountScreen(
         }
     }
 
-    // Observe isChangesSaved to navigate to profile screen
+    UserManageAccountScreenObserveNetworkError(
+        userManageAccountUiState = userManageAccountUiState,
+        snackbarHostState = snackbarHostState,
+        onActionPerformedClick = onRetryClick
+    )
+
+    UserManageAccountScreenObserveIsSaved(
+        userManageAccountUiState = userManageAccountUiState,
+        navigateToProfileScreen = navigateToProfileScreen
+    )
+}
+
+@Composable
+fun UserManageAccountScreenObserveNetworkError(
+    userManageAccountUiState: UserManageAccountUiState,
+    snackbarHostState: SnackbarHostState,
+    onActionPerformedClick: () -> Unit
+) {
+    val retryLabel = stringResource(R.string.retry)
+    val serverErrorMessage = stringResource(R.string.error_connecting_to_server)
+    val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
+    LaunchedEffect(userManageAccountUiState.isNetworkError) {
+        if (userManageAccountUiState.isNetworkError) {
+            snackbarHostState.showSnackbar(
+                message = serverErrorMessage,
+                actionLabel = retryLabel,
+                duration = SnackbarDuration.Long
+            ).also {
+                if (it == SnackbarResult.ActionPerformed) {
+                    currentOnActionPerformedClick()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun UserManageAccountScreenObserveIsSaved(
+    userManageAccountUiState: UserManageAccountUiState,
+    navigateToProfileScreen: () -> Unit
+) {
     val currentNavigateToProfileScreen by rememberUpdatedState(navigateToProfileScreen)
-    LaunchedEffect(userManageAccountUiState) {
+    LaunchedEffect(userManageAccountUiState.isChangesSaved) {
         if (userManageAccountUiState.isChangesSaved) {
             currentNavigateToProfileScreen()
         }
@@ -219,6 +267,7 @@ fun UserManageAccountScreenPreview() {
             onOfficeChange = {},
             onPhotoPickerClick = {},
             onSaveButtonClick = {},
+            onRetryClick = {},
             navigateToHomeScreen = {},
             navigateToFavouriteScreen = {},
             navigateToMyOfficeScreen = {},

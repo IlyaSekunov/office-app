@@ -38,6 +38,7 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -86,6 +87,7 @@ fun SuggestIdeaScreen(
     onRemoveImageClick: (image: AttachedImage) -> Unit,
     onPublishClick: () -> Unit,
     onAttachImagesButtonClick: () -> Unit,
+    onRetryClick: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -162,19 +164,47 @@ fun SuggestIdeaScreen(
         }
     }
 
-    // Observe errorMessage state to show snackbars
+    SuggestIdeaScreenObserveNetworkError(
+        suggestIdeaUiState = suggestIdeaUiState,
+        snackbarHostState = snackbarHostState,
+        onActionPerformedClick = onRetryClick
+    )
+
+    SuggestIdeaScreenObserveIsPublished(
+        suggestIdeaUiState = suggestIdeaUiState,
+        navigateToHomeScreen = navigateToHomeScreen
+    )
+}
+
+@Composable
+fun SuggestIdeaScreenObserveNetworkError(
+    suggestIdeaUiState: SuggestIdeaUiState,
+    snackbarHostState: SnackbarHostState,
+    onActionPerformedClick: () -> Unit
+) {
     val retryLabel = stringResource(R.string.retry)
-    LaunchedEffect(suggestIdeaUiState.errorMessage) {
-        if (suggestIdeaUiState.errorMessage != null) {
+    val serverErrorMessage = stringResource(R.string.error_connecting_to_server)
+    val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
+    LaunchedEffect(suggestIdeaUiState.isNetworkError) {
+        if (suggestIdeaUiState.isNetworkError) {
             snackbarHostState.showSnackbar(
-                message = suggestIdeaUiState.errorMessage,
+                message = serverErrorMessage,
                 actionLabel = retryLabel,
                 duration = SnackbarDuration.Long
-            )
+            ).also {
+                if (it == SnackbarResult.ActionPerformed) {
+                    currentOnActionPerformedClick()
+                }
+            }
         }
     }
+}
 
-    // Observe isPublished state to navigate to home screen
+@Composable
+fun SuggestIdeaScreenObserveIsPublished(
+    suggestIdeaUiState: SuggestIdeaUiState,
+    navigateToHomeScreen: () -> Unit
+) {
     val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
     LaunchedEffect(suggestIdeaUiState.isPublished) {
         if (suggestIdeaUiState.isPublished) {
@@ -506,6 +536,7 @@ fun SuggestIdeaScreenPreview() {
             onRemoveImageClick = {},
             onPublishClick = {},
             onAttachImagesButtonClick = {},
+            onRetryClick = {},
             navigateToHomeScreen = {},
             navigateToProfileScreen = {},
             navigateToMyOfficeScreen = {},

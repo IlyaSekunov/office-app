@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.ilyasekunov.officeapp.data.ResponseResult
 import ru.ilyasekunov.officeapp.data.dto.UserDto
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
@@ -21,7 +20,7 @@ data class UserManageAccountUiState(
     val availableOffices: List<Office> = emptyList(),
     val isLoading: Boolean = false,
     val isChangesSaved: Boolean = false,
-    val errorMessage: String? = null
+    val isNetworkError: Boolean = false
 )
 
 @HiltViewModel
@@ -76,17 +75,18 @@ class UserManageAccountViewModel @Inject constructor(
         viewModelScope.launch {
             updateIsLoading(true)
             val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
-            val uploadedUserPhoto = uploadUserPhoto()
-            if (userManageAccountUiState.errorMessage != null) {
+            val photoUrlResult = uploadUserPhoto()
+            if (photoUrlResult.isFailure) {
+                updateIsNetworkError(true)
                 updateIsLoading(false)
                 return@launch
             }
-
+            val photoUrl = photoUrlResult.getOrThrow()
             val userDto = UserDto(
                 name = userProfileUiState.name,
                 surname = userProfileUiState.surname,
                 job = userProfileUiState.job,
-                photo = uploadedUserPhoto,
+                photo = photoUrl,
                 officeId = userProfileUiState.currentOffice!!.id
             )
             userRepository.saveChanges(userDto)
@@ -119,9 +119,9 @@ class UserManageAccountViewModel @Inject constructor(
         )
     }
 
-    private fun updateErrorMessage(errorMessage: String?) {
+    private fun updateIsNetworkError(isNetworkError: Boolean) {
         userManageAccountUiState = userManageAccountUiState.copy(
-            errorMessage = errorMessage
+            isNetworkError = isNetworkError
         )
     }
 
@@ -150,18 +150,20 @@ class UserManageAccountViewModel @Inject constructor(
         }
     }
 
-    private suspend fun uploadUserPhoto(): String? {
+    private suspend fun uploadUserPhoto(): Result<String?> {
         val pickedPhoto = userManageAccountUiState.mutableUserProfileUiState.photo
-        return pickedPhoto?.let {
-            when (val response = imagesRepository.uploadImage(it as Uri)) {
-                is ResponseResult.Success -> {
-                    response.value
-                }
-                is ResponseResult.Failure -> {
-                    updateErrorMessage(response.message)
-                    return null
-                }
+        return if (pickedPhoto is Uri) {
+            val photoUrlResult = imagesRepository.uploadImage(pickedPhoto)
+            if (photoUrlResult.isSuccess) {
+                val photoUrl = photoUrlResult.getOrThrow()
+                Result.success(photoUrl)
+            } else {
+                photoUrlResult
             }
+        } else if (pickedPhoto is String) {
+            Result.success(pickedPhoto)
+        } else {
+            Result.success(null)
         }
     }
 }

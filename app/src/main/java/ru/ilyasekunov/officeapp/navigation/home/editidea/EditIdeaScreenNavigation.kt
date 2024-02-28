@@ -39,7 +39,7 @@ fun NavGraphBuilder.editIdeaScreen(
             }
 
         EditIdeaScreen(
-            editingIdeaUiState = editIdeaViewModel.editIdeaUiState,
+            editIdeaUiState = editIdeaViewModel.editIdeaUiState,
             onTitleValueChange = editIdeaViewModel::updateTitle,
             onIdeaBodyValueChange = editIdeaViewModel::updateContent,
             onRemoveImageClick = editIdeaViewModel::removeImage,
@@ -49,6 +49,7 @@ fun NavGraphBuilder.editIdeaScreen(
                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                 )
             },
+            onRetryClick = editIdeaViewModel::editPost,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
