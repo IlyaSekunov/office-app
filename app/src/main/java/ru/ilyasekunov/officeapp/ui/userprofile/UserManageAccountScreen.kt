@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -47,6 +46,7 @@ import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
 import ru.ilyasekunov.officeapp.ui.components.UserInfoTextField
+import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -182,20 +182,20 @@ fun UserManageAccountScreen(
         }
     }
 
-    UserManageAccountScreenObserveNetworkError(
+    ObserveNetworkError(
         userManageAccountUiState = userManageAccountUiState,
         snackbarHostState = snackbarHostState,
         onActionPerformedClick = onRetryClick
     )
 
-    UserManageAccountScreenObserveIsSaved(
+    ObserveIsChangesSaved(
         userManageAccountUiState = userManageAccountUiState,
         navigateToProfileScreen = navigateToProfileScreen
     )
 }
 
 @Composable
-fun UserManageAccountScreenObserveNetworkError(
+private fun ObserveNetworkError(
     userManageAccountUiState: UserManageAccountUiState,
     snackbarHostState: SnackbarHostState,
     onActionPerformedClick: () -> Unit
@@ -205,21 +205,19 @@ fun UserManageAccountScreenObserveNetworkError(
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
     LaunchedEffect(userManageAccountUiState.isNetworkError) {
         if (userManageAccountUiState.isNetworkError) {
-            snackbarHostState.showSnackbar(
+            networkErrorSnackbar(
+                snackbarHostState = snackbarHostState,
+                duration = SnackbarDuration.Short,
                 message = serverErrorMessage,
-                actionLabel = retryLabel,
-                duration = SnackbarDuration.Long
-            ).also {
-                if (it == SnackbarResult.ActionPerformed) {
-                    currentOnActionPerformedClick()
-                }
-            }
+                retryLabel = retryLabel,
+                onRetryClick = currentOnActionPerformedClick
+            )
         }
     }
 }
 
 @Composable
-fun UserManageAccountScreenObserveIsSaved(
+private fun ObserveIsChangesSaved(
     userManageAccountUiState: UserManageAccountUiState,
     navigateToProfileScreen: () -> Unit
 ) {

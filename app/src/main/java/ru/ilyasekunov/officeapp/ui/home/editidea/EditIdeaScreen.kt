@@ -13,7 +13,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,8 +28,9 @@ import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.home.suggestidea.EditingIdeaSection
+import ru.ilyasekunov.officeapp.ui.home.suggestidea.EditIdeaSection
 import ru.ilyasekunov.officeapp.ui.home.suggestidea.SuggestIdeaTopBar
+import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 
 @Composable
 fun EditIdeaScreen(
@@ -93,7 +93,7 @@ fun EditIdeaScreen(
                     bottomEnd = CornerSize(0.dp)
                 )
                 val writingIdeaSectionBorderWidth = 1.dp
-                EditingIdeaSection(
+                EditIdeaSection(
                     title = editIdeaUiState.title,
                     content = editIdeaUiState.content,
                     attachedImages = editIdeaUiState.attachedImages,
@@ -115,20 +115,20 @@ fun EditIdeaScreen(
         }
     }
 
-    EditIdeaScreenObserveNetworkError(
+    ObserveNetworkError(
         editIdeaUiState = editIdeaUiState,
         snackbarHostState = snackbarHostState,
         onActionPerformedClick = onRetryClick
     )
 
-    EditIdeaScreenObserveIsPublished(
+    ObserveIsPublished(
         editIdeaUiState = editIdeaUiState,
         navigateToHomeScreen = navigateToHomeScreen
     )
 }
 
 @Composable
-fun EditIdeaScreenObserveNetworkError(
+private fun ObserveNetworkError(
     editIdeaUiState: EditIdeaUiState,
     snackbarHostState: SnackbarHostState,
     onActionPerformedClick: () -> Unit,
@@ -138,21 +138,19 @@ fun EditIdeaScreenObserveNetworkError(
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
     LaunchedEffect(editIdeaUiState.isNetworkError) {
         if (editIdeaUiState.isNetworkError) {
-            snackbarHostState.showSnackbar(
+            networkErrorSnackbar(
+                snackbarHostState = snackbarHostState,
+                duration = SnackbarDuration.Short,
                 message = serverErrorMessage,
-                actionLabel = retryLabel,
-                duration = SnackbarDuration.Long
-            ).also {
-                if (it == SnackbarResult.ActionPerformed) {
-                    currentOnActionPerformedClick()
-                }
-            }
+                retryLabel = retryLabel,
+                onRetryClick = currentOnActionPerformedClick
+            )
         }
     }
 }
 
 @Composable
-fun EditIdeaScreenObserveIsPublished(
+private fun ObserveIsPublished(
     editIdeaUiState: EditIdeaUiState,
     navigateToHomeScreen: () -> Unit
 ) {

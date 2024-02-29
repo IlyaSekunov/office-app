@@ -24,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,6 +50,7 @@ import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
@@ -141,20 +141,20 @@ fun UserProfileScreen(
         }
     }
 
-    UserProfileScreenObserveIsErrorWhileLoggingOut(
+    ObserveIsErrorWhileLoggingOut(
         userProfileUiState = userProfileUiState,
         snackbarHostState = snackbarHostState,
         onActionPerformedClick = onLogoutClick
     )
 
-    UserProfileScreenObserveIsLoggedOut(
+    ObserveIsLoggedOut(
         userProfileUiState = userProfileUiState,
         navigateToAuthGraph = navigateToAuthGraph
     )
 }
 
 @Composable
-fun UserProfileScreenObserveIsErrorWhileLoggingOut(
+private fun ObserveIsErrorWhileLoggingOut(
     userProfileUiState: UserProfileUiState,
     snackbarHostState: SnackbarHostState,
     onActionPerformedClick: () -> Unit
@@ -164,21 +164,19 @@ fun UserProfileScreenObserveIsErrorWhileLoggingOut(
     val networkErrorMessage = stringResource(R.string.error_connecting_to_server)
     LaunchedEffect(userProfileUiState.isErrorWhileLoggingOut) {
         if (userProfileUiState.isErrorWhileLoggingOut) {
-            snackbarHostState.showSnackbar(
+            networkErrorSnackbar(
+                snackbarHostState = snackbarHostState,
+                duration = SnackbarDuration.Short,
                 message = networkErrorMessage,
-                actionLabel = retryLabel,
-                duration = SnackbarDuration.Long
-            ).also {
-                if (it == SnackbarResult.ActionPerformed) {
-                    currentOnActionPerformedClick()
-                }
-            }
+                retryLabel = retryLabel,
+                onRetryClick = currentOnActionPerformedClick
+            )
         }
     }
 }
 
 @Composable
-fun UserProfileScreenObserveIsLoggedOut(
+private fun ObserveIsLoggedOut(
     userProfileUiState: UserProfileUiState,
     navigateToAuthGraph: () -> Unit
 ) {

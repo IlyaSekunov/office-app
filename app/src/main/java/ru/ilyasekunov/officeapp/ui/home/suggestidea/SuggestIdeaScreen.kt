@@ -34,11 +34,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -77,6 +75,7 @@ import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
+import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
@@ -108,9 +107,7 @@ fun SuggestIdeaScreen(
                 )
             },
             snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState) {
-                    Snackbar(snackbarData = it)
-                }
+                SnackbarHost(hostState = snackbarHostState)
             },
             bottomBar = {
                 BottomNavigationBar(
@@ -142,7 +139,7 @@ fun SuggestIdeaScreen(
                     bottomEnd = CornerSize(0.dp)
                 )
                 val writingIdeaSectionBorderWidth = 1.dp
-                EditingIdeaSection(
+                EditIdeaSection(
                     title = suggestIdeaUiState.title,
                     content = suggestIdeaUiState.content,
                     attachedImages = suggestIdeaUiState.attachedImages,
@@ -164,20 +161,20 @@ fun SuggestIdeaScreen(
         }
     }
 
-    SuggestIdeaScreenObserveNetworkError(
+    ObserveNetworkError(
         suggestIdeaUiState = suggestIdeaUiState,
         snackbarHostState = snackbarHostState,
         onActionPerformedClick = onRetryClick
     )
 
-    SuggestIdeaScreenObserveIsPublished(
+    ObserveIsPublished(
         suggestIdeaUiState = suggestIdeaUiState,
         navigateToHomeScreen = navigateToHomeScreen
     )
 }
 
 @Composable
-fun SuggestIdeaScreenObserveNetworkError(
+private fun ObserveNetworkError(
     suggestIdeaUiState: SuggestIdeaUiState,
     snackbarHostState: SnackbarHostState,
     onActionPerformedClick: () -> Unit
@@ -187,21 +184,19 @@ fun SuggestIdeaScreenObserveNetworkError(
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
     LaunchedEffect(suggestIdeaUiState.isNetworkError) {
         if (suggestIdeaUiState.isNetworkError) {
-            snackbarHostState.showSnackbar(
+            networkErrorSnackbar(
+                snackbarHostState = snackbarHostState,
+                duration = SnackbarDuration.Short,
                 message = serverErrorMessage,
-                actionLabel = retryLabel,
-                duration = SnackbarDuration.Long
-            ).also {
-                if (it == SnackbarResult.ActionPerformed) {
-                    currentOnActionPerformedClick()
-                }
-            }
+                retryLabel = retryLabel,
+                onRetryClick = currentOnActionPerformedClick
+            )
         }
     }
 }
 
 @Composable
-fun SuggestIdeaScreenObserveIsPublished(
+private fun ObserveIsPublished(
     suggestIdeaUiState: SuggestIdeaUiState,
     navigateToHomeScreen: () -> Unit
 ) {
@@ -214,7 +209,7 @@ fun SuggestIdeaScreenObserveIsPublished(
 }
 
 @Composable
-fun EditingIdeaSection(
+fun EditIdeaSection(
     title: String,
     content: String,
     attachedImages: List<AttachedImage>,
