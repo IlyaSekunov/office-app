@@ -149,9 +149,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun deletePostUi(post: IdeaPost) = updatePosts(postsUiState.posts - post)
-    fun addPostUi(post: IdeaPost) = updatePosts(postsUiState.posts + post)
-
     fun deletePost(post: IdeaPost) {
         viewModelScope.launch {
             updateIsPostsLoading(true)
