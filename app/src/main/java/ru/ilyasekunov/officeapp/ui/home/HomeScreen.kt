@@ -46,6 +46,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -78,6 +79,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
@@ -172,18 +174,19 @@ fun HomeScreen(
                 )
             }
             else -> {
-                val snackbarDeletedPost = stringResource(R.string.post_deleted)
+                val postDeletedMessage = stringResource(R.string.post_deleted)
+                val undoLabel = stringResource(R.string.undo)
                 IdeaPosts(
                     posts = postsUiState.posts,
                     isIdeaAuthorCurrentUser = isIdeaAuthorCurrentUser,
                     onDeletePostClick = {
-                        onDeletePostClick(it)
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = snackbarDeletedPost,
-                                duration = SnackbarDuration.Short
-                            )
-                        }
+                        deletePostSnackbar(
+                            coroutineScope = coroutineScope,
+                            snackbarHostState = snackbarHostState,
+                            message = postDeletedMessage,
+                            undoLabel = undoLabel,
+                            onSnackbarTimeOut = { onDeletePostClick(it) }
+                        )
                     },
                     onPostLikeClick = onPostLikeClick,
                     onPostDislikeClick = onPostDislikeClick,
@@ -1129,6 +1132,24 @@ fun CurrentImageSection(
                 color = Color.White,
                 modifier = Modifier.padding(vertical = 2.dp, horizontal = 8.dp)
             )
+        }
+    }
+}
+
+private fun deletePostSnackbar(
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
+    message: String,
+    undoLabel: String,
+    onSnackbarTimeOut: () -> Unit
+) = coroutineScope.launch {
+    snackbarHostState.showSnackbar(
+        message = message,
+        actionLabel = undoLabel,
+        duration = SnackbarDuration.Short
+    ).also {
+        if (it != SnackbarResult.ActionPerformed) {
+            onSnackbarTimeOut()
         }
     }
 }

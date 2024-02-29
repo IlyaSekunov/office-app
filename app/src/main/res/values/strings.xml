@@ -48,4 +48,5 @@
     <string name="email">Email</string>
     <string name="retry">Повторить</string>
     <string name="error_connecting_to_server">Ошибка соединения с сервером</string>
+    <string name="undo">Отменить</string>
 </resources>
