@@ -49,7 +49,7 @@ object ApiModule {
             .connectTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(120, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
-            .addInterceptor(httpImgurTokenInterceptor)
+            .addNetworkInterceptor(httpImgurTokenInterceptor)
             .build()
         return Retrofit.Builder()
             .baseUrl(IMGUR_URL)

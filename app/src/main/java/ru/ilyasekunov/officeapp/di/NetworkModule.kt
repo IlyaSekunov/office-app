@@ -37,7 +37,7 @@ object NetworkModule {
         @AuthInterceptor httpAuthInterceptor: Interceptor
     ): Retrofit {
         val httpClient = OkHttpClient.Builder()
-            .addInterceptor(httpAuthInterceptor)
+            .addNetworkInterceptor(httpAuthInterceptor)
             .build()
         return Retrofit.Builder()
             .baseUrl(BASE_URl)
