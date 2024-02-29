@@ -203,7 +203,7 @@ private fun ObserveNetworkError(
     val retryLabel = stringResource(R.string.retry)
     val serverErrorMessage = stringResource(R.string.error_connecting_to_server)
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
-    LaunchedEffect(userManageAccountUiState.isNetworkError) {
+    LaunchedEffect(userManageAccountUiState) {
         if (userManageAccountUiState.isNetworkError) {
             networkErrorSnackbar(
                 snackbarHostState = snackbarHostState,
@@ -222,7 +222,7 @@ private fun ObserveIsChangesSaved(
     navigateToProfileScreen: () -> Unit
 ) {
     val currentNavigateToProfileScreen by rememberUpdatedState(navigateToProfileScreen)
-    LaunchedEffect(userManageAccountUiState.isChangesSaved) {
+    LaunchedEffect(userManageAccountUiState) {
         if (userManageAccountUiState.isChangesSaved) {
             currentNavigateToProfileScreen()
         }

@@ -136,7 +136,7 @@ private fun ObserveNetworkError(
     val retryLabel = stringResource(R.string.retry)
     val serverErrorMessage = stringResource(R.string.error_connecting_to_server)
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
-    LaunchedEffect(editIdeaUiState.isNetworkError) {
+    LaunchedEffect(editIdeaUiState) {
         if (editIdeaUiState.isNetworkError) {
             networkErrorSnackbar(
                 snackbarHostState = snackbarHostState,
@@ -155,7 +155,7 @@ private fun ObserveIsPublished(
     navigateToHomeScreen: () -> Unit
 ) {
     val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
-    LaunchedEffect(editIdeaUiState.isPublished) {
+    LaunchedEffect(editIdeaUiState) {
         if (editIdeaUiState.isPublished) {
             currentNavigateToHomeScreen()
         }

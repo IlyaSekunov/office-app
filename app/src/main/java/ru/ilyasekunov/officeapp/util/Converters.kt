@@ -13,13 +13,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.time.LocalDateTime
 
-fun <T> Response<T>.toResult(): Result<T> =
-    if (isSuccessful) {
-        Result.success(body()!!)
-    } else {
-        Result.failure(HttpException(this))
-    }
-
 fun Uri?.toBitmap(contentResolver: ContentResolver): Bitmap? =
     this?.let {
         if (Build.VERSION.SDK_INT < 28) {

@@ -162,7 +162,7 @@ private fun ObserveIsErrorWhileLoggingOut(
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
     val retryLabel = stringResource(R.string.retry)
     val networkErrorMessage = stringResource(R.string.error_connecting_to_server)
-    LaunchedEffect(userProfileUiState.isErrorWhileLoggingOut) {
+    LaunchedEffect(userProfileUiState) {
         if (userProfileUiState.isErrorWhileLoggingOut) {
             networkErrorSnackbar(
                 snackbarHostState = snackbarHostState,
@@ -181,7 +181,7 @@ private fun ObserveIsLoggedOut(
     navigateToAuthGraph: () -> Unit
 ) {
     val currentOnNavigateToAuthGraph by rememberUpdatedState(navigateToAuthGraph)
-    LaunchedEffect(userProfileUiState.isLoggedOut) {
+    LaunchedEffect(userProfileUiState) {
         if (userProfileUiState.isLoggedOut) {
             currentOnNavigateToAuthGraph()
         }
