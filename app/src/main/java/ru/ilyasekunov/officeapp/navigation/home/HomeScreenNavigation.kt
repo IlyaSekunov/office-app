@@ -35,6 +35,7 @@ fun NavGraphBuilder.homeScreen(
             onPostLikeClick = homeViewModel::updateLike,
             onPostDislikeClick = homeViewModel::updateDislike,
             onCommentClick = { /*TODO*/ },
+            onRetryPostsLoad = homeViewModel::loadPosts,
             navigateToFiltersScreen = navigateToFiltersScreen,
             navigateToSuggestIdeaScreen = navigateToSuggestIdeaScreen,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,

@@ -91,6 +91,7 @@ import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.animations.dislikePressedAnimation
 import ru.ilyasekunov.officeapp.ui.animations.likePressedAnimation
+import ru.ilyasekunov.officeapp.ui.auth.registration.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.theme.dislikePressedColor
@@ -112,6 +113,7 @@ fun HomeScreen(
     onPostLikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onPostDislikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onCommentClick: (IdeaPost) -> Unit,
+    onRetryPostsLoad: () -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long) -> Unit,
@@ -154,42 +156,50 @@ fun HomeScreen(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
-        if (postsUiState.isLoading) {
-            LoadingScreen()
-        } else if (postsUiState.posts.isEmpty()) {
-            NoPostsAvailable(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            )
-        } else {
-            val snackbarDeletedPost = stringResource(R.string.post_deleted)
-            IdeaPosts(
-                posts = postsUiState.posts,
-                isIdeaAuthorCurrentUser = isIdeaAuthorCurrentUser,
-                onDeletePostClick = {
-                    onDeletePostClick(it)
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = snackbarDeletedPost,
-                            duration = SnackbarDuration.Short
-                        )
-                    }
-                },
-                onPostLikeClick = onPostLikeClick,
-                onPostDislikeClick = onPostDislikeClick,
-                onCommentClick = onCommentClick,
-                navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
-                navigateToAuthorScreen = navigateToAuthorScreen,
-                navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                contentPadding = PaddingValues(
-                    top = 18.dp,
-                    bottom = 18.dp
-                ),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            )
+        when {
+            postsUiState.isLoading -> LoadingScreen()
+            postsUiState.isErrorWhileLoading -> {
+                ErrorScreen(
+                    message = stringResource(R.string.error_connecting_to_server),
+                    onRetryButtonClick = onRetryPostsLoad
+                )
+            }
+            postsUiState.posts.isEmpty() -> {
+                NoPostsAvailable(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                )
+            }
+            else -> {
+                val snackbarDeletedPost = stringResource(R.string.post_deleted)
+                IdeaPosts(
+                    posts = postsUiState.posts,
+                    isIdeaAuthorCurrentUser = isIdeaAuthorCurrentUser,
+                    onDeletePostClick = {
+                        onDeletePostClick(it)
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = snackbarDeletedPost,
+                                duration = SnackbarDuration.Short
+                            )
+                        }
+                    },
+                    onPostLikeClick = onPostLikeClick,
+                    onPostDislikeClick = onPostDislikeClick,
+                    onCommentClick = onCommentClick,
+                    navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
+                    navigateToAuthorScreen = navigateToAuthorScreen,
+                    navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+                    contentPadding = PaddingValues(
+                        top = 18.dp,
+                        bottom = 18.dp
+                    ),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                )
+            }
         }
     }
 }
@@ -302,7 +312,7 @@ fun NoPostsAvailable(
         Text(
             text = stringResource(R.string.no_posts),
             style = MaterialTheme.typography.bodyLarge,
-            fontSize = 24.sp,
+            fontSize = 20.sp,
             color = MaterialTheme.colorScheme.surfaceVariant
         )
     }

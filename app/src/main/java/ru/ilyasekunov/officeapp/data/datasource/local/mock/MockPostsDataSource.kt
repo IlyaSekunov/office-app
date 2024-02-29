@@ -18,7 +18,7 @@ class MockPostsDataSource : PostsDataSource {
         return Result.success(Unit)
     }
 
-    override suspend fun posts(): Result<List<IdeaPost>> = Result.success(Posts)
+    override suspend fun posts(): Result<List<IdeaPost>> = Result.failure(Exception())
 
 
     override suspend fun posts(

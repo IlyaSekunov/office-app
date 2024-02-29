@@ -224,7 +224,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun loadPosts() {
+    fun loadPosts() {
         viewModelScope.launch {
             updateIsPostsLoading(true)
             val postsResult = postsRepository.posts()
