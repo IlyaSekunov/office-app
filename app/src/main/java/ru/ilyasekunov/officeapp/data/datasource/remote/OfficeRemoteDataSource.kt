@@ -5,7 +5,6 @@ import kotlinx.coroutines.withContext
 import ru.ilyasekunov.officeapp.data.api.OfficeApi
 import ru.ilyasekunov.officeapp.data.datasource.OfficeDataSource
 import ru.ilyasekunov.officeapp.data.model.Office
-import ru.ilyasekunov.officeapp.util.toResult
 
 class OfficeRemoteDataSource(
     private val postsApi: OfficeApi,
@@ -13,6 +12,6 @@ class OfficeRemoteDataSource(
 ) : OfficeDataSource {
     override suspend fun availableOffices(): Result<List<Office>> =
         withContext(ioDispatcher) {
-            postsApi.availableOffices().toResult()
+            handleResponse { postsApi.availableOffices() }
         }
 }

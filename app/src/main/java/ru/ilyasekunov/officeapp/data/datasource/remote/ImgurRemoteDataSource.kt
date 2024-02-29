@@ -34,14 +34,16 @@ class ImgurRemoteDataSource(
                 body = imageFile.asRequestBody()
             )
 
-            imgurApi.uploadFile(
-                image = imagePart,
-                name = imageFile.name.toRequestBody()
-            ).run {
-                if (isSuccessful) {
-                    Result.success(body()!!.upload.link)
-                } else {
-                    Result.failure(HttpException(this))
+            handleResult {
+                imgurApi.uploadFile(
+                    image = imagePart,
+                    name = imageFile.name.toRequestBody()
+                ).run {
+                    if (isSuccessful) {
+                        Result.success(body()!!.upload.link)
+                    } else {
+                        Result.failure(HttpException(this))
+                    }
                 }
             }
         }

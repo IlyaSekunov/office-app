@@ -7,7 +7,6 @@ import ru.ilyasekunov.officeapp.data.datasource.UserDataSource
 import ru.ilyasekunov.officeapp.data.dto.UserDto
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.User
-import ru.ilyasekunov.officeapp.util.toResult
 
 class UserRemoteDataSource(
     private val userApi: UserApi,
@@ -15,16 +14,16 @@ class UserRemoteDataSource(
 ) : UserDataSource {
     override suspend fun user(): Result<User?> =
         withContext(ioDispatcher) {
-            userApi.user().toResult()
+            handleResponse { userApi.user() }
         }
 
     override suspend fun saveChanges(userDto: UserDto): Result<Unit> =
         withContext(ioDispatcher) {
-            userApi.saveChanges(userDto).toResult()
+            handleResponse { userApi.saveChanges(userDto) }
         }
 
     override suspend fun availableOffices(): Result<List<Office>> =
         withContext(ioDispatcher) {
-            userApi.availableOffices().toResult()
+            handleResponse { userApi.availableOffices() }
         }
 }

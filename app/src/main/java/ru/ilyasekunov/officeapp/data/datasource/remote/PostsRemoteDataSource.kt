@@ -9,7 +9,6 @@ import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
-import ru.ilyasekunov.officeapp.util.toResult
 
 class PostsRemoteDataSource(
     private val postsApi: PostsApi,
@@ -17,7 +16,7 @@ class PostsRemoteDataSource(
 ) : PostsDataSource {
     override suspend fun publishPost(post: PublishPostDto): Result<Unit> =
         withContext(ioDispatcher) {
-            postsApi.publishPost(post).toResult()
+            handleResponse { postsApi.publishPost(post) }
         }
 
     override suspend fun posts(
@@ -26,52 +25,52 @@ class PostsRemoteDataSource(
         pageSize: Int
     ): Result<List<IdeaPost>> =
         withContext(ioDispatcher) {
-            postsApi.posts(filtersDto, page, pageSize).toResult()
+            handleResponse { postsApi.posts(filtersDto, page, pageSize) }
         }
 
     override suspend fun editPostById(
         postId: Long, editedPost: EditPostDto
     ): Result<Unit> = withContext(ioDispatcher) {
-        postsApi.editPostById(postId, editedPost).toResult()
+        handleResponse { postsApi.editPostById(postId, editedPost) }
     }
 
     override suspend fun deletePostById(postId: Long): Result<Unit> =
         withContext(ioDispatcher) {
-            postsApi.deletePostById(postId).toResult()
+            handleResponse { postsApi.deletePostById(postId) }
         }
 
     override suspend fun pressLike(postId: Long): Result<Unit> =
         withContext(ioDispatcher) {
-            postsApi.pressLike(postId).toResult()
+            handleResponse { postsApi.pressLike(postId) }
         }
 
     override suspend fun removeLike(postId: Long): Result<Unit> =
         withContext(ioDispatcher) {
-            postsApi.removeLike(postId).toResult()
+            handleResponse { postsApi.removeLike(postId) }
         }
 
     override suspend fun pressDislike(postId: Long): Result<Unit> =
         withContext(ioDispatcher) {
-            postsApi.pressDislike(postId).toResult()
+            handleResponse { postsApi.pressDislike(postId) }
         }
 
     override suspend fun removeDislike(postId: Long): Result<Unit> =
         withContext(ioDispatcher) {
-            postsApi.removeDislike(postId).toResult()
+            handleResponse { postsApi.removeDislike(postId) }
         }
 
     override suspend fun filters(): Result<Filters> =
         withContext(ioDispatcher) {
-            postsApi.filters().toResult()
+            handleResponse { postsApi.filters() }
         }
 
     override suspend fun posts(): Result<List<IdeaPost>> =
         withContext(ioDispatcher) {
-            postsApi.posts().toResult()
+            handleResponse { postsApi.posts() }
         }
 
     override suspend fun findPostById(postId: Long): Result<IdeaPost?> =
         withContext(ioDispatcher) {
-            postsApi.findPostById(postId).toResult()
+            handleResponse { postsApi.findPostById(postId) }
         }
 }

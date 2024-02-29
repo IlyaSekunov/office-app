@@ -7,7 +7,6 @@ import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.dto.LoginForm
 import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
 import ru.ilyasekunov.officeapp.data.model.User
-import ru.ilyasekunov.officeapp.util.toResult
 
 class AuthRemoteDataSource(
     private val authApi: AuthApi,
@@ -15,26 +14,26 @@ class AuthRemoteDataSource(
 ) : AuthDataSource {
     override suspend fun register(registrationForm: RegistrationForm): Result<String> =
         withContext(ioDispatcher) {
-            authApi.register(registrationForm).toResult()
+            handleResponse { authApi.register(registrationForm) }
         }
 
     override suspend fun userInfo(): Result<User> =
         withContext(ioDispatcher) {
-            authApi.userInfo().toResult()
+            handleResponse { authApi.userInfo() }
         }
 
     override suspend fun login(loginForm: LoginForm): Result<String> =
         withContext(ioDispatcher) {
-            authApi.login(loginForm).toResult()
+            handleResponse { authApi.login(loginForm) }
         }
 
     override suspend fun updateToken(): Result<String> =
         withContext(ioDispatcher) {
-            authApi.updateToken().toResult()
+            handleResponse { authApi.updateToken() }
         }
 
     override suspend fun logout(): Result<Unit> =
         withContext(ioDispatcher) {
-            authApi.logout().toResult()
+            handleResponse { authApi.logout() }
         }
 }
