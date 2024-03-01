@@ -2,7 +2,6 @@ package ru.ilyasekunov.officeapp.ui.auth.registration
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -140,29 +139,6 @@ fun LoginSection(
 }
 
 @Composable
-fun ErrorScreen(
-    message: String,
-    onRetryButtonClick: () -> Unit
-) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Text(
-            text = message,
-            fontSize = 16.sp,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.surfaceVariant
-        )
-        Spacer(modifier = Modifier.height(30.dp))
-        RetryButton(
-            onClick = onRetryButtonClick
-        )
-    }
-}
-
-@Composable
 fun RetryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -204,19 +180,6 @@ fun RegistrationMainScreenPreview() {
                 onRepeatPasswordValueChange = {},
                 onRegisterButtonClick = {}
             ) {}
-        }
-    }
-}
-
-@Preview
-@Composable
-fun ErrorScreenPreview() {
-    OfficeAppTheme {
-        Surface {
-            ErrorScreen(
-                message = "Ошибка",
-                onRetryButtonClick = {}
-            )
         }
     }
 }
