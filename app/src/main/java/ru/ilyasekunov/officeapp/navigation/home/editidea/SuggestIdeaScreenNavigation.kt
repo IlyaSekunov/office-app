@@ -9,6 +9,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.navigation.Screen
+import ru.ilyasekunov.officeapp.preferences.ImagePickerDefaults
 import ru.ilyasekunov.officeapp.ui.animations.enterSlideUp
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideDown
 import ru.ilyasekunov.officeapp.ui.home.suggestidea.SuggestIdeaScreen
@@ -30,7 +31,11 @@ fun NavGraphBuilder.suggestIdeaScreen(
 
         // Initialize image picker
         val multipleImagePicker =
-            rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) {
+            rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.PickMultipleVisualMedia(
+                    maxItems = ImagePickerDefaults.MAX_ATTACH_IMAGES
+                )
+            ) {
                 it.forEach { imageUri ->
                     suggestIdeaViewModel.attachImage(imageUri)
                 }
