@@ -28,7 +28,9 @@ fun NavGraphBuilder.editIdeaScreen(
             editIdeaViewModel.loadPostById(postId)
         }
 
-        val multipleImagePicker = rememberMultipleImagePicker(onUrisPicked = editIdeaViewModel::attachImages)
+        val multipleImagePicker = rememberMultipleImagePicker(
+            onUrisPicked = editIdeaViewModel::attachImages
+        )
         EditIdeaScreen(
             editIdeaUiState = editIdeaViewModel.editIdeaUiState,
             onTitleValueChange = editIdeaViewModel::updateTitle,
