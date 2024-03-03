@@ -69,6 +69,10 @@ class EditIdeaViewModel @Inject constructor(
         }
     }
 
+    fun attachImages(images: List<Uri>) {
+        images.forEach { attachImage(it) }
+    }
+
     fun removeImage(image: AttachedImage) {
         editIdeaUiState = editIdeaUiState.copy(
             attachedImages = editIdeaUiState.attachedImages - image

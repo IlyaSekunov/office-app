@@ -1,8 +1,5 @@
 package ru.ilyasekunov.officeapp.navigation.home.editidea
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -10,9 +7,9 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.navigation.Screen
-import ru.ilyasekunov.officeapp.preferences.ImagePickerDefaults
 import ru.ilyasekunov.officeapp.ui.home.editidea.EditIdeaScreen
 import ru.ilyasekunov.officeapp.ui.home.editidea.EditIdeaViewModel
+import ru.ilyasekunov.officeapp.ui.util.rememberMultipleImagePicker
 
 fun NavGraphBuilder.editIdeaScreen(
     navigateToHomeScreen: () -> Unit,
@@ -31,29 +28,14 @@ fun NavGraphBuilder.editIdeaScreen(
             editIdeaViewModel.loadPostById(postId)
         }
 
-        // Initialize image picker
-        val multipleImagePicker =
-            rememberLauncherForActivityResult(
-                contract = ActivityResultContracts.PickMultipleVisualMedia(
-                    maxItems = ImagePickerDefaults.MAX_ATTACH_IMAGES
-                )
-            ) {
-                it.forEach { imageUri ->
-                    editIdeaViewModel.attachImage(imageUri)
-                }
-            }
-
+        val multipleImagePicker = rememberMultipleImagePicker(onUrisPicked = editIdeaViewModel::attachImages)
         EditIdeaScreen(
             editIdeaUiState = editIdeaViewModel.editIdeaUiState,
             onTitleValueChange = editIdeaViewModel::updateTitle,
             onIdeaBodyValueChange = editIdeaViewModel::updateContent,
             onRemoveImageClick = editIdeaViewModel::removeImage,
             onPublishClick = editIdeaViewModel::editPost,
-            onAttachImagesButtonClick = {
-                multipleImagePicker.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                )
-            },
+            onAttachImagesButtonClick = multipleImagePicker::launch,
             onRetryClick = editIdeaViewModel::editPost,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,

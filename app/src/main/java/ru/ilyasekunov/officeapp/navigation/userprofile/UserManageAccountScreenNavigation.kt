@@ -1,8 +1,5 @@
 package ru.ilyasekunov.officeapp.navigation.userprofile
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -13,6 +10,7 @@ import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountViewModel
+import ru.ilyasekunov.officeapp.ui.util.rememberSingleImagePicker
 
 fun NavGraphBuilder.userManageAccountScreen(
     navigateToHomeScreen: () -> Unit,
@@ -27,20 +25,12 @@ fun NavGraphBuilder.userManageAccountScreen(
         exitTransition = { exitSlideRight() }
     ) {
         val userManageAccountViewModel = hiltViewModel<UserManageAccountViewModel>()
-
-        // Initialize image picker
-        val singleImagePicker =
-            rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
-                userManageAccountViewModel.updatePhoto(it)
-            }
-
+        val singleImagePicker = rememberSingleImagePicker(
+            onUriPicked = userManageAccountViewModel::updatePhoto
+        )
         UserManageAccountScreen(
             userManageAccountUiState = userManageAccountViewModel.userManageAccountUiState,
-            onPhotoPickerClick = {
-                singleImagePicker.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                )
-            },
+            onPhotoPickerClick = singleImagePicker::launch,
             onNameValueChange = userManageAccountViewModel::updateName,
             onSurnameValueChange = userManageAccountViewModel::updateSurname,
             onJobValueChange = userManageAccountViewModel::updateJob,

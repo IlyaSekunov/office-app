@@ -1,8 +1,5 @@
 package ru.ilyasekunov.officeapp.navigation.auth.registration
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
@@ -15,6 +12,7 @@ import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationUserInfoScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationViewModel
+import ru.ilyasekunov.officeapp.ui.util.rememberSingleImagePicker
 
 fun NavGraphBuilder.registrationUserInfoScreen(
     viewModelStoreOwnerProvider: () -> ViewModelStoreOwner,
@@ -28,21 +26,13 @@ fun NavGraphBuilder.registrationUserInfoScreen(
     ) { backStackEntry ->
         val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
         val registrationViewModel = hiltViewModel<RegistrationViewModel>(viewModelStoreOwner)
-
-        // Initialize image picker
-        val singleImagePicker =
-            rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
-                registrationViewModel.updatePhoto(it)
-            }
-
+        val singleImagePicker = rememberSingleImagePicker(
+            onUriPicked = registrationViewModel::updatePhoto
+        )
         RegistrationUserInfoScreen(
             registrationUiState = registrationViewModel.registrationUiState,
             availableOfficesUiState = registrationViewModel.availableOfficesUiState,
-            onPhotoPickerClick = {
-                singleImagePicker.launch(
-                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                )
-            },
+            onPhotoPickerClick = singleImagePicker::launch,
             onNameValueChange = registrationViewModel::updateName,
             onSurnameValueChange = registrationViewModel::updateSurname,
             onJobValueChange = registrationViewModel::updateJob,

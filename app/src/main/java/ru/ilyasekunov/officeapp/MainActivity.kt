@@ -28,12 +28,12 @@ class MainActivity : ComponentActivity() {
 fun OfficeApp() {
     val navController = rememberNavController()
     OfficeAppTheme {
-       NavHost(
+        NavHost(
             navController = navController,
             startDestination = MainGraphRoute
         ) {
-           authGraph(navController)
-           mainGraph(navController)
+            authGraph(navController)
+            mainGraph(navController)
         }
     }
 }

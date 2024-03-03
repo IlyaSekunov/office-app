@@ -58,6 +58,10 @@ class SuggestIdeaViewModel @Inject constructor(
         }
     }
 
+    fun attachImages(images: List<Uri>) {
+        images.forEach { attachImage(it) }
+    }
+
     fun removeImage(image: AttachedImage) {
         suggestIdeaUiState = suggestIdeaUiState.copy(
             attachedImages = suggestIdeaUiState.attachedImages - image
