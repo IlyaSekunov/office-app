@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.User
@@ -51,6 +53,30 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
+    fun refreshUserProfile(): Job = viewModelScope.launch {
+        loadUserProfileSuspending()
+    }
+
+    fun loadUserProfile() {
+        viewModelScope.launch {
+            updateIsLoading(true)
+            loadUserProfileSuspending()
+            updateIsLoading(false)
+        }
+    }
+
+    private suspend fun loadUserProfileSuspending() {
+        val userResult = userRepository.user()
+        delay(3000)
+        if (userResult.isSuccess) {
+            val user = userResult.getOrThrow()!!
+            userProfileUiState = user.toUserProfileUiState()
+            updateIsErrorWhileUserLoading(false)
+        } else {
+            updateIsErrorWhileUserLoading(true)
+        }
+    }
+
     private fun updateIsLoading(isLoading: Boolean) {
         userProfileUiState = userProfileUiState.copy(isLoading = isLoading)
     }
@@ -69,21 +95,6 @@ class UserProfileViewModel @Inject constructor(
         userProfileUiState = userProfileUiState.copy(
             isErrorWhileLoggingOut = isErrorWhileLoggingOut
         )
-    }
-
-    fun loadUserProfile() {
-        viewModelScope.launch {
-            updateIsLoading(true)
-            val userResult = userRepository.user()
-            if (userResult.isSuccess) {
-                val user = userResult.getOrThrow()!!
-                userProfileUiState = user.toUserProfileUiState()
-                updateIsErrorWhileUserLoading(false)
-            } else {
-                updateIsErrorWhileUserLoading(true)
-            }
-            updateIsLoading(false)
-        }
     }
 }
 
