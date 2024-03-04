@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 
 object ImagePickerDefaults {
     const val MAX_ATTACH_IMAGES = 10
@@ -34,7 +35,7 @@ fun rememberSingleImagePicker(onUriPicked: (Uri?) -> Unit): SingleImagePicker {
     val activityResultLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { onUriPicked(it) }
-    return SingleImagePicker(activityResultLauncher)
+    return remember(activityResultLauncher) { SingleImagePicker(activityResultLauncher) }
 }
 
 @Composable
@@ -44,5 +45,5 @@ fun rememberMultipleImagePicker(onUrisPicked: (List<Uri>) -> Unit): MultipleImag
             maxItems = ImagePickerDefaults.MAX_ATTACH_IMAGES
         )
     ) { onUrisPicked(it) }
-    return MultipleImagePicker(activityResultLauncher)
+    return remember(activityResultLauncher) { MultipleImagePicker(activityResultLauncher) }
 }
