@@ -9,7 +9,7 @@ import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.home.editidea.EditIdeaScreen
 import ru.ilyasekunov.officeapp.ui.home.editidea.EditIdeaViewModel
-import ru.ilyasekunov.officeapp.ui.util.rememberMultipleImagePicker
+import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePicker
 
 fun NavGraphBuilder.editIdeaScreen(
     navigateToHomeScreen: () -> Unit,

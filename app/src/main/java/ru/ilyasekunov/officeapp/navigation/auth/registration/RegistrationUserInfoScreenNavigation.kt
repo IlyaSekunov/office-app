@@ -12,7 +12,7 @@ import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationUserInfoScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationViewModel
-import ru.ilyasekunov.officeapp.ui.util.rememberSingleImagePicker
+import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePicker
 
 fun NavGraphBuilder.registrationUserInfoScreen(
     viewModelStoreOwnerProvider: () -> ViewModelStoreOwner,

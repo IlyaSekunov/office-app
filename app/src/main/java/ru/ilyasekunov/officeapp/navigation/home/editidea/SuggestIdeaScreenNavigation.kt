@@ -10,7 +10,7 @@ import ru.ilyasekunov.officeapp.ui.animations.enterSlideUp
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideDown
 import ru.ilyasekunov.officeapp.ui.home.suggestidea.SuggestIdeaScreen
 import ru.ilyasekunov.officeapp.ui.home.suggestidea.SuggestIdeaViewModel
-import ru.ilyasekunov.officeapp.ui.util.rememberMultipleImagePicker
+import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePicker
 
 fun NavGraphBuilder.suggestIdeaScreen(
     navigateToHomeScreen: () -> Unit,

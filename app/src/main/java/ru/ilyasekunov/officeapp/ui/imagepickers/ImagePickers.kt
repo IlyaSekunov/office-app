@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.util
+package ru.ilyasekunov.officeapp.ui.imagepickers
 
 import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher

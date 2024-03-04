@@ -10,7 +10,7 @@ import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountViewModel
-import ru.ilyasekunov.officeapp.ui.util.rememberSingleImagePicker
+import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePicker
 
 fun NavGraphBuilder.userManageAccountScreen(
     navigateToHomeScreen: () -> Unit,
