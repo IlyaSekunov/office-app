@@ -38,6 +38,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -80,6 +81,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
@@ -94,6 +96,7 @@ import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.animations.dislikePressedAnimation
 import ru.ilyasekunov.officeapp.ui.animations.likePressedAnimation
+import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.theme.dislikePressedColor
@@ -116,6 +119,7 @@ fun HomeScreen(
     onPostDislikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onCommentClick: (IdeaPost) -> Unit,
     onRetryPostsLoad: () -> Unit,
+    onPullToRefresh: () -> Job,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long) -> Unit,
@@ -166,42 +170,52 @@ fun HomeScreen(
                     onRetryButtonClick = onRetryPostsLoad
                 )
             }
+
             postsUiState.posts.isEmpty() -> {
-                NoPostsAvailable(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                )
+                BasicPullToRefreshContainer(
+                    onRefreshTrigger = onPullToRefresh,
+                    modifier = Modifier.padding(paddingValues)
+                ) {
+                    NoPostsAvailable(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                    )
+                }
             }
+
             else -> {
                 val postDeletedMessage = stringResource(R.string.post_deleted)
                 val undoLabel = stringResource(R.string.undo)
-                IdeaPosts(
-                    posts = postsUiState.posts,
-                    isIdeaAuthorCurrentUser = isIdeaAuthorCurrentUser,
-                    onDeletePostClick = {
-                        deletePostSnackbar(
-                            coroutineScope = coroutineScope,
-                            snackbarHostState = snackbarHostState,
-                            message = postDeletedMessage,
-                            undoLabel = undoLabel,
-                            onSnackbarTimeOut = { onDeletePostClick(it) }
-                        )
-                    },
-                    onPostLikeClick = onPostLikeClick,
-                    onPostDislikeClick = onPostDislikeClick,
-                    onCommentClick = onCommentClick,
-                    navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
-                    navigateToAuthorScreen = navigateToAuthorScreen,
-                    navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                    contentPadding = PaddingValues(
-                        top = 18.dp,
-                        bottom = 18.dp
-                    ),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                )
+                BasicPullToRefreshContainer(
+                    onRefreshTrigger = onPullToRefresh,
+                    modifier = Modifier.padding(paddingValues)
+                ) {
+                    IdeaPosts(
+                        posts = postsUiState.posts,
+                        isIdeaAuthorCurrentUser = isIdeaAuthorCurrentUser,
+                        onDeletePostClick = {
+                            deletePostSnackbar(
+                                coroutineScope = coroutineScope,
+                                snackbarHostState = snackbarHostState,
+                                message = postDeletedMessage,
+                                undoLabel = undoLabel,
+                                onSnackbarTimeOut = { onDeletePostClick(it) }
+                            )
+                        },
+                        onPostLikeClick = onPostLikeClick,
+                        onPostDislikeClick = onPostDislikeClick,
+                        onCommentClick = onCommentClick,
+                        navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
+                        navigateToAuthorScreen = navigateToAuthorScreen,
+                        navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+                        contentPadding = PaddingValues(
+                            top = 18.dp,
+                            bottom = 18.dp
+                        ),
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }

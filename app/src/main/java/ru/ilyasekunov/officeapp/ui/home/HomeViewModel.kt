@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
@@ -65,7 +65,6 @@ class HomeViewModel @Inject constructor(
     private var currentUserUiState by mutableStateOf(CurrentUserUiState())
 
     init {
-        observePosts()
         loadPosts()
         loadFilters()
         loadCurrentUser()
@@ -163,6 +162,18 @@ class HomeViewModel @Inject constructor(
     fun isIdeaAuthorCurrentUser(ideaAuthor: IdeaAuthor) =
         ideaAuthor.id == currentUserUiState.user!!.id
 
+    fun refreshPosts(): Job = viewModelScope.launch {
+        loadPostSuspending()
+    }
+
+    fun loadPosts() {
+        viewModelScope.launch {
+            updateIsPostsLoading(true)
+            loadPostSuspending()
+            updateIsPostsLoading(false)
+        }
+    }
+
     private fun updateIsPostsLoading(isLoading: Boolean) {
         postsUiState = postsUiState.copy(isLoading = isLoading)
     }
@@ -224,18 +235,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun loadPosts() {
-        viewModelScope.launch {
-            updateIsPostsLoading(true)
-            val postsResult = postsRepository.posts()
-            if (postsResult.isSuccess) {
-                val posts = postsResult.getOrThrow()
-                updatePosts(posts)
-                updateIsErrorWhilePostsLoading(false)
-            } else {
-                updateIsErrorWhilePostsLoading(true)
-            }
-            updateIsPostsLoading(false)
+    private suspend fun loadPostSuspending() {
+        val postsResult = postsRepository.posts()
+        if (postsResult.isSuccess) {
+            val posts = postsResult.getOrThrow()
+            updatePosts(posts)
+            updateIsErrorWhilePostsLoading(false)
+        } else {
+            updateIsErrorWhilePostsLoading(true)
         }
     }
 
@@ -251,24 +258,6 @@ class HomeViewModel @Inject constructor(
                 updateIsErrorWhileFiltersLoading(true)
             }
             updateIsFiltersLoading(false)
-        }
-    }
-
-    private fun observePosts() {
-        viewModelScope.launch {
-            while (true) {
-                val postsResult = postsRepository.posts()
-                if (postsResult.isSuccess) {
-                    val posts = postsResult.getOrThrow()
-                    if (posts != postsUiState.posts) {
-                        updatePosts(posts)
-                    }
-                    updateIsErrorWhilePostsLoading(false)
-                } else {
-                    updateIsErrorWhilePostsLoading(true)
-                }
-                delay(5000)
-            }
         }
     }
 }

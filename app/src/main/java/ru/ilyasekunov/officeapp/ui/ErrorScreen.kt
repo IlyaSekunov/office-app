@@ -35,12 +35,13 @@ import ru.ilyasekunov.officeapp.R
 @Composable
 fun ErrorScreen(
     message: String,
-    onRetryButtonClick: () -> Unit
+    onRetryButtonClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
         Text(
             text = message,
