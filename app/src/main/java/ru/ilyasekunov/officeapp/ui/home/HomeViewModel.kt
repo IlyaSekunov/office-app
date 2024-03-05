@@ -5,15 +5,24 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.filter
+import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.model.Filters
-import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.data.model.User
+import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
 import javax.inject.Inject
@@ -35,12 +44,6 @@ data class SortingFiltersUiState(
     val selected: SortingCategory? = null
 )
 
-data class PostsUiState(
-    val posts: List<IdeaPost> = emptyList(),
-    val isLoading: Boolean = false,
-    val isErrorWhileLoading: Boolean = false
-)
-
 data class CurrentUserUiState(
     val user: User? = null,
     val isLoading: Boolean = false,
@@ -54,28 +57,33 @@ data class SearchUiState(
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val postsRepository: PostsRepository,
+    private val postsPagingRepository: PostsPagingRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    var postsUiState by mutableStateOf(PostsUiState())
-        private set
+    private val _postsUiState: MutableStateFlow<PagingData<IdeaPost>> =
+        MutableStateFlow(PagingData.empty())
+    val postsUiState: StateFlow<PagingData<IdeaPost>> get() = _postsUiState
     var filtersUiState by mutableStateOf(FiltersUiState())
         private set
     var searchUiState by mutableStateOf(SearchUiState())
         private set
-    private var currentUserUiState by mutableStateOf(CurrentUserUiState())
+    var currentUserUiState by mutableStateOf(CurrentUserUiState())
+        private set
 
     init {
-        loadPosts()
         loadFilters()
         loadCurrentUser()
+        loadPosts()
     }
 
     fun updateFiltersUiState(filtersUiState: FiltersUiState) {
         this.filtersUiState = filtersUiState
+        loadPosts()
     }
 
     fun updateSearchValue(searchValue: String) {
         searchUiState = searchUiState.copy(value = searchValue)
+        loadPosts()
     }
 
     fun removeOfficeFilter(officeFilter: OfficeFilterUiState) {
@@ -88,6 +96,7 @@ class HomeViewModel @Inject constructor(
                 }
             }
         )
+        loadPosts()
     }
 
     fun removeSortingFilter() {
@@ -95,6 +104,7 @@ class HomeViewModel @Inject constructor(
         filtersUiState = filtersUiState.copy(
             sortingFiltersUiState = sortingFiltersUiState.copy(selected = null)
         )
+        loadPosts()
     }
 
     fun updateLike(post: IdeaPost, isPressed: Boolean) {
@@ -150,48 +160,33 @@ class HomeViewModel @Inject constructor(
 
     fun deletePost(post: IdeaPost) {
         viewModelScope.launch {
-            updateIsPostsLoading(true)
-            postsUiState = postsUiState.copy(
-                posts = postsUiState.posts - post
-            )
-            postsRepository.deletePostById(post.id)
-            updateIsPostsLoading(false)
+            val deletePostResult = postsRepository.deletePostById(post.id)
+            if (deletePostResult.isSuccess) {
+                removePost(post)
+            }
         }
-    }
-
-    fun isIdeaAuthorCurrentUser(ideaAuthor: IdeaAuthor) =
-        ideaAuthor.id == currentUserUiState.user!!.id
-
-    fun refreshPosts(): Job = viewModelScope.launch {
-        loadPostSuspending()
     }
 
     fun loadPosts() {
         viewModelScope.launch {
-            updateIsPostsLoading(true)
             loadPostSuspending()
-            updateIsPostsLoading(false)
         }
     }
 
-    private fun updateIsPostsLoading(isLoading: Boolean) {
-        postsUiState = postsUiState.copy(isLoading = isLoading)
+    private fun updatePostsPagingData(postPagingData: PagingData<IdeaPost>) {
+        _postsUiState.value = postPagingData
     }
 
     private fun updatePost(updatedPost: IdeaPost) {
-        postsUiState = postsUiState.copy(
-            posts = postsUiState.posts.map {
-                if (it.id == updatedPost.id) {
-                    updatedPost
-                } else {
-                    it
-                }
-            }
-        )
+        _postsUiState.update { pagingData ->
+            pagingData.map { if (it.id == updatedPost.id) updatedPost else it }
+        }
     }
 
-    private fun updatePosts(posts: List<IdeaPost>) {
-        postsUiState = postsUiState.copy(posts = posts)
+    private fun removePost(post: IdeaPost) {
+        _postsUiState.update { pagingData ->
+            pagingData.filter { it.id != post.id }
+        }
     }
 
     private fun updateIsCurrentUserLoading(isLoading: Boolean) {
@@ -210,10 +205,6 @@ class HomeViewModel @Inject constructor(
 
     private fun updateIsErrorWhileFiltersLoading(isErrorWhileLoading: Boolean) {
         filtersUiState = filtersUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
-    }
-
-    private fun updateIsErrorWhilePostsLoading(isErrorWhileLoading: Boolean) {
-        postsUiState = postsUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
     }
 
     private fun updateUser(user: User?) {
@@ -236,14 +227,10 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun loadPostSuspending() {
-        val postsResult = postsRepository.posts()
-        if (postsResult.isSuccess) {
-            val posts = postsResult.getOrThrow()
-            updatePosts(posts)
-            updateIsErrorWhilePostsLoading(false)
-        } else {
-            updateIsErrorWhilePostsLoading(true)
-        }
+        postsPagingRepository.posts(filtersUiState.toFiltersDto())
+            .distinctUntilChanged()
+            .cachedIn(viewModelScope)
+            .collectLatest { updatePostsPagingData(it) }
     }
 
     private fun loadFilters() {
@@ -271,3 +258,18 @@ fun Filters.toFiltersUiState(): FiltersUiState =
             OfficeFilterUiState(office = it)
         }
     )
+
+fun FiltersUiState.toFiltersDto(): FiltersDto {
+    var offices = officeFiltersUiState
+        .asSequence()
+        .filter { it.isSelected }
+        .map { it.office.id }
+        .toList()
+    if (offices.isEmpty()) {
+        offices = officeFiltersUiState.map { it.office.id }
+    }
+    return FiltersDto(
+        offices = offices,
+        sortingFilter = sortingFiltersUiState.selected?.id
+    )
+}

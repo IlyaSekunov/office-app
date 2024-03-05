@@ -1,14 +1,18 @@
 package ru.ilyasekunov.officeapp.navigation.home
 
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.home.HomeScreen
 import ru.ilyasekunov.officeapp.ui.home.HomeViewModel
+import ru.ilyasekunov.officeapp.ui.home.PostsUiState
 
 fun NavGraphBuilder.homeScreen(
     viewModelStoreOwnerProvider: () -> ViewModelStoreOwner,
@@ -23,9 +27,18 @@ fun NavGraphBuilder.homeScreen(
 ) {
     composable(route = BottomNavigationScreen.Home.route) {
         val homeViewModel = hiltViewModel<HomeViewModel>(viewModelStoreOwnerProvider())
+        val lazyPagingPosts = homeViewModel.postsUiState.collectAsLazyPagingItems()
+        val postsUiState = remember(lazyPagingPosts.itemSnapshotList, lazyPagingPosts.loadState) {
+            PostsUiState(
+                posts = lazyPagingPosts.itemSnapshotList.items,
+                isRefreshing = lazyPagingPosts.loadState.refresh == LoadState.Loading,
+                isAppending = lazyPagingPosts.loadState.append == LoadState.Loading,
+                isErrorWhileLoading = lazyPagingPosts.loadState.hasError
+            )
+        }
         HomeScreen(
-            postsUiState = homeViewModel.postsUiState,
-            isIdeaAuthorCurrentUser = homeViewModel::isIdeaAuthorCurrentUser,
+            postsUiState = postsUiState,
+            currentUserUiState = homeViewModel.currentUserUiState,
             searchUiState = homeViewModel.searchUiState,
             onSearchValueChange = homeViewModel::updateSearchValue,
             filtersUiState = homeViewModel.filtersUiState,
@@ -36,7 +49,7 @@ fun NavGraphBuilder.homeScreen(
             onPostDislikeClick = homeViewModel::updateDislike,
             onCommentClick = { /*TODO*/ },
             onRetryPostsLoad = homeViewModel::loadPosts,
-            onPullToRefresh = homeViewModel::refreshPosts,
+            onPullToRefresh = lazyPagingPosts::refresh,
             navigateToFiltersScreen = navigateToFiltersScreen,
             navigateToSuggestIdeaScreen = navigateToSuggestIdeaScreen,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,

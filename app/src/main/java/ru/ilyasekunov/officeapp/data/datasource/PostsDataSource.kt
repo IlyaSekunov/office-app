@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.data.datasource
 
+import androidx.annotation.IntRange
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
@@ -12,7 +13,9 @@ interface PostsDataSource {
     suspend fun findPostById(postId: Long): Result<IdeaPost?>
     suspend fun posts(
         filtersDto: FiltersDto,
+        @IntRange(from = 1)
         page: Int,
+        @IntRange(from = 1, to = 50)
         pageSize: Int = 10
     ): Result<List<IdeaPost>>
 

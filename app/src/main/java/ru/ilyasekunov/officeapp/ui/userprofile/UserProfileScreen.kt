@@ -63,7 +63,7 @@ fun UserProfileScreen(
     onMyIdeasClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onRetryUserLoadClick: () -> Unit,
-    onPullToRefresh: () -> Job,
+    onPullToRefresh: suspend () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,

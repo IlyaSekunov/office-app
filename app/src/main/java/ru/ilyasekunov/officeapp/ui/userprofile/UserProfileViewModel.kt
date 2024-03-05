@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.model.Office
@@ -53,21 +52,17 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    fun refreshUserProfile(): Job = viewModelScope.launch {
-        loadUserProfileSuspending()
-    }
-
     fun loadUserProfile() {
         viewModelScope.launch {
             updateIsLoading(true)
-            loadUserProfileSuspending()
+            refreshUserProfile()
             updateIsLoading(false)
         }
     }
 
-    private suspend fun loadUserProfileSuspending() {
+    suspend fun refreshUserProfile() {
         val userResult = userRepository.user()
-        delay(3000)
+        delay(2000)
         if (userResult.isSuccess) {
             val user = userResult.getOrThrow()!!
             userProfileUiState = user.toUserProfileUiState()

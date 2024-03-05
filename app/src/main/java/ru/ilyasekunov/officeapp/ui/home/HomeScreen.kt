@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -39,6 +40,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -81,7 +83,6 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
@@ -105,10 +106,17 @@ import ru.ilyasekunov.officeapp.util.toRussianString
 import ru.ilyasekunov.officeapp.util.toThousandsString
 import java.time.LocalDateTime
 
+data class PostsUiState(
+    val posts: List<IdeaPost> = emptyList(),
+    val isRefreshing: Boolean = false,
+    val isAppending: Boolean = false,
+    val isErrorWhileLoading: Boolean = false
+)
+
 @Composable
 fun HomeScreen(
     postsUiState: PostsUiState,
-    isIdeaAuthorCurrentUser: (IdeaAuthor) -> Boolean,
+    currentUserUiState: CurrentUserUiState,
     searchUiState: SearchUiState,
     onSearchValueChange: (String) -> Unit,
     filtersUiState: FiltersUiState,
@@ -119,7 +127,7 @@ fun HomeScreen(
     onPostDislikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onCommentClick: (IdeaPost) -> Unit,
     onRetryPostsLoad: () -> Unit,
-    onPullToRefresh: () -> Job,
+    onPullToRefresh: () -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long) -> Unit,
@@ -163,8 +171,8 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         when {
-            postsUiState.isLoading -> LoadingScreen()
-            postsUiState.isErrorWhileLoading -> {
+            postsUiState.isRefreshing -> LoadingScreen()
+            postsUiState.isErrorWhileLoading || filtersUiState.isErrorWhileLoading || currentUserUiState.isErrorWhileLoading -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
                     onRetryButtonClick = onRetryPostsLoad
@@ -192,16 +200,14 @@ fun HomeScreen(
                     modifier = Modifier.padding(paddingValues)
                 ) {
                     IdeaPosts(
-                        posts = postsUiState.posts,
-                        isIdeaAuthorCurrentUser = isIdeaAuthorCurrentUser,
+                        postsUiState = postsUiState,
+                        isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
                         onDeletePostClick = {
-                            deletePostSnackbar(
-                                coroutineScope = coroutineScope,
+                            deletePostSnackbar(coroutineScope = coroutineScope,
                                 snackbarHostState = snackbarHostState,
                                 message = postDeletedMessage,
                                 undoLabel = undoLabel,
-                                onSnackbarTimeOut = { onDeletePostClick(it) }
-                            )
+                                onSnackbarTimeOut = { onDeletePostClick(it) })
                         },
                         onPostLikeClick = onPostLikeClick,
                         onPostDislikeClick = onPostDislikeClick,
@@ -209,10 +215,7 @@ fun HomeScreen(
                         navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
                         navigateToAuthorScreen = navigateToAuthorScreen,
                         navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                        contentPadding = PaddingValues(
-                            top = 18.dp,
-                            bottom = 18.dp
-                        ),
+                        contentPadding = PaddingValues(top = 18.dp, bottom = 18.dp),
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -223,7 +226,7 @@ fun HomeScreen(
 
 @Composable
 fun IdeaPosts(
-    posts: List<IdeaPost>,
+    postsUiState: PostsUiState,
     isIdeaAuthorCurrentUser: (IdeaAuthor) -> Boolean,
     onDeletePostClick: (IdeaPost) -> Unit,
     onPostLikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
@@ -240,6 +243,7 @@ fun IdeaPosts(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
     ) {
+        val posts = postsUiState.posts
         items(
             count = posts.size,
             key = { posts[it].id }
@@ -265,6 +269,18 @@ fun IdeaPosts(
                 modifier = Modifier.fillMaxWidth()
             )
         }
+        if (postsUiState.isAppending) {
+            item {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 3.dp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(20.dp)
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
+            }
+        }
     }
 }
 
@@ -285,12 +301,7 @@ fun HomeAppBar(
     Column(
         modifier = modifier
             .background(MaterialTheme.colorScheme.background)
-            .padding(
-                top = 25.dp,
-                start = 13.dp,
-                end = 13.dp,
-                bottom = 10.dp
-            )
+            .padding(top = 25.dp, start = 13.dp, end = 13.dp, bottom = 10.dp)
     ) {
         SearchTextField(
             searchValue = searchUiState.value,
@@ -398,8 +409,7 @@ fun IdeaPost(
             }
             Spacer(modifier = Modifier.height(16.dp))
             IdeaPostOffice(
-                office = ideaPost.office,
-                modifier = Modifier.padding(start = 16.dp)
+                office = ideaPost.office, modifier = Modifier.padding(start = 16.dp)
             )
             Spacer(modifier = Modifier.height(18.dp))
             LikesDislikesCommentsSection(
@@ -411,22 +421,15 @@ fun IdeaPost(
                 onDislikeClick = onDislikeClick,
                 commentsCount = ideaPost.commentsCount,
                 onCommentClick = onCommentClick,
-                modifier = Modifier
-                    .padding(start = 16.dp)
+                modifier = Modifier.padding(start = 16.dp)
             )
             Spacer(modifier = Modifier.height(14.dp))
         }
         MenuSection(
             isAuthorPostCurrentUser = isAuthorPostCurrentUser,
-            navigateToAuthorScreen = {
-                navigateToAuthorScreen(ideaPost.ideaAuthor.id)
-            },
-            navigateToEditIdeaScreen = {
-                navigateToEditIdeaScreen(ideaPost.id)
-            },
-            onDeletePostClick = {
-                onDeletePostClick(ideaPost)
-            },
+            navigateToAuthorScreen = { navigateToAuthorScreen(ideaPost.ideaAuthor.id) },
+            navigateToEditIdeaScreen = { navigateToEditIdeaScreen(ideaPost.id) },
+            onDeletePostClick = { onDeletePostClick(ideaPost) },
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = topPadding, end = 14.dp)
@@ -516,7 +519,7 @@ fun AppliedSortingFilter(
         Spacer(modifier = Modifier.width(8.dp))
         SortingCategoryFilter(
             sortingCategory = sortingCategory,
-            onRemoveClick = { onSortingFilterRemoveClick() }
+            onRemoveClick = onSortingFilterRemoveClick
         )
     }
 }
@@ -601,8 +604,7 @@ fun SearchTextField(
             color = MaterialTheme.colorScheme.outline,
             modifier = Modifier.fillMaxHeight(0.7f)
         )
-        Icon(
-            painter = painterResource(R.drawable.baseline_tune_24),
+        Icon(painter = painterResource(R.drawable.baseline_tune_24),
             contentDescription = "filters_icon",
             tint = MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier
@@ -614,10 +616,7 @@ fun SearchTextField(
                 )
                 .fillMaxHeight()
                 .clickable { onFiltersClick() }
-                .padding(
-                    start = 15.dp,
-                    end = 10.dp,
-                )
+                .padding(start = 15.dp, end = 10.dp)
         )
     }
 }
@@ -648,8 +647,7 @@ fun OfficeFilterSearch(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxSize()
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(office.imageUrl),
+            Image(painter = rememberAsyncImagePainter(office.imageUrl),
                 contentDescription = "office_image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -685,8 +683,9 @@ fun OfficeFilterSearch(
                 .align(Alignment.TopEnd)
                 .clickable(
                     indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
-                ) { onRemoveClick() }
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = onRemoveClick
+                )
         )
     }
 }
@@ -724,8 +723,9 @@ fun SortingCategoryFilter(
                 .align(Alignment.TopEnd)
                 .clickable(
                     indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
-                ) { onRemoveClick() }
+                    interactionSource = remember { MutableInteractionSource() },
+                    onClick = onRemoveClick
+                )
         )
     }
 }
@@ -808,8 +808,9 @@ fun MenuButton(
         modifier = modifier
             .clickable(
                 indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) { onClick() }
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = onClick
+            )
     )
 }
 
@@ -819,9 +820,7 @@ fun AttachedImages(
     attachedImages: List<Any>,
     modifier: Modifier = Modifier
 ) {
-    val attachedImagesPagerState = rememberPagerState(
-        pageCount = { attachedImages.size }
-    )
+    val attachedImagesPagerState = rememberPagerState(pageCount = { attachedImages.size })
     Box(modifier = modifier) {
         HorizontalPager(
             state = attachedImagesPagerState,
@@ -985,11 +984,7 @@ fun LikeButton(
 
 @Composable
 fun DislikeButton(
-    onClick: () -> Unit,
-    iconSize: Dp,
-    isPressed: Boolean,
-    count: Int,
-    modifier: Modifier = Modifier
+    onClick: () -> Unit, iconSize: Dp, isPressed: Boolean, count: Int, modifier: Modifier = Modifier
 ) {
     val animatedIconRotation = remember { Animatable(0f) }
     val animatedIconScale = remember { Animatable(1f) }
@@ -997,8 +992,7 @@ fun DislikeButton(
     if (isAnimationRunning) {
         LaunchedEffect(Unit) {
             dislikePressedAnimation(
-                animatableScale = animatedIconScale,
-                animatableRotation = animatedIconRotation
+                animatableScale = animatedIconScale, animatableRotation = animatedIconRotation
             ).join()
             isAnimationRunning = false
         }
@@ -1091,14 +1085,13 @@ fun SuggestIdeaButton(
         modifier = modifier
             .size(50.dp)
             .clip(MaterialTheme.shapes.medium)
-            .clickable { onClick() }
+            .clickable(onClick = onClick)
             .background(MaterialTheme.colorScheme.primary)
     ) {
         Icon(
             painter = painterResource(R.drawable.outline_create_24),
             contentDescription = "create_button",
-            modifier = Modifier
-                .size(30.dp)
+            modifier = Modifier.size(30.dp)
         )
     }
 }
@@ -1118,16 +1111,8 @@ fun CurrentImageSection(
     }
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(
-            animationSpec = tween(
-                durationMillis = 200
-            )
-        ),
-        exit = fadeOut(
-            animationSpec = tween(
-                durationMillis = 200
-            )
-        ),
+        enter = fadeIn(animationSpec = tween(durationMillis = 200)),
+        exit = fadeOut(animationSpec = tween(durationMillis = 200)),
         modifier = modifier
     ) {
         Box(
@@ -1173,8 +1158,7 @@ private fun deletePostSnackbar(
 fun IdeaPostPreview() {
     OfficeAppTheme {
         Surface {
-            IdeaPost(
-                ideaPost = ideaPost,
+            IdeaPost(ideaPost = ideaPost,
                 isAuthorPostCurrentUser = true,
                 onPostClick = {},
                 onLikeClick = {},
@@ -1182,8 +1166,7 @@ fun IdeaPostPreview() {
                 onCommentClick = {},
                 navigateToAuthorScreen = {},
                 navigateToEditIdeaScreen = {},
-                onDeletePostClick = {}
-            )
+                onDeletePostClick = {})
         }
     }
 }
@@ -1210,8 +1193,7 @@ fun IdeaPostAuthorPreview() {
     OfficeAppTheme {
         Surface {
             IdeaPostAuthor(
-                ideaAuthor = ideaAuthor,
-                postDate = LocalDateTime.now()
+                ideaAuthor = ideaAuthor, postDate = LocalDateTime.now()
             )
         }
     }
@@ -1222,15 +1204,9 @@ fun IdeaPostAuthorPreview() {
 fun OfficeFilterSearchPreview() {
     OfficeAppTheme {
         Surface {
-            OfficeFilterSearch(
-                office = Office(
-                    id = 1,
-                    imageUrl = "",
-                    address = ""
-                ),
-                size = DpSize(width = 190.dp, height = 50.dp),
-                onRemoveClick = {}
-            )
+            OfficeFilterSearch(office = Office(
+                id = 1, imageUrl = "", address = ""
+            ), size = DpSize(width = 190.dp, height = 50.dp), onRemoveClick = {})
         }
     }
 }
@@ -1240,10 +1216,8 @@ fun OfficeFilterSearchPreview() {
 fun SortingCategoryFilterPreview() {
     OfficeAppTheme {
         Surface {
-            SortingCategoryFilter(
-                sortingCategory = SortingCategory(id = 0, "Комментариям"),
-                onRemoveClick = {}
-            )
+            SortingCategoryFilter(sortingCategory = SortingCategory(id = 0, "Комментариям"),
+                onRemoveClick = {})
         }
     }
 }
@@ -1255,9 +1229,7 @@ fun IdeaPostOfficePreview() {
         Surface {
             IdeaPostOffice(
                 office = Office(
-                    id = 1,
-                    imageUrl = "",
-                    address = ""
+                    id = 1, imageUrl = "", address = ""
                 )
             )
         }
@@ -1269,9 +1241,7 @@ fun IdeaPostOfficePreview() {
 fun SuggestIdeaButtonPreview() {
     OfficeAppTheme {
         Surface {
-            SuggestIdeaButton(
-                onClick = {}
-            )
+            SuggestIdeaButton(onClick = {})
         }
     }
 }

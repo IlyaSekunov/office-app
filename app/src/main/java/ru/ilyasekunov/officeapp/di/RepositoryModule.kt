@@ -16,6 +16,7 @@ import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.office.OfficeRepository
 import ru.ilyasekunov.officeapp.data.repository.office.OfficeRepositoryImpl
+import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
@@ -55,4 +56,10 @@ object RepositoryModule {
     fun provideOfficeRepository(
         @MockDataSource officeDataSource: OfficeDataSource
     ) : OfficeRepository = OfficeRepositoryImpl(officeDataSource)
+
+    @Provides
+    @Singleton
+    fun providePostsPagingRepository(
+        @MockDataSource postsDatasource: PostsDataSource
+    ) : PostsPagingRepository = PostsPagingRepository(postsDatasource)
 }

@@ -62,6 +62,9 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
 
+    // Paging library
+    implementation("androidx.paging:paging-compose:3.3.0-alpha03")
+
     // Shimmer effect
     implementation("com.valentinilk.shimmer:compose-shimmer:1.2.0")
 

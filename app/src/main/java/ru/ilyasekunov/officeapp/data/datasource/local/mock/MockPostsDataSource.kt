@@ -8,6 +8,7 @@ import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.User
+import java.lang.IllegalStateException
 import java.time.LocalDateTime
 
 class MockPostsDataSource : PostsDataSource {
@@ -19,14 +20,38 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun posts(): Result<List<IdeaPost>> = Result.success(Posts)
-
-
     override suspend fun posts(
         filtersDto: FiltersDto,
         page: Int,
         pageSize: Int
     ): Result<List<IdeaPost>> {
-        TODO("Not yet implemented")
+        val posts = Posts.filter { it.office.id in filtersDto.offices }
+        val sortedPosts = when (filtersDto.sortingFilter) {
+            0 -> posts.sortedBy { it.likesCount }
+            1 -> posts.sortedBy { it.dislikesCount }
+            2 -> posts.sortedBy { it.commentsCount }
+            null -> posts.sortedBy { it.date }
+            else -> throw IllegalStateException("Unknown sorting filter")
+        }
+        val firstPostIndex = (page - 1) * pageSize
+        val lastPostIndex = firstPostIndex + pageSize + 1
+        if (firstPostIndex > sortedPosts.lastIndex) {
+            return Result.success(sortedPosts)
+        }
+        if (lastPostIndex > sortedPosts.lastIndex) {
+            return Result.success(
+                sortedPosts.subList(
+                    fromIndex = firstPostIndex,
+                    toIndex = sortedPosts.lastIndex + 1
+                )
+            )
+        }
+        return Result.success(
+            sortedPosts.subList(
+                fromIndex = firstPostIndex,
+                toIndex = lastPostIndex
+            )
+        )
     }
 
     override suspend fun findPostById(postId: Long): Result<IdeaPost?> {
@@ -104,14 +129,13 @@ class MockPostsDataSource : PostsDataSource {
         return Result.success(Unit)
     }
 
-    override suspend fun filters(): Result<Filters> {
-        return Result.success(
+    override suspend fun filters(): Result<Filters> =
+        Result.success(
             Filters(
                 offices = Offices,
                 sortingCategories = SortingCategories
             )
         )
-    }
 
     private fun PublishPostDto.toIdeaPost(): IdeaPost =
         IdeaPost(
