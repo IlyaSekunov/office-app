@@ -8,9 +8,12 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
-import ru.ilyasekunov.officeapp.data.network.HttpAuthInterceptor
+import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
+import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
+import ru.ilyasekunov.officeapp.data.network.HttpAccessTokenInterceptor
+import ru.ilyasekunov.officeapp.data.network.HttpForbiddenInterceptor
 import ru.ilyasekunov.officeapp.data.network.HttpImgurTokenInterceptor
+import javax.inject.Provider
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -21,10 +24,18 @@ private const val BASE_URl = "http://10.0.2.2:8080/"
 object NetworkModule {
     @Provides
     @Singleton
-    @AuthInterceptor
-    fun provideHttpAuthInterceptor(
-        @LocalDataSource tokenDatasource: TokenDataSource
-    ): Interceptor = HttpAuthInterceptor(tokenDatasource)
+    @AccessTokenInterceptor
+    fun provideAccessTokenInterceptor(
+        @LocalDataSource tokenDatasource: TokenLocalDataSource
+    ): Interceptor = HttpAccessTokenInterceptor(tokenDatasource)
+
+    @Provides
+    @Singleton
+    @ForbiddenInterceptor
+    fun provideForbiddenInterceptor(
+        @LocalDataSource tokenLocalDataSource: TokenLocalDataSource,
+        @RemoteDataSource authDataSource: AuthDataSource
+    ): Interceptor = HttpForbiddenInterceptor(authDataSource, tokenLocalDataSource)
 
     @Provides
     @Singleton
@@ -34,10 +45,12 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideRetrofit(
-        @AuthInterceptor httpAuthInterceptor: Interceptor
+        @AccessTokenInterceptor accessTokenInterceptor: Interceptor,
+        @ForbiddenInterceptor forbiddenInterceptor: Provider<Interceptor>
     ): Retrofit {
         val httpClient = OkHttpClient.Builder()
-            .addNetworkInterceptor(httpAuthInterceptor)
+            .addNetworkInterceptor(accessTokenInterceptor)
+            .addNetworkInterceptor(forbiddenInterceptor.get())
             .build()
         return Retrofit.Builder()
             .baseUrl(BASE_URl)
@@ -49,7 +62,11 @@ object NetworkModule {
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
-annotation class AuthInterceptor
+annotation class AccessTokenInterceptor
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class ForbiddenInterceptor
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)

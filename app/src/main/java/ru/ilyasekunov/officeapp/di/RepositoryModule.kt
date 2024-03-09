@@ -8,8 +8,8 @@ import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.datasource.ImagesUploaderDataSource
 import ru.ilyasekunov.officeapp.data.datasource.OfficeDataSource
 import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
-import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
 import ru.ilyasekunov.officeapp.data.datasource.UserDataSource
+import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
@@ -42,7 +42,7 @@ object RepositoryModule {
     @Singleton
     fun provideAuthRepository(
         @RemoteDataSource authDatasource: AuthDataSource,
-        @LocalDataSource tokenDatasource: TokenDataSource
+        @LocalDataSource tokenDatasource: TokenLocalDataSource
     ): AuthRepository = AuthRepositoryImpl(authDatasource, tokenDatasource)
 
     @Provides

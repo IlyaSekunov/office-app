@@ -17,7 +17,6 @@ import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.datasource.ImagesUploaderDataSource
 import ru.ilyasekunov.officeapp.data.datasource.OfficeDataSource
 import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
-import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
 import ru.ilyasekunov.officeapp.data.datasource.UserDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockOfficeDataSource
@@ -66,7 +65,7 @@ object DatasourceModule {
     fun provideTokenLocalDataSource(
         dataStore: DataStore<Preferences>,
         @IoDispatcher ioDispatcher: CoroutineDispatcher
-    ): TokenDataSource = TokenLocalDataSource(dataStore, ioDispatcher)
+    ): TokenLocalDataSource = TokenLocalDataSource(dataStore, ioDispatcher)
 
     @Provides
     @RemoteDataSource

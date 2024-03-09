@@ -3,10 +3,11 @@ package ru.ilyasekunov.officeapp.data.network
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
-import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
+import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
+import ru.ilyasekunov.officeapp.data.datasource.local.TokenType
 
-class HttpAuthInterceptor(
-    private val tokenDatasource: TokenDataSource
+class HttpAccessTokenInterceptor(
+    private val tokenDatasource: TokenLocalDataSource
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
@@ -18,7 +19,7 @@ class HttpAuthInterceptor(
         }
 
         // Otherwise, attach auth token to request
-        val token = runBlocking { tokenDatasource.token() }
+        val token = runBlocking { tokenDatasource.token(TokenType.ACCESS) }
         token?.let {
             val tokenHeader = "Bearer $it"
             request = request.newBuilder()

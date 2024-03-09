@@ -7,35 +7,66 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import ru.ilyasekunov.officeapp.data.datasource.TokenDataSource
+
+enum class TokenType {
+    ACCESS, REFRESH
+}
 
 class TokenLocalDataSource(
     private val dataStore: DataStore<Preferences>,
     private val ioDispatcher: CoroutineDispatcher
-) : TokenDataSource {
-
-    override suspend fun token(): String? =
+) {
+    suspend fun token(type: TokenType): String? =
         withContext(ioDispatcher) {
-            dataStore.data.first()[PreferencesKeys.USER_TOKEN]
+            when (type) {
+                TokenType.ACCESS -> {
+                    dataStore.data.first()[PreferencesKeys.ACCESS_TOKEN]
+                }
+
+                TokenType.REFRESH -> {
+                    dataStore.data.first()[PreferencesKeys.REFRESH_TOKEN]
+                }
+            }
         }
 
-    override suspend fun putToken(token: String) {
+    suspend fun putToken(type: TokenType, token: String) {
         withContext(ioDispatcher) {
-            dataStore.edit { userPreferences ->
-                userPreferences[PreferencesKeys.USER_TOKEN] = token
+            when (type) {
+                TokenType.ACCESS -> {
+                    dataStore.edit {
+                        it[PreferencesKeys.ACCESS_TOKEN] = token
+                    }
+                }
+
+                TokenType.REFRESH -> {
+                    dataStore.edit {
+                        it[PreferencesKeys.REFRESH_TOKEN] = token
+                    }
+                }
             }
         }
     }
 
-    override suspend fun deleteToken() {
+    suspend fun deleteToken(type: TokenType) {
         withContext(ioDispatcher) {
-            dataStore.edit { userPreferences ->
-                userPreferences.clear()
+            when (type) {
+                TokenType.ACCESS -> {
+                    dataStore.edit {
+                        it.remove(PreferencesKeys.ACCESS_TOKEN)
+                    }
+                }
+
+                TokenType.REFRESH -> {
+                    dataStore.edit {
+                        it.remove(PreferencesKeys.REFRESH_TOKEN)
+                    }
+                }
             }
         }
     }
 
     private object PreferencesKeys {
-        val USER_TOKEN = stringPreferencesKey("user-token")
+        val ACCESS_TOKEN = stringPreferencesKey("access-token")
+        val REFRESH_TOKEN = stringPreferencesKey("refresh-token")
     }
 }
