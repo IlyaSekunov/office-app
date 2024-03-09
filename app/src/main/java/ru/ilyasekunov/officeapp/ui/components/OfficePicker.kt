@@ -44,7 +44,7 @@ fun Office(
 ) {
     val basicImageModifier = modifier
         .clip(MaterialTheme.shapes.large)
-        .clickable { onClick() }
+        .clickable(onClick = onClick)
     val officeImageModifier = if (isSelected)
         basicImageModifier
             .border(
@@ -105,36 +105,41 @@ fun OfficePicker(
         Spacer(modifier = Modifier.height(36.dp))
 
         val coroutineScope = rememberCoroutineScope()
-        val contentPadding =
-            Dp(LocalConfiguration.current.screenWidthDp.toFloat()) / 2 - officeWidth / 2
+        val contentPadding = LocalConfiguration.current.screenWidthDp.dp / 2 - officeWidth / 2
+
+        val pageCount = 100_000
+        val itemsCount = officeList.size
+        val startPage = pageCount / (2 * itemsCount)
         val officePagerState = rememberPagerState(
-            initialPage = officeList.indexOf(initialSelectedOffice),
-            pageCount = { officeList.size }
+            initialPage = officeList.indexOf(initialSelectedOffice) + startPage * itemsCount,
+            pageCount = { pageCount }
         )
-        LaunchedEffect(officePagerState) {
-            snapshotFlow { officePagerState.currentPage }.collect {
-                onOfficeChange(officeList[it])
-            }
-        }
         HorizontalPager(
             state = officePagerState,
             contentPadding = PaddingValues(horizontal = contentPadding),
             pageSpacing = 30.dp,
             modifier = Modifier.fillMaxWidth()
         ) { page ->
+            val officeIndex = page % itemsCount
             Office(
-                office = officeList[page],
+                office = officeList[officeIndex],
                 isSelected = officePagerState.currentPage == page,
                 onClick = {
                     coroutineScope.launch {
                         officePagerState.animateScrollToPage(
                             page = page,
-                            animationSpec = tween(durationMillis = 300)
+                            animationSpec = tween()
                         )
                     }
                 },
                 modifier = Modifier.size(width = officeWidth, height = officeHeight)
             )
+        }
+
+        LaunchedEffect(officePagerState) {
+            snapshotFlow { officePagerState.currentPage % itemsCount }.collect {
+                onOfficeChange(officeList[it])
+            }
         }
     }
 }
