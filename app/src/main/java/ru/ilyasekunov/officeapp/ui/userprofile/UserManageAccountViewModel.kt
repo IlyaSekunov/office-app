@@ -10,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.UserDto
 import ru.ilyasekunov.officeapp.data.model.Office
+import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
 import javax.inject.Inject
@@ -25,6 +26,7 @@ data class UserManageAccountUiState(
 
 @HiltViewModel
 class UserManageAccountViewModel @Inject constructor(
+    private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
     private val imagesRepository: ImagesRepository
 ) : ViewModel() {
@@ -131,10 +133,10 @@ class UserManageAccountViewModel @Inject constructor(
     private fun loadUserProfile() {
         viewModelScope.launch {
             updateIsLoading(true)
-            val userResult = userRepository.user()
+            val userResult = authRepository.userInfo()
             if (userResult.isSuccess) {
                 val user = userResult.getOrThrow()
-                val userProfileUiState = user!!.toUserProfileUiState()
+                val userProfileUiState = user.toUserProfileUiState()
                 updateCurrentUserProfileUiState(userProfileUiState)
                 updateMutableUserProfileUiState(userProfileUiState)
             } else {

@@ -61,6 +61,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -135,7 +136,8 @@ fun HomeScreen(
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
-    navigateToProfileScreen: () -> Unit
+    navigateToProfileScreen: () -> Unit,
+    navigateToAuthGraph: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -219,6 +221,14 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
+            }
+        }
+
+        // Observe is unauthorized
+        val currentNavigateToAuthGraph by rememberUpdatedState(navigateToAuthGraph)
+        LaunchedEffect(currentUserUiState) {
+            if (currentUserUiState.isUnauthorized) {
+                currentNavigateToAuthGraph()
             }
         }
     }

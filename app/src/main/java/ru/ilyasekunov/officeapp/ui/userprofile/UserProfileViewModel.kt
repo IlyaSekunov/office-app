@@ -27,7 +27,6 @@ data class UserProfileUiState(
 
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
-    private val userRepository: UserRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {
     var userProfileUiState by mutableStateOf(UserProfileUiState())
@@ -60,9 +59,9 @@ class UserProfileViewModel @Inject constructor(
     }
 
     suspend fun refreshUserProfile() {
-        val userResult = userRepository.user()
+        val userResult = authRepository.userInfo()
         if (userResult.isSuccess) {
-            val user = userResult.getOrThrow()!!
+            val user = userResult.getOrThrow()
             userProfileUiState = user.toUserProfileUiState()
             updateIsErrorWhileUserLoading(false)
         } else {

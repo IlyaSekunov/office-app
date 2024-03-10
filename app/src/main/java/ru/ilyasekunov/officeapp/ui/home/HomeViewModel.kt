@@ -22,9 +22,10 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.data.model.User
+import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
-import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
+import ru.ilyasekunov.officeapp.exceptions.HttpForbiddenException
 import javax.inject.Inject
 
 data class FiltersUiState(
@@ -47,7 +48,8 @@ data class SortingFiltersUiState(
 data class CurrentUserUiState(
     val user: User? = null,
     val isLoading: Boolean = false,
-    val isErrorWhileLoading: Boolean = false
+    val isErrorWhileLoading: Boolean = false,
+    val isUnauthorized: Boolean = false
 )
 
 data class SearchUiState(
@@ -58,7 +60,7 @@ data class SearchUiState(
 class HomeViewModel @Inject constructor(
     private val postsRepository: PostsRepository,
     private val postsPagingRepository: PostsPagingRepository,
-    private val userRepository: UserRepository
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     private val _postsUiState: MutableStateFlow<PagingData<IdeaPost>> =
         MutableStateFlow(PagingData.empty())
@@ -71,8 +73,8 @@ class HomeViewModel @Inject constructor(
         private set
 
     init {
-        loadFilters()
         loadCurrentUser()
+        loadFilters()
         loadPosts()
     }
 
@@ -207,6 +209,10 @@ class HomeViewModel @Inject constructor(
         filtersUiState = filtersUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
     }
 
+    private fun updateIsUserUnauthorized(isUnauthorized: Boolean) {
+        currentUserUiState = currentUserUiState.copy(isUnauthorized = isUnauthorized)
+    }
+
     private fun updateUser(user: User?) {
         currentUserUiState = currentUserUiState.copy(user = user)
     }
@@ -214,13 +220,19 @@ class HomeViewModel @Inject constructor(
     private fun loadCurrentUser() {
         viewModelScope.launch {
             updateIsCurrentUserLoading(true)
-            val userResult = userRepository.user()
-            if (userResult.isSuccess) {
-                val user = userResult.getOrThrow()
-                updateIsErrorWhileUserLoading(false)
-                updateUser(user)
-            } else {
-                updateIsErrorWhileUserLoading(true)
+            val userInfoResult = authRepository.userInfo()
+            when {
+                userInfoResult.isSuccess -> {
+                    val user = userInfoResult.getOrThrow()
+                    updateIsErrorWhileUserLoading(false)
+                    updateUser(user)
+                }
+                userInfoResult.exceptionOrNull()!! is HttpForbiddenException -> {
+                    updateIsUserUnauthorized(true)
+                }
+                else -> {
+                    updateIsErrorWhileUserLoading(true)
+                }
             }
             updateIsCurrentUserLoading(false)
         }

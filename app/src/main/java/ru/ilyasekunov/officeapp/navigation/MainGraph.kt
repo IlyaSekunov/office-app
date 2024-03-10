@@ -71,6 +71,17 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         )
                         .build()
                 )
+            },
+            navigateToAuthGraph = {
+                navController.navigateToAuthGraph(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = MainGraphRoute,
+                            inclusive = true
+                        )
+                        .build()
+                )
             }
         )
         profileScreen(

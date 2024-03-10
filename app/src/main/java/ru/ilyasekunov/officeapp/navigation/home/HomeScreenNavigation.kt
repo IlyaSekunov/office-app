@@ -23,7 +23,8 @@ fun NavGraphBuilder.homeScreen(
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
-    navigateToProfileScreen: () -> Unit
+    navigateToProfileScreen: () -> Unit,
+    navigateToAuthGraph: () -> Unit
 ) {
     composable(route = BottomNavigationScreen.Home.route) {
         val homeViewModel = hiltViewModel<HomeViewModel>(viewModelStoreOwnerProvider())
@@ -57,7 +58,8 @@ fun NavGraphBuilder.homeScreen(
             navigateToEditIdeaScreen = navigateToEditIdeaScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
-            navigateToProfileScreen = navigateToProfileScreen
+            navigateToProfileScreen = navigateToProfileScreen,
+            navigateToAuthGraph = navigateToAuthGraph
         )
     }
 }
