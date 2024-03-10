@@ -71,77 +71,79 @@ fun UserProfileScreen(
     navigateToAuthGraph: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    if (userProfileUiState.isLoading) {
-        LoadingScreen()
-    } else if (userProfileUiState.isErrorWhileUserLoading) {
-        ErrorScreen(
-            message = stringResource(R.string.error_connecting_to_server),
-            onRetryButtonClick = onRetryUserLoadClick
-        )
-    } else {
-        Scaffold(
-            containerColor = MaterialTheme.colorScheme.background,
-            bottomBar = {
-                BottomNavigationBar(
-                    selectedScreen = BottomNavigationScreen.Profile,
-                    navigateToHomeScreen = navigateToHomeScreen,
-                    navigateToFavouriteScreen = navigateToFavouriteScreen,
-                    navigateToMyOfficeScreen = navigateToMyOfficeScreen,
-                    navigateToProfileScreen = {}
-                )
-            },
-            modifier = Modifier.fillMaxSize()
-        ) { paddingValues ->
-            BasicPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = paddingValues.calculateBottomPadding())
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    UserInfoSection(
-                        userProfileUiState = userProfileUiState,
-                        modifier = Modifier.fillMaxWidth()
+    when {
+        userProfileUiState.isLoading -> LoadingScreen()
+        userProfileUiState.isErrorWhileUserLoading -> {
+            ErrorScreen(
+                message = stringResource(R.string.error_connecting_to_server),
+                onRetryButtonClick = onRetryUserLoadClick
+            )
+        }
+        else -> {
+            Scaffold(
+                containerColor = MaterialTheme.colorScheme.background,
+                bottomBar = {
+                    BottomNavigationBar(
+                        selectedScreen = BottomNavigationScreen.Profile,
+                        navigateToHomeScreen = navigateToHomeScreen,
+                        navigateToFavouriteScreen = navigateToFavouriteScreen,
+                        navigateToMyOfficeScreen = navigateToMyOfficeScreen,
+                        navigateToProfileScreen = {}
                     )
-                    Option(
-                        icon = painterResource(R.drawable.outline_manage_accounts_24),
-                        text = stringResource(R.string.manage_account),
-                        onClick = onManageAccountClick,
+                },
+                modifier = Modifier.fillMaxSize()
+            ) { paddingValues ->
+                BasicPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
-                    )
-                    Option(
-                        icon = painterResource(R.drawable.outline_person_pin_circle_24),
-                        text = stringResource(R.string.my_office),
-                        onClick = onMyOfficeClick,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
-                    )
-                    Option(
-                        icon = painterResource(R.drawable.outline_lightbulb_24),
-                        text = stringResource(R.string.my_ideas),
-                        onClick = onMyIdeasClick,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
-                    )
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = stringResource(R.string.log_out),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .padding(start = 16.dp)
-                            .clickable { onLogoutClick() }
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
+                            .fillMaxSize()
+                            .padding(bottom = paddingValues.calculateBottomPadding())
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        UserInfoSection(
+                            userProfileUiState = userProfileUiState,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Option(
+                            icon = painterResource(R.drawable.outline_manage_accounts_24),
+                            text = stringResource(R.string.manage_account),
+                            onClick = onManageAccountClick,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+                        )
+                        Option(
+                            icon = painterResource(R.drawable.outline_person_pin_circle_24),
+                            text = stringResource(R.string.my_office),
+                            onClick = onMyOfficeClick,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+                        )
+                        Option(
+                            icon = painterResource(R.drawable.outline_lightbulb_24),
+                            text = stringResource(R.string.my_ideas),
+                            onClick = onMyIdeasClick,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 20.dp, top = 10.dp, bottom = 10.dp)
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = stringResource(R.string.log_out),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 15.sp,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .clickable { onLogoutClick() }
+                        )
+                        Spacer(modifier = Modifier.height(30.dp))
+                    }
                 }
             }
         }
