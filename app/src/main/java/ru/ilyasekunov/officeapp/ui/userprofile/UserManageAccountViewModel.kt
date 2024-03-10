@@ -13,6 +13,9 @@ import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
+import ru.ilyasekunov.officeapp.validation.UserInfoValidationError
+import ru.ilyasekunov.officeapp.validation.UserInfoValidationResult
+import ru.ilyasekunov.officeapp.validation.validateUserInfo
 import javax.inject.Inject
 
 data class UserManageAccountUiState(
@@ -41,21 +44,27 @@ class UserManageAccountViewModel @Inject constructor(
     fun updateName(name: String) {
         val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
         userManageAccountUiState = userManageAccountUiState.copy(
-            mutableUserProfileUiState = userProfileUiState.copy(name = name)
+            mutableUserProfileUiState = userProfileUiState.copy(
+                name = userProfileUiState.name.copy(value = name)
+            )
         )
     }
 
     fun updateSurname(surname: String) {
         val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
         userManageAccountUiState = userManageAccountUiState.copy(
-            mutableUserProfileUiState = userProfileUiState.copy(surname = surname)
+            mutableUserProfileUiState = userProfileUiState.copy(
+                surname = userProfileUiState.surname.copy(value = surname)
+            )
         )
     }
 
     fun updateJob(job: String) {
         val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
         userManageAccountUiState = userManageAccountUiState.copy(
-            mutableUserProfileUiState = userProfileUiState.copy(job = job)
+            mutableUserProfileUiState = userProfileUiState.copy(
+                job = userProfileUiState.job.copy(value = job)
+            )
         )
     }
 
@@ -74,30 +83,93 @@ class UserManageAccountViewModel @Inject constructor(
     }
 
     fun save() {
-        viewModelScope.launch {
-            updateIsLoading(true)
-            val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
-            val photoUrlResult = uploadUserPhoto()
-            if (photoUrlResult.isFailure) {
-                updateIsNetworkError(true)
-                updateIsLoading(false)
-                return@launch
-            } else {
+        if (userInfoValid()) {
+            viewModelScope.launch {
+                updateIsLoading(true)
+                val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
+                val photoUrlResult = uploadUserPhoto()
+                if (photoUrlResult.isFailure) {
+                    updateIsNetworkError(true)
+                    updateIsLoading(false)
+                    return@launch
+                } else {
+                    updateIsNetworkError(false)
+                }
+                val photoUrl = photoUrlResult.getOrThrow()
+                val userDto = UserDto(
+                    name = userProfileUiState.name.value,
+                    surname = userProfileUiState.surname.value,
+                    job = userProfileUiState.job.value,
+                    photo = photoUrl,
+                    officeId = userProfileUiState.currentOffice!!.id
+                )
+                userRepository.saveChanges(userDto)
                 updateIsNetworkError(false)
+                updateIsLoading(false)
+                updateIsChangesSaved(true)
             }
-            val photoUrl = photoUrlResult.getOrThrow()
-            val userDto = UserDto(
-                name = userProfileUiState.name,
-                surname = userProfileUiState.surname,
-                job = userProfileUiState.job,
-                photo = photoUrl,
-                officeId = userProfileUiState.currentOffice!!.id
-            )
-            userRepository.saveChanges(userDto)
-            updateIsNetworkError(false)
-            updateIsLoading(false)
-            updateIsChangesSaved(true)
         }
+    }
+
+    private fun updateNameValidationError(error: UserInfoValidationError?) {
+        val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
+        userManageAccountUiState = userManageAccountUiState.copy(
+            mutableUserProfileUiState = userProfileUiState.copy(
+                name = userProfileUiState.name.copy(error = error)
+            )
+        )
+    }
+
+    private fun updateSurnameValidationError(error: UserInfoValidationError?) {
+        val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
+        userManageAccountUiState = userManageAccountUiState.copy(
+            mutableUserProfileUiState = userProfileUiState.copy(
+                surname = userProfileUiState.surname.copy(error = error)
+            )
+        )
+    }
+
+    private fun updateJobValidationError(error: UserInfoValidationError?) {
+        val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
+        userManageAccountUiState = userManageAccountUiState.copy(
+            mutableUserProfileUiState = userProfileUiState.copy(
+                job = userProfileUiState.job.copy(error = error)
+            )
+        )
+    }
+
+    fun userInfoValid(): Boolean {
+        val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
+        var isValidationSuccess = true
+
+        val name = userProfileUiState.name.value
+        val nameValidationResult = validateUserInfo(name)
+        if (nameValidationResult is UserInfoValidationResult.Failure) {
+            updateNameValidationError(nameValidationResult.error)
+            isValidationSuccess = false
+        } else {
+            updateNameValidationError(null)
+        }
+
+        val surname = userProfileUiState.surname.value
+        val surnameValidationResult = validateUserInfo(surname)
+        if (surnameValidationResult is UserInfoValidationResult.Failure) {
+            updateSurnameValidationError(surnameValidationResult.error)
+            isValidationSuccess = false
+        } else {
+            updateSurnameValidationError(null)
+        }
+
+        val job = userProfileUiState.job.value
+        val jobValidationResult = validateUserInfo(job)
+        if (jobValidationResult is UserInfoValidationResult.Failure) {
+            updateJobValidationError(jobValidationResult.error)
+            isValidationSuccess = false
+        } else {
+            updateJobValidationError(null)
+        }
+
+        return isValidationSuccess
     }
 
     private fun updateAvailableOffices(availableOffices: List<Office>) {

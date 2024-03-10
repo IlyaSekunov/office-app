@@ -10,13 +10,13 @@ import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.User
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
-import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
+import ru.ilyasekunov.officeapp.ui.auth.registration.UserInfoFieldUiState
 import javax.inject.Inject
 
 data class UserProfileUiState(
-    val name: String = "",
-    val surname: String = "",
-    val job: String = "",
+    val name: UserInfoFieldUiState = UserInfoFieldUiState(),
+    val surname: UserInfoFieldUiState = UserInfoFieldUiState(),
+    val job: UserInfoFieldUiState = UserInfoFieldUiState(),
     val photo: Any? = null,
     val currentOffice: Office? = null,
     val isLoading: Boolean = false,
@@ -92,9 +92,9 @@ class UserProfileViewModel @Inject constructor(
 
 fun User.toUserProfileUiState(): UserProfileUiState =
     UserProfileUiState(
-        name = name,
-        surname = surname,
-        job = job,
+        name = UserInfoFieldUiState(value = name),
+        surname = UserInfoFieldUiState(value = surname),
+        job = UserInfoFieldUiState(value = job),
         photo = photo,
         currentOffice = office
     )

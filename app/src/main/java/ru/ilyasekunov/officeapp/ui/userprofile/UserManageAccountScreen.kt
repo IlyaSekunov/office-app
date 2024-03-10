@@ -42,6 +42,7 @@ import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.auth.registration.userInfoFieldErrorMessage
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
@@ -133,8 +134,14 @@ fun UserManageAccountScreen(
                     modifier = Modifier.size(180.dp)
                 )
                 Spacer(modifier = Modifier.height(22.dp))
+
+                val nameError = userManageAccountUiState.mutableUserProfileUiState.name.error
+                val nameErrorMessage = if (nameError != null) {
+                    userInfoFieldErrorMessage(nameError)
+                } else null
                 UserInfoTextField(
-                    value = mutableUserProfileUiState.name,
+                    value = mutableUserProfileUiState.name.value,
+                    errorMessage = nameErrorMessage,
                     label = stringResource(R.string.name),
                     placeholder = stringResource(R.string.your_name),
                     onValueChange = onNameValueChange,
@@ -143,8 +150,14 @@ fun UserManageAccountScreen(
                         .padding(start = 12.dp, end = 12.dp)
                 )
                 Spacer(modifier = Modifier.height(20.dp))
+
+                val surnameError = userManageAccountUiState.mutableUserProfileUiState.surname.error
+                val surnameErrorMessage = if (surnameError != null) {
+                    userInfoFieldErrorMessage(surnameError)
+                } else null
                 UserInfoTextField(
-                    value = mutableUserProfileUiState.surname,
+                    value = mutableUserProfileUiState.surname.value,
+                    errorMessage = surnameErrorMessage,
                     label = stringResource(R.string.surname),
                     placeholder = stringResource(R.string.your_surname),
                     onValueChange = onSurnameValueChange,
@@ -153,8 +166,14 @@ fun UserManageAccountScreen(
                         .padding(start = 12.dp, end = 12.dp)
                 )
                 Spacer(modifier = Modifier.height(20.dp))
+
+                val jobError = userManageAccountUiState.mutableUserProfileUiState.job.error
+                val jobErrorMessage = if (jobError != null) {
+                    userInfoFieldErrorMessage(jobError)
+                } else null
                 UserInfoTextField(
-                    value = mutableUserProfileUiState.job,
+                    value = mutableUserProfileUiState.job.value,
+                    errorMessage = jobErrorMessage,
                     label = stringResource(R.string.job),
                     placeholder = stringResource(R.string.your_job),
                     onValueChange = onJobValueChange,

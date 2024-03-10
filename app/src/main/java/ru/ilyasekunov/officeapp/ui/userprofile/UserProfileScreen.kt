@@ -50,6 +50,7 @@ import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.auth.registration.UserInfoFieldUiState
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
@@ -262,13 +263,13 @@ fun UserInfoSection(
         }
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = "${userProfileUiState.name} ${userProfileUiState.surname}",
+            text = "${userProfileUiState.name.value} ${userProfileUiState.surname.value}",
             style = MaterialTheme.typography.titleMedium,
             fontSize = 24.sp
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = userProfileUiState.job,
+            text = userProfileUiState.job.value,
             style = MaterialTheme.typography.titleMedium,
             fontSize = 15.sp
         )
@@ -335,9 +336,9 @@ fun UserInfoSectionPreview() {
         Surface {
             UserInfoSection(
                 userProfileUiState = UserProfileUiState(
-                    name = "Дмитрий",
-                    surname = "Комарницкий",
-                    job = "Сотрудник Tinkoff"
+                    name = UserInfoFieldUiState("Дмитрий"),
+                    surname = UserInfoFieldUiState("Комарницкий"),
+                    job = UserInfoFieldUiState("Сотрудник Tinkoff")
                 )
             )
         }
@@ -350,9 +351,9 @@ fun UserProfileScreenPreview() {
     OfficeAppTheme {
         UserProfileScreen(
             userProfileUiState = UserProfileUiState(
-                name = "Дмитрий",
-                surname = "Комарницкий",
-                job = "Сотрудник Tinkoff"
+                name = UserInfoFieldUiState("Дмитрий"),
+                surname = UserInfoFieldUiState("Комарницкий"),
+                job = UserInfoFieldUiState("Сотрудник Tinkoff")
             ),
             onManageAccountClick = {},
             onMyOfficeClick = {},
