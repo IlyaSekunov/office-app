@@ -16,7 +16,8 @@ fun UserInfoTextField(
     label: String,
     placeholder: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    errorMessage: String? = null
 ) {
     OutlinedTextField(
         value = value,
@@ -26,16 +27,14 @@ fun UserInfoTextField(
             Text(
                 text = label,
                 style = MaterialTheme.typography.labelMedium,
-                fontSize = 10.sp,
-                color = MaterialTheme.colorScheme.outline
+                fontSize = 10.sp
             )
         },
         placeholder = {
             Text(
                 text = placeholder,
                 style = MaterialTheme.typography.labelMedium,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.outline
+                fontSize = 16.sp
             )
         },
         textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 16.sp),
@@ -47,8 +46,25 @@ fun UserInfoTextField(
             focusedPlaceholderColor = MaterialTheme.colorScheme.primary,
             unfocusedLabelColor = MaterialTheme.colorScheme.outline,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
-            unfocusedPlaceholderColor = MaterialTheme.colorScheme.outline
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.outline,
+            errorBorderColor = MaterialTheme.colorScheme.error,
+            errorLabelColor = MaterialTheme.colorScheme.error,
+            errorCursorColor = MaterialTheme.colorScheme.error,
+            errorPlaceholderColor = MaterialTheme.colorScheme.error,
+            errorSupportingTextColor = MaterialTheme.colorScheme.error,
+            errorLeadingIconColor = MaterialTheme.colorScheme.error,
+            errorTrailingIconColor = MaterialTheme.colorScheme.error
         ),
+        isError = errorMessage != null,
+        supportingText = {
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 12.sp
+                )
+            }
+        },
         modifier = modifier
     )
 }

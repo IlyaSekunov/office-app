@@ -55,4 +55,6 @@
     <string name="password_error_too_short">Пароль не может быть менее 8 символов</string>
     <string name="password_error_no_spec_symbols">Пароль не содержит специальных символов</string>
     <string name="password_error_no_capital_letter">Пароль должен иметь хотя бы одну заглавную букву</string>
+    <string name="repeated_password_error_differ_from_password">Пароли должны совпадать</string>
+    <string name="user_info_field_error_is_blank">Поле не можеть быть пустым</string>
 </resources>

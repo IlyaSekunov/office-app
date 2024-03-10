@@ -44,6 +44,7 @@ import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
 import ru.ilyasekunov.officeapp.ui.components.UserInfoTextField
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
+import ru.ilyasekunov.officeapp.validation.UserInfoValidationError
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -123,9 +124,15 @@ fun RegistrationUserInfoScreen(
                         .size(180.dp)
                 )
                 Spacer(modifier = Modifier.height(36.dp))
+
+                val nameError = registrationUiState.userInfoRegistrationUiState.name.error
+                val nameErrorMessage = if (nameError != null) {
+                    userInfoFieldErrorMessage(nameError)
+                } else null
                 UserInfoTextField(
-                    value = registrationUiState.userInfoRegistrationUiState.name,
+                    value = registrationUiState.userInfoRegistrationUiState.name.value,
                     label = stringResource(R.string.name),
+                    errorMessage = nameErrorMessage,
                     placeholder = stringResource(R.string.your_name),
                     onValueChange = onNameValueChange,
                     modifier = Modifier
@@ -133,9 +140,15 @@ fun RegistrationUserInfoScreen(
                         .padding(start = 12.dp, end = 12.dp)
                 )
                 Spacer(modifier = Modifier.height(30.dp))
+
+                val surnameError = registrationUiState.userInfoRegistrationUiState.surname.error
+                val surnameErrorMessage = if (surnameError != null) {
+                    userInfoFieldErrorMessage(surnameError)
+                } else null
                 UserInfoTextField(
-                    value = registrationUiState.userInfoRegistrationUiState.surname,
+                    value = registrationUiState.userInfoRegistrationUiState.surname.value,
                     label = stringResource(R.string.surname),
+                    errorMessage = surnameErrorMessage,
                     placeholder = stringResource(R.string.your_surname),
                     onValueChange = onSurnameValueChange,
                     modifier = Modifier
@@ -143,9 +156,15 @@ fun RegistrationUserInfoScreen(
                         .padding(start = 12.dp, end = 12.dp)
                 )
                 Spacer(modifier = Modifier.height(30.dp))
+
+                val jobError = registrationUiState.userInfoRegistrationUiState.job.error
+                val jobErrorMessage = if (jobError != null) {
+                    userInfoFieldErrorMessage(jobError)
+                } else null
                 UserInfoTextField(
-                    value = registrationUiState.userInfoRegistrationUiState.job,
+                    value = registrationUiState.userInfoRegistrationUiState.job.value,
                     label = stringResource(R.string.job),
+                    errorMessage = jobErrorMessage,
                     placeholder = stringResource(R.string.your_job),
                     onValueChange = onJobValueChange,
                     modifier = Modifier
@@ -195,6 +214,12 @@ fun EndRegistrationButton(
         )
     }
 }
+
+@Composable
+fun userInfoFieldErrorMessage(error: UserInfoValidationError) =
+    when (error) {
+        UserInfoValidationError.BLANK -> stringResource(R.string.user_info_field_error_is_blank)
+    }
 
 @Preview
 @Composable

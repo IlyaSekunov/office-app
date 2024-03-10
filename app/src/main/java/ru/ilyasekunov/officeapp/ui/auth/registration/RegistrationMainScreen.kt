@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.auth.login.emailErrorMessage
+import ru.ilyasekunov.officeapp.ui.auth.login.passwordErrorMessage
 import ru.ilyasekunov.officeapp.ui.components.EmailTextField
 import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
@@ -42,7 +44,7 @@ fun RegistrationMainScreen(
 ) {
     if (registrationUiState.isLoading) {
         LoadingScreen()
-    }  else {
+    } else {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -58,16 +60,32 @@ fun RegistrationMainScreen(
                 fontSize = 36.sp
             )
             Spacer(modifier = Modifier.height(75.dp))
+
+            val emailErrorMessage = if (registrationUiState.emailUiState.error != null) {
+                emailErrorMessage(error = registrationUiState.emailUiState.error)
+            } else null
             EmailTextField(
-                value = registrationUiState.email,
+                value = registrationUiState.emailUiState.email,
+                errorMessage = emailErrorMessage,
                 onValueChange = onEmailValueChange,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 12.dp, end = 12.dp)
             )
             Spacer(modifier = Modifier.height(30.dp))
+
+            val passwordErrorMessage = when {
+                registrationUiState.isPasswordsDiffer -> {
+                    stringResource(R.string.repeated_password_error_differ_from_password)
+                }
+                registrationUiState.passwordUiState.error != null -> {
+                    passwordErrorMessage(error = registrationUiState.passwordUiState.error)
+                }
+                else -> null
+            }
             PasswordTextField(
-                value = registrationUiState.password,
+                value = registrationUiState.passwordUiState.password,
+                errorMessage = passwordErrorMessage,
                 onValueChange = onPasswordValueChange,
                 placeholder = stringResource(R.string.password),
                 modifier = Modifier
@@ -75,8 +93,19 @@ fun RegistrationMainScreen(
                     .padding(start = 12.dp, end = 12.dp)
             )
             Spacer(modifier = Modifier.height(30.dp))
+
+            val repeatedPasswordErrorMessage = when {
+                registrationUiState.isPasswordsDiffer -> {
+                    stringResource(R.string.repeated_password_error_differ_from_password)
+                }
+                registrationUiState.repeatedPasswordUiState.error != null -> {
+                    passwordErrorMessage(error = registrationUiState.repeatedPasswordUiState.error)
+                }
+                else -> null
+            }
             PasswordTextField(
-                value = registrationUiState.repeatedPassword,
+                value = registrationUiState.repeatedPasswordUiState.password,
+                errorMessage = repeatedPasswordErrorMessage,
                 onValueChange = onRepeatPasswordValueChange,
                 placeholder = stringResource(R.string.repeat_password),
                 modifier = Modifier
@@ -143,8 +172,9 @@ fun RegistrationMainScreenPreview() {
                 onEmailValueChange = {},
                 onPasswordValueChange = {},
                 onRepeatPasswordValueChange = {},
-                onRegisterButtonClick = {}
-            ) {}
+                onRegisterButtonClick = {},
+                navigateToLoginScreen = {}
+            )
         }
     }
 }
