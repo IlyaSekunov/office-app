@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
+import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.userInfoFieldErrorMessage
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
@@ -60,7 +61,8 @@ fun UserManageAccountScreen(
     onJobValueChange: (String) -> Unit,
     onOfficeChange: (Office) -> Unit,
     onSaveButtonClick: () -> Unit,
-    onRetryClick: () -> Unit,
+    onRetrySaveClick: () -> Unit,
+    onRetryLoadProfileClick: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -68,143 +70,151 @@ fun UserManageAccountScreen(
     navigateBack: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    if (userManageAccountUiState.isLoading) {
-        LoadingScreen()
-    } else {
-        val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
-            state = rememberTopAppBarState(),
-            snapAnimationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMediumLow,
-                visibilityThreshold = null
+    val currentUserProfileUiState = userManageAccountUiState.currentUserProfileUiState
+    val availableOfficesUiState = userManageAccountUiState.availableOfficesUiState
+    when {
+        userManageAccountUiState.isLoading -> LoadingScreen()
+        currentUserProfileUiState.isErrorWhileUserLoading || availableOfficesUiState.isErrorWhileLoading -> {
+            ErrorScreen(
+                message = stringResource(R.string.error_connecting_to_server),
+                onRetryButtonClick = onRetryLoadProfileClick
             )
-        )
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(R.string.manage_account),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontSize = 20.sp
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = navigateBack) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                                contentDescription = "back_arrow",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(30.dp)
+        }
+        else -> {
+            val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
+                state = rememberTopAppBarState(),
+                snapAnimationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessMediumLow,
+                    visibilityThreshold = null
+                )
+            )
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = stringResource(R.string.manage_account),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontSize = 20.sp
                             )
-                        }
-                    },
-                    scrollBehavior = topAppBarScrollBehavior,
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        scrolledContainerColor = MaterialTheme.colorScheme.background
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = navigateBack) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                                    contentDescription = "back_arrow",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            }
+                        },
+                        scrollBehavior = topAppBarScrollBehavior,
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background,
+                            scrolledContainerColor = MaterialTheme.colorScheme.background
+                        )
                     )
-                )
-            },
-            bottomBar = {
-                BottomNavigationBar(
-                    selectedScreen = BottomNavigationScreen.Profile,
-                    navigateToHomeScreen = navigateToHomeScreen,
-                    navigateToFavouriteScreen = navigateToFavouriteScreen,
-                    navigateToMyOfficeScreen = navigateToMyOfficeScreen,
-                    navigateToProfileScreen = navigateToProfileScreen
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.background,
-            modifier = Modifier
-                .fillMaxSize()
-                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-        ) { paddingValues ->
-            val mutableUserProfileUiState = userManageAccountUiState.mutableUserProfileUiState
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+                },
+                bottomBar = {
+                    BottomNavigationBar(
+                        selectedScreen = BottomNavigationScreen.Profile,
+                        navigateToHomeScreen = navigateToHomeScreen,
+                        navigateToFavouriteScreen = navigateToFavouriteScreen,
+                        navigateToMyOfficeScreen = navigateToMyOfficeScreen,
+                        navigateToProfileScreen = navigateToProfileScreen
+                    )
+                },
+                containerColor = MaterialTheme.colorScheme.background,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                PhotoPicker(
-                    selectedPhoto = mutableUserProfileUiState.photo,
-                    onPhotoPickerClick = onPhotoPickerClick,
-                    modifier = Modifier.size(180.dp)
-                )
-                Spacer(modifier = Modifier.height(22.dp))
-
-                val nameError = userManageAccountUiState.mutableUserProfileUiState.name.error
-                val nameErrorMessage = if (nameError != null) {
-                    userInfoFieldErrorMessage(nameError)
-                } else null
-                UserInfoTextField(
-                    value = mutableUserProfileUiState.name.value,
-                    errorMessage = nameErrorMessage,
-                    label = stringResource(R.string.name),
-                    placeholder = stringResource(R.string.your_name),
-                    onValueChange = onNameValueChange,
+                    .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+            ) { paddingValues ->
+                val mutableUserProfileUiState = userManageAccountUiState.mutableUserProfileUiState
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 12.dp, end = 12.dp)
-                )
-                Spacer(modifier = Modifier.height(20.dp))
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    PhotoPicker(
+                        selectedPhoto = mutableUserProfileUiState.photo,
+                        onPhotoPickerClick = onPhotoPickerClick,
+                        modifier = Modifier.size(180.dp)
+                    )
+                    Spacer(modifier = Modifier.height(22.dp))
 
-                val surnameError = userManageAccountUiState.mutableUserProfileUiState.surname.error
-                val surnameErrorMessage = if (surnameError != null) {
-                    userInfoFieldErrorMessage(surnameError)
-                } else null
-                UserInfoTextField(
-                    value = mutableUserProfileUiState.surname.value,
-                    errorMessage = surnameErrorMessage,
-                    label = stringResource(R.string.surname),
-                    placeholder = stringResource(R.string.your_surname),
-                    onValueChange = onSurnameValueChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 12.dp, end = 12.dp)
-                )
-                Spacer(modifier = Modifier.height(20.dp))
+                    val nameError = mutableUserProfileUiState.name.error
+                    val nameErrorMessage = if (nameError != null) {
+                        userInfoFieldErrorMessage(nameError)
+                    } else null
+                    UserInfoTextField(
+                        value = mutableUserProfileUiState.name.value,
+                        errorMessage = nameErrorMessage,
+                        label = stringResource(R.string.name),
+                        placeholder = stringResource(R.string.your_name),
+                        onValueChange = onNameValueChange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 12.dp, end = 12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                val jobError = userManageAccountUiState.mutableUserProfileUiState.job.error
-                val jobErrorMessage = if (jobError != null) {
-                    userInfoFieldErrorMessage(jobError)
-                } else null
-                UserInfoTextField(
-                    value = mutableUserProfileUiState.job.value,
-                    errorMessage = jobErrorMessage,
-                    label = stringResource(R.string.job),
-                    placeholder = stringResource(R.string.your_job),
-                    onValueChange = onJobValueChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 12.dp, end = 12.dp)
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-                OfficePicker(
-                    officeList = userManageAccountUiState.availableOffices,
-                    initialSelectedOffice = mutableUserProfileUiState.currentOffice!!,
-                    officeWidth = 170.dp,
-                    officeHeight = 180.dp,
-                    onOfficeChange = onOfficeChange
-                )
-                Spacer(modifier = Modifier.height(45.dp))
-                val currentUserProfileUiState = userManageAccountUiState.currentUserProfileUiState
-                SaveButton(
-                    onClick = onSaveButtonClick,
-                    isEnabled = currentUserProfileUiState != mutableUserProfileUiState,
-                    modifier = Modifier.size(width = 200.dp, height = 40.dp)
-                )
-                Spacer(modifier = Modifier.height(30.dp))
+                    val surnameError = mutableUserProfileUiState.surname.error
+                    val surnameErrorMessage = if (surnameError != null) {
+                        userInfoFieldErrorMessage(surnameError)
+                    } else null
+                    UserInfoTextField(
+                        value = mutableUserProfileUiState.surname.value,
+                        errorMessage = surnameErrorMessage,
+                        label = stringResource(R.string.surname),
+                        placeholder = stringResource(R.string.your_surname),
+                        onValueChange = onSurnameValueChange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 12.dp, end = 12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    val jobError = mutableUserProfileUiState.job.error
+                    val jobErrorMessage = if (jobError != null) {
+                        userInfoFieldErrorMessage(jobError)
+                    } else null
+                    UserInfoTextField(
+                        value = mutableUserProfileUiState.job.value,
+                        errorMessage = jobErrorMessage,
+                        label = stringResource(R.string.job),
+                        placeholder = stringResource(R.string.your_job),
+                        onValueChange = onJobValueChange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 12.dp, end = 12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                    OfficePicker(
+                        officeList = availableOfficesUiState.availableOffices,
+                        initialSelectedOffice = mutableUserProfileUiState.currentOffice!!,
+                        officeWidth = 170.dp,
+                        officeHeight = 180.dp,
+                        onOfficeChange = onOfficeChange
+                    )
+                    Spacer(modifier = Modifier.height(45.dp))
+                    SaveButton(
+                        onClick = onSaveButtonClick,
+                        isEnabled = currentUserProfileUiState != mutableUserProfileUiState,
+                        modifier = Modifier.size(width = 200.dp, height = 40.dp)
+                    )
+                    Spacer(modifier = Modifier.height(30.dp))
+                }
             }
         }
     }
 
-    ObserveNetworkError(
+    ObserveChangesSavingError(
         userManageAccountUiState = userManageAccountUiState,
         snackbarHostState = snackbarHostState,
-        onActionPerformedClick = onRetryClick
+        onActionPerformedClick = onRetrySaveClick
     )
 
     ObserveIsChangesSaved(
@@ -214,7 +224,7 @@ fun UserManageAccountScreen(
 }
 
 @Composable
-private fun ObserveNetworkError(
+private fun ObserveChangesSavingError(
     userManageAccountUiState: UserManageAccountUiState,
     snackbarHostState: SnackbarHostState,
     onActionPerformedClick: () -> Unit
@@ -223,7 +233,7 @@ private fun ObserveNetworkError(
     val serverErrorMessage = stringResource(R.string.error_connecting_to_server)
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
     LaunchedEffect(userManageAccountUiState) {
-        if (userManageAccountUiState.isNetworkError) {
+        if (userManageAccountUiState.isChangesSavingError) {
             networkErrorSnackbar(
                 snackbarHostState = snackbarHostState,
                 duration = SnackbarDuration.Short,
@@ -282,7 +292,8 @@ fun UserManageAccountScreenPreview() {
             onOfficeChange = {},
             onPhotoPickerClick = {},
             onSaveButtonClick = {},
-            onRetryClick = {},
+            onRetrySaveClick = {},
+            onRetryLoadProfileClick = {},
             navigateToHomeScreen = {},
             navigateToFavouriteScreen = {},
             navigateToMyOfficeScreen = {},

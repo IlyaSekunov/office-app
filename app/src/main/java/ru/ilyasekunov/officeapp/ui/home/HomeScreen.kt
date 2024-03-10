@@ -173,7 +173,10 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         when {
-            postsUiState.isRefreshing -> LoadingScreen()
+            postsUiState.isRefreshing || currentUserUiState.isLoading || filtersUiState.isLoading -> {
+                LoadingScreen()
+            }
+
             postsUiState.isErrorWhileLoading || filtersUiState.isErrorWhileLoading || currentUserUiState.isErrorWhileLoading -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),

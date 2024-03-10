@@ -21,10 +21,22 @@ import javax.inject.Inject
 data class UserManageAccountUiState(
     val currentUserProfileUiState: UserProfileUiState = UserProfileUiState(),
     val mutableUserProfileUiState: UserProfileUiState = UserProfileUiState(),
+    val availableOfficesUiState: AvailableOfficesUiState = AvailableOfficesUiState(),
+    val isChangesSaving: Boolean = false,
+    val isChangesSaved: Boolean = false,
+    val isChangesSavingError: Boolean = false,
+) {
+    val isLoading: Boolean
+        get() = isChangesSaving ||
+                currentUserProfileUiState.isLoading ||
+                mutableUserProfileUiState.isLoading ||
+                availableOfficesUiState.isLoading
+}
+
+data class AvailableOfficesUiState(
     val availableOffices: List<Office> = emptyList(),
     val isLoading: Boolean = false,
-    val isChangesSaved: Boolean = false,
-    val isNetworkError: Boolean = false
+    val isErrorWhileLoading: Boolean = false
 )
 
 @HiltViewModel
@@ -82,35 +94,6 @@ class UserManageAccountViewModel @Inject constructor(
         )
     }
 
-    fun save() {
-        if (userInfoValid()) {
-            viewModelScope.launch {
-                updateIsLoading(true)
-                val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
-                val photoUrlResult = uploadUserPhoto()
-                if (photoUrlResult.isFailure) {
-                    updateIsNetworkError(true)
-                    updateIsLoading(false)
-                    return@launch
-                } else {
-                    updateIsNetworkError(false)
-                }
-                val photoUrl = photoUrlResult.getOrThrow()
-                val userDto = UserDto(
-                    name = userProfileUiState.name.value,
-                    surname = userProfileUiState.surname.value,
-                    job = userProfileUiState.job.value,
-                    photo = photoUrl,
-                    officeId = userProfileUiState.currentOffice!!.id
-                )
-                userRepository.saveChanges(userDto)
-                updateIsNetworkError(false)
-                updateIsLoading(false)
-                updateIsChangesSaved(true)
-            }
-        }
-    }
-
     private fun updateNameValidationError(error: UserInfoValidationError?) {
         val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
         userManageAccountUiState = userManageAccountUiState.copy(
@@ -138,7 +121,109 @@ class UserManageAccountViewModel @Inject constructor(
         )
     }
 
-    fun userInfoValid(): Boolean {
+    private fun updateIsChangesSaving(isChangesSaving: Boolean) {
+        userManageAccountUiState = userManageAccountUiState.copy(
+            isChangesSaving = isChangesSaving
+        )
+    }
+
+    private fun updateIsChangesSavingError(isChangesSavingError: Boolean) {
+        userManageAccountUiState = userManageAccountUiState.copy(
+            isChangesSavingError = isChangesSavingError
+        )
+    }
+
+    private fun updateAvailableOffices(availableOffices: List<Office>) {
+        userManageAccountUiState = userManageAccountUiState.copy(
+            availableOfficesUiState = userManageAccountUiState.availableOfficesUiState.copy(
+                availableOffices = availableOffices
+            )
+        )
+    }
+
+    private fun updateIsChangesSaved(isChangesSaved: Boolean) {
+        userManageAccountUiState = userManageAccountUiState.copy(isChangesSaved = isChangesSaved)
+    }
+
+    private fun updateCurrentUserProfileUiState(userProfileUiState: UserProfileUiState) {
+        userManageAccountUiState = userManageAccountUiState.copy(
+            currentUserProfileUiState = userProfileUiState
+        )
+    }
+
+    private fun updateMutableUserProfileUiState(userProfileUiState: UserProfileUiState) {
+        userManageAccountUiState = userManageAccountUiState.copy(
+            mutableUserProfileUiState = userProfileUiState
+        )
+    }
+
+    private fun updateIsErrorWhileUserLoading(isErrorWhileLoading: Boolean) {
+        userManageAccountUiState = userManageAccountUiState.copy(
+            currentUserProfileUiState = userManageAccountUiState.currentUserProfileUiState.copy(
+                isErrorWhileUserLoading = isErrorWhileLoading
+            )
+        )
+    }
+
+    private fun updateIsErrorWhileOfficesLoading(isErrorWhileLoading: Boolean) {
+        userManageAccountUiState = userManageAccountUiState.copy(
+            availableOfficesUiState = userManageAccountUiState.availableOfficesUiState.copy(
+                isErrorWhileLoading = isErrorWhileLoading
+            )
+        )
+    }
+
+    private fun updateIsUserLoading(isLoading: Boolean) {
+        userManageAccountUiState = userManageAccountUiState.copy(
+            currentUserProfileUiState = userManageAccountUiState.currentUserProfileUiState.copy(
+                isLoading = isLoading
+            ),
+            mutableUserProfileUiState = userManageAccountUiState.mutableUserProfileUiState.copy(
+                isLoading = isLoading
+            )
+        )
+    }
+
+    private fun updateIsOfficesLoading(isLoading: Boolean) {
+        userManageAccountUiState = userManageAccountUiState.copy(
+            availableOfficesUiState = userManageAccountUiState.availableOfficesUiState.copy(
+                isLoading = isLoading
+            )
+        )
+    }
+
+    fun save() {
+        if (userInfoValid()) {
+            viewModelScope.launch {
+                updateIsChangesSaving(true)
+                val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
+                val photoUrlResult = uploadUserPhoto()
+                if (photoUrlResult.isFailure) {
+                    updateIsChangesSavingError(true)
+                    updateIsChangesSaving(false)
+                    return@launch
+                }
+                val photoUrl = photoUrlResult.getOrThrow()
+                val userDto = UserDto(
+                    name = userProfileUiState.name.value,
+                    surname = userProfileUiState.surname.value,
+                    job = userProfileUiState.job.value,
+                    photo = photoUrl,
+                    officeId = userProfileUiState.currentOffice!!.id
+                )
+                val saveChangesResult = userRepository.saveChanges(userDto)
+                if (saveChangesResult.isSuccess) {
+                    updateIsChangesSavingError(false)
+                    updateIsChangesSaved(true)
+                } else {
+                    updateIsChangesSavingError(true)
+                }
+                updateIsChangesSaving(false)
+            }
+        }
+    }
+
+    private fun userInfoValid(): Boolean {
         val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
         var isValidationSuccess = true
 
@@ -172,68 +257,35 @@ class UserManageAccountViewModel @Inject constructor(
         return isValidationSuccess
     }
 
-    private fun updateAvailableOffices(availableOffices: List<Office>) {
-        userManageAccountUiState = userManageAccountUiState.copy(availableOffices = availableOffices)
-    }
-
-    private fun updateIsLoading(isLoading: Boolean) {
-        userManageAccountUiState = userManageAccountUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsChangesSaved(isChangesSaved: Boolean) {
-        userManageAccountUiState = userManageAccountUiState.copy(isChangesSaved = isChangesSaved)
-    }
-
-    private fun updateCurrentUserProfileUiState(userProfileUiState: UserProfileUiState) {
-        userManageAccountUiState = userManageAccountUiState.copy(
-            currentUserProfileUiState = userProfileUiState
-        )
-    }
-
-    private fun updateMutableUserProfileUiState(userProfileUiState: UserProfileUiState) {
-        userManageAccountUiState = userManageAccountUiState.copy(
-            mutableUserProfileUiState = userProfileUiState
-        )
-    }
-
-    private fun updateIsNetworkError(isNetworkError: Boolean) {
-        userManageAccountUiState = userManageAccountUiState.copy(
-            isNetworkError = isNetworkError
-        )
-    }
-
-    private fun loadUserProfile() {
+    fun loadUserProfile() {
         viewModelScope.launch {
-            updateIsLoading(true)
+            updateIsUserLoading(true)
             val userResult = authRepository.userInfo()
             if (userResult.isSuccess) {
                 val user = userResult.getOrThrow()
                 val userProfileUiState = user.toUserProfileUiState()
                 updateCurrentUserProfileUiState(userProfileUiState)
                 updateMutableUserProfileUiState(userProfileUiState)
+                updateIsErrorWhileUserLoading(false)
             } else {
-                updateIsNetworkError(true)
+                updateIsErrorWhileUserLoading(true)
             }
-            updateIsLoading(false)
+            updateIsUserLoading(false)
         }
     }
 
-    private fun loadAvailableOffices() {
+    fun loadAvailableOffices() {
         viewModelScope.launch {
-            updateIsLoading(true)
+            updateIsOfficesLoading(true)
             val availableOfficesResult = userRepository.availableOffices()
             if (availableOfficesResult.isSuccess) {
                 val availableOffices = availableOfficesResult.getOrThrow()
-                if (availableOffices.isNotEmpty()) {
-                    updateAvailableOffices(availableOffices)
-                    if (userManageAccountUiState.mutableUserProfileUiState.currentOffice == null) {
-                        updateOffice(userManageAccountUiState.availableOffices[0])
-                    }
-                }
+                updateAvailableOffices(availableOffices)
+                updateIsErrorWhileOfficesLoading(false)
             } else {
-                updateIsNetworkError(true)
+                updateIsErrorWhileOfficesLoading(true)
             }
-            updateIsLoading(false)
+            updateIsOfficesLoading(false)
         }
     }
 

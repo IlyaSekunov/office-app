@@ -109,9 +109,9 @@ fun OfficePicker(
 
         val pageCount = 100_000
         val itemsCount = officeList.size
-        val startPage = pageCount / (2 * itemsCount)
+        val startPage = pageCount / 2
         val officePagerState = rememberPagerState(
-            initialPage = officeList.indexOf(initialSelectedOffice) + startPage * itemsCount,
+            initialPage = officeList.indexOf(initialSelectedOffice) + startPage,
             pageCount = { pageCount }
         )
         HorizontalPager(
