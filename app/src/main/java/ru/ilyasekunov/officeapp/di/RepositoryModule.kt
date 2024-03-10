@@ -41,7 +41,7 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideAuthRepository(
-        @RemoteDataSource authDatasource: AuthDataSource,
+        @MockDataSource authDatasource: AuthDataSource,
         @LocalDataSource tokenDatasource: TokenLocalDataSource
     ): AuthRepository = AuthRepositoryImpl(authDatasource, tokenDatasource)
 

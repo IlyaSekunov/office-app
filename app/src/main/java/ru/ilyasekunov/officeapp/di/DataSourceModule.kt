@@ -19,6 +19,7 @@ import ru.ilyasekunov.officeapp.data.datasource.OfficeDataSource
 import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.datasource.UserDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockAuthDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockOfficeDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockPostsDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockUserDataSource
@@ -50,6 +51,11 @@ object DatasourceModule {
     @Singleton
     @MockDataSource
     fun provideUserMockDataSource(): UserDataSource = MockUserDataSource()
+
+    @Provides
+    @Singleton
+    @MockDataSource
+    fun provideAuthMockDataSource(): AuthDataSource = MockAuthDataSource()
 
     @Provides
     @Singleton
