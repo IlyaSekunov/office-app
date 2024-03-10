@@ -6,8 +6,6 @@ import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.User
 
 class MockUserDataSource : UserDataSource {
-    override suspend fun user(): Result<User?> = Result.success(User)
-
     override suspend fun saveChanges(userDto: UserDto): Result<Unit> {
         User = User?.copy(
             name = userDto.name,

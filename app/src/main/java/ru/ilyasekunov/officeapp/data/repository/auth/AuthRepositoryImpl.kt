@@ -21,7 +21,7 @@ class AuthRepositoryImpl(
         } else tokenResult
     }
 
-    override suspend fun userInfo(): Result<User?> {
+    override suspend fun userInfo(): Result<User> {
         val userResult = authDatasource.userInfo()
         return if (userResult.isSuccess) {
             val user = userResult.getOrThrow()

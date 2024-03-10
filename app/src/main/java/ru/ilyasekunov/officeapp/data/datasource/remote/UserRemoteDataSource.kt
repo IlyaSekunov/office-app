@@ -12,11 +12,6 @@ class UserRemoteDataSource(
     private val userApi: UserApi,
     private val ioDispatcher: CoroutineDispatcher
 ) : UserDataSource {
-    override suspend fun user(): Result<User?> =
-        withContext(ioDispatcher) {
-            handleResponse { userApi.user() }
-        }
-
     override suspend fun saveChanges(userDto: UserDto): Result<Unit> =
         withContext(ioDispatcher) {
             handleResponse { userApi.saveChanges(userDto) }

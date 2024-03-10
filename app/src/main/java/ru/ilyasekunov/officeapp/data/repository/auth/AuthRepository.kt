@@ -7,7 +7,7 @@ import ru.ilyasekunov.officeapp.data.model.User
 
 interface AuthRepository {
     suspend fun register(registrationForm: RegistrationForm): Result<Tokens>
-    suspend fun userInfo(): Result<User?>
+    suspend fun userInfo(): Result<User>
     suspend fun login(loginForm: LoginForm): Result<Tokens>
     suspend fun logout(): Result<Unit>
 }
