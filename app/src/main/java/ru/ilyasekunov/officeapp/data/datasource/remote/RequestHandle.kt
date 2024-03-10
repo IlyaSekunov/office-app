@@ -2,12 +2,13 @@ package ru.ilyasekunov.officeapp.data.datasource.remote
 
 import retrofit2.HttpException
 import retrofit2.Response
+import ru.ilyasekunov.officeapp.exceptions.HttpForbiddenException
 
 fun <T> Response<T>.toResult(): Result<T> =
-    if (isSuccessful) {
-        Result.success(body()!!)
-    } else {
-        Result.failure(HttpException(this))
+    when {
+        isSuccessful -> Result.success(body()!!)
+        code() == 403 -> Result.failure(HttpForbiddenException())
+        else -> Result.failure(HttpException(this))
     }
 
 inline fun <T> handleResponse(
