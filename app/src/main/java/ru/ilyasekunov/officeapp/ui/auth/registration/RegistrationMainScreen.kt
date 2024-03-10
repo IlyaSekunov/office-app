@@ -19,6 +19,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,7 +43,8 @@ fun RegistrationMainScreen(
     onPasswordValueChange: (String) -> Unit,
     onRepeatPasswordValueChange: (String) -> Unit,
     onRegisterButtonClick: () -> Unit,
-    navigateToLoginScreen: () -> Unit
+    navigateToLoginScreen: () -> Unit,
+    navigateToRegistrationUserInfoScreen: () -> Unit
 ) {
     if (registrationUiState.isLoading) {
         LoadingScreen()
@@ -78,9 +82,11 @@ fun RegistrationMainScreen(
                 registrationUiState.isPasswordsDiffer -> {
                     stringResource(R.string.repeated_password_error_differ_from_password)
                 }
+
                 registrationUiState.passwordUiState.error != null -> {
                     passwordErrorMessage(error = registrationUiState.passwordUiState.error)
                 }
+
                 else -> null
             }
             PasswordTextField(
@@ -98,9 +104,11 @@ fun RegistrationMainScreen(
                 registrationUiState.isPasswordsDiffer -> {
                     stringResource(R.string.repeated_password_error_differ_from_password)
                 }
+
                 registrationUiState.repeatedPasswordUiState.error != null -> {
                     passwordErrorMessage(error = registrationUiState.repeatedPasswordUiState.error)
                 }
+
                 else -> null
             }
             PasswordTextField(
@@ -173,7 +181,8 @@ fun RegistrationMainScreenPreview() {
                 onPasswordValueChange = {},
                 onRepeatPasswordValueChange = {},
                 onRegisterButtonClick = {},
-                navigateToLoginScreen = {}
+                navigateToLoginScreen = {},
+                navigateToRegistrationUserInfoScreen = {}
             )
         }
     }

@@ -30,6 +30,7 @@ data class RegistrationUiState(
     val passwordUiState: PasswordUiState = PasswordUiState(),
     val repeatedPasswordUiState: PasswordUiState = PasswordUiState(),
     val isPasswordsDiffer: Boolean = false,
+    val isCredentialsValid: Boolean = false,
     val userInfoRegistrationUiState: UserInfoRegistrationUiState = UserInfoRegistrationUiState(),
     val isLoading: Boolean = false,
     val isRegistrationSuccess: Boolean = false,
@@ -134,7 +135,7 @@ class RegistrationViewModel @Inject constructor(
 
     fun register() {
         viewModelScope.launch {
-            if (credentialsValid() && userInfoValid()) {
+            if (registrationUiState.isCredentialsValid && userInfoValid()) {
                 updateIsLoading(true)
                 /*val photoUrlResult = uploadUserPhoto()
                 if (photoUrlResult.isFailure) {
@@ -236,6 +237,10 @@ class RegistrationViewModel @Inject constructor(
         )
     }
 
+    private fun updateIsCredentialsValid(isCredentialsValid: Boolean) {
+        registrationUiState = registrationUiState.copy(isCredentialsValid = isCredentialsValid)
+    }
+
     fun loadAvailableOffices() {
         viewModelScope.launch {
             updateAvailableOfficesIsLoading(true)
@@ -252,7 +257,8 @@ class RegistrationViewModel @Inject constructor(
         }
     }
 
-    fun credentialsValid(): Boolean {
+    suspend fun validateCredentials() {
+        updateIsLoading(true)
         var isValidationSuccess = true
 
         val emailValidationResult = validateEmail(registrationUiState.emailUiState.email)
@@ -288,7 +294,8 @@ class RegistrationViewModel @Inject constructor(
             updateIsPasswordsDiffer(false)
         }
 
-        return isValidationSuccess
+        updateIsCredentialsValid(isValidationSuccess)
+        updateIsLoading(false)
     }
 
     private fun userInfoValid(): Boolean {

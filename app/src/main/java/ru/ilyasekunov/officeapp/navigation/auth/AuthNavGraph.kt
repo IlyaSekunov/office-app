@@ -44,7 +44,7 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
             }
         )
         registrationMainScreen(
-            navigateToLogin = {
+            navigateToLoginScreen = {
                 navController.navigateToLoginScreen(
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
@@ -55,7 +55,7 @@ fun NavGraphBuilder.authGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToRegistrationUserInfo = {
+            navigateToRegistrationUserInfoScreen = {
                 navController.navigateToRegistrationUserInfoScreen(
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
