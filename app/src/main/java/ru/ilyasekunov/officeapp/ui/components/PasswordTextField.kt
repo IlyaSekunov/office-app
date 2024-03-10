@@ -29,7 +29,8 @@ fun PasswordTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    errorMessage: String? = null
 ) {
     var isValueHidden by remember { mutableStateOf(true) }
     OutlinedTextField(
@@ -58,8 +59,7 @@ fun PasswordTextField(
                     painter = if (isValueHidden) painterResource(R.drawable.outline_visibility_24) else painterResource(
                         R.drawable.outline_visibility_off_24
                     ),
-                    contentDescription = "visibility_icon",
-                    tint = MaterialTheme.colorScheme.primary
+                    contentDescription = "visibility_icon"
                 )
             }
         },
@@ -69,11 +69,30 @@ fun PasswordTextField(
             cursorColor = MaterialTheme.colorScheme.primary,
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+            focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
             focusedPlaceholderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
             unfocusedLeadingIconColor = MaterialTheme.colorScheme.outline,
-            unfocusedPlaceholderColor = MaterialTheme.colorScheme.outline
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.outline,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+            errorBorderColor = MaterialTheme.colorScheme.error,
+            errorLabelColor = MaterialTheme.colorScheme.error,
+            errorCursorColor = MaterialTheme.colorScheme.error,
+            errorPlaceholderColor = MaterialTheme.colorScheme.error,
+            errorSupportingTextColor = MaterialTheme.colorScheme.error,
+            errorLeadingIconColor = MaterialTheme.colorScheme.error,
+            errorTrailingIconColor = MaterialTheme.colorScheme.error
         ),
+        isError = errorMessage != null,
+        supportingText = {
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 12.sp
+                )
+            }
+        },
         modifier = modifier
     )
 }

@@ -49,4 +49,10 @@
     <string name="retry">Повторить</string>
     <string name="error_connecting_to_server">Ошибка соединения с сервером</string>
     <string name="undo">Отменить</string>
+    <string name="email_error_is_blank">Email не может быть пустым</string>
+    <string name="email_error_is_not_pattern">Email не соответсвует формату</string>
+    <string name="password_error_is_blank">Пароль не может быть пустым</string>
+    <string name="password_error_too_short">Пароль не может быть менее 8 символов</string>
+    <string name="password_error_no_spec_symbols">Пароль не содержит специальных символов</string>
+    <string name="password_error_no_capital_letter">Пароль должен иметь хотя бы одну заглавную букву</string>
 </resources>

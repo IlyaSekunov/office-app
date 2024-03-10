@@ -34,6 +34,8 @@ import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.EmailTextField
 import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
+import ru.ilyasekunov.officeapp.validation.EmailValidationError
+import ru.ilyasekunov.officeapp.validation.PasswordValidationError
 
 @Composable
 fun LoginScreen(
@@ -62,16 +64,26 @@ fun LoginScreen(
                 fontSize = 36.sp
             )
             Spacer(modifier = Modifier.height(75.dp))
+
+            val emailErrorMessage = if (loginUiState.emailUiState.error != null) {
+                emailErrorMessage(error = loginUiState.emailUiState.error)
+            } else null
             EmailTextField(
-                value = loginUiState.email,
+                value = loginUiState.emailUiState.email,
+                errorMessage = emailErrorMessage,
                 onValueChange = onEmailValueChange,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 12.dp, end = 12.dp)
             )
             Spacer(modifier = Modifier.height(30.dp))
+
+            val passwordErrorMessage = if (loginUiState.passwordUiState.error != null) {
+                passwordErrorMessage(error = loginUiState.passwordUiState.error)
+            } else null
             PasswordTextField(
-                value = loginUiState.password,
+                value = loginUiState.passwordUiState.password,
+                errorMessage = passwordErrorMessage,
                 onValueChange = onPasswordValueChange,
                 placeholder = stringResource(R.string.password),
                 modifier = Modifier
@@ -136,6 +148,22 @@ fun RegisterSection(
         )
     }
 }
+
+@Composable
+private fun emailErrorMessage(error: EmailValidationError) =
+    when (error) {
+        EmailValidationError.BLANK -> stringResource(R.string.email_error_is_blank)
+        EmailValidationError.NOT_EMAIL_PATTERN -> stringResource(R.string.email_error_is_not_pattern)
+    }
+
+@Composable
+private fun passwordErrorMessage(error: PasswordValidationError) =
+    when (error) {
+        PasswordValidationError.BLANK -> stringResource(R.string.password_error_is_blank)
+        PasswordValidationError.TOO_SHORT -> stringResource(R.string.password_error_too_short)
+        PasswordValidationError.NO_SPEC_SYMBOLS -> stringResource(R.string.password_error_no_spec_symbols)
+        PasswordValidationError.NO_CAPITAL_LETTER -> stringResource(R.string.password_error_no_capital_letter)
+    }
 
 @Preview
 @Composable

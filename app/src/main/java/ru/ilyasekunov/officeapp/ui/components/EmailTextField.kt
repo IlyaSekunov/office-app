@@ -17,7 +17,8 @@ import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 fun EmailTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    errorMessage: String? = null,
 ) {
     OutlinedTextField(
         value = value,
@@ -44,8 +45,25 @@ fun EmailTextField(
             focusedPlaceholderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f),
             unfocusedLeadingIconColor = MaterialTheme.colorScheme.outline,
-            unfocusedPlaceholderColor = MaterialTheme.colorScheme.outline
+            unfocusedPlaceholderColor = MaterialTheme.colorScheme.outline,
+            errorBorderColor = MaterialTheme.colorScheme.error,
+            errorLabelColor = MaterialTheme.colorScheme.error,
+            errorCursorColor = MaterialTheme.colorScheme.error,
+            errorPlaceholderColor = MaterialTheme.colorScheme.error,
+            errorSupportingTextColor = MaterialTheme.colorScheme.error,
+            errorLeadingIconColor = MaterialTheme.colorScheme.error,
+            errorTrailingIconColor = MaterialTheme.colorScheme.error
         ),
+        isError = errorMessage != null,
+        supportingText = {
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = 12.sp
+                )
+            }
+        },
         modifier = modifier
     )
 }
