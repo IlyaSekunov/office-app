@@ -4,6 +4,7 @@ import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
+import ru.ilyasekunov.officeapp.data.dto.SearchDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
@@ -14,8 +15,13 @@ class PostsRepositoryImpl(
         return postsDatasource.posts()
     }
 
-    override suspend fun posts(filtersDto: FiltersDto, page: Int, pageSize: Int): Result<List<IdeaPost>> {
-        return postsDatasource.posts(filtersDto, page, pageSize)
+    override suspend fun posts(
+        filtersDto: FiltersDto,
+        searchDto: SearchDto,
+        page: Int,
+        pageSize: Int
+    ): Result<List<IdeaPost>> {
+        return postsDatasource.posts(filtersDto, searchDto, page, pageSize)
     }
 
     override suspend fun publishPost(post: PublishPostDto): Result<Unit> {

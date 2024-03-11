@@ -11,6 +11,7 @@ import retrofit2.http.Query
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
+import ru.ilyasekunov.officeapp.data.dto.SearchDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
@@ -21,6 +22,7 @@ interface PostsApi {
     @GET("posts")
     suspend fun posts(
         @Body filtersDto: FiltersDto,
+        @Body searchDto: SearchDto,
         @Query("page") page: Int,
         @Query("page_size") pageSize: Int = 10
     ): Response<List<IdeaPost>>

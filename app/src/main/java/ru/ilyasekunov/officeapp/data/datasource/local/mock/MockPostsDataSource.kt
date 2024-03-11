@@ -4,6 +4,7 @@ import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
+import ru.ilyasekunov.officeapp.data.dto.SearchDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
@@ -22,10 +23,18 @@ class MockPostsDataSource : PostsDataSource {
     override suspend fun posts(): Result<List<IdeaPost>> = Result.success(Posts)
     override suspend fun posts(
         filtersDto: FiltersDto,
+        searchDto: SearchDto,
         page: Int,
         pageSize: Int
     ): Result<List<IdeaPost>> {
-        val posts = Posts.filter { it.office.id in filtersDto.offices }
+        val posts = Posts.filter {
+            if (searchDto.search.isBlank()) {
+                it.office.id in filtersDto.offices
+            } else {
+                it.office.id in filtersDto.offices &&
+                        it.title.contains(searchDto.search)
+            }
+        }
         val sortedPosts = when (filtersDto.sortingFilter) {
             0 -> posts.sortedBy { it.likesCount }
             1 -> posts.sortedBy { it.dislikesCount }
