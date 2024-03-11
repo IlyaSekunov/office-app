@@ -45,7 +45,7 @@ class SuggestIdeaViewModel @Inject constructor(
         )
     }
 
-    fun attachImage(image: Uri) {
+    private fun attachImage(image: Uri) {
         viewModelScope.launch {
             val attachedImages = suggestIdeaUiState.attachedImages
             synchronized(suggestIdeaUiState) {

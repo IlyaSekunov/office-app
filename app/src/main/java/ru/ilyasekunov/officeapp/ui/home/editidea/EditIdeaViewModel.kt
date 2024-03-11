@@ -58,7 +58,7 @@ class EditIdeaViewModel @Inject constructor(
         )
     }
 
-    fun attachImage(image: Uri) {
+    private fun attachImage(image: Uri) {
         viewModelScope.launch {
             synchronized(editIdeaUiState) {
                 val attachedImages = editIdeaUiState.attachedImages

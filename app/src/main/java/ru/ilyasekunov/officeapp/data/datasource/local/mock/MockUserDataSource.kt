@@ -3,7 +3,6 @@ package ru.ilyasekunov.officeapp.data.datasource.local.mock
 import ru.ilyasekunov.officeapp.data.datasource.UserDataSource
 import ru.ilyasekunov.officeapp.data.dto.UserDto
 import ru.ilyasekunov.officeapp.data.model.Office
-import ru.ilyasekunov.officeapp.data.model.User
 
 class MockUserDataSource : UserDataSource {
     override suspend fun saveChanges(userDto: UserDto): Result<Unit> {
