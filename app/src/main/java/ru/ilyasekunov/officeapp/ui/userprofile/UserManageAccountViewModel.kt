@@ -12,6 +12,7 @@ import ru.ilyasekunov.officeapp.data.dto.UserDto
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
+import ru.ilyasekunov.officeapp.data.repository.office.OfficeRepository
 import ru.ilyasekunov.officeapp.data.repository.user.UserRepository
 import ru.ilyasekunov.officeapp.validation.UserInfoValidationError
 import ru.ilyasekunov.officeapp.validation.UserInfoValidationResult
@@ -43,6 +44,7 @@ data class AvailableOfficesUiState(
 class UserManageAccountViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
+    private val officeRepository: OfficeRepository,
     private val imagesRepository: ImagesRepository
 ) : ViewModel() {
     var userManageAccountUiState by mutableStateOf(UserManageAccountUiState())
@@ -277,7 +279,7 @@ class UserManageAccountViewModel @Inject constructor(
     fun loadAvailableOffices() {
         viewModelScope.launch {
             updateIsOfficesLoading(true)
-            val availableOfficesResult = userRepository.availableOffices()
+            val availableOfficesResult = officeRepository.availableOffices()
             if (availableOfficesResult.isSuccess) {
                 val availableOffices = availableOfficesResult.getOrThrow()
                 updateAvailableOffices(availableOffices)

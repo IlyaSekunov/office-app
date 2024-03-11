@@ -9,6 +9,4 @@ import ru.ilyasekunov.officeapp.data.model.Office
 interface UserApi {
     @PATCH("users")
     suspend fun saveChanges(userDto: UserDto): Response<Unit>
-    @GET("users/available-offices")
-    suspend fun availableOffices(): Response<List<Office>>
 }
