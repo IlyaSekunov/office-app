@@ -36,7 +36,6 @@ fun NavGraphBuilder.registrationMainScreen(
                         navigateToRegistrationUserInfoScreen()
                     }
                 }
-
             },
             navigateToLoginScreen = navigateToLoginScreen,
             navigateToRegistrationUserInfoScreen = navigateToRegistrationUserInfoScreen

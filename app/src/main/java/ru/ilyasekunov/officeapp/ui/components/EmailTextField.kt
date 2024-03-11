@@ -9,8 +9,10 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
@@ -33,7 +35,7 @@ fun EmailTextField(
         singleLine = true,
         placeholder = {
             Text(
-                text = "Email",
+                text = stringResource(R.string.email),
                 style = MaterialTheme.typography.bodySmall,
                 fontSize = 16.sp
             )
