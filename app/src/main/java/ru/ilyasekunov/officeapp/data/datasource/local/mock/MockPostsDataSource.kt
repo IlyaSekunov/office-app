@@ -43,9 +43,9 @@ class MockPostsDataSource : PostsDataSource {
             else -> throw IllegalStateException("Unknown sorting filter")
         }
         val firstPostIndex = (page - 1) * pageSize
-        val lastPostIndex = firstPostIndex + pageSize + 1
+        val lastPostIndex = firstPostIndex + pageSize
         if (firstPostIndex > sortedPosts.lastIndex) {
-            return Result.success(sortedPosts)
+            return Result.success(emptyList())
         }
         if (lastPostIndex > sortedPosts.lastIndex) {
             return Result.success(

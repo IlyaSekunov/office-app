@@ -16,9 +16,7 @@ object PostsPagingDefaults {
     )
 }
 
-class PostsPagingRepository(
-    private val postsDataSource: PostsDataSource
-) {
+class PostsPagingRepository(private val postsDataSource: PostsDataSource) {
     fun posts(filtersDto: FiltersDto, searchDto: SearchDto): Flow<PagingData<IdeaPost>> {
         return Pager(config = PostsPagingDefaults.PagingConfig) {
             PostsPagingDataSource(filtersDto, searchDto, postsDataSource)

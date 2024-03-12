@@ -24,7 +24,7 @@ interface PostsApi {
         @Body filtersDto: FiltersDto,
         @Body searchDto: SearchDto,
         @Query("page") page: Int,
-        @Query("page_size") pageSize: Int = 10
+        @Query("page_size") pageSize: Int
     ): Response<List<IdeaPost>>
 
     @PATCH("posts/{postId}")
