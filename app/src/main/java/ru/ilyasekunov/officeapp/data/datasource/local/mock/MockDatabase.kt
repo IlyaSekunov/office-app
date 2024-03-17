@@ -60,8 +60,12 @@ val ideaAuthor = IdeaAuthor(
     id = 1,
     name = "Дмитрий",
     surname = "Комарницкий",
-    job = "Сотрудник Tinkoff"
+    job = "Сотрудник Tinkoff",
+    photo = "",
+    office = Offices[2]
 )
+
+val Users = mutableListOf(ideaAuthor, User!!.toIdeaAuthor())
 
 val ideaPost = IdeaPost(
     id = 0,
