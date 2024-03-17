@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
+import ru.ilyasekunov.officeapp.data.datasource.AuthorDataSource
 import ru.ilyasekunov.officeapp.data.datasource.ImagesUploaderDataSource
 import ru.ilyasekunov.officeapp.data.datasource.OfficeDataSource
 import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
@@ -12,6 +13,8 @@ import ru.ilyasekunov.officeapp.data.datasource.UserDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepositoryImpl
+import ru.ilyasekunov.officeapp.data.repository.author.AuthorRepository
+import ru.ilyasekunov.officeapp.data.repository.author.AuthorRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.office.OfficeRepository
@@ -55,11 +58,17 @@ object RepositoryModule {
     @Singleton
     fun provideOfficeRepository(
         @MockDataSource officeDataSource: OfficeDataSource
-    ) : OfficeRepository = OfficeRepositoryImpl(officeDataSource)
+    ): OfficeRepository = OfficeRepositoryImpl(officeDataSource)
 
     @Provides
     @Singleton
     fun providePostsPagingRepository(
         @MockDataSource postsDatasource: PostsDataSource
-    ) : PostsPagingRepository = PostsPagingRepository(postsDatasource)
+    ): PostsPagingRepository = PostsPagingRepository(postsDatasource)
+
+    @Provides
+    @Singleton
+    fun provideAuthorRepository(
+        @MockDataSource authorDataSource: AuthorDataSource
+    ): AuthorRepository = AuthorRepositoryImpl(authorDataSource)
 }
