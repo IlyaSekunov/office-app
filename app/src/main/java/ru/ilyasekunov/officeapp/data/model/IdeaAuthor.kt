@@ -5,5 +5,6 @@ data class IdeaAuthor(
     val name: String,
     val surname: String,
     val job: String,
-    val photo: Any? = null
+    val photo: String,
+    val office: Office
 )
