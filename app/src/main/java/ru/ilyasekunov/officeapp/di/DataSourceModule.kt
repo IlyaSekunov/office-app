@@ -9,21 +9,25 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import ru.ilyasekunov.officeapp.data.api.AuthApi
+import ru.ilyasekunov.officeapp.data.api.AuthorApi
 import ru.ilyasekunov.officeapp.data.api.ImgurApi
 import ru.ilyasekunov.officeapp.data.api.OfficeApi
 import ru.ilyasekunov.officeapp.data.api.PostsApi
 import ru.ilyasekunov.officeapp.data.api.UserApi
 import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
+import ru.ilyasekunov.officeapp.data.datasource.AuthorDataSource
 import ru.ilyasekunov.officeapp.data.datasource.ImagesUploaderDataSource
 import ru.ilyasekunov.officeapp.data.datasource.OfficeDataSource
 import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.datasource.UserDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockAuthDataSource
+import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockAuthorDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockOfficeDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockPostsDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.MockUserDataSource
 import ru.ilyasekunov.officeapp.data.datasource.remote.AuthRemoteDataSource
+import ru.ilyasekunov.officeapp.data.datasource.remote.AuthorRemoteDataSource
 import ru.ilyasekunov.officeapp.data.datasource.remote.ImgurRemoteDataSource
 import ru.ilyasekunov.officeapp.data.datasource.remote.OfficeRemoteDataSource
 import ru.ilyasekunov.officeapp.data.datasource.remote.PostsRemoteDataSource
@@ -101,6 +105,19 @@ object DatasourceModule {
         officeApi: OfficeApi,
         @IoDispatcher ioDispatcher: CoroutineDispatcher
     ): OfficeDataSource = OfficeRemoteDataSource(officeApi, ioDispatcher)
+
+    @Provides
+    @Singleton
+    @MockDataSource
+    fun provideMockAuthorDataSource(): AuthorDataSource = MockAuthorDataSource()
+
+    @Provides
+    @Singleton
+    @RemoteDataSource
+    fun provideAuthorRemoteDataSource(
+        authorApi: AuthorApi,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
+    ): AuthorDataSource = AuthorRemoteDataSource(authorApi, ioDispatcher)
 }
 
 @Qualifier
