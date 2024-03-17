@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.ilyasekunov.officeapp.data.api.AuthApi
+import ru.ilyasekunov.officeapp.data.api.AuthorApi
 import ru.ilyasekunov.officeapp.data.api.ImgurApi
 import ru.ilyasekunov.officeapp.data.api.OfficeApi
 import ru.ilyasekunov.officeapp.data.api.PostsApi
@@ -39,6 +40,11 @@ object ApiModule {
     @Singleton
     fun provideOfficeApi(retrofit: Retrofit): OfficeApi =
         retrofit.create(OfficeApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAuthorApi(retrofit: Retrofit): AuthorApi =
+        retrofit.create(AuthorApi::class.java)
 
     @Provides
     @Singleton
