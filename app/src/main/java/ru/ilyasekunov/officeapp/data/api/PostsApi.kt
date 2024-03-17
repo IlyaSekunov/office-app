@@ -27,6 +27,16 @@ interface PostsApi {
         @Query("page_size") pageSize: Int
     ): Response<List<IdeaPost>>
 
+    @GET("posts/by-author-id/{authorId}")
+    suspend fun postsByAuthorId(
+        @Path("authorId") authorId: Long,
+        @Query("page") page: Int,
+        @Query("page_size") pageSize: Int
+    ): Response<List<IdeaPost>>
+
+    @GET("posts/{postId}")
+    suspend fun findPostById(@Path("postId") postId: Long): Response<IdeaPost?>
+
     @PATCH("posts/{postId}")
     suspend fun editPostById(
         @Path("postId") postId: Long,
@@ -52,5 +62,4 @@ interface PostsApi {
     suspend fun filters(): Response<Filters>
 
     suspend fun posts(): Response<List<IdeaPost>>
-    suspend fun findPostById(postId: Long): Response<IdeaPost?>
 }

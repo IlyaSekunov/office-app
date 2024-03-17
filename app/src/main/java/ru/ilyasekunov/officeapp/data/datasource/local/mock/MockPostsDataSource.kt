@@ -9,7 +9,6 @@ import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.User
-import java.lang.IllegalStateException
 import java.time.LocalDateTime
 
 class MockPostsDataSource : PostsDataSource {
@@ -65,6 +64,33 @@ class MockPostsDataSource : PostsDataSource {
 
     override suspend fun findPostById(postId: Long): Result<IdeaPost?> {
         return Result.success(Posts.find { it.id == postId })
+    }
+
+    override suspend fun postsByAuthorId(
+        authorId: Long,
+        page: Int,
+        pageSize: Int
+    ): Result<List<IdeaPost>> {
+        val posts = Posts.filter { it.ideaAuthor.id == authorId }
+        val firstPostIndex = (page - 1) * pageSize
+        val lastPostIndex = firstPostIndex + pageSize
+        if (firstPostIndex > posts.lastIndex) {
+            return Result.success(emptyList())
+        }
+        if (lastPostIndex > posts.lastIndex) {
+            return Result.success(
+                posts.subList(
+                    fromIndex = firstPostIndex,
+                    toIndex = posts.lastIndex + 1
+                )
+            )
+        }
+        return Result.success(
+            posts.subList(
+                fromIndex = firstPostIndex,
+                toIndex = lastPostIndex
+            )
+        )
     }
 
     override suspend fun editPostById(postId: Long, editedPost: EditPostDto): Result<Unit> {
@@ -169,5 +195,6 @@ fun User.toIdeaAuthor(): IdeaAuthor =
         name = name,
         surname = surname,
         job = job,
-        photo = photo
+        photo = photo,
+        office = office
     )

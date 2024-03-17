@@ -17,8 +17,16 @@ interface PostsDataSource {
         searchDto: SearchDto,
         @IntRange(from = 1)
         page: Int,
-        @IntRange(from = 1, to = 50)
-        pageSize: Int = 10
+        @IntRange(from = 1)
+        pageSize: Int
+    ): Result<List<IdeaPost>>
+
+    suspend fun postsByAuthorId(
+        authorId: Long,
+        @IntRange(from = 1)
+        page: Int,
+        @IntRange(from = 1)
+        pageSize: Int
     ): Result<List<IdeaPost>>
 
     suspend fun editPostById(

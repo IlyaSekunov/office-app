@@ -30,6 +30,11 @@ class PostsRemoteDataSource(
             handleResponse { postsApi.posts(filtersDto, searchDto, page, pageSize) }
         }
 
+    override suspend fun postsByAuthorId(authorId: Long, page: Int, pageSize: Int) =
+        withContext(ioDispatcher) {
+            handleResponse { postsApi.postsByAuthorId(authorId, page, pageSize) }
+        }
+
     override suspend fun editPostById(
         postId: Long, editedPost: EditPostDto
     ): Result<Unit> = withContext(ioDispatcher) {
