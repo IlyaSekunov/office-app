@@ -45,6 +45,8 @@ fun LocalDateTime.toRussianString(): String {
         12 -> "Дек"
         else -> throw RuntimeException("Incorrect month value - $monthValue")
     }
+    val hour = if (hour < 10) "0$hour" else hour
+    val minute = if (minute < 10) "0$minute" else minute
     return "$dayOfMonth $month $year в $hour:$minute"
 }
 

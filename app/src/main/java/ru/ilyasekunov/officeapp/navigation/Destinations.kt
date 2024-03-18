@@ -20,6 +20,12 @@ sealed class Screen(val route: String, val arguments: List<NamedNavArgument> = e
             navArgument("postId") { type = NavType.LongType }
         )
     )
+    data object IdeaAuthor : Screen(
+        route = "idea-author/{authorId}",
+        arguments = listOf(
+            navArgument("authorId") { type = NavType.LongType }
+        )
+    )
 }
 
 sealed class BottomNavigationScreen(

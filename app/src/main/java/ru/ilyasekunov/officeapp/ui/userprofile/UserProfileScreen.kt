@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImagePainter
@@ -79,6 +80,7 @@ fun UserProfileScreen(
                 onRetryButtonClick = onRetryUserLoadClick
             )
         }
+
         else -> {
             Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,
@@ -101,7 +103,10 @@ fun UserProfileScreen(
                             .verticalScroll(rememberScrollState())
                     ) {
                         UserInfoSection(
-                            userProfileUiState = userProfileUiState,
+                            name = userProfileUiState.name.value,
+                            surname = userProfileUiState.surname.value,
+                            photoUrl = userProfileUiState.photo.toString(),
+                            job = userProfileUiState.job.value,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Option(
@@ -198,18 +203,22 @@ private fun ObserveIsLoggedOut(
 
 @Composable
 fun UserInfoSection(
-    userProfileUiState: UserProfileUiState,
-    modifier: Modifier = Modifier
+    name: String,
+    surname: String,
+    photoUrl: String,
+    job: String,
+    modifier: Modifier = Modifier,
+    contentTopPadding: Dp = 15.dp
 ) {
     val imagePainter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
-            .data(userProfileUiState.photo)
+            .data(photoUrl)
             .size(coil.size.Size.ORIGINAL)
             .build()
     )
     val imageModifier = Modifier
         .statusBarsPadding()
-        .padding(top = 15.dp)
+        .padding(top = contentTopPadding)
         .size(width = 160.dp, height = 160.dp)
         .clip(MaterialTheme.shapes.extraLarge)
         .border(
@@ -219,7 +228,7 @@ fun UserInfoSection(
         )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        modifier = Modifier
             .clip(
                 RoundedCornerShape(
                     bottomStart = 20.dp,
@@ -234,6 +243,7 @@ fun UserInfoSection(
                     bottomEnd = 20.dp
                 )
             )
+            .then(modifier)
     ) {
         when (imagePainter.state) {
             is AsyncImagePainter.State.Loading -> {
@@ -265,13 +275,13 @@ fun UserInfoSection(
         }
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = "${userProfileUiState.name.value} ${userProfileUiState.surname.value}",
+            text = "$name $surname",
             style = MaterialTheme.typography.titleMedium,
             fontSize = 24.sp
         )
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = userProfileUiState.job.value,
+            text = job,
             style = MaterialTheme.typography.titleMedium,
             fontSize = 15.sp
         )
@@ -337,11 +347,10 @@ fun UserInfoSectionPreview() {
     OfficeAppTheme {
         Surface {
             UserInfoSection(
-                userProfileUiState = UserProfileUiState(
-                    name = UserInfoFieldUiState("Дмитрий"),
-                    surname = UserInfoFieldUiState("Комарницкий"),
-                    job = UserInfoFieldUiState("Сотрудник Tinkoff")
-                )
+                name = "Дмитрий",
+                surname = "Комарницкий",
+                job = "Сотрудник Tinkoff",
+                photoUrl = "",
             )
         }
     }

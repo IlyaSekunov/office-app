@@ -15,21 +15,14 @@ import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import javax.inject.Inject
 
 data class EditIdeaUiState(
-    val postId: Long,
+    val postId: Long = -1,
     val title: String = "",
     val content: String = "",
     val attachedImages: List<AttachedImage> = emptyList(),
     val isLoading: Boolean = false,
     val isPublished: Boolean = false,
     val isNetworkError: Boolean = false
-) {
-    companion object {
-        val Empty = EditIdeaUiState(
-            postId = -1,
-            content = ""
-        )
-    }
-}
+)
 
 data class AttachedImage(
     val id: Int,
@@ -41,7 +34,7 @@ class EditIdeaViewModel @Inject constructor(
     private val postsRepository: PostsRepository,
     private val imagesRepository: ImagesRepository
 ) : ViewModel() {
-    var editIdeaUiState by mutableStateOf(EditIdeaUiState.Empty)
+    var editIdeaUiState by mutableStateOf(EditIdeaUiState())
         private set
 
     fun updateTitle(title: String) {

@@ -13,6 +13,8 @@ import ru.ilyasekunov.officeapp.navigation.home.filtersScreen
 import ru.ilyasekunov.officeapp.navigation.home.homeScreen
 import ru.ilyasekunov.officeapp.navigation.home.navigateToFiltersScreen
 import ru.ilyasekunov.officeapp.navigation.home.navigateToHomeScreen
+import ru.ilyasekunov.officeapp.navigation.ideaauthor.ideaAuthorScreen
+import ru.ilyasekunov.officeapp.navigation.ideaauthor.navigateToIdeaAuthorScreen
 import ru.ilyasekunov.officeapp.navigation.userprofile.navigateToProfileScreen
 import ru.ilyasekunov.officeapp.navigation.userprofile.navigateToUserManageAccountScreen
 import ru.ilyasekunov.officeapp.navigation.userprofile.profileScreen
@@ -28,7 +30,14 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                 navController.getBackStackEntry(MainGraphRoute)
             },
             navigateToIdeaDetailsScreen = { /*TODO*/ },
-            navigateToAuthorScreen = { /*TODO*/ },
+            navigateToAuthorScreen = {
+                navController.navigateToIdeaAuthorScreen(
+                    authorId = it,
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
             navigateToEditIdeaScreen = { postId ->
                 navController.navigateToEditIdeaScreen(
                     postId = postId,
@@ -187,6 +196,26 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
             navigateBack = navController::popBackStack
         )
         editIdeaScreen(
+            navigateToHomeScreen = {
+                navController.navigateToHomeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
+            navigateToFavouriteScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToProfileScreen = {
+                navController.navigateToProfileScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
+            navigateBack = navController::popBackStack
+        )
+        ideaAuthorScreen(
+            navigateToIdeaDetailsScreen = { _ -> /*TODO*/ },
             navigateToHomeScreen = {
                 navController.navigateToHomeScreen(
                     navOptions = NavOptions.Builder()
