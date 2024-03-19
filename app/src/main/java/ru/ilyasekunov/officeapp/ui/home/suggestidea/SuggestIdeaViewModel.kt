@@ -105,6 +105,7 @@ class SuggestIdeaViewModel @Inject constructor(
                 return emptyList()
             }
         }
+        updateIsNetworkError(false)
         return imagesUrls
     }
 

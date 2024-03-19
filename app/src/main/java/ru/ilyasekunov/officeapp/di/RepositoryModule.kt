@@ -60,8 +60,8 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideOfficeRepository(
-        @MockDataSource officeDataSource: OfficeDataSource
-        //@RemoteDataSource officeDataSource: OfficeDataSource
+        //@MockDataSource officeDataSource: OfficeDataSource
+        @RemoteDataSource officeDataSource: OfficeDataSource
     ): OfficeRepository = OfficeRepositoryImpl(officeDataSource)
 
     @Provides
