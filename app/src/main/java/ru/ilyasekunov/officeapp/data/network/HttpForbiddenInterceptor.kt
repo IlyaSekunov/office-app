@@ -3,14 +3,17 @@ package ru.ilyasekunov.officeapp.data.network
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
-import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
+import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenType
+import javax.inject.Inject
 
 class HttpForbiddenInterceptor(
-    private val authDataSource: AuthDataSource,
     private val tokenLocalDataSource: TokenLocalDataSource
 ) : Interceptor {
+    @Inject
+    lateinit var authApi: AuthApi
+
     override fun intercept(chain: Interceptor.Chain): Response =
         runBlocking {
             val response = chain.proceed(chain.request())
@@ -26,9 +29,9 @@ class HttpForbiddenInterceptor(
                     .build()
 
             // There is refresh token, try to refresh tokens
-            val refreshResult = authDataSource.refreshToken(refreshToken)
-            if (refreshResult.isSuccess) {
-                val tokens = refreshResult.getOrThrow()
+            val refreshResult = authApi.refreshToken(refreshToken)
+            if (refreshResult.isSuccessful) {
+                val tokens = refreshResult.body()!!
                 tokenLocalDataSource.putToken(TokenType.REFRESH, tokens.refreshToken)
                 tokenLocalDataSource.putToken(TokenType.ACCESS, tokens.accessToken)
                 chain.proceed(chain.request())

@@ -8,16 +8,14 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.network.HttpAccessTokenInterceptor
 import ru.ilyasekunov.officeapp.data.network.HttpForbiddenInterceptor
 import ru.ilyasekunov.officeapp.data.network.HttpImgurTokenInterceptor
-import javax.inject.Provider
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-private const val BASE_URl = "http://10.0.2.2:8080/"
+private const val BASE_URl = "http://10.0.2.2:8189/"
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -33,9 +31,8 @@ object NetworkModule {
     @Singleton
     @ForbiddenInterceptor
     fun provideForbiddenInterceptor(
-        @LocalDataSource tokenLocalDataSource: TokenLocalDataSource,
-        @RemoteDataSource authDataSource: AuthDataSource
-    ): Interceptor = HttpForbiddenInterceptor(authDataSource, tokenLocalDataSource)
+        @LocalDataSource tokenLocalDataSource: TokenLocalDataSource
+    ): Interceptor = HttpForbiddenInterceptor(tokenLocalDataSource)
 
     @Provides
     @Singleton
@@ -46,11 +43,11 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(
         @AccessTokenInterceptor accessTokenInterceptor: Interceptor,
-        @ForbiddenInterceptor forbiddenInterceptor: Provider<Interceptor>
+        @ForbiddenInterceptor forbiddenInterceptor: Interceptor
     ): Retrofit {
         val httpClient = OkHttpClient.Builder()
             .addNetworkInterceptor(accessTokenInterceptor)
-            .addNetworkInterceptor(forbiddenInterceptor.get())
+            .addNetworkInterceptor(forbiddenInterceptor)
             .build()
         return Retrofit.Builder()
             .baseUrl(BASE_URl)

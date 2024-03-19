@@ -32,19 +32,22 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideUserRepository(
-        @MockDataSource userDatasource: UserDataSource
+        //@MockDataSource userDatasource: UserDataSource
+        @RemoteDataSource userDatasource: UserDataSource
     ): UserRepository = UserRepositoryImpl(userDatasource)
 
     @Provides
     @Singleton
     fun providePostsRepository(
-        @MockDataSource postsDatasource: PostsDataSource
+        //@MockDataSource postsDatasource: PostsDataSource
+        @RemoteDataSource postsDatasource: PostsDataSource
     ): PostsRepository = PostsRepositoryImpl(postsDatasource)
 
     @Provides
     @Singleton
     fun provideAuthRepository(
-        @MockDataSource authDatasource: AuthDataSource,
+        //@MockDataSource authDatasource: AuthDataSource,
+        @RemoteDataSource authDatasource: AuthDataSource,
         @LocalDataSource tokenDatasource: TokenLocalDataSource
     ): AuthRepository = AuthRepositoryImpl(authDatasource, tokenDatasource)
 
@@ -58,12 +61,14 @@ object RepositoryModule {
     @Singleton
     fun provideOfficeRepository(
         @MockDataSource officeDataSource: OfficeDataSource
+        //@RemoteDataSource officeDataSource: OfficeDataSource
     ): OfficeRepository = OfficeRepositoryImpl(officeDataSource)
 
     @Provides
     @Singleton
     fun providePostsPagingRepository(
-        @MockDataSource postsDatasource: PostsDataSource
+        //@MockDataSource postsDatasource: PostsDataSource
+        @RemoteDataSource postsDatasource: PostsDataSource
     ): PostsPagingRepository = PostsPagingRepository(postsDatasource)
 
     @Provides
