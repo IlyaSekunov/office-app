@@ -251,7 +251,7 @@ class HomeViewModel @Inject constructor(
             .collectLatest { updatePostsPagingData(it) }
     }
 
-    private fun loadFilters() {
+    fun loadFilters() {
         viewModelScope.launch {
             updateIsFiltersLoading(true)
             val filtersResult = postsRepository.filters()

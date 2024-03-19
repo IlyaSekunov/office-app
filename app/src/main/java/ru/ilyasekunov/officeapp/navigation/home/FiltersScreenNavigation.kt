@@ -38,6 +38,7 @@ fun NavGraphBuilder.filtersScreen(
                 homeViewModel.updateFiltersUiState(filtersViewModel.filtersUiState)
                 navigateToHomeScreen()
             },
+            onRetryLoad = homeViewModel::loadFilters,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
