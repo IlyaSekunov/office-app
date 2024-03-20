@@ -21,7 +21,8 @@ data class LoginUiState(
     val emailUiState: EmailUiState = EmailUiState(),
     val passwordUiState: PasswordUiState = PasswordUiState(),
     val isLoading: Boolean = false,
-    val isLoggedIn: Boolean = false
+    val isLoggedIn: Boolean = false,
+    val isLoginError: Boolean = false
 )
 
 data class EmailUiState(
@@ -69,9 +70,14 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             if (credentialsValid()) {
                 updateIsLoading(true)
-                //authRepository.login(loginUiState.toLoginForm())
+                val loginResult = authRepository.login(loginUiState.toLoginForm())
+                if (loginResult.isSuccess) {
+                    updateIsLoginError(false)
+                    updateIsLoggedIn(true)
+                } else {
+                    updateIsLoginError(true)
+                }
                 updateIsLoading(false)
-                updateIsLoggedIn(true)
             }
         }
     }
@@ -104,6 +110,10 @@ class LoginViewModel @Inject constructor(
 
     private fun updateIsLoggedIn(isLoggedIn: Boolean) {
         loginUiState = loginUiState.copy(isLoggedIn = isLoggedIn)
+    }
+
+    private fun updateIsLoginError(isLoginError: Boolean) {
+        loginUiState = loginUiState.copy(isLoginError = isLoginError)
     }
 }
 

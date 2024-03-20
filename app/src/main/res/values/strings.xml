@@ -60,4 +60,5 @@
     <string name="user_info_field_error_is_blank">Поле не можеть быть пустым</string>
     <string name="list_is_empty_yet">Список пока пуст</string>
     <string name="user_not_exists">Пользователя не существует</string>
+    <string name="incorrect_login_or_password">Неверный логин или пароль</string>
 </resources>
