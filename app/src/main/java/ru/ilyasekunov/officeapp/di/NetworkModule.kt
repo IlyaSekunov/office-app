@@ -15,7 +15,7 @@ import ru.ilyasekunov.officeapp.data.network.HttpImgurTokenInterceptor
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-private const val BASE_URl = "http://10.0.2.2:8189/"
+private const val BASE_URl = "http://10.0.2.2:8189/api/"
 
 @Module
 @InstallIn(SingletonComponent::class)
