@@ -17,15 +17,15 @@ class HttpForbiddenInterceptor(
     override fun intercept(chain: Interceptor.Chain): Response =
         runBlocking {
             val response = chain.proceed(chain.request())
-            if (response.code != 403) {
+            if (response.code != 401) {
                 return@runBlocking response
             }
 
-            // 403 response
-            // If there is no token -> return 403
+            // 401 response
+            // If there is no token -> return 401
             val refreshToken = tokenLocalDataSource.token(TokenType.REFRESH)
                 ?: return@runBlocking Response.Builder()
-                    .code(403)
+                    .code(401)
                     .build()
 
             // There is refresh token, try to refresh tokens
@@ -37,7 +37,7 @@ class HttpForbiddenInterceptor(
                 chain.proceed(chain.request())
             } else {
                 Response.Builder()
-                    .code(403)
+                    .code(401)
                     .build()
             }
         }
