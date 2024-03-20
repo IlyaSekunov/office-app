@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.navigation.home
 
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavController
@@ -23,8 +24,9 @@ fun NavGraphBuilder.homeScreen(
     navigateToProfileScreen: () -> Unit,
     navigateToAuthGraph: () -> Unit
 ) {
-    composable(route = BottomNavigationScreen.Home.route) {
-        val homeViewModel = hiltViewModel<HomeViewModel>(viewModelStoreOwnerProvider())
+    composable(route = BottomNavigationScreen.Home.route) { backStackEntry ->
+        val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
+        val homeViewModel = hiltViewModel<HomeViewModel>(viewModelStoreOwner)
         val posts = homeViewModel.postsUiState.collectAsLazyPagingItems()
         HomeScreen(
             posts = posts,
