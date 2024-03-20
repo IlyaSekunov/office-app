@@ -17,11 +17,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,55 +51,61 @@ fun LoginScreen(
     navigateToRegistrationMainScreen: () -> Unit,
     navigateToHomeScreen: () -> Unit
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
     if (loginUiState.isLoading) {
         LoadingScreen()
     } else {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .imePadding()
-                .background(color = MaterialTheme.colorScheme.background)
-                .verticalScroll(rememberScrollState())
-        ) {
-            Spacer(modifier = Modifier.height(190.dp))
-            Text(
-                text = stringResource(R.string.login),
-                style = MaterialTheme.typography.displayMedium,
-                fontSize = 36.sp
-            )
-            Spacer(modifier = Modifier.height(75.dp))
-
-            val emailErrorMessage = if (loginUiState.emailUiState.error != null) {
-                emailErrorMessage(error = loginUiState.emailUiState.error)
-            } else null
-            EmailTextField(
-                value = loginUiState.emailUiState.email,
-                errorMessage = emailErrorMessage,
-                onValueChange = onEmailValueChange,
+        Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        ) { paddingValues ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 12.dp, end = 12.dp)
-            )
-            Spacer(modifier = Modifier.height(30.dp))
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .imePadding()
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Spacer(modifier = Modifier.height(190.dp))
+                Text(
+                    text = stringResource(R.string.login),
+                    style = MaterialTheme.typography.displayMedium,
+                    fontSize = 36.sp
+                )
+                Spacer(modifier = Modifier.height(75.dp))
 
-            val passwordErrorMessage = if (loginUiState.passwordUiState.error != null) {
-                passwordErrorMessage(error = loginUiState.passwordUiState.error)
-            } else null
-            PasswordTextField(
-                value = loginUiState.passwordUiState.password,
-                errorMessage = passwordErrorMessage,
-                onValueChange = onPasswordValueChange,
-                placeholder = stringResource(R.string.password),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 12.dp, end = 12.dp)
-            )
-            Spacer(modifier = Modifier.height(40.dp))
-            LoginButton(onClick = onLoginButtonClick)
-            Spacer(modifier = Modifier.height(28.dp))
-            RegisterSection(onRegisterClick = navigateToRegistrationMainScreen)
-            Spacer(modifier = Modifier.height(50.dp))
+                val emailErrorMessage = if (loginUiState.emailUiState.error != null) {
+                    emailErrorMessage(error = loginUiState.emailUiState.error)
+                } else null
+                EmailTextField(
+                    value = loginUiState.emailUiState.email,
+                    errorMessage = emailErrorMessage,
+                    onValueChange = onEmailValueChange,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 12.dp, end = 12.dp)
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+
+                val passwordErrorMessage = if (loginUiState.passwordUiState.error != null) {
+                    passwordErrorMessage(error = loginUiState.passwordUiState.error)
+                } else null
+                PasswordTextField(
+                    value = loginUiState.passwordUiState.password,
+                    errorMessage = passwordErrorMessage,
+                    onValueChange = onPasswordValueChange,
+                    placeholder = stringResource(R.string.password),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 12.dp, end = 12.dp)
+                )
+                Spacer(modifier = Modifier.height(40.dp))
+                LoginButton(onClick = onLoginButtonClick)
+                Spacer(modifier = Modifier.height(28.dp))
+                RegisterSection(onRegisterClick = navigateToRegistrationMainScreen)
+                Spacer(modifier = Modifier.height(50.dp))
+            }
         }
     }
 
@@ -103,6 +114,27 @@ fun LoginScreen(
     LaunchedEffect(loginUiState) {
         if (loginUiState.isLoggedIn) {
             currentNavigateToHomeScreen()
+        }
+    }
+
+    ObserveErrorWhileLogin(
+        loginUiState = loginUiState,
+        snackbarHostState = snackbarHostState
+    )
+}
+
+@Composable
+fun ObserveErrorWhileLogin(
+    loginUiState: LoginUiState,
+    snackbarHostState: SnackbarHostState
+) {
+    val loginErrorMessage = stringResource(R.string.incorrect_login_or_password)
+    LaunchedEffect(loginUiState) {
+        if (loginUiState.isLoginError) {
+            loginErrorSnackbar(
+                snackbarHostState = snackbarHostState,
+                message = loginErrorMessage
+            )
         }
     }
 }
@@ -164,6 +196,17 @@ fun passwordErrorMessage(error: PasswordValidationError) =
         PasswordValidationError.NO_SPEC_SYMBOLS -> stringResource(R.string.password_error_no_spec_symbols)
         PasswordValidationError.NO_CAPITAL_LETTER -> stringResource(R.string.password_error_no_capital_letter)
     }
+
+private suspend fun loginErrorSnackbar(
+    snackbarHostState: SnackbarHostState,
+    message: String,
+    duration: SnackbarDuration = SnackbarDuration.Short,
+    withDismissAction: Boolean = true
+) = snackbarHostState.showSnackbar(
+    message = message,
+    withDismissAction = withDismissAction,
+    duration = duration
+)
 
 @Preview
 @Composable
