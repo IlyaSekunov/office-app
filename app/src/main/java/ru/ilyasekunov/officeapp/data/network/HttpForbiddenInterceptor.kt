@@ -6,6 +6,7 @@ import okhttp3.Response
 import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenType
+import ru.ilyasekunov.officeapp.data.datasource.remote.HttpCodes
 import javax.inject.Inject
 
 class HttpForbiddenInterceptor(
@@ -17,15 +18,15 @@ class HttpForbiddenInterceptor(
     override fun intercept(chain: Interceptor.Chain): Response =
         runBlocking {
             val response = chain.proceed(chain.request())
-            if (response.code != 401) {
+            if (response.code != HttpCodes.UNAUTHORIZED.code) {
                 return@runBlocking response
             }
 
-            // 401 response
-            // If there is no token -> return 401
+            // UNAUTHORIZED response
+            // If there is no token -> return UNAUTHORIZED
             val refreshToken = tokenLocalDataSource.token(TokenType.REFRESH)
                 ?: return@runBlocking Response.Builder()
-                    .code(401)
+                    .code(HttpCodes.UNAUTHORIZED.code)
                     .build()
 
             // There is refresh token, try to refresh tokens
@@ -37,7 +38,7 @@ class HttpForbiddenInterceptor(
                 chain.proceed(chain.request())
             } else {
                 Response.Builder()
-                    .code(401)
+                    .code(HttpCodes.UNAUTHORIZED.code)
                     .build()
             }
         }

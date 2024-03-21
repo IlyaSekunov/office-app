@@ -13,8 +13,12 @@ class HttpAccessTokenInterceptor(
         var request = chain.request()
         val url = request.url.encodedPath
 
-        // Don't attach auth token on registration and login
-        if (url.contains("register") || url.contains("login")) {
+        // Don't attach auth token on registration, login and email validation check
+        if (
+            url.contains("register") ||
+            url.contains("login") ||
+            url.contains("email-valid")
+        ) {
             return chain.proceed(request)
         }
 

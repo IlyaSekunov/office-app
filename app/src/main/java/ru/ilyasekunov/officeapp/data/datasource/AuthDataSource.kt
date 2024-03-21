@@ -10,5 +10,5 @@ interface AuthDataSource {
     suspend fun userInfo(): Result<User>
     suspend fun login(loginForm: LoginForm): Result<Tokens>
     suspend fun refreshToken(refreshToken: String): Result<Tokens>
-    suspend fun logout(): Result<Unit>
+    suspend fun isEmailValid(email: String): Result<Boolean>
 }

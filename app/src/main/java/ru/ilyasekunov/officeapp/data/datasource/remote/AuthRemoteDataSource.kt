@@ -33,8 +33,8 @@ class AuthRemoteDataSource(
             handleResponse { authApi.refreshToken(refreshToken) }
         }
 
-    override suspend fun logout(): Result<Unit> =
+    override suspend fun isEmailValid(email: String): Result<Boolean> =
         withContext(ioDispatcher) {
-            handleResponse { authApi.logout() }
+            handleIsEmailValidResponse { authApi.isEmailValid(email) }
         }
 }

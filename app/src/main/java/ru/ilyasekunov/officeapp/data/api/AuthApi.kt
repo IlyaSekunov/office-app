@@ -18,6 +18,6 @@ interface AuthApi {
     suspend fun login(loginForm: LoginForm): Response<Tokens>
     @GET("auth/refresh-token")
     suspend fun refreshToken(@Body refreshToken: String): Response<Tokens>
-    @POST("auth/logout")
-    suspend fun logout(): Response<Unit>
+    @GET("auth/email-valid")
+    suspend fun isEmailValid(@Body email: String): Response<Unit>
 }

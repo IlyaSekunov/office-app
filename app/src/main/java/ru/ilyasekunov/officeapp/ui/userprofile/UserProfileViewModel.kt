@@ -21,7 +21,6 @@ data class UserProfileUiState(
     val currentOffice: Office? = null,
     val isLoading: Boolean = false,
     val isErrorWhileUserLoading: Boolean = false,
-    val isErrorWhileLoggingOut: Boolean = false,
     val isLoggedOut: Boolean = false
 )
 
@@ -39,13 +38,8 @@ class UserProfileViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch {
             updateIsLoading(true)
-            val logoutResult = authRepository.logout()
-            if (logoutResult.isSuccess) {
-                updateIsErrorWhileLoggingOut(false)
-                updateIsLoggedOut(true)
-            } else {
-                updateIsErrorWhileLoggingOut(true)
-            }
+            authRepository.logout()
+            updateIsLoggedOut(true)
             updateIsLoading(false)
         }
     }
@@ -80,12 +74,6 @@ class UserProfileViewModel @Inject constructor(
     private fun updateIsErrorWhileUserLoading(isErrorWhileUserLoading: Boolean) {
         userProfileUiState = userProfileUiState.copy(
             isErrorWhileUserLoading = isErrorWhileUserLoading
-        )
-    }
-
-    private fun updateIsErrorWhileLoggingOut(isErrorWhileLoggingOut: Boolean) {
-        userProfileUiState = userProfileUiState.copy(
-            isErrorWhileLoggingOut = isErrorWhileLoggingOut
         )
     }
 }

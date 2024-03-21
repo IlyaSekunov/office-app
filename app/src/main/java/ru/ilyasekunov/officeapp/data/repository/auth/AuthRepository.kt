@@ -9,5 +9,6 @@ interface AuthRepository {
     suspend fun register(registrationForm: RegistrationForm): Result<Tokens>
     suspend fun userInfo(): Result<User>
     suspend fun login(loginForm: LoginForm): Result<Tokens>
-    suspend fun logout(): Result<Unit>
+    suspend fun logout()
+    suspend fun isEmailValid(email: String): Result<Boolean>
 }

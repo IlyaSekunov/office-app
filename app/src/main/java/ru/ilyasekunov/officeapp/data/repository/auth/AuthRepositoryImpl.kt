@@ -39,10 +39,13 @@ class AuthRepositoryImpl(
         } else loginResult
     }
 
-    override suspend fun logout(): Result<Unit> {
+    override suspend fun logout() {
         tokenLocalDataSource.deleteToken(TokenType.ACCESS)
         tokenLocalDataSource.deleteToken(TokenType.REFRESH)
-        return Result.success(Unit)
+    }
+
+    override suspend fun isEmailValid(email: String): Result<Boolean> {
+        return authDatasource.isEmailValid(email)
     }
 
     private suspend fun updateToken() {

@@ -22,7 +22,7 @@ class MockAuthDataSource : AuthDataSource {
         TODO("Not yet implemented")
     }
 
-    override suspend fun logout(): Result<Unit> {
-        TODO("Not yet implemented")
+    override suspend fun isEmailValid(email: String): Result<Boolean> {
+        return Result.success(true)
     }
 }

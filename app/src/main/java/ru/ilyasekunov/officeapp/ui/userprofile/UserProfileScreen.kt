@@ -22,14 +22,11 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +51,6 @@ import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.UserInfoFieldUiState
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
@@ -71,7 +67,6 @@ fun UserProfileScreen(
     navigateToMyOfficeScreen: () -> Unit,
     navigateToAuthGraph: () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
     if (userProfileUiState.isLoading) {
         LoadingScreen()
     } else {
@@ -106,12 +101,6 @@ fun UserProfileScreen(
             }
         }
     }
-
-    ObserveIsErrorWhileLoggingOut(
-        userProfileUiState = userProfileUiState,
-        snackbarHostState = snackbarHostState,
-        onActionPerformedClick = onLogoutClick
-    )
 
     ObserveIsLoggedOut(
         userProfileUiState = userProfileUiState,
@@ -181,28 +170,6 @@ fun UserProfileContent(
                     .clickable { onLogoutClick() }
             )
             Spacer(modifier = Modifier.height(30.dp))
-        }
-    }
-}
-
-@Composable
-private fun ObserveIsErrorWhileLoggingOut(
-    userProfileUiState: UserProfileUiState,
-    snackbarHostState: SnackbarHostState,
-    onActionPerformedClick: () -> Unit
-) {
-    val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
-    val retryLabel = stringResource(R.string.retry)
-    val networkErrorMessage = stringResource(R.string.error_connecting_to_server)
-    LaunchedEffect(userProfileUiState) {
-        if (userProfileUiState.isErrorWhileLoggingOut) {
-            networkErrorSnackbar(
-                snackbarHostState = snackbarHostState,
-                duration = SnackbarDuration.Short,
-                message = networkErrorMessage,
-                retryLabel = retryLabel,
-                onRetryClick = currentOnActionPerformedClick
-            )
         }
     }
 }
