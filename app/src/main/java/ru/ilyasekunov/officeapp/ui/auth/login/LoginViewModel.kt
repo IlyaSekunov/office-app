@@ -84,11 +84,13 @@ class LoginViewModel @Inject constructor(
                 when {
                     loginResult.isSuccess -> {
                         updateCredentialsInvalid(false)
+                        updateIsNetworkError(false)
                         updateIsLoggedIn(true)
                     }
 
                     loginResult.exceptionOrNull()!! is IncorrectCredentialsException -> {
                         updateCredentialsInvalid(true)
+                        updateIsNetworkError(false)
                         updateIsLoggedIn(false)
                     }
 

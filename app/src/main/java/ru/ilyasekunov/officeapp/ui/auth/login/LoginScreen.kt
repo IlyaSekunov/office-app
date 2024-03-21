@@ -38,6 +38,7 @@ import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.EmailTextField
 import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
+import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.validation.EmailValidationError
 import ru.ilyasekunov.officeapp.validation.PasswordValidationError
@@ -121,6 +122,12 @@ fun LoginScreen(
         loginUiState = loginUiState,
         snackbarHostState = snackbarHostState
     )
+
+    ObserveIsNetworkError(
+        loginUiState = loginUiState,
+        snackbarHostState = snackbarHostState,
+        onRetryClick = onLoginButtonClick
+    )
 }
 
 @Composable
@@ -134,6 +141,27 @@ fun ObserveCredentialsValid(
             loginErrorSnackbar(
                 snackbarHostState = snackbarHostState,
                 message = loginErrorMessage
+            )
+        }
+    }
+}
+
+@Composable
+fun ObserveIsNetworkError(
+    loginUiState: LoginUiState,
+    snackbarHostState: SnackbarHostState,
+    onRetryClick: () -> Unit
+) {
+    val errorMessage = stringResource(R.string.error_connecting_to_server)
+    val retryLabel = stringResource(R.string.retry)
+    LaunchedEffect(loginUiState) {
+        if (loginUiState.isNetworkError) {
+            networkErrorSnackbar(
+                snackbarHostState = snackbarHostState,
+                duration = SnackbarDuration.Long,
+                message = errorMessage,
+                retryLabel = retryLabel,
+                onRetryClick = onRetryClick
             )
         }
     }

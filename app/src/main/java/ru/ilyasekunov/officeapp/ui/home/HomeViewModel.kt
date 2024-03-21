@@ -226,6 +226,7 @@ class HomeViewModel @Inject constructor(
                 userInfoResult.isSuccess -> {
                     val user = userInfoResult.getOrThrow()
                     updateIsErrorWhileUserLoading(false)
+                    updateIsUserUnauthorized(false)
                     updateUser(user)
                 }
 
@@ -255,12 +256,20 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             updateIsFiltersLoading(true)
             val filtersResult = postsRepository.filters()
-            if (filtersResult.isSuccess) {
-                val filters = filtersResult.getOrThrow()
-                filtersUiState = filters.toFiltersUiState()
-                updateIsErrorWhileFiltersLoading(false)
-            } else {
-                updateIsErrorWhileFiltersLoading(true)
+            when {
+                filtersResult.isSuccess -> {
+                    val filters = filtersResult.getOrThrow()
+                    filtersUiState = filters.toFiltersUiState()
+                    updateIsErrorWhileFiltersLoading(false)
+                }
+
+                filtersResult.exceptionOrNull()!! is HttpForbiddenException -> {
+                    updateIsUserUnauthorized(true)
+                }
+
+                else -> {
+                    updateIsErrorWhileFiltersLoading(true)
+                }
             }
             updateIsFiltersLoading(false)
         }
