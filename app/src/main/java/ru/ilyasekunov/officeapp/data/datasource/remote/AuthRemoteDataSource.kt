@@ -25,7 +25,7 @@ class AuthRemoteDataSource(
 
     override suspend fun login(loginForm: LoginForm): Result<Tokens> =
         withContext(ioDispatcher) {
-            handleResponse { authApi.login(loginForm) }
+            handleLoginResponse { authApi.login(loginForm) }
         }
 
     override suspend fun refreshToken(refreshToken: String): Result<Tokens> =

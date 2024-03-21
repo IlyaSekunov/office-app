@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.LoginForm
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
+import ru.ilyasekunov.officeapp.exceptions.IncorrectCredentialsException
 import ru.ilyasekunov.officeapp.validation.EmailValidationError
 import ru.ilyasekunov.officeapp.validation.EmailValidationResult
 import ru.ilyasekunov.officeapp.validation.PasswordValidationError
@@ -22,7 +23,9 @@ data class LoginUiState(
     val passwordUiState: PasswordUiState = PasswordUiState(),
     val isLoading: Boolean = false,
     val isLoggedIn: Boolean = false,
-    val isLoginError: Boolean = false
+    val credentialsInvalid: Boolean = false,
+    val isNetworkError: Boolean = false,
+    val isEmailAvailable: Boolean = true
 )
 
 data class EmailUiState(
@@ -70,12 +73,29 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             if (credentialsValid()) {
                 updateIsLoading(true)
+                checkEmailAvailable()
+                if (!loginUiState.isEmailAvailable || loginUiState.isNetworkError) {
+                    updateIsLoading(false)
+                    updateIsLoggedIn(false)
+                    return@launch
+                }
+
                 val loginResult = authRepository.login(loginUiState.toLoginForm())
-                if (loginResult.isSuccess) {
-                    updateIsLoginError(false)
-                    updateIsLoggedIn(true)
-                } else {
-                    updateIsLoginError(true)
+                when {
+                    loginResult.isSuccess -> {
+                        updateCredentialsInvalid(false)
+                        updateIsLoggedIn(true)
+                    }
+
+                    loginResult.exceptionOrNull()!! is IncorrectCredentialsException -> {
+                        updateCredentialsInvalid(true)
+                        updateIsLoggedIn(false)
+                    }
+
+                    else -> {
+                        updateIsNetworkError(true)
+                        updateIsLoggedIn(false)
+                    }
                 }
                 updateIsLoading(false)
             }
@@ -104,6 +124,21 @@ class LoginViewModel @Inject constructor(
         return isValidationSuccess
     }
 
+    private suspend fun checkEmailAvailable() {
+        val isEmailAvailableResult = authRepository.isEmailValid(loginUiState.emailUiState.email)
+        if (isEmailAvailableResult.isSuccess) {
+            val isEmailAvailable = isEmailAvailableResult.getOrThrow()
+            updateIsEmailAvailable(isEmailAvailable)
+            updateIsNetworkError(false)
+        } else {
+            updateIsNetworkError(true)
+        }
+    }
+
+    private fun updateIsEmailAvailable(isEmailAvailable: Boolean) {
+        loginUiState = loginUiState.copy(isEmailAvailable = isEmailAvailable)
+    }
+
     private fun updateIsLoading(isLoading: Boolean) {
         loginUiState = loginUiState.copy(isLoading = isLoading)
     }
@@ -112,8 +147,12 @@ class LoginViewModel @Inject constructor(
         loginUiState = loginUiState.copy(isLoggedIn = isLoggedIn)
     }
 
-    private fun updateIsLoginError(isLoginError: Boolean) {
-        loginUiState = loginUiState.copy(isLoginError = isLoginError)
+    private fun updateCredentialsInvalid(credentialsInvalid: Boolean) {
+        loginUiState = loginUiState.copy(credentialsInvalid = credentialsInvalid)
+    }
+
+    private fun updateIsNetworkError(isNetworkError: Boolean) {
+        loginUiState = loginUiState.copy(isNetworkError = isNetworkError)
     }
 }
 

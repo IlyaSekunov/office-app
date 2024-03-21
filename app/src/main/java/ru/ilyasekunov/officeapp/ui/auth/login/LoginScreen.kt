@@ -117,20 +117,20 @@ fun LoginScreen(
         }
     }
 
-    ObserveErrorWhileLogin(
+    ObserveCredentialsValid(
         loginUiState = loginUiState,
         snackbarHostState = snackbarHostState
     )
 }
 
 @Composable
-fun ObserveErrorWhileLogin(
+fun ObserveCredentialsValid(
     loginUiState: LoginUiState,
     snackbarHostState: SnackbarHostState
 ) {
     val loginErrorMessage = stringResource(R.string.incorrect_login_or_password)
     LaunchedEffect(loginUiState) {
-        if (loginUiState.isLoginError) {
+        if (loginUiState.credentialsInvalid) {
             loginErrorSnackbar(
                 snackbarHostState = snackbarHostState,
                 message = loginErrorMessage
