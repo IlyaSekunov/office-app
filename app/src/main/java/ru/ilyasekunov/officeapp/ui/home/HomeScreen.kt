@@ -61,7 +61,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -171,6 +170,10 @@ fun HomeScreen(
         val postsRefreshing = posts.loadState.refresh == LoadState.Loading
         val isErrorWhilePostsLoading = posts.loadState.hasError
         when {
+            currentUserUiState.isUnauthorized -> {
+                navigateToAuthGraph()
+            }
+
             postsRefreshing || currentUserUiState.isLoading || filtersUiState.isLoading -> {
                 LoadingScreen()
             }
@@ -222,14 +225,6 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
-            }
-        }
-
-        // Observe is unauthorized
-        val currentNavigateToAuthGraph by rememberUpdatedState(navigateToAuthGraph)
-        LaunchedEffect(currentUserUiState) {
-            if (currentUserUiState.isUnauthorized) {
-                currentNavigateToAuthGraph()
             }
         }
     }

@@ -58,120 +58,123 @@ fun RegistrationUserInfoScreen(
     navigateBack: () -> Unit,
     navigateToHomeScreen: () -> Unit
 ) {
-    if (registrationUiState.isLoading || availableOfficesUiState.isLoading) {
-        LoadingScreen()
-    } else if (availableOfficesUiState.isErrorWhileLoading) {
-        ErrorScreen(
-            message = stringResource(R.string.error_connecting_to_server),
-            onRetryButtonClick = onRetryButtonClick
-        )
-    } else {
-        val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
-            state = rememberTopAppBarState(),
-            snapAnimationSpec = spring(
-                dampingRatio = Spring.DampingRatioNoBouncy,
-                stiffness = Spring.StiffnessMediumLow,
-                visibilityThreshold = null
+    when {
+        registrationUiState.isLoading || availableOfficesUiState.isLoading -> LoadingScreen()
+        availableOfficesUiState.isErrorWhileLoading -> {
+            ErrorScreen(
+                message = stringResource(R.string.error_connecting_to_server),
+                onRetryButtonClick = onRetryButtonClick
             )
-        )
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(R.string.top_bar_register_screen_title),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontSize = 20.sp
-                        )
-                    },
-                    navigationIcon = {
-                        NavigateBackArrow(onClick = navigateBack)
-                    },
-                    scrollBehavior = topAppBarScrollBehavior,
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        scrolledContainerColor = MaterialTheme.colorScheme.background
-                    )
+        }
+
+        else -> {
+            val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
+                state = rememberTopAppBarState(),
+                snapAnimationSpec = spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessMediumLow,
+                    visibilityThreshold = null
                 )
-            },
-            containerColor = MaterialTheme.colorScheme.background,
-            modifier = Modifier
-                .fillMaxSize()
-                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+            )
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = stringResource(R.string.top_bar_register_screen_title),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontSize = 20.sp
+                            )
+                        },
+                        navigationIcon = {
+                            NavigateBackArrow(onClick = navigateBack)
+                        },
+                        scrollBehavior = topAppBarScrollBehavior,
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.background,
+                            scrolledContainerColor = MaterialTheme.colorScheme.background
+                        )
+                    )
+                },
+                containerColor = MaterialTheme.colorScheme.background,
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .imePadding()
-                    .padding(it)
+                    .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
             ) {
-                PhotoPicker(
-                    selectedPhoto = registrationUiState.userInfoRegistrationUiState.photo,
-                    onPhotoPickerClick = onPhotoPickerClick,
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .size(180.dp)
-                )
-                Spacer(modifier = Modifier.height(36.dp))
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .imePadding()
+                        .padding(it)
+                ) {
+                    PhotoPicker(
+                        selectedPhoto = registrationUiState.userInfoRegistrationUiState.photo,
+                        onPhotoPickerClick = onPhotoPickerClick,
+                        modifier = Modifier
+                            .size(180.dp)
+                    )
+                    Spacer(modifier = Modifier.height(36.dp))
 
-                val nameError = registrationUiState.userInfoRegistrationUiState.name.error
-                val nameErrorMessage = if (nameError != null) {
-                    userInfoFieldErrorMessage(nameError)
-                } else null
-                UserInfoTextField(
-                    value = registrationUiState.userInfoRegistrationUiState.name.value,
-                    label = stringResource(R.string.name),
-                    errorMessage = nameErrorMessage,
-                    placeholder = stringResource(R.string.your_name),
-                    onValueChange = onNameValueChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 12.dp, end = 12.dp)
-                )
-                Spacer(modifier = Modifier.height(30.dp))
+                    val nameError = registrationUiState.userInfoRegistrationUiState.name.error
+                    val nameErrorMessage = if (nameError != null) {
+                        userInfoFieldErrorMessage(nameError)
+                    } else null
+                    UserInfoTextField(
+                        value = registrationUiState.userInfoRegistrationUiState.name.value,
+                        label = stringResource(R.string.name),
+                        errorMessage = nameErrorMessage,
+                        placeholder = stringResource(R.string.your_name),
+                        onValueChange = onNameValueChange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 12.dp, end = 12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(30.dp))
 
-                val surnameError = registrationUiState.userInfoRegistrationUiState.surname.error
-                val surnameErrorMessage = if (surnameError != null) {
-                    userInfoFieldErrorMessage(surnameError)
-                } else null
-                UserInfoTextField(
-                    value = registrationUiState.userInfoRegistrationUiState.surname.value,
-                    label = stringResource(R.string.surname),
-                    errorMessage = surnameErrorMessage,
-                    placeholder = stringResource(R.string.your_surname),
-                    onValueChange = onSurnameValueChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 12.dp, end = 12.dp)
-                )
-                Spacer(modifier = Modifier.height(30.dp))
+                    val surnameError = registrationUiState.userInfoRegistrationUiState.surname.error
+                    val surnameErrorMessage = if (surnameError != null) {
+                        userInfoFieldErrorMessage(surnameError)
+                    } else null
+                    UserInfoTextField(
+                        value = registrationUiState.userInfoRegistrationUiState.surname.value,
+                        label = stringResource(R.string.surname),
+                        errorMessage = surnameErrorMessage,
+                        placeholder = stringResource(R.string.your_surname),
+                        onValueChange = onSurnameValueChange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 12.dp, end = 12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(30.dp))
 
-                val jobError = registrationUiState.userInfoRegistrationUiState.job.error
-                val jobErrorMessage = if (jobError != null) {
-                    userInfoFieldErrorMessage(jobError)
-                } else null
-                UserInfoTextField(
-                    value = registrationUiState.userInfoRegistrationUiState.job.value,
-                    label = stringResource(R.string.job),
-                    errorMessage = jobErrorMessage,
-                    placeholder = stringResource(R.string.your_job),
-                    onValueChange = onJobValueChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 12.dp, end = 12.dp)
-                )
-                Spacer(modifier = Modifier.height(30.dp))
-                OfficePicker(
-                    officeList = availableOfficesUiState.availableOffices,
-                    initialSelectedOffice = registrationUiState.userInfoRegistrationUiState.currentOffice!!,
-                    officeWidth = 170.dp,
-                    officeHeight = 180.dp,
-                    onOfficeChange = onOfficeChange
-                )
-                Spacer(modifier = Modifier.height(45.dp))
-                EndRegistrationButton(onClick = onSaveButtonClick)
-                Spacer(modifier = Modifier.height(30.dp))
+                    val jobError = registrationUiState.userInfoRegistrationUiState.job.error
+                    val jobErrorMessage = if (jobError != null) {
+                        userInfoFieldErrorMessage(jobError)
+                    } else null
+                    UserInfoTextField(
+                        value = registrationUiState.userInfoRegistrationUiState.job.value,
+                        label = stringResource(R.string.job),
+                        errorMessage = jobErrorMessage,
+                        placeholder = stringResource(R.string.your_job),
+                        onValueChange = onJobValueChange,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 12.dp, end = 12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(30.dp))
+                    OfficePicker(
+                        officeList = availableOfficesUiState.availableOffices,
+                        initialSelectedOffice = registrationUiState.userInfoRegistrationUiState.currentOffice!!,
+                        officeWidth = 170.dp,
+                        officeHeight = 180.dp,
+                        onOfficeChange = onOfficeChange
+                    )
+                    Spacer(modifier = Modifier.height(45.dp))
+                    EndRegistrationButton(onClick = onSaveButtonClick)
+                    Spacer(modifier = Modifier.height(30.dp))
+                }
             }
         }
     }

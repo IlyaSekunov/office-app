@@ -214,6 +214,7 @@ fun emailErrorMessage(error: EmailValidationError) =
     when (error) {
         EmailValidationError.BLANK -> stringResource(R.string.email_error_is_blank)
         EmailValidationError.NOT_EMAIL_PATTERN -> stringResource(R.string.email_error_is_not_pattern)
+        EmailValidationError.UNAVAILABLE -> stringResource(R.string.email_is_unavailable)
     }
 
 @Composable

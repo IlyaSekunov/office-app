@@ -32,13 +32,13 @@ fun NavGraphBuilder.registrationMainScreen(
             onRegisterButtonClick = {
                 coroutineScope.launch {
                     registrationViewModel.validateCredentials()
-                    if (registrationViewModel.registrationUiState.isCredentialsValid) {
+                    val registrationUiState = registrationViewModel.registrationUiState
+                    if (registrationUiState.credentialsValid) {
                         navigateToRegistrationUserInfoScreen()
                     }
                 }
             },
-            navigateToLoginScreen = navigateToLoginScreen,
-            navigateToRegistrationUserInfoScreen = navigateToRegistrationUserInfoScreen
+            navigateToLoginScreen = navigateToLoginScreen
         )
     }
 }

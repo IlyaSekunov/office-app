@@ -24,8 +24,7 @@ data class LoginUiState(
     val isLoading: Boolean = false,
     val isLoggedIn: Boolean = false,
     val credentialsInvalid: Boolean = false,
-    val isNetworkError: Boolean = false,
-    val isEmailAvailable: Boolean = true
+    val isNetworkError: Boolean = false
 )
 
 data class EmailUiState(
@@ -73,13 +72,6 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             if (credentialsValid()) {
                 updateIsLoading(true)
-                checkEmailAvailable()
-                if (!loginUiState.isEmailAvailable || loginUiState.isNetworkError) {
-                    updateIsLoading(false)
-                    updateIsLoggedIn(false)
-                    return@launch
-                }
-
                 val loginResult = authRepository.login(loginUiState.toLoginForm())
                 when {
                     loginResult.isSuccess -> {
@@ -124,21 +116,6 @@ class LoginViewModel @Inject constructor(
         }
 
         return isValidationSuccess
-    }
-
-    private suspend fun checkEmailAvailable() {
-        val isEmailAvailableResult = authRepository.isEmailValid(loginUiState.emailUiState.email)
-        if (isEmailAvailableResult.isSuccess) {
-            val isEmailAvailable = isEmailAvailableResult.getOrThrow()
-            updateIsEmailAvailable(isEmailAvailable)
-            updateIsNetworkError(false)
-        } else {
-            updateIsNetworkError(true)
-        }
-    }
-
-    private fun updateIsEmailAvailable(isEmailAvailable: Boolean) {
-        loginUiState = loginUiState.copy(isEmailAvailable = isEmailAvailable)
     }
 
     private fun updateIsLoading(isLoading: Boolean) {

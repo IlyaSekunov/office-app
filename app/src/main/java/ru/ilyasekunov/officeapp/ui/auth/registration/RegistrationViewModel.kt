@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
+import ru.ilyasekunov.officeapp.data.dto.UserDto
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
@@ -29,13 +31,18 @@ data class RegistrationUiState(
     val emailUiState: EmailUiState = EmailUiState(),
     val passwordUiState: PasswordUiState = PasswordUiState(),
     val repeatedPasswordUiState: PasswordUiState = PasswordUiState(),
-    val isPasswordsDiffer: Boolean = false,
-    val isCredentialsValid: Boolean = false,
     val userInfoRegistrationUiState: UserInfoRegistrationUiState = UserInfoRegistrationUiState(),
     val isLoading: Boolean = false,
     val isRegistrationSuccess: Boolean = false,
-    val isNetworkError: Boolean = false
-)
+    val isNetworkError: Boolean = false,
+    val passwordsDiffer: Boolean = false
+) {
+    val credentialsValid: Boolean
+        get() = emailUiState.error == null &&
+                passwordUiState.error == null &&
+                repeatedPasswordUiState.error == null &&
+                !passwordsDiffer
+}
 
 data class AvailableOfficesUiState(
     val availableOffices: List<Office> = emptyList(),
@@ -135,9 +142,10 @@ class RegistrationViewModel @Inject constructor(
 
     fun register() {
         viewModelScope.launch {
-            if (registrationUiState.isCredentialsValid && userInfoValid()) {
+
+            if (registrationUiState.credentialsValid && userInfoValid()) {
                 updateIsLoading(true)
-                /*val photoUrlResult = uploadUserPhoto()
+                val photoUrlResult = uploadUserPhoto()
                 if (photoUrlResult.isFailure) {
                     updateIsLoading(false)
                     return@launch
@@ -146,20 +154,25 @@ class RegistrationViewModel @Inject constructor(
 
                 val userInfo = registrationUiState.userInfoRegistrationUiState
                 val registrationForm = RegistrationForm(
-                    email = registrationUiState.email,
-                    password = registrationUiState.password,
+                    email = registrationUiState.emailUiState.email,
+                    password = registrationUiState.passwordUiState.password,
                     userInfo = UserDto(
-                        name = userInfo.name,
-                        surname = userInfo.surname,
-                        job = userInfo.job,
+                        name = userInfo.name.value,
+                        surname = userInfo.surname.value,
+                        job = userInfo.job.value,
                         officeId = userInfo.currentOffice!!.id,
                         photo = photoUrl
                     )
                 )
-                authRepository.register(registrationForm)*/
+                val registrationResult = authRepository.register(registrationForm)
+                if (registrationResult.isSuccess) {
+                    updateIsNetworkError(false)
+                    updateIsRegistrationSuccess(true)
+                } else {
+                    updateIsNetworkError(true)
+                    updateIsRegistrationSuccess(false)
+                }
                 updateIsLoading(false)
-                updateIsNetworkError(false)
-                updateIsRegistrationSuccess(true)
             }
         }
     }
@@ -206,10 +219,6 @@ class RegistrationViewModel @Inject constructor(
         )
     }
 
-    private fun updateIsPasswordsDiffer(isPasswordsDiffer: Boolean) {
-        registrationUiState = registrationUiState.copy(isPasswordsDiffer = isPasswordsDiffer)
-    }
-
     private fun updateNameValidationError(error: UserInfoValidationError?) {
         val userInfoRegistrationUiState = registrationUiState.userInfoRegistrationUiState
         registrationUiState = registrationUiState.copy(
@@ -237,8 +246,8 @@ class RegistrationViewModel @Inject constructor(
         )
     }
 
-    private fun updateIsCredentialsValid(isCredentialsValid: Boolean) {
-        registrationUiState = registrationUiState.copy(isCredentialsValid = isCredentialsValid)
+    private fun updatePasswordsDiffer(passwordsDiffer: Boolean) {
+        registrationUiState = registrationUiState.copy(passwordsDiffer = passwordsDiffer)
     }
 
     fun loadAvailableOffices() {
@@ -259,43 +268,62 @@ class RegistrationViewModel @Inject constructor(
 
     suspend fun validateCredentials() {
         updateIsLoading(true)
-        var isValidationSuccess = true
+        validateEmailPattern()
+        validatePasswordPattern()
+        validateRepeatedPasswordPattern()
+        val password = registrationUiState.passwordUiState.password
+        val repeatedPassword = registrationUiState.repeatedPasswordUiState.password
+        updatePasswordsDiffer(password != repeatedPassword)
+        if (registrationUiState.credentialsValid) {
+            checkEmailAvailability()
+        }
+        updateIsLoading(false)
+    }
 
-        val emailValidationResult = validateEmail(registrationUiState.emailUiState.email)
+    private fun validateEmailPattern() {
+        val email = registrationUiState.emailUiState.email
+        val emailValidationResult = validateEmail(email)
         if (emailValidationResult is EmailValidationResult.Failure) {
             updateEmailValidationError(emailValidationResult.error)
-            isValidationSuccess = false
         } else {
             updateEmailValidationError(null)
         }
+    }
 
+    private suspend fun checkEmailAvailability() {
+        val email = registrationUiState.emailUiState.email
+        val isEmailAvailableResult = authRepository.isEmailValid(email)
+        if (isEmailAvailableResult.isSuccess) {
+            val isEmailAvailable = isEmailAvailableResult.getOrThrow()
+            if (isEmailAvailable) {
+                updateEmailValidationError(null)
+            } else {
+                updateEmailValidationError(EmailValidationError.UNAVAILABLE)
+            }
+            updateIsNetworkError(false)
+        } else {
+            updateIsNetworkError(true)
+        }
+    }
+
+    private fun validatePasswordPattern() {
         val password = registrationUiState.passwordUiState.password
         val passwordValidationResult = validatePassword(password)
         if (passwordValidationResult is PasswordValidationResult.Failure) {
             updatePasswordValidationError(passwordValidationResult.error)
-            isValidationSuccess = false
         } else {
             updatePasswordValidationError(null)
         }
+    }
 
+    private fun validateRepeatedPasswordPattern() {
         val repeatedPassword = registrationUiState.repeatedPasswordUiState.password
         val repeatedPasswordValidationResult = validatePassword(repeatedPassword)
         if (repeatedPasswordValidationResult is PasswordValidationResult.Failure) {
             updateRepeatedPasswordValidationError(repeatedPasswordValidationResult.error)
-            isValidationSuccess = false
         } else {
             updateRepeatedPasswordValidationError(null)
         }
-
-        if (password != repeatedPassword) {
-            updateIsPasswordsDiffer(true)
-            isValidationSuccess = false
-        } else {
-            updateIsPasswordsDiffer(false)
-        }
-
-        updateIsCredentialsValid(isValidationSuccess)
-        updateIsLoading(false)
     }
 
     private fun userInfoValid(): Boolean {
@@ -344,6 +372,7 @@ class RegistrationViewModel @Inject constructor(
             val photoUrlResult = imagesRepository.uploadImage(it)
             if (photoUrlResult.isSuccess) {
                 val photoUrl = photoUrlResult.getOrThrow()
+                updateIsNetworkError(false)
                 Result.success(photoUrl)
             } else {
                 updateIsNetworkError(true)

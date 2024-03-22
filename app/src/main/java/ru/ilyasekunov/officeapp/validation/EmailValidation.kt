@@ -3,7 +3,7 @@ package ru.ilyasekunov.officeapp.validation
 import android.util.Patterns
 
 enum class EmailValidationError {
-    BLANK, NOT_EMAIL_PATTERN
+    BLANK, NOT_EMAIL_PATTERN, UNAVAILABLE
 }
 
 sealed class EmailValidationResult {
