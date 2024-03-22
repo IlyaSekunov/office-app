@@ -5,6 +5,7 @@ import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.dto.SearchDto
+import ru.ilyasekunov.officeapp.data.dto.SearchPostsDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
@@ -21,11 +22,12 @@ class MockPostsDataSource : PostsDataSource {
 
     override suspend fun posts(): Result<List<IdeaPost>> = Result.success(Posts)
     override suspend fun posts(
-        filtersDto: FiltersDto,
-        searchDto: SearchDto,
+        searchPostsDto: SearchPostsDto,
         page: Int,
         pageSize: Int
     ): Result<List<IdeaPost>> {
+        val searchDto = searchPostsDto.searchDto
+        val filtersDto = searchPostsDto.filtersDto
         val posts = Posts.filter {
             if (searchDto.search.isBlank()) {
                 it.office.id in filtersDto.offices

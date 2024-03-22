@@ -5,9 +5,8 @@ import kotlinx.coroutines.withContext
 import ru.ilyasekunov.officeapp.data.api.PostsApi
 import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
-import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
-import ru.ilyasekunov.officeapp.data.dto.SearchDto
+import ru.ilyasekunov.officeapp.data.dto.SearchPostsDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
@@ -21,13 +20,12 @@ class PostsRemoteDataSource(
         }
 
     override suspend fun posts(
-        filtersDto: FiltersDto,
-        searchDto: SearchDto,
+        searchPostsDto: SearchPostsDto,
         page: Int,
         pageSize: Int
     ): Result<List<IdeaPost>> =
         withContext(ioDispatcher) {
-            handleResponse { postsApi.posts(filtersDto, searchDto, page, pageSize) }
+            handleResponse { postsApi.posts(searchPostsDto, page, pageSize) }
         }
 
     override suspend fun postsByAuthorId(authorId: Long, page: Int, pageSize: Int) =

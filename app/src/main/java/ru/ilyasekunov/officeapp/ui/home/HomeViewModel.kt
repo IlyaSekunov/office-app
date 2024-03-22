@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.SearchDto
+import ru.ilyasekunov.officeapp.data.dto.SearchPostsDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
@@ -244,8 +245,10 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun loadPostSuspending() {
         postsPagingRepository.posts(
-            filtersDto = filtersUiState.toFiltersDto(),
-            searchDto = searchUiState.toSearchDto()
+            searchPostsDto = SearchPostsDto(
+                filtersDto = filtersUiState.toFiltersDto(),
+                searchDto = searchUiState.toSearchDto()
+            ),
         )
             .distinctUntilChanged()
             .cachedIn(viewModelScope)

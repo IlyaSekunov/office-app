@@ -3,14 +3,12 @@ package ru.ilyasekunov.officeapp.data.datasource.remote
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
-import ru.ilyasekunov.officeapp.data.dto.FiltersDto
-import ru.ilyasekunov.officeapp.data.dto.SearchDto
+import ru.ilyasekunov.officeapp.data.dto.SearchPostsDto
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingDefaults
 
 class PostsPagingDataSource(
-    private val filtersDto: FiltersDto,
-    private val searchDto: SearchDto,
+    private val searchPostsDto: SearchPostsDto,
     private val postsDataSource: PostsDataSource
 ) : PagingSource<Int, IdeaPost>() {
     override fun getRefreshKey(state: PagingState<Int, IdeaPost>): Int? {
@@ -23,7 +21,7 @@ class PostsPagingDataSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, IdeaPost> {
         val page = params.key ?: 1
         val pageSize = PostsPagingDefaults.PagingConfig.pageSize
-        val postsResult = postsDataSource.posts(filtersDto, searchDto, page, pageSize)
+        val postsResult = postsDataSource.posts(searchPostsDto, page, pageSize)
         if (postsResult.isSuccess) {
             val posts = postsResult.getOrThrow()
             return LoadResult.Page(
