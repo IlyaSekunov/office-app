@@ -142,7 +142,6 @@ class RegistrationViewModel @Inject constructor(
 
     fun register() {
         viewModelScope.launch {
-
             if (registrationUiState.credentialsValid && userInfoValid()) {
                 updateIsLoading(true)
                 val photoUrlResult = uploadUserPhoto()
