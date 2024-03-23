@@ -34,7 +34,8 @@ data class FiltersUiState(
     val sortingFiltersUiState: SortingFiltersUiState = SortingFiltersUiState(),
     val officeFiltersUiState: List<OfficeFilterUiState> = emptyList(),
     val isLoading: Boolean = false,
-    val isErrorWhileLoading: Boolean = false
+    val isErrorWhileLoading: Boolean = false,
+    val isLoaded: Boolean = false
 )
 
 data class OfficeFilterUiState(
@@ -76,7 +77,6 @@ class HomeViewModel @Inject constructor(
 
     init {
         loadCurrentUser()
-        loadFilters()
         loadPosts()
     }
 
@@ -173,7 +173,12 @@ class HomeViewModel @Inject constructor(
 
     fun loadPosts() {
         viewModelScope.launch {
-            loadPostSuspending()
+            if (!filtersUiState.isLoaded) {
+                loadFiltersSuspending()
+            }
+            if (filtersUiState.isLoaded) {
+                loadPostSuspending()
+            }
         }
     }
 
@@ -219,6 +224,10 @@ class HomeViewModel @Inject constructor(
         currentUserUiState = currentUserUiState.copy(user = user)
     }
 
+    private fun updateFiltersIsLoaded(isLoaded: Boolean) {
+        filtersUiState = filtersUiState.copy(isLoaded = isLoaded)
+    }
+
     private fun loadCurrentUser() {
         viewModelScope.launch {
             updateIsCurrentUserLoading(true)
@@ -255,26 +264,33 @@ class HomeViewModel @Inject constructor(
             .collectLatest { updatePostsPagingData(it) }
     }
 
+    private suspend fun loadFiltersSuspending() {
+        updateIsFiltersLoading(true)
+        val filtersResult = postsRepository.filters()
+        when {
+            filtersResult.isSuccess -> {
+                val filters = filtersResult.getOrThrow()
+                filtersUiState = filters.toFiltersUiState()
+                updateIsErrorWhileFiltersLoading(false)
+                updateFiltersIsLoaded(true)
+            }
+
+            filtersResult.exceptionOrNull()!! is HttpForbiddenException -> {
+                updateIsUserUnauthorized(true)
+                updateFiltersIsLoaded(false)
+            }
+
+            else -> {
+                updateIsErrorWhileFiltersLoading(true)
+                updateFiltersIsLoaded(false)
+            }
+        }
+        updateIsFiltersLoading(false)
+    }
+
     fun loadFilters() {
         viewModelScope.launch {
-            updateIsFiltersLoading(true)
-            val filtersResult = postsRepository.filters()
-            when {
-                filtersResult.isSuccess -> {
-                    val filters = filtersResult.getOrThrow()
-                    filtersUiState = filters.toFiltersUiState()
-                    updateIsErrorWhileFiltersLoading(false)
-                }
-
-                filtersResult.exceptionOrNull()!! is HttpForbiddenException -> {
-                    updateIsUserUnauthorized(true)
-                }
-
-                else -> {
-                    updateIsErrorWhileFiltersLoading(true)
-                }
-            }
-            updateIsFiltersLoading(false)
+            loadFiltersSuspending()
         }
     }
 }
