@@ -10,7 +10,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
-import ru.ilyasekunov.officeapp.data.dto.SearchPostsDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
@@ -20,7 +19,9 @@ interface PostsApi {
 
     @GET("posts")
     suspend fun posts(
-        @Body searchPostsDto: SearchPostsDto,
+        @Query("office") officesId: List<Int>,
+        @Query("sorting_filter") sortingFilterId: Int? = null,
+        @Query("search") search: String,
         @Query("page") page: Int,
         @Query("page_size") pageSize: Int
     ): Response<List<IdeaPost>>
@@ -56,7 +57,7 @@ interface PostsApi {
     @DELETE("posts/{postId}/dislike")
     suspend fun removeDislike(@Path("postId") postId: Long): Response<Unit>
 
-    @GET("filters")
+    @GET("posts/filters")
     suspend fun filters(): Response<Filters>
 
     suspend fun posts(): Response<List<IdeaPost>>

@@ -25,7 +25,18 @@ class PostsRemoteDataSource(
         pageSize: Int
     ): Result<List<IdeaPost>> =
         withContext(ioDispatcher) {
-            handleResponse { postsApi.posts(searchPostsDto, page, pageSize) }
+            val officesId = searchPostsDto.filtersDto.offices
+            val sortingFilterId = searchPostsDto.filtersDto.sortingFilter
+            val search = searchPostsDto.searchDto.search
+            handleResponse {
+                postsApi.posts(
+                    officesId = officesId,
+                    sortingFilterId = sortingFilterId,
+                    search = search,
+                    page = page,
+                    pageSize = pageSize
+                )
+            }
         }
 
     override suspend fun postsByAuthorId(authorId: Long, page: Int, pageSize: Int) =

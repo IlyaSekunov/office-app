@@ -6,6 +6,6 @@ import retrofit2.http.Path
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 
 interface AuthorApi {
-    @GET("authors/{authorId}")
+    @GET("users/authors/{authorId}")
     suspend fun ideaAuthorById(@Path("authorId") authorId: Long): Response<IdeaAuthor?>
 }
