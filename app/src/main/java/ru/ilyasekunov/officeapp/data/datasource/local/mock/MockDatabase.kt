@@ -46,7 +46,6 @@ val Offices = listOf(
 val userInfoPreview = User(
     id = 0,
     email = "dktinkoff@yandex.ru",
-    password = "12345",
     name = "Дмитрий",
     surname = "Комарницкий",
     job = "Сотрудник Tinkoff",
