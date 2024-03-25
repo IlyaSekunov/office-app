@@ -5,6 +5,6 @@ import retrofit2.http.GET
 import ru.ilyasekunov.officeapp.data.model.Office
 
 interface OfficeApi {
-    @GET("offices")
+    @GET("users/offices")
     suspend fun availableOffices(): Response<List<Office>>
 }
