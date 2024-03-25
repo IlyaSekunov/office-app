@@ -5,5 +5,5 @@ data class UserDto(
     val surname: String,
     val job: String,
     val photo: String? = null,
-    val officeId: Int
+    val office: Int
 )
