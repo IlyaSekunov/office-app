@@ -30,6 +30,6 @@ class PostsPagingDataSource(
                 nextKey = if (posts.isEmpty()) null else page + 1
             )
         }
-        return LoadResult.Error(Exception())
+        return LoadResult.Error(postsResult.exceptionOrNull()!!)
     }
 }
