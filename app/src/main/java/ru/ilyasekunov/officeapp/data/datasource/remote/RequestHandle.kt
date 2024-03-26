@@ -3,12 +3,14 @@ package ru.ilyasekunov.officeapp.data.datasource.remote
 import retrofit2.HttpException
 import retrofit2.Response
 import ru.ilyasekunov.officeapp.exceptions.HttpForbiddenException
+import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
 import ru.ilyasekunov.officeapp.exceptions.IncorrectCredentialsException
 
 fun <T> Response<T>.toResult(): Result<T> =
     when {
         isSuccessful -> Result.success(body()!!)
-        code() == HttpCodes.UNAUTHORIZED.code -> Result.failure(HttpForbiddenException())
+        code() == HttpCodes.UNAUTHORIZED -> Result.failure(HttpForbiddenException())
+        code() == HttpCodes.NOT_FOUND -> Result.failure(HttpNotFoundException())
         else -> Result.failure(HttpException(this))
     }
 
@@ -33,8 +35,8 @@ inline fun <T> handleIsEmailValidResponse(
 ): Result<Boolean> = try {
     val response = request()
     when (response.code()) {
-        HttpCodes.EMAIL_VALID.code -> Result.success(true)
-        HttpCodes.EMAIL_NOT_VALID.code -> Result.success(false)
+        HttpCodes.EMAIL_VALID -> Result.success(true)
+        HttpCodes.EMAIL_NOT_VALID -> Result.success(false)
         else -> Result.failure(HttpException(response))
     }
 } catch (e: Exception) {
@@ -47,7 +49,7 @@ inline fun <T> handleLoginResponse(
     val response = request()
     when {
         response.isSuccessful -> Result.success(response.body()!!)
-        response.code() == HttpCodes.INCORRECT_CREDENTIALS.code -> {
+        response.code() == HttpCodes.INCORRECT_CREDENTIALS -> {
             Result.failure(IncorrectCredentialsException())
         }
         else -> Result.failure(HttpException(response))

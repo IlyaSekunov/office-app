@@ -20,11 +20,13 @@ class TokenLocalDataSource(
         withContext(ioDispatcher) {
             when (type) {
                 TokenType.ACCESS -> {
-                    dataStore.data.first()[PreferencesKeys.ACCESS_TOKEN]
+                    val token = dataStore.data.first()[PreferencesKeys.ACCESS_TOKEN]
+                    token
                 }
 
                 TokenType.REFRESH -> {
-                    dataStore.data.first()[PreferencesKeys.REFRESH_TOKEN]
+                    val token = dataStore.data.first()[PreferencesKeys.REFRESH_TOKEN]
+                    token
                 }
             }
         }

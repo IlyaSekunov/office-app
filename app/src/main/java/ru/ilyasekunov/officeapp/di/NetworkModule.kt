@@ -1,9 +1,11 @@
 package ru.ilyasekunov.officeapp.di
 
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Authenticator
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -12,10 +14,13 @@ import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.network.HttpAccessTokenInterceptor
 import ru.ilyasekunov.officeapp.data.network.HttpForbiddenInterceptor
 import ru.ilyasekunov.officeapp.data.network.HttpImgurTokenInterceptor
+import ru.ilyasekunov.officeapp.data.network.OkHttpAuthenticator
+import ru.ilyasekunov.officeapp.data.serialize.JsonLocalDateTimeDeserializer
+import java.time.LocalDateTime
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-private const val BASE_URl = "http://10.0.2.2:8189/api/"
+const val BASE_URl = "http://10.0.2.2:8189/api/"
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -41,18 +46,28 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideOkHttpAuthenticator(
+        @LocalDataSource tokenLocalDataSource: TokenLocalDataSource
+    ): Authenticator = OkHttpAuthenticator(tokenLocalDataSource)
+
+    @Provides
+    @Singleton
     fun provideRetrofit(
         @AccessTokenInterceptor accessTokenInterceptor: Interceptor,
-        @ForbiddenInterceptor forbiddenInterceptor: Interceptor
+        authenticator: Authenticator
     ): Retrofit {
         val httpClient = OkHttpClient.Builder()
+            .authenticator(authenticator)
             .addNetworkInterceptor(accessTokenInterceptor)
-            .addNetworkInterceptor(forbiddenInterceptor)
             .build()
+        val gson = GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapter(LocalDateTime::class.java, JsonLocalDateTimeDeserializer())
+            .create()
         return Retrofit.Builder()
             .baseUrl(BASE_URl)
             .client(httpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 }

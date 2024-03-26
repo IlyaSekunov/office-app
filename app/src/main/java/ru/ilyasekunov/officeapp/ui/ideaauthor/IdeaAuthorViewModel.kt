@@ -21,6 +21,7 @@ import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.repository.author.AuthorRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
+import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
 import javax.inject.Inject
 
 data class IdeaAuthorUiState(
@@ -119,17 +120,22 @@ class IdeaAuthorViewModel @Inject constructor(
         viewModelScope.launch {
             updateIsIdeaAuthorLoading(true)
             val ideaAuthorResult = authorRepository.ideaAuthorById(authorId)
-            if (ideaAuthorResult.isSuccess) {
-                val ideaAuthor = ideaAuthorResult.getOrThrow()
-                if (ideaAuthor == null) {
-                    updateIsIdeaAuthorExists(false)
-                } else {
-                    updateIsIdeaAuthorExists(true)
+            when {
+                ideaAuthorResult.isSuccess -> {
+                    val ideaAuthor = ideaAuthorResult.getOrThrow()
                     ideaAuthorUiState = ideaAuthor.toIdeaAuthorUiState()
+                    updateIsIdeaAuthorExists(true)
+                    updateIsErrorWhileIdeaAuthorLoading(false)
                 }
-                updateIsErrorWhileIdeaAuthorLoading(false)
-            } else {
-                updateIsErrorWhileIdeaAuthorLoading(true)
+
+                ideaAuthorResult.exceptionOrNull()!! is HttpNotFoundException -> {
+                    updateIsErrorWhileIdeaAuthorLoading(false)
+                    updateIsIdeaAuthorExists(false)
+                }
+
+                else -> {
+                    updateIsErrorWhileIdeaAuthorLoading(true)
+                }
             }
             updateIsIdeaAuthorLoading(false)
         }

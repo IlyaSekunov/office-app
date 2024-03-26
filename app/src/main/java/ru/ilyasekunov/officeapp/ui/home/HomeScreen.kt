@@ -209,11 +209,13 @@ fun HomeScreen(
                         posts = posts,
                         isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
                         onDeletePostClick = {
-                            deletePostSnackbar(coroutineScope = coroutineScope,
+                            deletePostSnackbar(
+                                coroutineScope = coroutineScope,
                                 snackbarHostState = snackbarHostState,
                                 message = postDeletedMessage,
                                 undoLabel = undoLabel,
-                                onSnackbarTimeOut = { onDeletePostClick(it) })
+                                onSnackbarTimeOut = { onDeletePostClick(it) }
+                            )
                         },
                         onPostLikeClick = onPostLikeClick,
                         onPostDislikeClick = onPostDislikeClick,

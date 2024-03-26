@@ -7,5 +7,5 @@ import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 
 interface AuthorApi {
     @GET("users/authors/{authorId}")
-    suspend fun ideaAuthorById(@Path("authorId") authorId: Long): Response<IdeaAuthor?>
+    suspend fun ideaAuthorById(@Path("authorId") authorId: Long): Response<IdeaAuthor>
 }

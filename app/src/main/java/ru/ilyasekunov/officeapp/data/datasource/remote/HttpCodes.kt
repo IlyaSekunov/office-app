@@ -1,8 +1,9 @@
 package ru.ilyasekunov.officeapp.data.datasource.remote
 
-enum class HttpCodes(val code: Int) {
-    EMAIL_VALID(200),
-    EMAIL_NOT_VALID(400),
-    UNAUTHORIZED(401),
-    INCORRECT_CREDENTIALS(401)
+object HttpCodes {
+    const val EMAIL_VALID = 200
+    const val EMAIL_NOT_VALID = 400
+    const val UNAUTHORIZED = 401
+    const val INCORRECT_CREDENTIALS = 401
+    const val NOT_FOUND = 404
 }

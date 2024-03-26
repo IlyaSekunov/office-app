@@ -10,7 +10,7 @@ class AuthorRemoteDataSource(
     private val authorApi: AuthorApi,
     private val ioDispatcher: CoroutineDispatcher
 ) : AuthorDataSource {
-    override suspend fun ideaAuthorById(authorId: Long): Result<IdeaAuthor?> =
+    override suspend fun ideaAuthorById(authorId: Long): Result<IdeaAuthor> =
         withContext(ioDispatcher) {
             handleResponse { authorApi.ideaAuthorById(authorId) }
         }

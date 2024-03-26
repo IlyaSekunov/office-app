@@ -132,7 +132,6 @@ fun IdeaAuthorScreenContent(
             val authorPhotoTopPadding = 15.dp
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                contentPadding = PaddingValues(bottom = 20.dp),
                 modifier = modifier
                     .fillMaxSize()
                     .nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
@@ -177,6 +176,7 @@ fun IdeaAuthorScreenContent(
                             },
                             modifier = Modifier.fillMaxWidth()
                         )
+                        Spacer(modifier = Modifier.height(20.dp))
                     }
                 }
             }

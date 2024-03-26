@@ -74,6 +74,6 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideAuthorRepository(
-        @MockDataSource authorDataSource: AuthorDataSource
+        @RemoteDataSource authorDataSource: AuthorDataSource
     ): AuthorRepository = AuthorRepositoryImpl(authorDataSource)
 }

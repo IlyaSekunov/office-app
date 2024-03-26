@@ -10,7 +10,7 @@ class MockUserDataSource : UserDataSource {
             surname = userDto.surname,
             job = userDto.job,
             photo = userDto.photo ?: "",
-            office = Offices.find { it.id == userDto.officeId }!!
+            office = Offices.find { it.id == userDto.officeId    }!!
         )
         return Result.success(Unit)
     }

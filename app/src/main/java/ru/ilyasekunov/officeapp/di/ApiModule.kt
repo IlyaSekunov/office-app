@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.di
 
+import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,6 +15,8 @@ import ru.ilyasekunov.officeapp.data.api.ImgurApi
 import ru.ilyasekunov.officeapp.data.api.OfficeApi
 import ru.ilyasekunov.officeapp.data.api.PostsApi
 import ru.ilyasekunov.officeapp.data.api.UserApi
+import ru.ilyasekunov.officeapp.data.serialize.JsonLocalDateTimeDeserializer
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -57,10 +60,14 @@ object ApiModule {
             .readTimeout(60, TimeUnit.SECONDS)
             .addNetworkInterceptor(httpImgurTokenInterceptor)
             .build()
+        val gson = GsonBuilder()
+            .setPrettyPrinting()
+            .registerTypeAdapter(LocalDateTime::class.java, JsonLocalDateTimeDeserializer())
+            .create()
         return Retrofit.Builder()
             .baseUrl(IMGUR_URL)
             .client(httpClient)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(ImgurApi::class.java)
     }

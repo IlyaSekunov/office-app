@@ -25,7 +25,6 @@ class AuthRepositoryImpl(
         val userResult = authDatasource.userInfo()
         return if (userResult.isSuccess) {
             val user = userResult.getOrThrow()
-            updateToken()
             Result.success(user)
         } else userResult
     }
@@ -46,18 +45,6 @@ class AuthRepositoryImpl(
 
     override suspend fun isEmailValid(email: String): Result<Boolean> {
         return authDatasource.isEmailValid(email)
-    }
-
-    private suspend fun updateToken() {
-        val refreshToken = tokenLocalDataSource.token(TokenType.REFRESH)
-        if (refreshToken != null) {
-            authDatasource.refreshToken(refreshToken).also {
-                if (it.isSuccess) {
-                    val tokens = it.getOrThrow()
-                    putTokens(tokens)
-                }
-            }
-        }
     }
 
     private suspend fun putTokens(tokens: Tokens) {
