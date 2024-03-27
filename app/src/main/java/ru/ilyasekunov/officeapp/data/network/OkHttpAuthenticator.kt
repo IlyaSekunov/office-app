@@ -33,14 +33,39 @@ class OkHttpAuthenticator(
         .build()
         .create(AuthApi::class.java)
 
+    /** There might be situations when multiple threads or coroutines tend to refresh tokens.
+     They all run this method, so to prevent multiple refreshes firstly we take refresh token,
+     then synchronized block goes, which guarantee that there will be just one refresh at the same time.
+     First thread that will be inside synchronized block performs authentication. Then all others threads that
+     are going to perform the same act compare refreshToken that they retrieved before synchronized block with
+     a new one, which they are given from token data source. If they differ -> another thread has already made
+     a refresh, so we need to perform the request next with new access token. If not, it means that it is the first thread
+     that is inside synchronized block and it will be performing a refreshing.
+     */
     override fun authenticate(route: Route?, response: Response): Request? {
         if (retryCount(response) >= MAX_ALLOWABLE_RETRY_ATTEMPTS) {
             return null
         }
 
+        // Extract first refreshToken. If null -> return null, there is nothing to refresh.
+        val refreshToken = runBlocking { tokenLocalDataSource.token(TokenType.REFRESH) }
+            ?: return null
+
+        // First thread performs refreshing
         synchronized(this) {
-            val refreshToken = runBlocking { tokenLocalDataSource.token(TokenType.REFRESH) }
+            // Retrieve refresh token again
+            val newRefreshToken = runBlocking { tokenLocalDataSource.token(TokenType.REFRESH) }
                 ?: return null
+
+            // If tokens differ -> another thread before already update token.
+            // So proceed request with new token
+            if (refreshToken != newRefreshToken) {
+                val accessToken = runBlocking { tokenLocalDataSource.token(TokenType.ACCESS) }
+                    ?: return null
+                return retryRequest(response, accessToken)
+            }
+
+            // Tokens are the same, so it is the first thread, that should proceed refresh.
             val refreshResult = runBlocking { authApi.refreshToken(refreshToken) }
             return if (refreshResult.isSuccessful) {
                 val tokens = refreshResult.body()!!
@@ -57,9 +82,9 @@ class OkHttpAuthenticator(
         originalResponse: Response,
         accessToken: String
     ) = originalResponse.request.newBuilder()
-            .removeHeader("Authorization")
-            .addHeader("Authorization", "Bearer $accessToken")
-            .build()
+        .removeHeader("Authorization")
+        .addHeader("Authorization", "Bearer $accessToken")
+        .build()
 
     private fun retryCount(response: Response): Int {
         var retryCount = 0
