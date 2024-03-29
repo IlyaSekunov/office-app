@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.dto.LoginForm
+import ru.ilyasekunov.officeapp.data.dto.RefreshTokenDto
 import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
 import ru.ilyasekunov.officeapp.data.model.Tokens
 import ru.ilyasekunov.officeapp.data.model.User
@@ -30,7 +31,8 @@ class AuthRemoteDataSource(
 
     override suspend fun refreshToken(refreshToken: String): Result<Tokens> =
         withContext(ioDispatcher) {
-            handleResponse { authApi.refreshToken(refreshToken) }
+            val refreshTokenDto = RefreshTokenDto(refreshToken)
+            handleResponse { authApi.refreshToken(refreshTokenDto) }
         }
 
     override suspend fun isEmailValid(email: String): Result<Boolean> =

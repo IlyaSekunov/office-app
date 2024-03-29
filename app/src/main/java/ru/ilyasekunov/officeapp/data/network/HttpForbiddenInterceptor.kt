@@ -11,6 +11,7 @@ import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenType
 import ru.ilyasekunov.officeapp.data.datasource.remote.HttpCodes
+import ru.ilyasekunov.officeapp.data.dto.RefreshTokenDto
 import ru.ilyasekunov.officeapp.data.serialize.JsonLocalDateTimeDeserializer
 import ru.ilyasekunov.officeapp.di.BASE_URl
 import java.time.LocalDateTime
@@ -50,7 +51,8 @@ class HttpForbiddenInterceptor(
                 .build()
 
         // There is refresh token, try to refresh tokens
-        val refreshResult = runBlocking { authApi.refreshToken(refreshToken) }
+        val refreshTokenDto = RefreshTokenDto(refreshToken)
+        val refreshResult = runBlocking { authApi.refreshToken(refreshTokenDto) }
         if (refreshResult.isSuccessful) {
             val tokens = refreshResult.body()!!
             runBlocking {

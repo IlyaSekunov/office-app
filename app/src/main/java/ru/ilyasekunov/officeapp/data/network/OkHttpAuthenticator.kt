@@ -11,6 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenType
+import ru.ilyasekunov.officeapp.data.dto.RefreshTokenDto
 import ru.ilyasekunov.officeapp.data.serialize.JsonLocalDateTimeDeserializer
 import ru.ilyasekunov.officeapp.di.BASE_URl
 import java.time.LocalDateTime
@@ -66,7 +67,8 @@ class OkHttpAuthenticator(
             }
 
             // Tokens are the same, so it is the first thread, that should proceed refresh.
-            val refreshResult = runBlocking { authApi.refreshToken(refreshToken) }
+            val refreshTokenDto = RefreshTokenDto(refreshToken)
+            val refreshResult = runBlocking { authApi.refreshToken(refreshTokenDto) }
             return if (refreshResult.isSuccessful) {
                 val tokens = refreshResult.body()!!
                 runBlocking {
