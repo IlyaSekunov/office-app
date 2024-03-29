@@ -70,6 +70,7 @@ import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.home.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import ru.ilyasekunov.officeapp.ui.home.SortingFiltersUiState
+import ru.ilyasekunov.officeapp.ui.home.sortingCategoryName
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -388,13 +389,14 @@ fun SortingFilter(
     isSelected: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val sortingCategoryName = sortingCategoryName(sortingCategory)
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
     ) {
         if (isSelected) {
             Text(
-                text = sortingCategory.name,
+                text = sortingCategoryName,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
@@ -403,7 +405,7 @@ fun SortingFilter(
             )
         } else {
             Text(
-                text = sortingCategory.name,
+                text = sortingCategoryName,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,

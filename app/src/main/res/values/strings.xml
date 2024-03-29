@@ -62,4 +62,7 @@
     <string name="user_not_exists">Пользователя не существует</string>
     <string name="incorrect_login_or_password">Неверный логин или пароль</string>
     <string name="email_is_unavailable">Данный email уже используется в системе</string>
+    <string name="by_comments">Комментариям</string>
+    <string name="by_likes">Лайкам</string>
+    <string name="by_dislikes">Дизлайкам</string>
 </resources>

@@ -94,6 +94,7 @@ import ru.ilyasekunov.officeapp.data.datasource.local.mock.ideaPost
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
+import ru.ilyasekunov.officeapp.data.model.SortingCategories
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
@@ -107,6 +108,7 @@ import ru.ilyasekunov.officeapp.ui.theme.dislikePressedColor
 import ru.ilyasekunov.officeapp.ui.theme.likePressedColor
 import ru.ilyasekunov.officeapp.util.toRussianString
 import ru.ilyasekunov.officeapp.util.toThousandsString
+import java.lang.IllegalStateException
 import java.time.LocalDateTime
 
 @Composable
@@ -711,7 +713,7 @@ fun SortingCategoryFilter(
         modifier = modifier.height(30.dp)
     ) {
         Text(
-            text = sortingCategory.name,
+            text = sortingCategoryName(sortingCategory),
             style = MaterialTheme.typography.labelMedium,
             fontSize = 14.sp,
             modifier = Modifier
@@ -1142,6 +1144,15 @@ fun CurrentImageSection(
         }
     }
 }
+
+@Composable
+fun sortingCategoryName(sortingCategory: SortingCategory) =
+    when (sortingCategory.id) {
+        SortingCategories.COMMENTS.id -> stringResource(R.string.by_comments)
+        SortingCategories.LIKES.id -> stringResource(R.string.by_likes)
+        SortingCategories.DISLIKES.id -> stringResource(R.string.by_dislikes)
+        else -> throw IllegalStateException("Unknown sorting category - $sortingCategory")
+    }
 
 private fun deletePostSnackbar(
     coroutineScope: CoroutineScope,

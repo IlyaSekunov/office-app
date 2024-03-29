@@ -9,3 +9,7 @@ data class SortingCategory(
     val id: Int,
     val name: String
 )
+
+enum class SortingCategories(val id: Int) {
+    COMMENTS(1), LIKES(2), DISLIKES(3)
+}
