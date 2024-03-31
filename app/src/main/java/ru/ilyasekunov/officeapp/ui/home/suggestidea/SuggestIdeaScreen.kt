@@ -47,7 +47,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -69,7 +68,6 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.valentinilk.shimmer.shimmer
-import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
@@ -330,8 +328,9 @@ fun SuggestIdeaTopBar(
                     .size(30.dp)
                     .clickable(
                         indication = null,
-                        interactionSource = remember { MutableInteractionSource() }
-                    ) { onCloseClick() }
+                        interactionSource = remember { MutableInteractionSource() },
+                        onClick = onCloseClick
+                    )
             )
         },
         actions = {
@@ -386,10 +385,8 @@ fun AttachedImage(
     )
 
     var isVisible by rememberSaveable { mutableStateOf(true) }
-    val coroutineScope = rememberCoroutineScope()
     val animationDuration = 300
     val rotation = remember { Animatable(0f) }
-
     AnimatedVisibility(
         visible = isVisible,
         enter = scaleIn(tween(animationDuration)) + fadeIn(tween(animationDuration)),
@@ -424,16 +421,7 @@ fun AttachedImage(
                 }
             }
             CloseIconButton(
-                onClick = {
-                    coroutineScope.launch {
-                        isVisible = false
-                        rotation.animateTo(
-                            targetValue = 45f,
-                            animationSpec = tween(animationDuration)
-                        )
-                        onRemoveClick()
-                    }
-                },
+                onClick = { isVisible = false },
                 modifier = Modifier
                     .padding(top = 8.dp, end = 8.dp)
                     .size(26.dp)
@@ -441,6 +429,17 @@ fun AttachedImage(
                     .background(Color.White)
                     .align(Alignment.TopEnd)
             )
+        }
+    }
+
+    // When image is remove, start rotate animation and then call onRemove()
+    if (!isVisible) {
+        LaunchedEffect(Unit) {
+            rotation.animateTo(
+                targetValue = 45f,
+                animationSpec = tween(animationDuration)
+            )
+            onRemoveClick()
         }
     }
 }
