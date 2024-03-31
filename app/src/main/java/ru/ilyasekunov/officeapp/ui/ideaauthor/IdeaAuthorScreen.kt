@@ -207,9 +207,8 @@ fun IdeaAuthorSection(
             photoUrl = ideaAuthorUiState.photoUrl,
             job = ideaAuthorUiState.job,
             contentTopPadding = contentTopPadding,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
+            containerColor = MaterialTheme.colorScheme.background,
+            modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(18.dp))
         if (ideaAuthorUiState.office != null) {

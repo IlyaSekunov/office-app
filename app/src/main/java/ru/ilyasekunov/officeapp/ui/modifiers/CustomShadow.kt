@@ -16,7 +16,8 @@ fun Modifier.shadow(
     topSideWidth: Dp = 0.dp,
     rightSideWidth: Dp = 0.dp,
     bottomSideWidth: Dp = 0.dp,
-    blurRadius: Dp = 0.dp
+    blurRadius: Dp = 0.dp,
+    cornerRadius: Dp = 0.dp
 ) = this.then(
     Modifier.drawBehind {
         drawIntoCanvas {
@@ -33,11 +34,13 @@ fun Modifier.shadow(
             }
 
             frameworkPaint.color = color.toArgb()
-            it.drawRect(
+            it.drawRoundRect(
                 left = leftPixel,
                 top = topPixel,
                 right = rightPixel,
                 bottom = bottomPixel,
+                radiusX = cornerRadius.toPx(),
+                radiusY = cornerRadius.toPx(),
                 paint = paint
             )
         }

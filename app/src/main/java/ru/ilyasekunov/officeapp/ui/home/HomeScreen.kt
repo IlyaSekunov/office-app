@@ -65,7 +65,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -311,9 +310,7 @@ fun HomeAppBar(
     val showOfficeFilters = filtersUiState.officeFiltersUiState.any { it.isSelected }
     Column(
         modifier = modifier
-            .shadow(
-                blurRadius = 6.dp
-            )
+            .shadow(blurRadius = 6.dp)
             .background(MaterialTheme.colorScheme.background)
             .padding(top = 25.dp, start = 13.dp, end = 13.dp, bottom = 10.dp)
     ) {

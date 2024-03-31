@@ -31,6 +31,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.Job
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
@@ -51,6 +53,7 @@ import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.UserInfoFieldUiState
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
@@ -70,8 +73,9 @@ fun UserProfileScreen(
     if (userProfileUiState.isLoading) {
         LoadingScreen()
     } else {
+        val containerColor = MaterialTheme.colorScheme.background
         Scaffold(
-            containerColor = MaterialTheme.colorScheme.background,
+            containerColor = containerColor,
             bottomBar = {
                 BottomNavigationBar(
                     selectedScreen = BottomNavigationScreen.Profile,
@@ -91,6 +95,7 @@ fun UserProfileScreen(
             } else {
                 UserProfileContent(
                     userProfileUiState = userProfileUiState,
+                    userInfoSectionContainerColor = containerColor,
                     onManageAccountClick = onManageAccountClick,
                     onMyOfficeClick = onMyOfficeClick,
                     onMyIdeasClick = onMyIdeasClick,
@@ -111,6 +116,7 @@ fun UserProfileScreen(
 @Composable
 fun UserProfileContent(
     userProfileUiState: UserProfileUiState,
+    userInfoSectionContainerColor: Color,
     onManageAccountClick: () -> Unit,
     onMyOfficeClick: () -> Unit,
     onMyIdeasClick: () -> Unit,
@@ -129,6 +135,7 @@ fun UserProfileContent(
                 surname = userProfileUiState.surname.value,
                 photoUrl = userProfileUiState.photo.toString(),
                 job = userProfileUiState.job.value,
+                containerColor = userInfoSectionContainerColor,
                 modifier = Modifier.fillMaxWidth()
             )
             Option(
@@ -167,7 +174,7 @@ fun UserProfileContent(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .padding(start = 16.dp)
-                    .clickable { onLogoutClick() }
+                    .clickable(onClick = onLogoutClick)
             )
             Spacer(modifier = Modifier.height(30.dp))
         }
@@ -193,6 +200,7 @@ fun UserInfoSection(
     surname: String,
     photoUrl: String,
     job: String,
+    containerColor: Color,
     modifier: Modifier = Modifier,
     contentTopPadding: Dp = 15.dp
 ) {
@@ -214,30 +222,24 @@ fun UserInfoSection(
         )
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
+        modifier = modifier
+            .shadow(blurRadius = 6.dp, cornerRadius = 20.dp)
             .clip(
                 RoundedCornerShape(
                     bottomStart = 20.dp,
                     bottomEnd = 20.dp
                 )
             )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                shape = RoundedCornerShape(
-                    bottomStart = 20.dp,
-                    bottomEnd = 20.dp
-                )
-            )
-            .then(modifier)
+            .background(containerColor)
     ) {
         when (imagePainter.state) {
             is AsyncImagePainter.State.Loading -> {
-                LoadingScreen(
-                    circularProgressingColor = MaterialTheme.colorScheme.primary,
-                    circularProgressingWidth = 3.dp,
-                    circularProgressingSize = 30.dp,
+                Box(
                     modifier = imageModifier
+                        .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                        )
+                        .shimmer()
                 )
             }
 
@@ -337,6 +339,7 @@ fun UserInfoSectionPreview() {
                 surname = "Комарницкий",
                 job = "Сотрудник Tinkoff",
                 photoUrl = "",
+                containerColor = MaterialTheme.colorScheme.background
             )
         }
     }
