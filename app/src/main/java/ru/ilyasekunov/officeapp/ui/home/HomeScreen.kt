@@ -626,7 +626,7 @@ fun SearchTextField(
                     )
                 )
                 .fillMaxHeight()
-                .clickable { onFiltersClick() }
+                .clickable(onClick = onFiltersClick)
                 .padding(start = 15.dp, end = 10.dp)
         )
     }
@@ -651,8 +651,6 @@ fun OfficeFilterSearch(
                 shape = shape
             )
     ) {
-        var imageWidth by remember { mutableStateOf(0.dp) }
-        val density = LocalDensity.current.density
         val closeIconSize = 22.dp
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -669,10 +667,7 @@ fun OfficeFilterSearch(
                             bottomEnd = CornerSize(0.dp)
                         )
                     )
-                    .width(imageWidth)
-                    .onGloballyPositioned {
-                        imageWidth = (it.size.height / density).dp
-                    }
+                    .aspectRatio(1f / 1f)
             )
             Spacer(modifier = Modifier.width(7.dp))
             Text(
@@ -995,7 +990,11 @@ fun LikeButton(
 
 @Composable
 fun DislikeButton(
-    onClick: () -> Unit, iconSize: Dp, isPressed: Boolean, count: Int, modifier: Modifier = Modifier
+    onClick: () -> Unit,
+    iconSize: Dp,
+    isPressed: Boolean,
+    count: Int,
+    modifier: Modifier = Modifier
 ) {
     val animatedIconRotation = remember { Animatable(0f) }
     val animatedIconScale = remember { Animatable(1f) }
