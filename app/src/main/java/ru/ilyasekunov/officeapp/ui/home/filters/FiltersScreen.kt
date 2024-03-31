@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.verticalScroll
@@ -390,30 +391,17 @@ fun SortingFilter(
     modifier: Modifier = Modifier
 ) {
     val sortingCategoryName = sortingCategoryName(sortingCategory)
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-    ) {
-        if (isSelected) {
-            Text(
-                text = sortingCategoryName,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary
-            )
-        } else {
-            Text(
-                text = sortingCategoryName,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.outline
-            )
-        }
-    }
+    val sortingFilterColor =
+        if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+    Text(
+        text = sortingCategoryName,
+        style = MaterialTheme.typography.bodyMedium,
+        fontWeight = FontWeight.Bold,
+        fontSize = 14.sp,
+        textAlign = TextAlign.Center,
+        color = sortingFilterColor,
+        modifier = modifier.wrapContentSize(align = Alignment.Center)
+    )
 }
 
 @Preview
