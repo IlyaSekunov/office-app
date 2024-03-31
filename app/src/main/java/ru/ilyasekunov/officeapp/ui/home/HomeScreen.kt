@@ -65,6 +65,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -103,12 +104,12 @@ import ru.ilyasekunov.officeapp.ui.animations.dislikePressedAnimation
 import ru.ilyasekunov.officeapp.ui.animations.likePressedAnimation
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.theme.dislikePressedColor
 import ru.ilyasekunov.officeapp.ui.theme.likePressedColor
 import ru.ilyasekunov.officeapp.util.toRussianString
 import ru.ilyasekunov.officeapp.util.toThousandsString
-import java.lang.IllegalStateException
 import java.time.LocalDateTime
 
 @Composable
@@ -310,6 +311,9 @@ fun HomeAppBar(
     val showOfficeFilters = filtersUiState.officeFiltersUiState.any { it.isSelected }
     Column(
         modifier = modifier
+            .shadow(
+                blurRadius = 6.dp
+            )
             .background(MaterialTheme.colorScheme.background)
             .padding(top = 25.dp, start = 13.dp, end = 13.dp, bottom = 10.dp)
     ) {
