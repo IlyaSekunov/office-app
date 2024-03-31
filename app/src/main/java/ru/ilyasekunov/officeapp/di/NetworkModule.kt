@@ -12,7 +12,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.ilyasekunov.officeapp.data.datasource.local.TokenLocalDataSource
 import ru.ilyasekunov.officeapp.data.network.HttpAccessTokenInterceptor
-import ru.ilyasekunov.officeapp.data.network.HttpForbiddenInterceptor
 import ru.ilyasekunov.officeapp.data.network.HttpImgurTokenInterceptor
 import ru.ilyasekunov.officeapp.data.network.OkHttpAuthenticator
 import ru.ilyasekunov.officeapp.data.serialize.JsonLocalDateTimeDeserializer
@@ -31,13 +30,6 @@ object NetworkModule {
     fun provideAccessTokenInterceptor(
         @LocalDataSource tokenDatasource: TokenLocalDataSource
     ): Interceptor = HttpAccessTokenInterceptor(tokenDatasource)
-
-    @Provides
-    @Singleton
-    @ForbiddenInterceptor
-    fun provideForbiddenInterceptor(
-        @LocalDataSource tokenLocalDataSource: TokenLocalDataSource
-    ): Interceptor = HttpForbiddenInterceptor(tokenLocalDataSource)
 
     @Provides
     @Singleton
@@ -75,10 +67,6 @@ object NetworkModule {
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class AccessTokenInterceptor
-
-@Qualifier
-@Retention(AnnotationRetention.BINARY)
-annotation class ForbiddenInterceptor
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
