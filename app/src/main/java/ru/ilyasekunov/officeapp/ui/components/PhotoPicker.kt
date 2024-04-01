@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -29,7 +31,6 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
@@ -69,11 +70,13 @@ fun PhotoPicker(
         ) {
             when (imagePainter.state) {
                 is AsyncImagePainter.State.Loading -> {
-                    LoadingScreen(
-                        circularProgressingColor = MaterialTheme.colorScheme.primary,
-                        circularProgressingSize = 30.dp,
-                        circularProgressingWidth = 3.dp,
-                        modifier = Modifier.fillMaxSize()
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 3.dp,
+                        modifier = modifier
+                            .fillMaxSize()
+                            .wrapContentSize(Alignment.Center)
+                            .size(30.dp)
                     )
                 }
                 is AsyncImagePainter.State.Success -> {
