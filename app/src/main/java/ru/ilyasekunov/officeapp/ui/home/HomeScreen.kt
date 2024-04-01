@@ -124,7 +124,7 @@ fun HomeScreen(
     onPostLikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onPostDislikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onCommentClick: (IdeaPost) -> Unit,
-    onRetryPostsLoad: () -> Unit,
+    onRetryInfoLoad: () -> Unit,
     onPullToRefresh: () -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
@@ -183,7 +183,7 @@ fun HomeScreen(
             isErrorWhilePostsLoading || filtersUiState.isErrorWhileLoading || currentUserUiState.isErrorWhileLoading -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
-                    onRetryButtonClick = onRetryPostsLoad
+                    onRetryButtonClick = onRetryInfoLoad
                 )
             }
 

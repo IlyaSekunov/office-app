@@ -40,7 +40,10 @@ fun NavGraphBuilder.homeScreen(
             onPostLikeClick = homeViewModel::updateLike,
             onPostDislikeClick = homeViewModel::updateDislike,
             onCommentClick = { /*TODO*/ },
-            onRetryPostsLoad = homeViewModel::loadPosts,
+            onRetryInfoLoad = {
+                homeViewModel.loadCurrentUser()
+                homeViewModel.loadPosts()
+            },
             onPullToRefresh = posts::refresh,
             navigateToFiltersScreen = navigateToFiltersScreen,
             navigateToSuggestIdeaScreen = navigateToSuggestIdeaScreen,

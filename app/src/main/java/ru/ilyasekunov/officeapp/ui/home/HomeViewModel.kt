@@ -228,7 +228,7 @@ class HomeViewModel @Inject constructor(
         filtersUiState = filtersUiState.copy(isLoaded = isLoaded)
     }
 
-    private fun loadCurrentUser() {
+    fun loadCurrentUser() {
         viewModelScope.launch {
             updateIsCurrentUserLoading(true)
             val userInfoResult = authRepository.userInfo()
