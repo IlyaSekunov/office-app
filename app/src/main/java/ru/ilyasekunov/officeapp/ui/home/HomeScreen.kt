@@ -310,7 +310,7 @@ fun HomeAppBar(
     val showOfficeFilters = filtersUiState.officeFiltersUiState.any { it.isSelected }
     Column(
         modifier = modifier
-            .shadow(blurRadius = 6.dp)
+            .shadow(blurRadius = 4.dp)
             .background(MaterialTheme.colorScheme.background)
             .padding(top = 25.dp, start = 13.dp, end = 13.dp, bottom = 10.dp)
     ) {

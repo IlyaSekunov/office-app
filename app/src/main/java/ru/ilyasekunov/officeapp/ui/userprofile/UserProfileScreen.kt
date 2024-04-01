@@ -223,7 +223,7 @@ fun UserInfoSection(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
-            .shadow(blurRadius = 6.dp, cornerRadius = 20.dp)
+            .shadow(blurRadius = 4.dp, cornerRadius = 20.dp)
             .clip(
                 RoundedCornerShape(
                     bottomStart = 20.dp,
