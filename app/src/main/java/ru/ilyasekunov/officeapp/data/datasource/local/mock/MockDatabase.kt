@@ -160,4 +160,9 @@ val Comments = mutableListOf(
     )
 )
 
-val Posts = mutableListOf(ideaPost)
+val Posts = mutableListOf(
+    ideaPost,
+    ideaPost.copy(id = 1),
+    ideaPost.copy(id = 2),
+    ideaPost.copy(id = 3)
+)

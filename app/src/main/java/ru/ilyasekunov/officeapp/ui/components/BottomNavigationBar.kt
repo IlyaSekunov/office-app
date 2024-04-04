@@ -25,11 +25,11 @@ import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 @Composable
 fun BottomNavigationBar(
     selectedScreen: BottomNavigationScreen,
-    navigateToHomeScreen: () -> Unit,
-    navigateToFavouriteScreen: () -> Unit,
-    navigateToMyOfficeScreen: () -> Unit,
-    navigateToProfileScreen: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navigateToHomeScreen: (() -> Unit)? = null,
+    navigateToFavouriteScreen: (() -> Unit)? = null,
+    navigateToMyOfficeScreen: (() -> Unit)? = null,
+    navigateToProfileScreen: (() -> Unit)? = null
 ) {
     val borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
     NavigationBar(
@@ -55,7 +55,7 @@ fun BottomNavigationBar(
             val label = stringResource(it.labelId)
             NavigationBarItem(
                 selected = it == selectedScreen,
-                onClick = onClick,
+                onClick = { onClick?.invoke() },
                 icon = {
                     Icon(
                         painter = painterResource(it.iconId),

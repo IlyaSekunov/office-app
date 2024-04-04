@@ -5,6 +5,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -32,6 +34,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -56,7 +60,10 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -131,6 +138,7 @@ fun HomeScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val postsLazyListState = rememberLazyListState()
     Scaffold(
         topBar = {
             HomeAppBar(
@@ -146,7 +154,6 @@ fun HomeScreen(
         bottomBar = {
             BottomNavigationBar(
                 selectedScreen = BottomNavigationScreen.Home,
-                navigateToHomeScreen = {},
                 navigateToFavouriteScreen = navigateToFavouriteScreen,
                 navigateToMyOfficeScreen = navigateToMyOfficeScreen,
                 navigateToProfileScreen = navigateToProfileScreen,
@@ -157,7 +164,10 @@ fun HomeScreen(
             SnackbarHost(hostState = snackbarHostState)
         },
         floatingActionButton = {
-            SuggestIdeaButton(onClick = navigateToSuggestIdeaScreen)
+            SuggestIdeaButton(
+                onClick = navigateToSuggestIdeaScreen,
+                postsLazyListState = postsLazyListState
+            )
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxSize()
@@ -218,6 +228,7 @@ fun HomeScreen(
                         navigateToAuthorScreen = navigateToAuthorScreen,
                         navigateToEditIdeaScreen = navigateToEditIdeaScreen,
                         contentPadding = PaddingValues(top = 18.dp, bottom = 18.dp),
+                        postsLazyListState = postsLazyListState,
                         modifier = Modifier.fillMaxSize()
                     )
                 }
@@ -237,9 +248,11 @@ fun IdeaPosts(
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
     modifier: Modifier = Modifier,
+    postsLazyListState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     LazyColumn(
+        state = postsLazyListState,
         contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
@@ -958,21 +971,35 @@ fun ActionItem(
 @Composable
 fun SuggestIdeaButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    postsLazyListState: LazyListState
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .size(50.dp)
-            .clip(MaterialTheme.shapes.medium)
-            .clickable(onClick = onClick)
-            .background(MaterialTheme.colorScheme.primary)
+    val isScrollingForward = postsLazyListState.collectIsScrollingForward()
+    AnimatedVisibility(
+        visible = !isScrollingForward,
+        enter = slideInVertically(
+            animationSpec = tween(),
+            initialOffsetY = { it / 2 }
+        ) + fadeIn(tween(150)),
+        exit = slideOutVertically(
+            animationSpec = tween(),
+            targetOffsetY = { it },
+        ) + fadeOut(tween(150))
     ) {
-        Icon(
-            painter = painterResource(R.drawable.outline_create_24),
-            contentDescription = "create_button",
-            modifier = Modifier.size(30.dp)
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = modifier
+                .size(50.dp)
+                .clip(MaterialTheme.shapes.medium)
+                .clickable(onClick = onClick)
+                .background(MaterialTheme.colorScheme.primary)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.outline_create_24),
+                contentDescription = "create_button",
+                modifier = Modifier.size(30.dp)
+            )
+        }
     }
 }
 
@@ -1040,6 +1067,20 @@ private fun deletePostSnackbar(
             onSnackbarTimeOut()
         }
     }
+}
+
+@Composable
+private fun LazyListState.collectIsScrollingForward(): Boolean {
+    var previousScrollOffset by remember(this) {
+        mutableIntStateOf(firstVisibleItemScrollOffset)
+    }
+    return remember(this) {
+        derivedStateOf {
+            previousScrollOffset < firstVisibleItemScrollOffset.also {
+                previousScrollOffset = firstVisibleItemScrollOffset
+            }
+        }
+    }.value
 }
 
 @Preview
@@ -1132,7 +1173,10 @@ fun IdeaPostOfficePreview() {
 fun SuggestIdeaButtonPreview() {
     OfficeAppTheme {
         Surface {
-            SuggestIdeaButton(onClick = {})
+            SuggestIdeaButton(
+                onClick = {},
+                postsLazyListState = rememberLazyListState()
+            )
         }
     }
 }

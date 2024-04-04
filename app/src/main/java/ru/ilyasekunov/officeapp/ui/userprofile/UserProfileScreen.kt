@@ -81,8 +81,7 @@ fun UserProfileScreen(
                     selectedScreen = BottomNavigationScreen.Profile,
                     navigateToHomeScreen = navigateToHomeScreen,
                     navigateToFavouriteScreen = navigateToFavouriteScreen,
-                    navigateToMyOfficeScreen = navigateToMyOfficeScreen,
-                    navigateToProfileScreen = {}
+                    navigateToMyOfficeScreen = navigateToMyOfficeScreen
                 )
             },
             modifier = Modifier.fillMaxSize()
