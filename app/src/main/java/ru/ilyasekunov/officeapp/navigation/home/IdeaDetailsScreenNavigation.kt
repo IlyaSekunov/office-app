@@ -1,6 +1,7 @@
 package ru.ilyasekunov.officeapp.navigation.home
 
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -23,8 +24,10 @@ fun NavGraphBuilder.ideaDetailsScreen(
         exitTransition = { exitSlideRight() }
     ) { backStackEntry ->
         val navArguments = backStackEntry.arguments!!
-        val postId = navArguments.getLong("postId")
-        val initiallyScrollToComments = navArguments.getString("initiallyScrollToComments")
+        val postId = remember(navArguments) { navArguments.getLong("postId") }
+        val initiallyScrollToComments = remember(navArguments) {
+            navArguments.getString("initiallyScrollToComments")
+        }
 
         val ideaDetailsViewModel = hiltViewModel<IdeaDetailsViewModel>()
         LaunchedEffect(Unit) {
@@ -64,7 +67,7 @@ fun NavController.navigateToIdeaDetailsScreen(
     navOptions: NavOptions? = null
 ) {
     val destination = Screen.IdeaDetails.route
-        .replace("{postId}", postId.toString())
-        .replace("{initiallyScrollToComments}", initiallyScrollToComments.toString())
+        .replace("{postId}", "$postId")
+        .replace("{initiallyScrollToComments}", "$initiallyScrollToComments")
     navigate(destination, navOptions)
 }

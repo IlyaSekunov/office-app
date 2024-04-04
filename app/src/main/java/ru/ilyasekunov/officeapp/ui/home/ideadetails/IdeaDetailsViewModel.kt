@@ -221,8 +221,8 @@ class IdeaDetailsViewModel @Inject constructor(
     fun sendComment() {
         viewModelScope.launch {
             updateIsSendingMessageStateLoading(true)
-            val uploadedImagesResult = uploadAttachedImages()
-            if (uploadedImagesResult.isFailure) {
+            val uploadedImageResult = uploadAttachedImage()
+            if (uploadedImageResult.isFailure) {
                 updateIsErrorWhileSendingComment(true)
                 updateIsSendingMessageStateLoading(false)
                 return@launch
@@ -230,7 +230,7 @@ class IdeaDetailsViewModel @Inject constructor(
 
             val commentDto = CommentDto(
                 content = sendingMessageUiState.message,
-                attachedImage = uploadedImagesResult.getOrThrow()
+                attachedImage = uploadedImageResult.getOrThrow()
             )
             val postId = ideaPostUiState.ideaPost!!.id
             val sendCommentResult = commentsRepository.sendComment(postId, commentDto)
@@ -287,7 +287,10 @@ class IdeaDetailsViewModel @Inject constructor(
         updateIsPostLoading(false)
     }
 
-    private suspend fun uploadAttachedImages(): Result<String> {
+    private suspend fun uploadAttachedImage(): Result<String?> {
+        if (sendingMessageUiState.attachedImages.isEmpty()) {
+            return Result.success(null)
+        }
         val imageToUpload = sendingMessageUiState.attachedImages[0]
         if (imageToUpload.image is Uri) {
             val uploadResult = imagesRepository.uploadImage(imageToUpload.image)
@@ -299,6 +302,6 @@ class IdeaDetailsViewModel @Inject constructor(
         if (imageToUpload.image is String) {
             return Result.success(imageToUpload.image)
         }
-        return Result.failure(Exception())
+        return Result.success(null)
     }
 }

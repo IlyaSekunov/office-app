@@ -24,9 +24,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +56,7 @@ import ru.ilyasekunov.officeapp.ui.components.SendingMessageUiState
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
 import ru.ilyasekunov.officeapp.ui.home.AttachedImages
 import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
+import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.util.toRussianString
 import java.time.LocalDateTime
 
@@ -82,6 +87,7 @@ fun IdeaDetailsScreen(
     when {
         !ideaPostUiState.postExists -> PostsNotExists(navigateBack)
         ideaPostUiState.isLoading || ideaPostUiState.ideaPost == null -> LoadingScreen()
+        sendingMessageUiState.isLoading -> LoadingScreen()
         ideaPostUiState.isErrorWhileLoading -> {
             ErrorScreen(
                 message = stringResource(R.string.error_connecting_to_server),
@@ -90,8 +96,10 @@ fun IdeaDetailsScreen(
         }
 
         else -> {
+            val snackbarHostState = remember { SnackbarHostState() }
             Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,
+                snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
                 bottomBar = {
                     SendingMessageBottomBar(
                         sendingMessageUiState = sendingMessageUiState,
@@ -179,6 +187,32 @@ fun IdeaDetailsScreen(
                     )
                 }
             }
+            ObserveIsErrorWhileSendingComment(
+                sendingMessageUiState = sendingMessageUiState,
+                snackbarHostState = snackbarHostState,
+                onRetryButtonClick = onSendCommentClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun ObserveIsErrorWhileSendingComment(
+    sendingMessageUiState: SendingMessageUiState,
+    snackbarHostState: SnackbarHostState,
+    onRetryButtonClick: () -> Unit
+) {
+    val errorMessage = stringResource(R.string.error_while_publishing_comment)
+    val retryLabel = stringResource(R.string.retry)
+    LaunchedEffect(sendingMessageUiState.isErrorWhileSending) {
+        if (sendingMessageUiState.isErrorWhileSending) {
+            networkErrorSnackbar(
+                snackbarHostState = snackbarHostState,
+                duration = SnackbarDuration.Short,
+                message = errorMessage,
+                retryLabel = retryLabel,
+                onRetryClick = onRetryButtonClick
+            )
         }
     }
 }

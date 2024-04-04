@@ -84,7 +84,8 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideCommentsRepository(
-        @RemoteDataSource commentsDataSource: CommentsDataSource
+        //@RemoteDataSource commentsDataSource: CommentsDataSource
+        @MockDataSource commentsDataSource: CommentsDataSource
     ): CommentsRepository = CommentsRepositoryImpl(commentsDataSource)
 
     @Provides
