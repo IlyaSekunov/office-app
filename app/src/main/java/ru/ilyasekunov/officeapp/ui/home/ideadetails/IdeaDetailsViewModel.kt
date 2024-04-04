@@ -219,28 +219,30 @@ class IdeaDetailsViewModel @Inject constructor(
     }
 
     fun sendComment() {
-        viewModelScope.launch {
-            updateIsSendingMessageStateLoading(true)
-            val uploadedImageResult = uploadAttachedImage()
-            if (uploadedImageResult.isFailure) {
-                updateIsErrorWhileSendingComment(true)
-                updateIsSendingMessageStateLoading(false)
-                return@launch
-            }
+        if (isMessageValid()) {
+            viewModelScope.launch {
+                updateIsSendingMessageStateLoading(true)
+                val uploadedImageResult = uploadAttachedImage()
+                if (uploadedImageResult.isFailure) {
+                    updateIsErrorWhileSendingComment(true)
+                    updateIsSendingMessageStateLoading(false)
+                    return@launch
+                }
 
-            val commentDto = CommentDto(
-                content = sendingMessageUiState.message,
-                attachedImage = uploadedImageResult.getOrThrow()
-            )
-            val postId = ideaPostUiState.ideaPost!!.id
-            val sendCommentResult = commentsRepository.sendComment(postId, commentDto)
-            if (sendCommentResult.isSuccess) {
-                updateIsErrorWhileSendingComment(false)
-                clearSendingUiState()
-            } else {
-                updateIsErrorWhileSendingComment(true)
+                val commentDto = CommentDto(
+                    content = sendingMessageUiState.message,
+                    attachedImage = uploadedImageResult.getOrThrow()
+                )
+                val postId = ideaPostUiState.ideaPost!!.id
+                val sendCommentResult = commentsRepository.sendComment(postId, commentDto)
+                if (sendCommentResult.isSuccess) {
+                    updateIsErrorWhileSendingComment(false)
+                    clearSendingUiState()
+                } else {
+                    updateIsErrorWhileSendingComment(true)
+                }
+                updateIsSendingMessageStateLoading(false)
             }
-            updateIsSendingMessageStateLoading(false)
         }
     }
 
@@ -304,4 +306,6 @@ class IdeaDetailsViewModel @Inject constructor(
         }
         return Result.success(null)
     }
+
+    private fun isMessageValid() = sendingMessageUiState.message.isNotBlank()
 }

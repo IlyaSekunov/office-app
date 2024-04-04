@@ -52,7 +52,6 @@ import ru.ilyasekunov.officeapp.ui.components.DislikeButton
 import ru.ilyasekunov.officeapp.ui.components.LikeButton
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
-import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoSection
 import ru.ilyasekunov.officeapp.util.toRussianString
