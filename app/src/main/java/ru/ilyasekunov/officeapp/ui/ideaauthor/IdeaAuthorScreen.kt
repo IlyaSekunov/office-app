@@ -1,6 +1,7 @@
 package ru.ilyasekunov.officeapp.ui.ideaauthor
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -50,6 +52,7 @@ import ru.ilyasekunov.officeapp.ui.components.DislikeButton
 import ru.ilyasekunov.officeapp.ui.components.LikeButton
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
+import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoSection
 import ru.ilyasekunov.officeapp.util.toRussianString
@@ -273,6 +276,11 @@ fun OfficeSection(
             modifier = Modifier
                 .size(officeImageSize)
                 .clip(MaterialTheme.shapes.medium)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = MaterialTheme.shapes.medium
+                )
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
@@ -293,6 +301,10 @@ fun Idea(
 ) {
     Box(
         modifier = modifier
+            .shadow(
+                elevation = 1.dp,
+                shape = MaterialTheme.shapes.large
+            )
             .clip(MaterialTheme.shapes.large)
             .clickable(onClick = onIdeaClick)
             .background(MaterialTheme.colorScheme.background)

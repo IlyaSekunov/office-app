@@ -18,31 +18,29 @@ fun Modifier.shadow(
     bottomSideWidth: Dp = 0.dp,
     blurRadius: Dp = 0.dp,
     cornerRadius: Dp = 0.dp
-) = this.then(
-    Modifier.drawBehind {
-        drawIntoCanvas {
-            val paint = Paint()
-            val frameworkPaint = paint.asFrameworkPaint()
-            val leftPixel = 0f - leftSideWidth.toPx()
-            val topPixel = 0f - topSideWidth.toPx()
-            val rightPixel = size.width + rightSideWidth.toPx()
-            val bottomPixel = size.height + bottomSideWidth.toPx()
+) = this.drawBehind {
+    drawIntoCanvas {
+        val paint = Paint()
+        val frameworkPaint = paint.asFrameworkPaint()
+        val leftPixel = 0f - leftSideWidth.toPx()
+        val topPixel = 0f - topSideWidth.toPx()
+        val rightPixel = size.width + rightSideWidth.toPx()
+        val bottomPixel = size.height + bottomSideWidth.toPx()
 
-            if (blurRadius != 0.dp) {
-                frameworkPaint.maskFilter =
-                    BlurMaskFilter(blurRadius.toPx(), BlurMaskFilter.Blur.NORMAL)
-            }
-
-            frameworkPaint.color = color.toArgb()
-            it.drawRoundRect(
-                left = leftPixel,
-                top = topPixel,
-                right = rightPixel,
-                bottom = bottomPixel,
-                radiusX = cornerRadius.toPx(),
-                radiusY = cornerRadius.toPx(),
-                paint = paint
-            )
+        if (blurRadius != 0.dp) {
+            frameworkPaint.maskFilter =
+                BlurMaskFilter(blurRadius.toPx(), BlurMaskFilter.Blur.NORMAL)
         }
+
+        frameworkPaint.color = color.toArgb()
+        it.drawRoundRect(
+            left = leftPixel,
+            top = topPixel,
+            right = rightPixel,
+            bottom = bottomPixel,
+            radiusX = cornerRadius.toPx(),
+            radiusY = cornerRadius.toPx(),
+            paint = paint
+        )
     }
-)
+}
