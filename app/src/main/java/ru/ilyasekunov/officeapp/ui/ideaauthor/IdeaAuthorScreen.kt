@@ -1,8 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.ideaauthor
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -27,8 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,10 +36,6 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.valentinilk.shimmer.shimmer
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
@@ -50,12 +43,13 @@ import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.components.DislikeButton
+import ru.ilyasekunov.officeapp.ui.components.LikeButton
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
-import ru.ilyasekunov.officeapp.ui.home.DislikeButton
-import ru.ilyasekunov.officeapp.ui.home.LikeButton
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoSection
 import ru.ilyasekunov.officeapp.util.toRussianString
@@ -148,36 +142,12 @@ fun IdeaAuthorScreenContent(
                     )
                     Spacer(modifier = Modifier.height(30.dp))
                 }
-                if (ideas.itemCount == 0) {
-                    item {
-                        Text(
-                            text = stringResource(R.string.list_is_empty_yet),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontSize = 16.sp,
-                            color = MaterialTheme.colorScheme.surfaceVariant
-                        )
-                    }
-                } else {
-                    items(
-                        count = ideas.itemCount,
-                        key = ideas.itemKey { it.id }
-                    ) {
-                        val idea = ideas[it]!!
-                        Idea(
-                            idea = idea,
-                            onIdeaClick = { navigateToIdeaDetailsScreen(idea.id) },
-                            onLikeClick = { onIdeaLikeClick(idea, !idea.isLikePressed) },
-                            onDislikeClick = {
-                                onIdeaDislikeClick(
-                                    idea,
-                                    !idea.isDislikePressed
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(20.dp))
-                    }
-                }
+                ideas(
+                    ideas = ideas,
+                    onIdeaLikeClick = onIdeaLikeClick,
+                    onIdeaDislikeClick = onIdeaDislikeClick,
+                    navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen
+                )
             }
             NavigateBackArrow(
                 onClick = navigateBack,
@@ -187,6 +157,44 @@ fun IdeaAuthorScreenContent(
                     .statusBarsPadding()
                     .padding(start = 10.dp)
             )
+        }
+    }
+}
+
+private fun LazyListScope.ideas(
+    ideas: LazyPagingItems<IdeaPost>,
+    onIdeaLikeClick: (idea: IdeaPost, isPressed: Boolean) -> Unit,
+    onIdeaDislikeClick: (idea: IdeaPost, isPressed: Boolean) -> Unit,
+    navigateToIdeaDetailsScreen: (Long) -> Unit
+) {
+    if (ideas.itemCount == 0) {
+        item {
+            Text(
+                text = stringResource(R.string.list_is_empty_yet),
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.surfaceVariant
+            )
+        }
+    } else {
+        items(
+            count = ideas.itemCount,
+            key = ideas.itemKey { it.id }
+        ) {
+            val idea = ideas[it]!!
+            Idea(
+                idea = idea,
+                onIdeaClick = { navigateToIdeaDetailsScreen(idea.id) },
+                onLikeClick = { onIdeaLikeClick(idea, !idea.isLikePressed) },
+                onDislikeClick = {
+                    onIdeaDislikeClick(
+                        idea,
+                        !idea.isDislikePressed
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -260,42 +268,18 @@ fun OfficeSection(
             fontSize = 24.sp
         )
         Spacer(modifier = Modifier.height(18.dp))
-        val asyncImagePainter = rememberAsyncImagePainter(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(office.imageUrl)
-                .size(coil.size.Size.ORIGINAL)
-                .build()
+        AsyncImageWithLoading(
+            model = office.imageUrl,
+            modifier = Modifier
+                .size(officeImageSize)
+                .clip(MaterialTheme.shapes.medium)
         )
-        val officeImageModifier = Modifier
-            .size(officeImageSize)
-            .clip(MaterialTheme.shapes.medium)
-        when (asyncImagePainter.state) {
-            is AsyncImagePainter.State.Loading -> {
-                Box(modifier = officeImageModifier.shimmer())
-            }
-
-            is AsyncImagePainter.State.Success -> {
-                Image(
-                    painter = asyncImagePainter,
-                    contentDescription = "office_image",
-                    contentScale = ContentScale.Crop,
-                    modifier = officeImageModifier
-                        .border(
-                            width = 1.dp,
-                            shape = MaterialTheme.shapes.medium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                )
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = office.address,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontSize = 16.sp
-                )
-            }
-
-            else -> {}
-        }
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = office.address,
+            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 16.sp
+        )
     }
 }
 
@@ -326,6 +310,7 @@ fun Idea(
                 LikeButton(
                     onClick = onLikeClick,
                     iconSize = 18.dp,
+                    textSize = 14.sp,
                     isPressed = idea.isLikePressed,
                     count = idea.likesCount
                 )
@@ -333,6 +318,7 @@ fun Idea(
                 DislikeButton(
                     onClick = onDislikeClick,
                     iconSize = 18.dp,
+                    textSize = 14.sp,
                     isPressed = idea.isDislikePressed,
                     count = idea.dislikesCount
                 )

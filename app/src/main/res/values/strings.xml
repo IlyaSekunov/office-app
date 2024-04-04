@@ -49,6 +49,7 @@
     <string name="email">Email</string>
     <string name="retry">Повторить</string>
     <string name="error_connecting_to_server">Ошибка соединения с сервером</string>
+    <string name="error_while_loading">Ошибка при загрузке</string>
     <string name="undo">Отменить</string>
     <string name="email_error_is_blank">Email не может быть пустым</string>
     <string name="email_error_is_not_pattern">Email не соответсвует формату</string>
@@ -65,4 +66,7 @@
     <string name="by_comments">Комментариям</string>
     <string name="by_likes">Лайкам</string>
     <string name="by_dislikes">Дизлайкам</string>
+    <string name="comments_list_is_empty">Комментариев пока нет</string>
+    <string name="posts_not_exists">Данной записи не существует</string>
+    <string name="message">Сообщение</string>
 </resources>

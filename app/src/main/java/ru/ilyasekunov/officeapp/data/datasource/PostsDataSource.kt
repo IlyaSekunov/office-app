@@ -9,8 +9,7 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
 interface PostsDataSource {
     suspend fun publishPost(post: PublishPostDto): Result<Unit>
-    suspend fun posts(): Result<List<IdeaPost>>
-    suspend fun findPostById(postId: Long): Result<IdeaPost?>
+    suspend fun findPostById(postId: Long): Result<IdeaPost>
     suspend fun posts(
         searchPostsDto: SearchPostsDto,
         @IntRange(from = 1)

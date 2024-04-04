@@ -80,12 +80,7 @@ class PostsRemoteDataSource(
             handleResponse { postsApi.filters() }
         }
 
-    override suspend fun posts(): Result<List<IdeaPost>> =
-        withContext(ioDispatcher) {
-            handleResponse { postsApi.posts() }
-        }
-
-    override suspend fun findPostById(postId: Long): Result<IdeaPost?> =
+    override suspend fun findPostById(postId: Long): Result<IdeaPost> =
         withContext(ioDispatcher) {
             handleResponse { postsApi.findPostById(postId) }
         }

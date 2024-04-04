@@ -78,9 +78,7 @@ class EditIdeaViewModel @Inject constructor(
             val ideaPostResult = postsRepository.findPostById(postId)
             if (ideaPostResult.isSuccess) {
                 val ideaPost = ideaPostResult.getOrThrow()
-                ideaPost?.let {
-                    editIdeaUiState = it.toEditIdeaUiState()
-                }
+                editIdeaUiState = ideaPost.toEditIdeaUiState()
                 updateIsNetworkError(false)
             } else {
                 updateIsNetworkError(true)

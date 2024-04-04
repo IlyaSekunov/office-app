@@ -10,10 +10,6 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 class PostsRepositoryImpl(
     private val postsDatasource: PostsDataSource
 ) : PostsRepository {
-    override suspend fun posts(): Result<List<IdeaPost>> {
-        return postsDatasource.posts()
-    }
-
     override suspend fun posts(
         searchPostsDto: SearchPostsDto,
         page: Int,
@@ -30,7 +26,7 @@ class PostsRepositoryImpl(
         return postsDatasource.editPostById(postId, editedPostDto)
     }
 
-    override suspend fun findPostById(postId: Long): Result<IdeaPost?> {
+    override suspend fun findPostById(postId: Long): Result<IdeaPost> {
         return postsDatasource.findPostById(postId)
     }
 

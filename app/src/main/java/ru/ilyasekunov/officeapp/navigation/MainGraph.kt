@@ -11,8 +11,10 @@ import ru.ilyasekunov.officeapp.navigation.home.editidea.navigateToSuggestIdeaSc
 import ru.ilyasekunov.officeapp.navigation.home.editidea.suggestIdeaScreen
 import ru.ilyasekunov.officeapp.navigation.home.filtersScreen
 import ru.ilyasekunov.officeapp.navigation.home.homeScreen
+import ru.ilyasekunov.officeapp.navigation.home.ideaDetailsScreen
 import ru.ilyasekunov.officeapp.navigation.home.navigateToFiltersScreen
 import ru.ilyasekunov.officeapp.navigation.home.navigateToHomeScreen
+import ru.ilyasekunov.officeapp.navigation.home.navigateToIdeaDetailsScreen
 import ru.ilyasekunov.officeapp.navigation.ideaauthor.ideaAuthorScreen
 import ru.ilyasekunov.officeapp.navigation.ideaauthor.navigateToIdeaAuthorScreen
 import ru.ilyasekunov.officeapp.navigation.userprofile.navigateToProfileScreen
@@ -29,7 +31,15 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
             viewModelStoreOwnerProvider = {
                 navController.getBackStackEntry(MainGraphRoute)
             },
-            navigateToIdeaDetailsScreen = { /*TODO*/ },
+            navigateToIdeaDetailsScreen = { postId, initiallyScrollToComments ->
+                navController.navigateToIdeaDetailsScreen(
+                    postId = postId,
+                    initiallyScrollToComments = initiallyScrollToComments,
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
             navigateToAuthorScreen = {
                 navController.navigateToIdeaAuthorScreen(
                     authorId = it,
@@ -230,6 +240,14 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
                         .build()
+                )
+            },
+            navigateBack = navController::popBackStack
+        )
+        ideaDetailsScreen(
+            navigateToIdeaAuthorScreen = {
+                navController.navigateToIdeaAuthorScreen(
+                    authorId = it
                 )
             },
             navigateBack = navController::popBackStack

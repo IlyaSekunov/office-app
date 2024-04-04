@@ -7,7 +7,6 @@ import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
 interface PostsRepository {
-    suspend fun posts(): Result<List<IdeaPost>>
     suspend fun posts(
         searchPostsDto: SearchPostsDto,
         page: Int,
@@ -16,7 +15,7 @@ interface PostsRepository {
 
     suspend fun publishPost(post: PublishPostDto): Result<Unit>
     suspend fun editPostById(postId: Long, editedPostDto: EditPostDto): Result<Unit>
-    suspend fun findPostById(postId: Long): Result<IdeaPost?>
+    suspend fun findPostById(postId: Long): Result<IdeaPost>
     suspend fun deletePostById(postId: Long): Result<Unit>
     suspend fun pressLike(postId: Long): Result<Unit>
     suspend fun removeLike(postId: Long): Result<Unit>

@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -55,8 +54,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,13 +63,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.valentinilk.shimmer.shimmer
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
@@ -363,6 +359,7 @@ fun AttachedImages(
             AttachedImage(
                 image = images[it],
                 onRemoveClick = { onRemoveClick(images[it]) },
+                closeIconSize = 26.dp,
                 modifier = Modifier
                     .size(imageSize)
                     .clip(MaterialTheme.shapes.small)
@@ -375,15 +372,10 @@ fun AttachedImages(
 fun AttachedImage(
     image: AttachedImage,
     onRemoveClick: () -> Unit,
-    modifier: Modifier = Modifier
+    closeIconSize: Dp,
+    modifier: Modifier = Modifier,
+    closeIconRightCornerOffsetPercent: Float = 0.05f
 ) {
-    val imagePainter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(image.image)
-            .size(coil.size.Size.ORIGINAL)
-            .build()
-    )
-
     var isVisible by rememberSaveable { mutableStateOf(true) }
     val animationDuration = 300
     val rotation = remember { Animatable(0f) }
@@ -401,30 +393,32 @@ fun AttachedImage(
                 .fillMaxSize()
                 .rotate(rotation.value)
         ) {
-            when (imagePainter.state) {
-                is AsyncImagePainter.State.Success -> {
-                    Image(
-                        painter = imagePainter,
-                        contentDescription = "attached_image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
+            var attachedImageSize by remember { mutableStateOf(DpSize(0.dp, 0.dp)) }
+            val density = LocalDensity.current.density
 
-                else -> {
-                    Box(
-                        modifier = Modifier
-                            .shimmer()
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                    )
-                }
-            }
+            AsyncImageWithLoading(
+                model = image.image,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onGloballyPositioned {
+                        val heightDp = (it.size.height / density).dp
+                        val widthDp = (it.size.width / density).dp
+                        attachedImageSize = DpSize(height = heightDp, width = widthDp)
+                    }
+            )
+
+            val closeIconButtonRightCornerTopPadding =
+                (attachedImageSize.height.value * closeIconRightCornerOffsetPercent).dp
+            val closeIconButtonRightCornerRightPadding =
+                (attachedImageSize.width.value * closeIconRightCornerOffsetPercent).dp
             CloseIconButton(
                 onClick = { isVisible = false },
                 modifier = Modifier
-                    .padding(top = 8.dp, end = 8.dp)
-                    .size(26.dp)
+                    .padding(
+                        top = closeIconButtonRightCornerTopPadding,
+                        end = closeIconButtonRightCornerRightPadding
+                    )
+                    .size(closeIconSize)
                     .clip(CircleShape)
                     .background(Color.White)
                     .align(Alignment.TopEnd)

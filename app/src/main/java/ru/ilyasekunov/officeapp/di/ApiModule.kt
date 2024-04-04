@@ -11,6 +11,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import ru.ilyasekunov.officeapp.data.api.AuthApi
 import ru.ilyasekunov.officeapp.data.api.AuthorApi
+import ru.ilyasekunov.officeapp.data.api.CommentsApi
 import ru.ilyasekunov.officeapp.data.api.ImgurApi
 import ru.ilyasekunov.officeapp.data.api.OfficeApi
 import ru.ilyasekunov.officeapp.data.api.PostsApi
@@ -71,4 +72,9 @@ object ApiModule {
             .build()
             .create(ImgurApi::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideCommentsApi(retrofit: Retrofit): CommentsApi =
+        retrofit.create(CommentsApi::class.java)
 }

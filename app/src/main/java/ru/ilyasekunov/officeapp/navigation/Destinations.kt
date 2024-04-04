@@ -26,6 +26,16 @@ sealed class Screen(val route: String, val arguments: List<NamedNavArgument> = e
             navArgument("authorId") { type = NavType.LongType }
         )
     )
+    data object IdeaDetails : Screen(
+        route = "idea-details/{postId}?initiallyScrollToComments={initiallyScrollToComments}",
+        arguments = listOf(
+            navArgument("postId") { type = NavType.LongType },
+            navArgument("initiallyScrollToComments") {
+                type = NavType.BoolType
+                defaultValue = false
+            }
+        )
+    )
 }
 
 sealed class BottomNavigationScreen(

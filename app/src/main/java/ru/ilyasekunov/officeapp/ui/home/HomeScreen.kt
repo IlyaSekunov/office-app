@@ -2,7 +2,6 @@ package ru.ilyasekunov.officeapp.ui.home
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -66,8 +65,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -76,7 +73,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -99,14 +95,12 @@ import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
-import ru.ilyasekunov.officeapp.ui.animations.dislikePressedAnimation
-import ru.ilyasekunov.officeapp.ui.animations.likePressedAnimation
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.components.DislikeButton
+import ru.ilyasekunov.officeapp.ui.components.LikeButton
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
-import ru.ilyasekunov.officeapp.ui.theme.dislikePressedColor
-import ru.ilyasekunov.officeapp.ui.theme.likePressedColor
 import ru.ilyasekunov.officeapp.util.toRussianString
 import ru.ilyasekunov.officeapp.util.toThousandsString
 import java.time.LocalDateTime
@@ -123,12 +117,11 @@ fun HomeScreen(
     onDeletePostClick: (IdeaPost) -> Unit,
     onPostLikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onPostDislikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
-    onCommentClick: (IdeaPost) -> Unit,
     onRetryInfoLoad: () -> Unit,
     onPullToRefresh: () -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
-    navigateToIdeaDetailsScreen: (postId: Long) -> Unit,
+    navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
     navigateToFavouriteScreen: () -> Unit,
@@ -221,7 +214,6 @@ fun HomeScreen(
                         },
                         onPostLikeClick = onPostLikeClick,
                         onPostDislikeClick = onPostDislikeClick,
-                        onCommentClick = onCommentClick,
                         navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
                         navigateToAuthorScreen = navigateToAuthorScreen,
                         navigateToEditIdeaScreen = navigateToEditIdeaScreen,
@@ -241,8 +233,7 @@ fun IdeaPosts(
     onDeletePostClick: (IdeaPost) -> Unit,
     onPostLikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
     onPostDislikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
-    onCommentClick: (IdeaPost) -> Unit,
-    navigateToIdeaDetailsScreen: (postId: Long) -> Unit,
+    navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
     modifier: Modifier = Modifier,
@@ -262,7 +253,7 @@ fun IdeaPosts(
                 ideaPost = post,
                 isAuthorPostCurrentUser = isIdeaAuthorCurrentUser(post.ideaAuthor),
                 onPostClick = {
-                    navigateToIdeaDetailsScreen(post.id)
+                    navigateToIdeaDetailsScreen(post.id, false)
                 },
                 onLikeClick = {
                     onPostLikeClick(post, !post.isLikePressed)
@@ -271,7 +262,7 @@ fun IdeaPosts(
                     onPostDislikeClick(post, !post.isDislikePressed)
                 },
                 onCommentClick = {
-                    onCommentClick(post)
+                    navigateToIdeaDetailsScreen(post.id, true)
                 },
                 navigateToAuthorScreen = navigateToAuthorScreen,
                 navigateToEditIdeaScreen = navigateToEditIdeaScreen,
@@ -615,7 +606,8 @@ fun SearchTextField(
             color = MaterialTheme.colorScheme.outline,
             modifier = Modifier.fillMaxHeight(0.7f)
         )
-        Icon(painter = painterResource(R.drawable.baseline_tune_24),
+        Icon(
+            painter = painterResource(R.drawable.baseline_tune_24),
             contentDescription = "filters_icon",
             tint = MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier
@@ -656,7 +648,8 @@ fun OfficeFilterSearch(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxSize()
         ) {
-            Image(painter = rememberAsyncImagePainter(office.imageUrl),
+            Image(
+                painter = rememberAsyncImagePainter(office.imageUrl),
                 contentDescription = "office_image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -907,6 +900,7 @@ fun LikesDislikesCommentsSection(
         LikeButton(
             onClick = onLikeClick,
             iconSize = 18.dp,
+            textSize = 14.sp,
             isPressed = isLikePressed,
             count = likesCount
         )
@@ -914,6 +908,7 @@ fun LikesDislikesCommentsSection(
         DislikeButton(
             onClick = onDislikeClick,
             iconSize = 18.dp,
+            textSize = 14.sp,
             isPressed = isDislikePressed,
             count = dislikesCount
         )
@@ -923,127 +918,6 @@ fun LikesDislikesCommentsSection(
             count = commentsCount,
             color = MaterialTheme.colorScheme.surfaceVariant,
             onClick = onCommentClick
-        )
-    }
-}
-
-@Composable
-fun LikeButton(
-    onClick: () -> Unit,
-    iconSize: Dp,
-    isPressed: Boolean,
-    count: Int,
-    modifier: Modifier = Modifier
-) {
-    val animatedIconRotation = remember { Animatable(0f) }
-    val animatedIconScale = remember { Animatable(1f) }
-    var isAnimationRunning by remember { mutableStateOf(false) }
-    if (isAnimationRunning) {
-        LaunchedEffect(Unit) {
-            likePressedAnimation(
-                animatableScale = animatedIconScale,
-                animatableRotation = animatedIconRotation
-            ).join()
-            isAnimationRunning = false
-        }
-    }
-
-    val color = if (isPressed) likePressedColor else MaterialTheme.colorScheme.surfaceVariant
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .clip(MaterialTheme.shapes.large)
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) {
-                onClick()
-                if (!isPressed) {
-                    isAnimationRunning = true
-                }
-            }
-            .background(color.copy(alpha = 0.2f))
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.outline_thumb_up_24),
-            contentDescription = "like_icon",
-            tint = color,
-            modifier = Modifier
-                .padding(start = 10.dp, top = 6.dp, end = 7.dp, bottom = 6.dp)
-                .size(iconSize)
-                .graphicsLayer {
-                    scaleX = animatedIconScale.value
-                    scaleY = animatedIconScale.value
-                    transformOrigin = TransformOrigin(0f, 1f)
-                    rotationZ = animatedIconRotation.value
-                }
-        )
-        Text(
-            text = count.toThousandsString(),
-            style = MaterialTheme.typography.labelMedium,
-            fontSize = 14.sp,
-            color = color,
-            modifier = Modifier.padding(end = 10.dp)
-        )
-    }
-}
-
-@Composable
-fun DislikeButton(
-    onClick: () -> Unit,
-    iconSize: Dp,
-    isPressed: Boolean,
-    count: Int,
-    modifier: Modifier = Modifier
-) {
-    val animatedIconRotation = remember { Animatable(0f) }
-    val animatedIconScale = remember { Animatable(1f) }
-    var isAnimationRunning by remember { mutableStateOf(false) }
-    if (isAnimationRunning) {
-        LaunchedEffect(Unit) {
-            dislikePressedAnimation(
-                animatableScale = animatedIconScale, animatableRotation = animatedIconRotation
-            ).join()
-            isAnimationRunning = false
-        }
-    }
-
-    val color = if (isPressed) dislikePressedColor else MaterialTheme.colorScheme.surfaceVariant
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .clip(MaterialTheme.shapes.large)
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) {
-                onClick()
-                if (!isPressed) {
-                    isAnimationRunning = true
-                }
-            }
-            .background(color.copy(alpha = 0.2f))
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.outline_thumb_down_24),
-            contentDescription = "like_icon",
-            tint = color,
-            modifier = Modifier
-                .padding(start = 10.dp, top = 6.dp, end = 7.dp, bottom = 6.dp)
-                .size(iconSize)
-                .graphicsLayer {
-                    scaleX = animatedIconScale.value
-                    scaleY = animatedIconScale.value
-                    transformOrigin = TransformOrigin(1f, 0f)
-                    rotationZ = animatedIconRotation.value
-                }
-        )
-        Text(
-            text = count.toThousandsString(),
-            style = MaterialTheme.typography.labelMedium,
-            fontSize = 14.sp,
-            color = color,
-            modifier = Modifier.padding(end = 10.dp)
         )
     }
 }
@@ -1060,11 +934,7 @@ fun ActionItem(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clip(MaterialTheme.shapes.large)
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-                onClick = onClick
-            )
+            .clickable(onClick = onClick)
             .background(color.copy(alpha = 0.2f))
     ) {
         Icon(

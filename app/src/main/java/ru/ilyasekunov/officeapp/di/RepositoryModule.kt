@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.datasource.AuthorDataSource
+import ru.ilyasekunov.officeapp.data.datasource.CommentsDataSource
 import ru.ilyasekunov.officeapp.data.datasource.ImagesUploaderDataSource
 import ru.ilyasekunov.officeapp.data.datasource.OfficeDataSource
 import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
@@ -15,6 +16,9 @@ import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.author.AuthorRepository
 import ru.ilyasekunov.officeapp.data.repository.author.AuthorRepositoryImpl
+import ru.ilyasekunov.officeapp.data.repository.comments.CommentsPagingRepository
+import ru.ilyasekunov.officeapp.data.repository.comments.CommentsRepository
+import ru.ilyasekunov.officeapp.data.repository.comments.CommentsRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.office.OfficeRepository
@@ -32,22 +36,22 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideUserRepository(
-        //@MockDataSource userDatasource: UserDataSource
-        @RemoteDataSource userDatasource: UserDataSource
+        @MockDataSource userDatasource: UserDataSource
+        //@RemoteDataSource userDatasource: UserDataSource
     ): UserRepository = UserRepositoryImpl(userDatasource)
 
     @Provides
     @Singleton
     fun providePostsRepository(
-        //@MockDataSource postsDatasource: PostsDataSource
-        @RemoteDataSource postsDatasource: PostsDataSource
+        @MockDataSource postsDatasource: PostsDataSource
+        //@RemoteDataSource postsDatasource: PostsDataSource
     ): PostsRepository = PostsRepositoryImpl(postsDatasource)
 
     @Provides
     @Singleton
     fun provideAuthRepository(
-        //@MockDataSource authDatasource: AuthDataSource,
-        @RemoteDataSource authDatasource: AuthDataSource,
+        @MockDataSource authDatasource: AuthDataSource,
+        //@RemoteDataSource authDatasource: AuthDataSource,
         @LocalDataSource tokenDatasource: TokenLocalDataSource
     ): AuthRepository = AuthRepositoryImpl(authDatasource, tokenDatasource)
 
@@ -60,15 +64,15 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideOfficeRepository(
-        //@MockDataSource officeDataSource: OfficeDataSource
-        @RemoteDataSource officeDataSource: OfficeDataSource
+        @MockDataSource officeDataSource: OfficeDataSource
+        //@RemoteDataSource officeDataSource: OfficeDataSource
     ): OfficeRepository = OfficeRepositoryImpl(officeDataSource)
 
     @Provides
     @Singleton
     fun providePostsPagingRepository(
-        //@MockDataSource postsDatasource: PostsDataSource
-        @RemoteDataSource postsDatasource: PostsDataSource
+        @MockDataSource postsDatasource: PostsDataSource
+        //@RemoteDataSource postsDatasource: PostsDataSource
     ): PostsPagingRepository = PostsPagingRepository(postsDatasource)
 
     @Provides
@@ -76,4 +80,17 @@ object RepositoryModule {
     fun provideAuthorRepository(
         @RemoteDataSource authorDataSource: AuthorDataSource
     ): AuthorRepository = AuthorRepositoryImpl(authorDataSource)
+
+    @Provides
+    @Singleton
+    fun provideCommentsRepository(
+        @RemoteDataSource commentsDataSource: CommentsDataSource
+    ): CommentsRepository = CommentsRepositoryImpl(commentsDataSource)
+
+    @Provides
+    @Singleton
+    fun provideCommentsPagingDataSource(
+        //@RemoteDataSource commentsDataSource: CommentsDataSource
+        @MockDataSource commentsDataSource: CommentsDataSource
+    ): CommentsPagingRepository = CommentsPagingRepository(commentsDataSource)
 }

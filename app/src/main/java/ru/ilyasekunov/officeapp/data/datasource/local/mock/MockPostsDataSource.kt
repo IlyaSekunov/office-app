@@ -8,6 +8,7 @@ import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.User
+import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
 import java.time.LocalDateTime
 
 class MockPostsDataSource : PostsDataSource {
@@ -18,7 +19,6 @@ class MockPostsDataSource : PostsDataSource {
         return Result.success(Unit)
     }
 
-    override suspend fun posts(): Result<List<IdeaPost>> = Result.success(Posts)
     override suspend fun posts(
         searchPostsDto: SearchPostsDto,
         page: Int,
@@ -62,8 +62,11 @@ class MockPostsDataSource : PostsDataSource {
         )
     }
 
-    override suspend fun findPostById(postId: Long): Result<IdeaPost?> {
-        return Result.success(Posts.find { it.id == postId })
+    override suspend fun findPostById(postId: Long): Result<IdeaPost> {
+        val post = Posts.find { it.id == postId }
+        return post?.let {
+            Result.success(it)
+        } ?: Result.failure(HttpNotFoundException())
     }
 
     override suspend fun postsByAuthorId(

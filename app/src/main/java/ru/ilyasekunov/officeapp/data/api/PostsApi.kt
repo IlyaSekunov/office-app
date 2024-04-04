@@ -34,7 +34,7 @@ interface PostsApi {
     ): Response<List<IdeaPost>>
 
     @GET("posts/{postId}")
-    suspend fun findPostById(@Path("postId") postId: Long): Response<IdeaPost?>
+    suspend fun findPostById(@Path("postId") postId: Long): Response<IdeaPost>
 
     @PATCH("posts/{postId}")
     suspend fun editPostById(
@@ -59,6 +59,4 @@ interface PostsApi {
 
     @GET("posts/filters")
     suspend fun filters(): Response<Filters>
-
-    suspend fun posts(): Response<List<IdeaPost>>
 }

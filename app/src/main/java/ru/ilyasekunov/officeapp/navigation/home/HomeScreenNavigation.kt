@@ -14,7 +14,7 @@ import ru.ilyasekunov.officeapp.ui.home.HomeViewModel
 
 fun NavGraphBuilder.homeScreen(
     viewModelStoreOwnerProvider: () -> ViewModelStoreOwner,
-    navigateToIdeaDetailsScreen: (postId: Long) -> Unit,
+    navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
@@ -39,7 +39,6 @@ fun NavGraphBuilder.homeScreen(
             onDeletePostClick = homeViewModel::deletePost,
             onPostLikeClick = homeViewModel::updateLike,
             onPostDislikeClick = homeViewModel::updateDislike,
-            onCommentClick = { /*TODO*/ },
             onRetryInfoLoad = {
                 homeViewModel.loadCurrentUser()
                 homeViewModel.loadPosts()

@@ -1,13 +1,12 @@
 package ru.ilyasekunov.officeapp.data.datasource.local.mock
 
+import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.data.model.User
 import java.time.LocalDateTime
-
-var Token: String? = "user"
 
 val SortingCategories = listOf(
     SortingCategory(id = 0, name = "Лайкам"),
@@ -60,7 +59,7 @@ val ideaAuthor = IdeaAuthor(
     name = "Дмитрий",
     surname = "Комарницкий",
     job = "Сотрудник Tinkoff",
-    photo = "",
+    photo = "https://i.pinimg.com/474x/9f/e4/e4/9fe4e42a2f83f78caef84579c1f1980b.jpg",
     office = Offices[2]
 )
 
@@ -85,6 +84,80 @@ val ideaPost = IdeaPost(
     dislikesCount = 101,
     isDislikePressed = false,
     commentsCount = 342
+)
+
+val Comments = mutableListOf(
+    Comment(
+        id = 0,
+        author = ideaAuthor,
+        content = "Ну да, ну да",
+        date = LocalDateTime.now(),
+        isLikePressed = true,
+        likesCount = 234,
+        isDislikePressed = false,
+        dislikesCount = 23
+    ),
+    Comment(
+        id = 1,
+        author = ideaAuthor,
+        content = "Ну да, ну да",
+        date = LocalDateTime.now(),
+        isLikePressed = true,
+        likesCount = 234,
+        attachedImage = "https://img.freepik.com/free-photo/painting-mountain-lake-with-mountain-background_188544-9126.jpg",
+        isDislikePressed = false,
+        dislikesCount = 23
+    ),
+    Comment(
+        id = 2,
+        author = ideaAuthor,
+        content = "Ну да, ну да",
+        date = LocalDateTime.now(),
+        isLikePressed = true,
+        likesCount = 234,
+        isDislikePressed = false,
+        dislikesCount = 23
+    ),
+    Comment(
+        id = 3,
+        author = ideaAuthor,
+        content = "Ну да, ну да",
+        date = LocalDateTime.now(),
+        isLikePressed = true,
+        likesCount = 234,
+        isDislikePressed = false,
+        dislikesCount = 23
+    ),
+    Comment(
+        id = 4,
+        author = ideaAuthor,
+        content = "Ну да, ну да",
+        date = LocalDateTime.now(),
+        isLikePressed = true,
+        likesCount = 234,
+        isDislikePressed = false,
+        dislikesCount = 23
+    ),
+    Comment(
+        id = 5,
+        author = ideaAuthor,
+        content = "Ну да, ну да",
+        date = LocalDateTime.now(),
+        isLikePressed = true,
+        likesCount = 234,
+        isDislikePressed = false,
+        dislikesCount = 23
+    ),
+    Comment(
+        id = 6,
+        author = ideaAuthor,
+        content = "Ну да, ну да",
+        date = LocalDateTime.now(),
+        isLikePressed = true,
+        likesCount = 234,
+        isDislikePressed = false,
+        dislikesCount = 23
+    )
 )
 
 val Posts = mutableListOf(ideaPost)
