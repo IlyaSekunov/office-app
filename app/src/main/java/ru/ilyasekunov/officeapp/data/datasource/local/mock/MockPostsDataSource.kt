@@ -35,9 +35,9 @@ class MockPostsDataSource : PostsDataSource {
             }
         }
         val sortedPosts = when (filtersDto.sortingFilter) {
-            0 -> posts.sortedBy { it.likesCount }
-            1 -> posts.sortedBy { it.dislikesCount }
-            2 -> posts.sortedBy { it.commentsCount }
+            1 -> posts.sortedBy { it.likesCount }
+            2 -> posts.sortedBy { it.dislikesCount }
+            3 -> posts.sortedBy { it.commentsCount }
             null -> posts.sortedBy { it.date }
             else -> throw IllegalStateException("Unknown sorting filter")
         }

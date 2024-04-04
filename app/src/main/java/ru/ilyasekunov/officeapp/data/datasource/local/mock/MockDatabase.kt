@@ -9,9 +9,9 @@ import ru.ilyasekunov.officeapp.data.model.User
 import java.time.LocalDateTime
 
 val SortingCategories = listOf(
-    SortingCategory(id = 0, name = "Лайкам"),
-    SortingCategory(id = 1, name = "Дизлайкам"),
-    SortingCategory(id = 2, name = "Комментариям")
+    SortingCategory(id = 1, name = "Лайкам"),
+    SortingCategory(id = 2, name = "Дизлайкам"),
+    SortingCategory(id = 3, name = "Комментариям")
 )
 
 val Offices = listOf(

@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.data.datasource.local.mock
 
+import okhttp3.internal.toImmutableList
 import ru.ilyasekunov.officeapp.data.datasource.CommentsDataSource
 import ru.ilyasekunov.officeapp.data.dto.CommentDto
 import ru.ilyasekunov.officeapp.data.model.Comment
@@ -21,14 +22,14 @@ class MockCommentsDataSource : CommentsDataSource {
                 Comments.subList(
                     fromIndex = firstPostIndex,
                     toIndex = Comments.lastIndex + 1
-                )
+                ).toImmutableList()
             )
         }
         return Result.success(
             Comments.subList(
                 fromIndex = firstPostIndex,
                 toIndex = lastPostIndex
-            )
+            ).toImmutableList()
         )
     }
 
