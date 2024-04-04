@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -114,83 +115,130 @@ fun IdeaDetailsScreen(
                     )
                 }
             ) { paddingValues ->
-                BasicPullToRefreshContainer(
-                    onRefreshTrigger = onPullToRefresh,
+                IdeaDetailsScreenContent(
+                    ideaPost = ideaPostUiState.ideaPost,
+                    onRetryCommentsLoad = onRetryCommentsLoad,
+                    onPullToRefresh = onPullToRefresh,
+                    comments = comments,
+                    onCommentLikeClick = onCommentLikeClick,
+                    onCommentDislikeClick = onCommentDislikeClick,
+                    onLikeClick = onLikeClick,
+                    onDislikeClick = onDislikeClick,
+                    navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
+                    navigateBack = navigateBack,
+                    initiallyScrollToComments = initiallyScrollToComments,
                     modifier = Modifier.padding(paddingValues)
-                ) {
-                    val navigateBackArrowScrollBehaviour =
-                        defaultNavigateBackArrowScrollBehaviour()
-                    LazyColumn(
-                        state = rememberIdeaDetailsScrollState(initiallyScrollToComments),
-                        contentPadding = PaddingValues(top = 48.dp, bottom = 14.dp),
-                        modifier = Modifier
-                            .nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
-                    ) {
-                        val ideaPost = ideaPostUiState.ideaPost
-                        item {
-                            AuthorInfoSection(
-                                ideaAuthor = ideaPost.ideaAuthor,
-                                date = ideaPost.date,
-                                onClick = {
-                                    navigateToIdeaAuthorScreen(ideaPost.ideaAuthor.id)
-                                },
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 10.dp)
-                            )
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.outline,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(10.dp)
-                            )
-                            IdeaPostDetailSection(ideaPost = ideaPostUiState.ideaPost)
-                            Spacer(modifier = Modifier.height(18.dp))
-                            LikesAndDislikesSection(
-                                isLikePressed = ideaPost.isLikePressed,
-                                likesCount = ideaPost.likesCount,
-                                onLikeClick = onLikeClick,
-                                isDislikePressed = ideaPost.isDislikePressed,
-                                dislikesCount = ideaPost.dislikesCount,
-                                onDislikeClick = onDislikeClick,
-                                likesIconSize = 16.dp,
-                                dislikesIconSize = 16.dp,
-                                textSize = 14.sp,
-                                spaceBetweenCategories = 15.dp,
-                                buttonsWithBackground = true,
-                                buttonsWithRippleEffect = true,
-                                modifier = Modifier.padding(horizontal = 10.dp)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            HorizontalDivider(
-                                thickness = 1.dp,
-                                color = MaterialTheme.colorScheme.outline,
-                                modifier = Modifier.padding(horizontal = 10.dp)
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                        }
-                        comments(
-                            comments = comments,
-                            onRetryCommentsLoad = onRetryCommentsLoad,
-                            onCommentLikeClick = onCommentLikeClick,
-                            onCommentDislikeClick = onCommentDislikeClick,
-                            navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen
-                        )
-                    }
-                    NavigateBackArrow(
-                        onClick = navigateBack,
-                        scrollBehaviour = navigateBackArrowScrollBehaviour,
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(start = 10.dp)
-                    )
-                }
+                )
             }
             ObserveIsErrorWhileSendingComment(
                 sendingMessageUiState = sendingMessageUiState,
                 snackbarHostState = snackbarHostState,
                 onRetryButtonClick = onSendCommentClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun IdeaDetailsScreenContent(
+    ideaPost: IdeaPost,
+    onRetryCommentsLoad: () -> Unit,
+    onPullToRefresh: suspend () -> Unit,
+    comments: LazyPagingItems<Comment>,
+    onCommentLikeClick: (comment: Comment, isPressed: Boolean) -> Unit,
+    onCommentDislikeClick: (comment: Comment, isPressed: Boolean) -> Unit,
+    onLikeClick: () -> Unit,
+    onDislikeClick: () -> Unit,
+    navigateToIdeaAuthorScreen: (authorId: Long) -> Unit,
+    navigateBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    initiallyScrollToComments: Boolean = false
+) {
+    BasicPullToRefreshContainer(
+        onRefreshTrigger = onPullToRefresh,
+        modifier = modifier
+    ) {
+        val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour()
+        LazyColumn(
+            state = rememberIdeaDetailsScrollState(initiallyScrollToComments),
+            contentPadding = PaddingValues(top = 48.dp, bottom = 14.dp),
+            modifier = Modifier.nestedScroll(
+                connection = navigateBackArrowScrollBehaviour.nestedScrollConnection
+            )
+        ) {
+            ideaDetailsSection(
+                ideaPost = ideaPost,
+                onLikeClick = onLikeClick,
+                onDislikeClick = onDislikeClick,
+                navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
+                modifier = Modifier.padding(bottom = 6.dp)
+            )
+            comments(
+                comments = comments,
+                onRetryCommentsLoad = onRetryCommentsLoad,
+                onCommentLikeClick = onCommentLikeClick,
+                onCommentDislikeClick = onCommentDislikeClick,
+                navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen
+            )
+        }
+        NavigateBackArrow(
+            onClick = navigateBack,
+            scrollBehaviour = navigateBackArrowScrollBehaviour,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(start = 10.dp)
+        )
+    }
+}
+
+private fun LazyListScope.ideaDetailsSection(
+    ideaPost: IdeaPost,
+    onLikeClick: () -> Unit,
+    onDislikeClick: () -> Unit,
+    navigateToIdeaAuthorScreen: (authorId: Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    item {
+        Column(modifier = modifier) {
+            AuthorInfoSection(
+                ideaAuthor = ideaPost.ideaAuthor,
+                date = ideaPost.date,
+                onClick = {
+                    navigateToIdeaAuthorScreen(ideaPost.ideaAuthor.id)
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 10.dp)
+            )
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(10.dp)
+            )
+            IdeaPostDetailSection(ideaPost = ideaPost)
+            Spacer(modifier = Modifier.height(18.dp))
+            LikesAndDislikesSection(
+                isLikePressed = ideaPost.isLikePressed,
+                likesCount = ideaPost.likesCount,
+                onLikeClick = onLikeClick,
+                isDislikePressed = ideaPost.isDislikePressed,
+                dislikesCount = ideaPost.dislikesCount,
+                onDislikeClick = onDislikeClick,
+                likesIconSize = 16.dp,
+                dislikesIconSize = 16.dp,
+                textSize = 14.sp,
+                spaceBetweenCategories = 15.dp,
+                buttonsWithBackground = true,
+                buttonsWithRippleEffect = true,
+                modifier = Modifier.padding(horizontal = 10.dp)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.padding(horizontal = 10.dp)
             )
         }
     }
