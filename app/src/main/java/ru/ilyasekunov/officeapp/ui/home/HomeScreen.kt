@@ -378,18 +378,25 @@ fun IdeaPost(
                 shape = MaterialTheme.shapes.large
             )
             .background(MaterialTheme.colorScheme.background)
-            .clickable { onPostClick() }
+            .clickable(onClick = onPostClick)
     ) {
         val topPadding = 16.dp
         Column(
-            modifier = Modifier.padding(top = topPadding)
+            modifier = Modifier.fillMaxSize()
         ) {
             IdeaPostAuthor(
                 ideaAuthor = ideaPost.ideaAuthor,
                 postDate = ideaPost.date,
-                modifier = Modifier.padding(start = 20.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { navigateToAuthorScreen(ideaPost.ideaAuthor.id) }
+                    .padding(
+                        start = 20.dp,
+                        top = topPadding,
+                        bottom = 10.dp,
+                        end = 20.dp
+                    )
             )
-            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = ideaPost.title,
                 style = MaterialTheme.typography.titleLarge,
@@ -1119,7 +1126,8 @@ fun IdeaPostAuthorPreview() {
     OfficeAppTheme {
         Surface {
             IdeaPostAuthor(
-                ideaAuthor = ideaAuthor, postDate = LocalDateTime.now()
+                ideaAuthor = ideaAuthor,
+                postDate = LocalDateTime.now()
             )
         }
     }
@@ -1130,9 +1138,15 @@ fun IdeaPostAuthorPreview() {
 fun OfficeFilterSearchPreview() {
     OfficeAppTheme {
         Surface {
-            OfficeFilterSearch(office = Office(
-                id = 1, imageUrl = "", address = ""
-            ), size = DpSize(width = 190.dp, height = 50.dp), onRemoveClick = {})
+            OfficeFilterSearch(
+                office = Office(
+                    id = 1,
+                    imageUrl = "",
+                    address = ""
+                ),
+                size = DpSize(width = 190.dp, height = 50.dp),
+                onRemoveClick = {}
+            )
         }
     }
 }
