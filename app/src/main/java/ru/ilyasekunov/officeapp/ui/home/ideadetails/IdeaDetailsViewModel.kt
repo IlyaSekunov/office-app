@@ -160,26 +160,27 @@ class IdeaDetailsViewModel @Inject constructor(
         }
     }
 
-    fun updateCommentLike(comment: Comment, isPressed: Boolean) {
+    fun updateCommentLike(comment: Comment) {
         viewModelScope.launch {
-            val likesCount = if (isPressed) comment.likesCount + 1 else comment.likesCount - 1
+            val isLikePressed = !comment.isLikePressed
+            val likesCount = if (isLikePressed) comment.likesCount + 1 else comment.likesCount - 1
             val changedComment =
                 if (comment.isDislikePressed) {
                     comment.copy(
                         isDislikePressed = false,
                         dislikesCount = comment.dislikesCount - 1,
-                        isLikePressed = isPressed,
+                        isLikePressed = isLikePressed,
                         likesCount = likesCount
                     )
                 } else {
                     comment.copy(
-                        isLikePressed = isPressed,
+                        isLikePressed = isLikePressed,
                         likesCount = likesCount
                     )
                 }
             updateComment(changedComment)
             val postId = ideaPostUiState.ideaPost!!.id
-            if (isPressed) {
+            if (isLikePressed) {
                 commentsRepository.pressLike(postId, changedComment.id)
             } else {
                 commentsRepository.removeLike(postId, changedComment.id)
@@ -187,26 +188,27 @@ class IdeaDetailsViewModel @Inject constructor(
         }
     }
 
-    fun updateCommentDislike(comment: Comment, isPressed: Boolean) {
+    fun updateCommentDislike(comment: Comment) {
         viewModelScope.launch {
+            val isDislikePressed = !comment.isDislikePressed
             val dislikesCount =
-                if (isPressed) comment.dislikesCount + 1 else comment.dislikesCount - 1
+                if (isDislikePressed) comment.dislikesCount + 1 else comment.dislikesCount - 1
             val changedComment = if (comment.isLikePressed) {
                 comment.copy(
                     isLikePressed = false,
                     likesCount = comment.likesCount - 1,
-                    isDislikePressed = isPressed,
+                    isDislikePressed = isDislikePressed,
                     dislikesCount = dislikesCount
                 )
             } else {
                 comment.copy(
-                    isDislikePressed = isPressed,
+                    isDislikePressed = isDislikePressed,
                     dislikesCount = dislikesCount
                 )
             }
             updateComment(changedComment)
             val postId = ideaPostUiState.ideaPost!!.id
-            if (isPressed) {
+            if (isDislikePressed) {
                 commentsRepository.pressDislike(postId, changedComment.id)
             } else {
                 commentsRepository.removeDislike(postId, changedComment.id)

@@ -47,10 +47,10 @@ import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
-import ru.ilyasekunov.officeapp.ui.comments.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.comments.comments
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
+import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageBottomBar
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageUiState
@@ -73,8 +73,8 @@ fun IdeaDetailsScreen(
     onRetryCommentsLoad: () -> Unit,
     onPullToRefresh: suspend () -> Unit,
     comments: LazyPagingItems<Comment>,
-    onCommentLikeClick: (comment: Comment, isPressed: Boolean) -> Unit,
-    onCommentDislikeClick: (comment: Comment, isPressed: Boolean) -> Unit,
+    onCommentLikeClick: (Comment) -> Unit,
+    onCommentDislikeClick: (Comment) -> Unit,
     onLikeClick: () -> Unit,
     onDislikeClick: () -> Unit,
     onAttachImage: (Uri) -> Unit,
@@ -145,8 +145,8 @@ private fun IdeaDetailsScreenContent(
     onRetryCommentsLoad: () -> Unit,
     onPullToRefresh: suspend () -> Unit,
     comments: LazyPagingItems<Comment>,
-    onCommentLikeClick: (comment: Comment, isPressed: Boolean) -> Unit,
-    onCommentDislikeClick: (comment: Comment, isPressed: Boolean) -> Unit,
+    onCommentLikeClick: (Comment) -> Unit,
+    onCommentDislikeClick: (Comment) -> Unit,
     onLikeClick: () -> Unit,
     onDislikeClick: () -> Unit,
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit,

@@ -74,7 +74,9 @@ fun LikeButton(
     val onLikeClick = remember(onClick, likeAnimationState) {
         {
             onClick()
-            likeAnimationState.animate()
+            if (!isPressed) {
+                likeAnimationState.animate()
+            }
         }
     }
     Row(

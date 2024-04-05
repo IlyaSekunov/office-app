@@ -111,25 +111,25 @@ class HomeViewModel @Inject constructor(
         loadPosts()
     }
 
-    fun updateLike(post: IdeaPost, isPressed: Boolean) {
+    fun updateLike(post: IdeaPost) {
         viewModelScope.launch {
-            val likesCount = if (isPressed) post.likesCount + 1 else post.likesCount - 1
-            val changedPost =
-                if (post.isDislikePressed) {
-                    post.copy(
-                        isDislikePressed = false,
-                        dislikesCount = post.dislikesCount - 1,
-                        isLikePressed = isPressed,
-                        likesCount = likesCount
-                    )
-                } else {
-                    post.copy(
-                        isLikePressed = isPressed,
-                        likesCount = likesCount
-                    )
-                }
+            val isLikePressed = !post.isLikePressed
+            val likesCount = if (isLikePressed) post.likesCount + 1 else post.likesCount - 1
+            val changedPost = if (post.isDislikePressed) {
+                post.copy(
+                    isDislikePressed = false,
+                    dislikesCount = post.dislikesCount - 1,
+                    isLikePressed = isLikePressed,
+                    likesCount = likesCount
+                )
+            } else {
+                post.copy(
+                    isLikePressed = isLikePressed,
+                    likesCount = likesCount
+                )
+            }
             updatePost(changedPost)
-            if (isPressed) {
+            if (isLikePressed) {
                 postsRepository.pressLike(changedPost.id)
             } else {
                 postsRepository.removeLike(changedPost.id)
@@ -137,24 +137,26 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun updateDislike(post: IdeaPost, isPressed: Boolean) {
+    fun updateDislike(post: IdeaPost) {
         viewModelScope.launch {
-            val dislikesCount = if (isPressed) post.dislikesCount + 1 else post.dislikesCount - 1
+            val isDislikePressed = !post.isDislikePressed
+            val dislikesCount =
+                if (isDislikePressed) post.dislikesCount + 1 else post.dislikesCount - 1
             val changedPost = if (post.isLikePressed) {
                 post.copy(
                     isLikePressed = false,
                     likesCount = post.likesCount - 1,
-                    isDislikePressed = isPressed,
+                    isDislikePressed = isDislikePressed,
                     dislikesCount = dislikesCount
                 )
             } else {
                 post.copy(
-                    isDislikePressed = isPressed,
+                    isDislikePressed = isDislikePressed,
                     dislikesCount = dislikesCount
                 )
             }
             updatePost(changedPost)
-            if (isPressed) {
+            if (isDislikePressed) {
                 postsRepository.pressDislike(changedPost.id)
             } else {
                 postsRepository.removeDislike(changedPost.id)

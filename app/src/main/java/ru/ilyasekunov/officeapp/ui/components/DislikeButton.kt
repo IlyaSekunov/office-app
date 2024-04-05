@@ -71,10 +71,12 @@ fun DislikeButton(
 ) {
     val color = if (isPressed) dislikePressedColor else MaterialTheme.colorScheme.surfaceVariant
     val dislikeAnimationState = rememberDislikeAnimationState()
-    val onDislikeClick = remember(dislikeAnimationState) {
+    val onDislikeClick = remember(onClick, dislikeAnimationState) {
         {
             onClick()
-            dislikeAnimationState.animate()
+            if (!isPressed) {
+                dislikeAnimationState.animate()
+            }
         }
     }
     Row(

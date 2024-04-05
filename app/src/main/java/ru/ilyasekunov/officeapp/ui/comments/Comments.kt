@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyListScope
@@ -30,9 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.LoadState
@@ -47,15 +44,14 @@ import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
-import ru.ilyasekunov.officeapp.ui.components.DislikeButton
-import ru.ilyasekunov.officeapp.ui.components.LikeButton
+import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.util.toRussianString
 
 fun LazyListScope.comments(
     comments: LazyPagingItems<Comment>,
     onRetryCommentsLoad: () -> Unit,
-    onCommentLikeClick: (comment: Comment, isPressed: Boolean) -> Unit,
-    onCommentDislikeClick: (comment: Comment, isPressed: Boolean) -> Unit,
+    onCommentLikeClick: (Comment) -> Unit,
+    onCommentDislikeClick: (Comment) -> Unit,
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit
 ) {
     when {
@@ -78,12 +74,8 @@ fun LazyListScope.comments(
                 val comment = comments[it]!!
                 Comment(
                     comment = comment,
-                    onLikeClick = {
-                        onCommentLikeClick(comment, !comment.isLikePressed)
-                    },
-                    onDislikeClick = {
-                        onCommentDislikeClick(comment, !comment.isDislikePressed)
-                    },
+                    onLikeClick = { onCommentLikeClick(comment) },
+                    onDislikeClick = { onCommentDislikeClick(comment) },
                     navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen
                 )
             }
@@ -255,43 +247,4 @@ private fun CommentsListIsEmpty(modifier: Modifier = Modifier) {
             .fillMaxSize()
             .wrapContentSize(Alignment.Center)
     )
-}
-
-@Composable
-fun LikesAndDislikesSection(
-    isLikePressed: Boolean,
-    likesCount: Int,
-    onLikeClick: () -> Unit,
-    isDislikePressed: Boolean,
-    dislikesCount: Int,
-    onDislikeClick: () -> Unit,
-    spaceBetweenCategories: Dp,
-    likesIconSize: Dp,
-    dislikesIconSize: Dp,
-    textSize: TextUnit,
-    buttonsWithBackground: Boolean,
-    buttonsWithRippleEffect: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Row(modifier = modifier) {
-        LikeButton(
-            onClick = onLikeClick,
-            iconSize = likesIconSize,
-            textSize = textSize,
-            isPressed = isLikePressed,
-            count = likesCount,
-            withBackground = buttonsWithBackground,
-            withRippleEffect = buttonsWithRippleEffect
-        )
-        Spacer(modifier = Modifier.width(spaceBetweenCategories))
-        DislikeButton(
-            onClick = onDislikeClick,
-            iconSize = dislikesIconSize,
-            textSize = textSize,
-            isPressed = isDislikePressed,
-            count = dislikesCount,
-            withBackground = buttonsWithBackground,
-            withRippleEffect = buttonsWithRippleEffect
-        )
-    }
 }

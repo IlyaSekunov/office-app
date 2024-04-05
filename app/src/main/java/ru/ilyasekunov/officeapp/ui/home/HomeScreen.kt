@@ -60,7 +60,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -104,8 +103,7 @@ import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.components.DislikeButton
-import ru.ilyasekunov.officeapp.ui.components.LikeButton
+import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.util.toRussianString
@@ -122,8 +120,8 @@ fun HomeScreen(
     onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
     onSortingFilterRemoveClick: () -> Unit,
     onDeletePostClick: (IdeaPost) -> Unit,
-    onPostLikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
-    onPostDislikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
+    onPostLikeClick: (post: IdeaPost) -> Unit,
+    onPostDislikeClick: (post: IdeaPost) -> Unit,
     onRetryInfoLoad: () -> Unit,
     onPullToRefresh: () -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
@@ -242,8 +240,8 @@ fun IdeaPosts(
     posts: LazyPagingItems<IdeaPost>,
     isIdeaAuthorCurrentUser: (IdeaAuthor) -> Boolean,
     onDeletePostClick: (IdeaPost) -> Unit,
-    onPostLikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
-    onPostDislikeClick: (post: IdeaPost, isPressed: Boolean) -> Unit,
+    onPostLikeClick: (post: IdeaPost) -> Unit,
+    onPostDislikeClick: (post: IdeaPost) -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
@@ -268,12 +266,8 @@ fun IdeaPosts(
                 onPostClick = {
                     navigateToIdeaDetailsScreen(post.id, false)
                 },
-                onLikeClick = {
-                    onPostLikeClick(post, !post.isLikePressed)
-                },
-                onDislikeClick = {
-                    onPostDislikeClick(post, !post.isDislikePressed)
-                },
+                onLikeClick = { onPostLikeClick(post) },
+                onDislikeClick = { onPostDislikeClick(post) },
                 onCommentClick = {
                     navigateToIdeaDetailsScreen(post.id, true)
                 },
@@ -898,32 +892,32 @@ fun IdeaPostOffice(
 @Composable
 fun LikesDislikesCommentsSection(
     likesCount: Int,
-    modifier: Modifier = Modifier,
-    isLikePressed: Boolean = false,
+    isLikePressed: Boolean,
     onLikeClick: () -> Unit,
     dislikesCount: Int,
-    isDislikePressed: Boolean = false,
+    isDislikePressed: Boolean,
     onDislikeClick: () -> Unit,
     commentsCount: Int,
     onCommentClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        LikeButton(
-            onClick = onLikeClick,
-            iconSize = 18.dp,
+        LikesAndDislikesSection(
+            isLikePressed = isLikePressed,
+            likesCount = likesCount,
+            onLikeClick = onLikeClick,
+            isDislikePressed = isDislikePressed,
+            dislikesCount = dislikesCount,
+            onDislikeClick = onDislikeClick,
+            spaceBetweenCategories = 15.dp,
+            likesIconSize = 18.dp,
+            dislikesIconSize = 18.dp,
             textSize = 14.sp,
-            isPressed = isLikePressed,
-            count = likesCount
-        )
-        Spacer(modifier = Modifier.width(15.dp))
-        DislikeButton(
-            onClick = onDislikeClick,
-            iconSize = 18.dp,
-            textSize = 14.sp,
-            isPressed = isDislikePressed,
-            count = dislikesCount
+            buttonsWithBackground = true,
+            buttonsWithRippleEffect = true
         )
         Spacer(modifier = Modifier.width(15.dp))
         ActionItem(
