@@ -225,7 +225,19 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
             navigateBack = navController::popBackStack
         )
         ideaAuthorScreen(
-            navigateToIdeaDetailsScreen = { _ -> /*TODO*/ },
+            navigateToIdeaDetailsScreen = { postId ->
+                navController.navigateToIdeaDetailsScreen(
+                    postId = postId,
+                    initiallyScrollToComments = false,
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = Screen.IdeaDetails.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
             navigateToHomeScreen = {
                 navController.navigateToHomeScreen(
                     navOptions = NavOptions.Builder()
@@ -247,7 +259,10 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
         ideaDetailsScreen(
             navigateToIdeaAuthorScreen = {
                 navController.navigateToIdeaAuthorScreen(
-                    authorId = it
+                    authorId = it,
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
                 )
             },
             navigateBack = navController::popBackStack
