@@ -109,13 +109,15 @@ fun Comment(
             .size(coil.size.Size.ORIGINAL)
             .build()
     )
-    val authorImageModifier = Modifier
-        .size(50.dp)
-        .clip(CircleShape)
-        .clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null
-        ) { navigateToIdeaAuthorScreen(comment.author.id) }
+    val authorImageModifier = remember {
+        Modifier
+            .size(50.dp)
+            .clip(CircleShape)
+            .clickable(
+                interactionSource = MutableInteractionSource(),
+                indication = null
+            ) { navigateToIdeaAuthorScreen(comment.author.id) }
+    }
     Row(
         horizontalArrangement = Arrangement.spacedBy(15.dp),
         modifier = modifier
