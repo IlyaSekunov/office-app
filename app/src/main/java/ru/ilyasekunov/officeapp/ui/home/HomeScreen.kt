@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,8 +45,6 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -468,14 +467,22 @@ fun MenuSection(
             onClick = { isMenuVisible = !isMenuVisible },
             modifier = Modifier.size(26.dp)
         )
-        IdeaPostMenu(
+        IdeaPostDropdownMenu(
             expanded = isMenuVisible,
             onDismissClick = { isMenuVisible = false },
             isAuthorPostCurrentUser = isAuthorPostCurrentUser,
-            onSuggestIdeaToMyOfficeClick = { /*TODO*/ },
+            onSuggestIdeaToMyOfficeClick = {/*TODO*/},
             onNavigateToAuthorClick = navigateToAuthorScreen,
             onEditClick = navigateToEditIdeaScreen,
             onDeleteClick = onDeletePostClick,
+            shape = MaterialTheme.shapes.medium,
+            containerColor = MaterialTheme.colorScheme.background,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
+            menuItemPaddings = PaddingValues(13.dp),
+            borderStroke = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+            ),
             modifier = Modifier.align(Alignment.TopEnd)
         )
     }
@@ -741,72 +748,6 @@ fun SortingCategoryFilter(
                     onClick = onRemoveClick
                 )
         )
-    }
-}
-
-@Composable
-fun IdeaPostMenu(
-    expanded: Boolean,
-    onDismissClick: () -> Unit,
-    isAuthorPostCurrentUser: Boolean,
-    onSuggestIdeaToMyOfficeClick: () -> Unit,
-    onNavigateToAuthorClick: () -> Unit,
-    onEditClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val suggestIdeaToMyOffice = stringResource(R.string.suggest_idea_to_my_office)
-    val navigateToAuthor = stringResource(R.string.navigate_to_author)
-    val editPost = stringResource(R.string.edit)
-    val deletePost = stringResource(R.string.delete)
-    val optionsList = if (isAuthorPostCurrentUser)
-        listOf(
-            suggestIdeaToMyOffice,
-            editPost,
-            deletePost
-        )
-    else
-        listOf(
-            suggestIdeaToMyOffice,
-            navigateToAuthor
-        )
-    Box(modifier = modifier) {
-        MaterialTheme(
-            shapes = MaterialTheme.shapes.copy(extraSmall = RoundedCornerShape(10.dp))
-        ) {
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = onDismissClick,
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.background)
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f),
-                        shape = MaterialTheme.shapes.medium
-                    )
-            ) {
-                optionsList.forEach {
-                    val onClick = when (it) {
-                        suggestIdeaToMyOffice -> onSuggestIdeaToMyOfficeClick
-                        navigateToAuthor -> onNavigateToAuthorClick
-                        editPost -> onEditClick
-                        deletePost -> onDeleteClick
-                        else -> throw RuntimeException("Unknown option to dropdown menu - '$it'")
-                    }
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = it,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontSize = 14.sp
-                            )
-                        },
-                        contentPadding = PaddingValues(13.dp),
-                        onClick = onClick
-                    )
-                }
-            }
-        }
     }
 }
 
