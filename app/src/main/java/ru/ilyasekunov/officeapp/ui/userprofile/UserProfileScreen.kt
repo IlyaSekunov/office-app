@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -209,16 +210,21 @@ fun UserInfoSection(
             .size(coil.size.Size.ORIGINAL)
             .build()
     )
-    val imageModifier = Modifier
-        .statusBarsPadding()
-        .padding(top = contentTopPadding)
-        .size(width = 160.dp, height = 160.dp)
-        .clip(MaterialTheme.shapes.extraLarge)
-        .border(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.primary,
-            shape = MaterialTheme.shapes.extraLarge
-        )
+    val imageShape = MaterialTheme.shapes.extraLarge
+    val imageBorderColor = MaterialTheme.colorScheme.primary
+    val imageBorderShape = MaterialTheme.shapes.extraLarge
+    val imageModifier = remember {
+        Modifier
+            .statusBarsPadding()
+            .padding(top = contentTopPadding)
+            .size(width = 160.dp, height = 160.dp)
+            .clip(imageShape)
+            .border(
+                width = 1.dp,
+                color = imageBorderColor,
+                shape = imageBorderShape
+            )
+    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
