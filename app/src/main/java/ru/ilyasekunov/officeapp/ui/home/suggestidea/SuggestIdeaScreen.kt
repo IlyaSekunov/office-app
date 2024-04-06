@@ -54,8 +54,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -358,11 +356,10 @@ fun AttachedImages(
         ) {
             AttachedImage(
                 image = images[it],
+                attachedImageSize = imageSize,
                 onRemoveClick = { onRemoveClick(images[it]) },
                 closeIconSize = 26.dp,
-                modifier = Modifier
-                    .size(imageSize)
-                    .clip(MaterialTheme.shapes.small)
+                modifier = Modifier.clip(MaterialTheme.shapes.small)
             )
         }
     }
@@ -371,6 +368,7 @@ fun AttachedImages(
 @Composable
 fun AttachedImage(
     image: AttachedImage,
+    attachedImageSize: DpSize,
     onRemoveClick: () -> Unit,
     closeIconSize: Dp,
     modifier: Modifier = Modifier,
@@ -389,22 +387,11 @@ fun AttachedImage(
         modifier = modifier
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .rotate(rotation.value)
+            modifier = Modifier.rotate(rotation.value)
         ) {
-            var attachedImageSize by remember { mutableStateOf(DpSize(0.dp, 0.dp)) }
-            val density = LocalDensity.current.density
-
             AsyncImageWithLoading(
                 model = image.image,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .onGloballyPositioned {
-                        val heightDp = (it.size.height / density).dp
-                        val widthDp = (it.size.width / density).dp
-                        attachedImageSize = DpSize(height = heightDp, width = widthDp)
-                    }
+                modifier = Modifier.size(attachedImageSize)
             )
 
             val closeIconButtonRightCornerTopPadding =

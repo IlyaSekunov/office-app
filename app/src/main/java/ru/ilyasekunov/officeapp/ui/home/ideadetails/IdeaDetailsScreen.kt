@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -36,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -113,7 +115,10 @@ fun IdeaDetailsScreen(
                             .navigationBarsPadding()
                             .imePadding()
                     )
-                }
+                },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
             ) { paddingValues ->
                 IdeaDetailsScreenContent(
                     ideaPost = ideaPostUiState.ideaPost,
@@ -127,7 +132,9 @@ fun IdeaDetailsScreen(
                     navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
                     navigateBack = navigateBack,
                     initiallyScrollToComments = initiallyScrollToComments,
-                    modifier = Modifier.padding(paddingValues)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
                 )
             }
             ObserveIsErrorWhileSendingComment(
@@ -155,16 +162,20 @@ private fun IdeaDetailsScreenContent(
     initiallyScrollToComments: Boolean = false
 ) {
     BasicPullToRefreshContainer(
-        onRefreshTrigger = onPullToRefresh,
-        modifier = modifier
+        onRefreshTrigger = onPullToRefresh
     ) {
         val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour()
+        val topPadding = 48.dp
         LazyColumn(
-            state = rememberIdeaDetailsScrollState(initiallyScrollToComments),
-            contentPadding = PaddingValues(top = 48.dp, bottom = 14.dp),
-            modifier = Modifier.nestedScroll(
-                connection = navigateBackArrowScrollBehaviour.nestedScrollConnection
-            )
+            state = rememberIdeaDetailsScrollState(
+                initiallyScrollToComments = initiallyScrollToComments,
+                scrollOffset = (topPadding.value * LocalDensity.current.density).toInt()
+            ),
+            contentPadding = PaddingValues(top = topPadding, bottom = 14.dp),
+            modifier = modifier
+                .nestedScroll(
+                    connection = navigateBackArrowScrollBehaviour.nestedScrollConnection
+                )
         ) {
             ideaDetailsSection(
                 ideaPost = ideaPost,
@@ -374,12 +385,16 @@ private fun AuthorInfoSection(
 }
 
 @Composable
-private fun rememberIdeaDetailsScrollState(initiallyScrollToComments: Boolean): LazyListState {
+private fun rememberIdeaDetailsScrollState(
+    initiallyScrollToComments: Boolean,
+    scrollOffset: Int
+): LazyListState {
     val lazyListState = rememberLazyListState()
     if (initiallyScrollToComments) {
         LaunchedEffect(lazyListState) {
             lazyListState.animateScrollToItem(
-                IdeaDetailsScreenDefaults.COMMENTS_SECTION_OFFSET_INDEX
+                IdeaDetailsScreenDefaults.COMMENTS_SECTION_OFFSET_INDEX,
+                scrollOffset
             )
         }
     }
