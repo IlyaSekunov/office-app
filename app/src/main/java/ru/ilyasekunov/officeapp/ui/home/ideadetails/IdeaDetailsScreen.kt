@@ -51,6 +51,7 @@ import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.comments.comments
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
+import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
@@ -58,7 +59,6 @@ import ru.ilyasekunov.officeapp.ui.components.SendingMessageBottomBar
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageUiState
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
 import ru.ilyasekunov.officeapp.ui.home.AttachedImages
-import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.util.toRussianString
 import java.time.LocalDateTime

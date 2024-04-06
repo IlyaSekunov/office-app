@@ -29,8 +29,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
-import ru.ilyasekunov.officeapp.ui.home.suggestidea.AttachedImage
 import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePicker
 import ru.ilyasekunov.officeapp.ui.modifiers.BorderSide
 import ru.ilyasekunov.officeapp.ui.modifiers.border

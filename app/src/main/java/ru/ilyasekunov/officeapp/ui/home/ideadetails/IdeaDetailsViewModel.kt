@@ -23,8 +23,8 @@ import ru.ilyasekunov.officeapp.data.repository.comments.CommentsRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
+import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageUiState
-import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
 import javax.inject.Inject
 
 data class IdeaPostUiState(

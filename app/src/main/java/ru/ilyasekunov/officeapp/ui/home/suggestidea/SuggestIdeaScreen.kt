@@ -1,17 +1,9 @@
 package ru.ilyasekunov.officeapp.ui.home.suggestidea
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,9 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -44,15 +34,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -64,9 +50,9 @@ import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
-import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
+import ru.ilyasekunov.officeapp.ui.components.AttachedImage
+import ru.ilyasekunov.officeapp.ui.components.AttachedImages
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
@@ -75,7 +61,7 @@ fun SuggestIdeaScreen(
     suggestIdeaUiState: SuggestIdeaUiState,
     onTitleValueChange: (String) -> Unit,
     onIdeaBodyValueChange: (String) -> Unit,
-    onRemoveImageClick: (image: AttachedImage) -> Unit,
+    onRemoveImageClick: (AttachedImage) -> Unit,
     onPublishClick: () -> Unit,
     onAttachImagesButtonClick: () -> Unit,
     onRetryClick: () -> Unit,
@@ -228,8 +214,7 @@ fun EditIdeaSection(
             AttachImagesButton(
                 size = 50.dp,
                 onClick = onAttachImagesButtonClick,
-                modifier = Modifier
-                    .padding(start = 20.dp, bottom = 10.dp, top = 10.dp)
+                modifier = Modifier.padding(start = 20.dp, bottom = 10.dp, top = 10.dp)
             )
         }
     }
@@ -297,7 +282,8 @@ fun TextFieldsWithImagesSection(
                 images = attachedImages,
                 imageSize = DpSize(width = 190.dp, height = 170.dp),
                 onRemoveClick = onRemoveImageClick,
-                contentPadding = PaddingValues(horizontal = 18.dp)
+                contentPadding = PaddingValues(horizontal = 18.dp),
+                closeIconSize = 26.dp
             )
             Spacer(modifier = Modifier.height(20.dp))
         }
@@ -335,94 +321,6 @@ fun SuggestIdeaTopBar(
         },
         modifier = modifier
     )
-}
-
-@Composable
-fun AttachedImages(
-    images: List<AttachedImage>,
-    imageSize: DpSize,
-    onRemoveClick: (image: AttachedImage) -> Unit,
-    contentPadding: PaddingValues,
-    modifier: Modifier = Modifier
-) {
-    LazyRow(
-        contentPadding = contentPadding,
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
-        modifier = modifier
-    ) {
-        items(
-            count = images.size,
-            key = { images[it].id }
-        ) {
-            AttachedImage(
-                image = images[it],
-                attachedImageSize = imageSize,
-                onRemoveClick = { onRemoveClick(images[it]) },
-                closeIconSize = 26.dp,
-                modifier = Modifier.clip(MaterialTheme.shapes.small)
-            )
-        }
-    }
-}
-
-@Composable
-fun AttachedImage(
-    image: AttachedImage,
-    attachedImageSize: DpSize,
-    onRemoveClick: () -> Unit,
-    closeIconSize: Dp,
-    modifier: Modifier = Modifier,
-    closeIconRightCornerOffsetPercent: Float = 0.05f
-) {
-    var isVisible by rememberSaveable { mutableStateOf(true) }
-    val animationDuration = 300
-    val rotation = remember { Animatable(0f) }
-    AnimatedVisibility(
-        visible = isVisible,
-        enter = scaleIn(tween(animationDuration)) + fadeIn(tween(animationDuration)),
-        exit = scaleOut(
-            animationSpec = tween(animationDuration),
-            targetScale = 0.2f
-        ) + fadeOut(tween(animationDuration)),
-        modifier = modifier
-    ) {
-        Box(
-            modifier = Modifier.rotate(rotation.value)
-        ) {
-            AsyncImageWithLoading(
-                model = image.image,
-                modifier = Modifier.size(attachedImageSize)
-            )
-
-            val closeIconButtonRightCornerTopPadding =
-                (attachedImageSize.height.value * closeIconRightCornerOffsetPercent).dp
-            val closeIconButtonRightCornerRightPadding =
-                (attachedImageSize.width.value * closeIconRightCornerOffsetPercent).dp
-            CloseIconButton(
-                onClick = { isVisible = false },
-                modifier = Modifier
-                    .padding(
-                        top = closeIconButtonRightCornerTopPadding,
-                        end = closeIconButtonRightCornerRightPadding
-                    )
-                    .size(closeIconSize)
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .align(Alignment.TopEnd)
-            )
-        }
-    }
-
-    // When image is remove, start rotate animation and then call onRemove()
-    if (!isVisible) {
-        LaunchedEffect(Unit) {
-            rotation.animateTo(
-                targetValue = 45f,
-                animationSpec = tween(animationDuration)
-            )
-            onRemoveClick()
-        }
-    }
 }
 
 @Composable

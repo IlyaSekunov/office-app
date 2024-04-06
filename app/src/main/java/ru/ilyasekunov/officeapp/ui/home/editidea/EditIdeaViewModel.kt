@@ -12,6 +12,7 @@ import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
+import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import javax.inject.Inject
 
 data class EditIdeaUiState(
@@ -22,11 +23,6 @@ data class EditIdeaUiState(
     val isLoading: Boolean = false,
     val isPublished: Boolean = false,
     val isNetworkError: Boolean = false
-)
-
-data class AttachedImage(
-    val id: Int,
-    val image: Any
 )
 
 @HiltViewModel

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.home.suggestidea.EditIdeaSection
 import ru.ilyasekunov.officeapp.ui.home.suggestidea.SuggestIdeaTopBar
@@ -37,7 +38,7 @@ fun EditIdeaScreen(
     editIdeaUiState: EditIdeaUiState,
     onTitleValueChange: (String) -> Unit,
     onIdeaBodyValueChange: (String) -> Unit,
-    onRemoveImageClick: (image: AttachedImage) -> Unit,
+    onRemoveImageClick: (AttachedImage) -> Unit,
     onPublishClick: () -> Unit,
     onAttachImagesButtonClick: () -> Unit,
     onRetryClick: () -> Unit,

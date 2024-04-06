@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
-import ru.ilyasekunov.officeapp.ui.home.editidea.AttachedImage
+import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import javax.inject.Inject
 
 data class SuggestIdeaUiState(
