@@ -122,44 +122,41 @@ fun IdeaAuthorScreenContent(
     modifier: Modifier = Modifier
 ) {
     BasicPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
-        Box {
-            val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour()
-            val authorPhotoTopPadding = 15.dp
-            LazyColumn(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = modifier
-                    .fillMaxSize()
-                    .nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
-            ) {
-                item {
-                    IdeaAuthorSection(
-                        ideaAuthorUiState = ideaAuthorUiState,
-                        contentTopPadding = authorPhotoTopPadding
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Text(
-                        text = stringResource(R.string.ideas),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontSize = 26.sp
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-                }
-                ideas(
-                    ideas = ideas,
-                    onIdeaLikeClick = onIdeaLikeClick,
-                    onIdeaDislikeClick = onIdeaDislikeClick,
-                    navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen
+        val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour()
+        LazyColumn(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = modifier
+                .fillMaxSize()
+                .nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
+        ) {
+            item {
+                IdeaAuthorSection(
+                    ideaAuthorUiState = ideaAuthorUiState,
+                    contentTopPadding = 15.dp
                 )
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = stringResource(R.string.ideas),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontSize = 26.sp
+                )
+                Spacer(modifier = Modifier.height(30.dp))
             }
-            NavigateBackArrow(
-                onClick = navigateBack,
-                scrollBehaviour = navigateBackArrowScrollBehaviour,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .statusBarsPadding()
-                    .padding(start = 10.dp)
+            ideas(
+                ideas = ideas,
+                onIdeaLikeClick = onIdeaLikeClick,
+                onIdeaDislikeClick = onIdeaDislikeClick,
+                navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen
             )
         }
+        NavigateBackArrow(
+            onClick = navigateBack,
+            scrollBehaviour = navigateBackArrowScrollBehaviour,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .statusBarsPadding()
+                .padding(start = 10.dp)
+        )
     }
 }
 

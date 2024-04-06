@@ -54,7 +54,9 @@ fun rememberNavigateBackArrowState(
 @Composable
 fun defaultNavigateBackArrowScrollBehaviour(
     state: NavigateBackArrowState = rememberNavigateBackArrowState()
-): NavigateBackArrowScrollBehaviour = DefaultBackArrowScrollBehaviour(state)
+): NavigateBackArrowScrollBehaviour = remember(state) {
+    DefaultBackArrowScrollBehaviour(state)
+}
 
 @Composable
 fun NavigateBackArrow(
@@ -64,19 +66,21 @@ fun NavigateBackArrow(
     color: Color = MaterialTheme.colorScheme.primary,
     scrollBehaviour: NavigateBackArrowScrollBehaviour? = null
 ) {
-    val iconButton: @Composable () -> Unit = {
-        IconButton(
-            onClick = onClick,
-            colors = IconButtonDefaults.outlinedIconButtonColors(
-                contentColor = color
-            ),
-            modifier = modifier
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = "arrow_back",
-                modifier = Modifier.size(iconSize)
-            )
+    val iconButton: @Composable () -> Unit = remember(onClick, color, modifier) {
+        {
+            IconButton(
+                onClick = onClick,
+                colors = IconButtonDefaults.outlinedIconButtonColors(
+                    contentColor = color
+                ),
+                modifier = modifier
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = "arrow_back",
+                    modifier = Modifier.size(iconSize)
+                )
+            }
         }
     }
     if (scrollBehaviour != null) {
