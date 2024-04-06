@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,7 +23,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -241,10 +241,10 @@ fun OfficeFilter(
     onOfficeClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val color =
-        if (officeFilterUiState.isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant
-    val shape = MaterialTheme.shapes.medium
-    val density = LocalDensity.current.density
+    val color = if (officeFilterUiState.isSelected)
+        MaterialTheme.colorScheme.primary
+    else
+        MaterialTheme.colorScheme.surfaceVariant
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -252,25 +252,19 @@ fun OfficeFilter(
             .clip(MaterialTheme.shapes.medium)
             .border(
                 width = 1.dp,
-                shape = shape,
+                shape = MaterialTheme.shapes.medium,
                 color = color
             )
             .background(color.copy(alpha = 0.15f))
-            .clickable { onOfficeClick() }
+            .clickable(onClick = onOfficeClick)
     ) {
-        val imageShape = shape.copy(topEnd = CornerSize(0.dp), bottomEnd = CornerSize(0.dp))
-        var imageWidth by remember { mutableStateOf(0.dp) }
         Image(
             painter = rememberAsyncImagePainter(officeFilterUiState.office.imageUrl),
             contentDescription = "office_image",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxHeight()
-                .width(imageWidth)
-                .clip(imageShape)
-                .onGloballyPositioned {
-                    imageWidth = (it.size.height / density).dp
-                }
+                .aspectRatio(1f / 1f)
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
@@ -299,9 +293,7 @@ fun SortingFiltersSection(
     onFilterClick: (SortingCategory) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-    ) {
+    Column(modifier = modifier) {
         Text(
             text = stringResource(R.string.sort_by),
             style = MaterialTheme.typography.titleLarge,
@@ -336,8 +328,14 @@ fun SortingFilters(
 
         val density = LocalDensity.current.density
         var pickedCategoryDividerWidth by remember { mutableStateOf(0.dp) }
-        val pickedCategoryDividerOffset =
+        val pickedCategoryDividerOffset = remember(
+            filters,
+            selectedCategory,
+            pickedCategoryDividerWidth
+        ) {
             (filters.indexOf(selectedCategory) * pickedCategoryDividerWidth.value).dp
+        }
+
         val animatedPickedCategoryDividerOffset by animateIntOffsetAsState(
             targetValue = IntOffset(
                 x = (pickedCategoryDividerOffset.value * density).toInt(),
@@ -361,6 +359,12 @@ fun SortingFilters(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = modifier
+                    .onGloballyPositioned { coordinates ->
+                        val rowWidthPx = coordinates.size.width
+                        val filtersCount = filters.size.coerceIn(1, null)
+                        val oneFilterWidthPx = rowWidthPx / filtersCount
+                        pickedCategoryDividerWidth = (oneFilterWidthPx / density).dp
+                    }
             ) {
                 filters.forEach {
                     SortingFilter(
@@ -370,9 +374,6 @@ fun SortingFilters(
                             .clickable { onFilterClick(it) }
                             .fillMaxHeight()
                             .weight(1f)
-                            .onGloballyPositioned { coordinates ->
-                                pickedCategoryDividerWidth = (coordinates.size.width / density).dp
-                            }
                     )
                 }
             }
