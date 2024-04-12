@@ -39,6 +39,11 @@ class PostsRemoteDataSource(
             }
         }
 
+    override suspend fun favouritePosts(): Result<List<IdeaPost>> =
+        withContext(ioDispatcher) {
+            handleResponse { postsApi.favouritePosts() }
+        }
+
     override suspend fun postsByAuthorId(authorId: Long, page: Int, pageSize: Int) =
         withContext(ioDispatcher) {
             handleResponse { postsApi.postsByAuthorId(authorId, page, pageSize) }

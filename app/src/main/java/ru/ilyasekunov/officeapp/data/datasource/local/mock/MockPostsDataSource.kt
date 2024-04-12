@@ -62,6 +62,11 @@ class MockPostsDataSource : PostsDataSource {
         )
     }
 
+    override suspend fun favouritePosts(): Result<List<IdeaPost>> {
+        val posts = Posts.filter { it.isLikePressed }
+        return Result.success(posts)
+    }
+
     override suspend fun findPostById(postId: Long): Result<IdeaPost> {
         val post = Posts.find { it.id == postId }
         return post?.let {
