@@ -26,6 +26,9 @@ interface PostsApi {
         @Query("page_size") pageSize: Int
     ): Response<List<IdeaPost>>
 
+    @GET("posts/favourite")
+    suspend fun favouritePosts(): Response<List<IdeaPost>>
+
     @GET("posts/by-author-id/{authorId}")
     suspend fun postsByAuthorId(
         @Path("authorId") authorId: Long,
