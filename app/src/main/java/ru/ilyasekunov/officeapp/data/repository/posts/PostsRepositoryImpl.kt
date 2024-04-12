@@ -18,6 +18,10 @@ class PostsRepositoryImpl(
         return postsDatasource.posts(searchPostsDto, page, pageSize)
     }
 
+    override suspend fun favouritePosts(): Result<List<IdeaPost>> {
+        return postsDatasource.favouritePosts()
+    }
+
     override suspend fun publishPost(post: PublishPostDto): Result<Unit> {
         return postsDatasource.publishPost(post)
     }
