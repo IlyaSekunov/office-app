@@ -250,7 +250,9 @@ class IdeaDetailsViewModel @Inject constructor(
 
     fun loadPostById(postId: Long) {
         viewModelScope.launch {
+            updateIsPostLoading(true)
             loadPostByIdSuspending(postId)
+            updateIsPostLoading(false)
         }
     }
 
@@ -266,7 +268,6 @@ class IdeaDetailsViewModel @Inject constructor(
     }
 
     suspend fun loadPostByIdSuspending(postId: Long) {
-        updateIsPostLoading(true)
         val postResult = postsRepository.findPostById(postId)
         when {
             postResult.isSuccess -> {
@@ -279,14 +280,12 @@ class IdeaDetailsViewModel @Inject constructor(
             postResult.exceptionOrNull()!! is HttpNotFoundException -> {
                 updateIsErrorWhilePostsLoading(false)
                 updatePostExists(false)
-
             }
 
             else -> {
                 updateIsErrorWhilePostsLoading(true)
             }
         }
-        updateIsPostLoading(false)
     }
 
     private suspend fun uploadAttachedImage(): Result<String?> {

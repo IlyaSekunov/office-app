@@ -313,7 +313,12 @@ private fun IdeaPostDetailSection(
             fontSize = 32.sp,
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 10.dp)
+            modifier = Modifier.padding(
+                start = 10.dp,
+                end = 10.dp,
+                top = 10.dp,
+                bottom = 20.dp
+            )
         )
         if (ideaPost.attachedImages.isNotEmpty()) {
             AttachedImages(
