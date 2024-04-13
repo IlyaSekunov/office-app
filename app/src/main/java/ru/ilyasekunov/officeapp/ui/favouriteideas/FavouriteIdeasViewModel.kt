@@ -18,8 +18,8 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.ui.home.SearchUiState
-import ru.ilyasekunov.officeapp.ui.home.filters.FiltersUiState
-import ru.ilyasekunov.officeapp.ui.home.filters.FiltersUiStateHolder
+import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
+import ru.ilyasekunov.officeapp.ui.filters.FiltersUiStateHolder
 import ru.ilyasekunov.officeapp.ui.home.toFiltersDto
 import ru.ilyasekunov.officeapp.ui.home.toSearchDto
 import javax.inject.Inject

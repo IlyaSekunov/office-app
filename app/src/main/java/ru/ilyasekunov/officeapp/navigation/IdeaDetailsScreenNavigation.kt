@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.navigation.home
+package ru.ilyasekunov.officeapp.navigation
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -8,11 +8,10 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.paging.compose.collectAsLazyPagingItems
-import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
-import ru.ilyasekunov.officeapp.ui.home.ideadetails.IdeaDetailsScreen
-import ru.ilyasekunov.officeapp.ui.home.ideadetails.IdeaDetailsViewModel
+import ru.ilyasekunov.officeapp.ui.ideadetails.IdeaDetailsScreen
+import ru.ilyasekunov.officeapp.ui.ideadetails.IdeaDetailsViewModel
 
 fun NavGraphBuilder.ideaDetailsScreen(
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit,
@@ -23,10 +22,10 @@ fun NavGraphBuilder.ideaDetailsScreen(
         enterTransition = { enterSlideLeft() },
         exitTransition = { exitSlideRight() }
     ) { backStackEntry ->
-        val navArguments = backStackEntry.arguments!!
-        val postId = remember(navArguments) { navArguments.getLong("postId") }
+        val navArguments = remember(backStackEntry) { backStackEntry.arguments!! }
+        val postId = remember(navArguments) { navArguments.getString("postId")!!.toLong() }
         val initiallyScrollToComments = remember(navArguments) {
-            navArguments.getString("initiallyScrollToComments")
+            navArguments.getString("initiallyScrollToComments").toBoolean()
         }
 
         val ideaDetailsViewModel = hiltViewModel<IdeaDetailsViewModel>()
@@ -54,7 +53,7 @@ fun NavGraphBuilder.ideaDetailsScreen(
             onAttachImage = ideaDetailsViewModel::attachImage,
             onRemoveImageClick = ideaDetailsViewModel::removeImage,
             onSendCommentClick = ideaDetailsViewModel::sendComment,
-            initiallyScrollToComments = initiallyScrollToComments.toBoolean(),
+            initiallyScrollToComments = initiallyScrollToComments,
             navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
             navigateBack = navigateBack
         )

@@ -11,9 +11,9 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.ui.favouriteideas.FavouriteIdeasViewModel
 import ru.ilyasekunov.officeapp.ui.home.HomeViewModel
-import ru.ilyasekunov.officeapp.ui.home.filters.FiltersScreen
-import ru.ilyasekunov.officeapp.ui.home.filters.FiltersUiStateHolder
-import ru.ilyasekunov.officeapp.ui.home.filters.FiltersViewModel
+import ru.ilyasekunov.officeapp.ui.filters.FiltersScreen
+import ru.ilyasekunov.officeapp.ui.filters.FiltersUiStateHolder
+import ru.ilyasekunov.officeapp.ui.filters.FiltersViewModel
 
 fun NavGraphBuilder.filtersScreen(
     previousBackStackEntryProvider: () -> NavBackStackEntry,

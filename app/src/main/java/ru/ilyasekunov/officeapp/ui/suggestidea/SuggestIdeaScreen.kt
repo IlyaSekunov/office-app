@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.home.suggestidea
+package ru.ilyasekunov.officeapp.ui.suggestidea
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

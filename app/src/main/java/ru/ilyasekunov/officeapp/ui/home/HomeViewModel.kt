@@ -28,8 +28,8 @@ import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpForbiddenException
-import ru.ilyasekunov.officeapp.ui.home.filters.FiltersUiState
-import ru.ilyasekunov.officeapp.ui.home.filters.FiltersUiStateHolder
+import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
+import ru.ilyasekunov.officeapp.ui.filters.FiltersUiStateHolder
 import javax.inject.Inject
 
 data class OfficeFilterUiState(

@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.home.filters
+package ru.ilyasekunov.officeapp.ui.filters
 
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.tween

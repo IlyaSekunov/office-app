@@ -105,7 +105,7 @@ import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
-import ru.ilyasekunov.officeapp.ui.home.filters.FiltersUiState
+import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.util.toRussianString

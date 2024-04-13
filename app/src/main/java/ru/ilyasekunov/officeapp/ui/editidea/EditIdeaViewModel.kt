@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.home.editidea
+package ru.ilyasekunov.officeapp.ui.editidea
 
 import android.net.Uri
 import androidx.compose.runtime.getValue

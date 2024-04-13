@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.home.ideadetails
+package ru.ilyasekunov.officeapp.ui.ideadetails
 
 import android.net.Uri
 import androidx.compose.runtime.getValue
@@ -250,9 +250,7 @@ class IdeaDetailsViewModel @Inject constructor(
 
     fun loadPostById(postId: Long) {
         viewModelScope.launch {
-            updateIsPostLoading(true)
             loadPostByIdSuspending(postId)
-            updateIsPostLoading(false)
         }
     }
 

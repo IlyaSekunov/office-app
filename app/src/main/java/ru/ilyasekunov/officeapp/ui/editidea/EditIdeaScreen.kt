@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.home.editidea
+package ru.ilyasekunov.officeapp.ui.editidea
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
@@ -29,8 +29,8 @@ import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.home.suggestidea.EditIdeaSection
-import ru.ilyasekunov.officeapp.ui.home.suggestidea.SuggestIdeaTopBar
+import ru.ilyasekunov.officeapp.ui.suggestidea.EditIdeaSection
+import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaTopBar
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 
 @Composable

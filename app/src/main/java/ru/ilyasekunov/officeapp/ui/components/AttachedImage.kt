@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import ru.ilyasekunov.officeapp.ui.home.suggestidea.CloseIconButton
+import ru.ilyasekunov.officeapp.ui.suggestidea.CloseIconButton
 
 data class AttachedImage(
     val id: Int,

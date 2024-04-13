@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.navigation.favouriteideas
+package ru.ilyasekunov.officeapp.navigation
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController

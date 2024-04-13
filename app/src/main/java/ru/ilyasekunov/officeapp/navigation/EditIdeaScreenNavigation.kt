@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.navigation.home.editidea
+package ru.ilyasekunov.officeapp.navigation
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -6,9 +6,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import ru.ilyasekunov.officeapp.navigation.Screen
-import ru.ilyasekunov.officeapp.ui.home.editidea.EditIdeaScreen
-import ru.ilyasekunov.officeapp.ui.home.editidea.EditIdeaViewModel
+import ru.ilyasekunov.officeapp.ui.editidea.EditIdeaScreen
+import ru.ilyasekunov.officeapp.ui.editidea.EditIdeaViewModel
 import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePicker
 
 fun NavGraphBuilder.editIdeaScreen(

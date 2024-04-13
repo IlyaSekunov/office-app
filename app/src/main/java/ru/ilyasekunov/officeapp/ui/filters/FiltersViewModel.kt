@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.home.filters
+package ru.ilyasekunov.officeapp.ui.filters
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

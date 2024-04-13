@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.navigation.home.editidea
+package ru.ilyasekunov.officeapp.navigation
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -8,8 +8,8 @@ import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.animations.enterSlideUp
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideDown
-import ru.ilyasekunov.officeapp.ui.home.suggestidea.SuggestIdeaScreen
-import ru.ilyasekunov.officeapp.ui.home.suggestidea.SuggestIdeaViewModel
+import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaScreen
+import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaViewModel
 import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePicker
 
 fun NavGraphBuilder.suggestIdeaScreen(

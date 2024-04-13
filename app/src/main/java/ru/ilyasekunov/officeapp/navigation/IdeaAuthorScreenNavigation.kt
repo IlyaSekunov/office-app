@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.navigation.ideaauthor
+package ru.ilyasekunov.officeapp.navigation
 
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -7,7 +7,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.paging.compose.collectAsLazyPagingItems
-import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.ideaauthor.IdeaAuthorScreen
 import ru.ilyasekunov.officeapp.ui.ideaauthor.IdeaAuthorViewModel
 

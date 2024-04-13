@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.home.suggestidea
+package ru.ilyasekunov.officeapp.ui.suggestidea
 
 import android.net.Uri
 import androidx.compose.runtime.getValue

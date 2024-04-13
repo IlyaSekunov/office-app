@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.home.ideadetails
+package ru.ilyasekunov.officeapp.ui.ideadetails
 
 import android.net.Uri
 import androidx.compose.foundation.clickable

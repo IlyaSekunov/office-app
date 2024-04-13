@@ -42,7 +42,7 @@ import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.home.HomeAppBar
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import ru.ilyasekunov.officeapp.ui.home.SearchUiState
-import ru.ilyasekunov.officeapp.ui.home.filters.FiltersUiState
+import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorBlue
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorGreen
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorOrange
