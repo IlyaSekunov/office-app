@@ -65,7 +65,9 @@ fun LazyListScope.comments(
             }
         }
 
-        comments.itemCount == 0 -> item { CommentsListIsEmpty() }
+        comments.itemCount == 0 -> item {
+            CommentsListIsEmpty(modifier = Modifier.padding(10.dp))
+        }
         else -> {
             items(
                 count = comments.itemCount,
