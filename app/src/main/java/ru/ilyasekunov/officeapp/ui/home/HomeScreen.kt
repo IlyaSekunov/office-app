@@ -102,6 +102,7 @@ import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
@@ -788,10 +789,8 @@ fun AttachedImages(
             pageSpacing = 10.dp,
             modifier = Modifier.fillMaxSize()
         ) {
-            AsyncImage(
+            AsyncImageWithLoading(
                 model = attachedImages[it],
-                contentDescription = "attached_image_${it}",
-                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(MaterialTheme.shapes.medium)
