@@ -39,10 +39,24 @@ class PostsRemoteDataSource(
             }
         }
 
-    override suspend fun favouritePosts(): Result<List<IdeaPost>> =
-        withContext(ioDispatcher) {
-            handleResponse { postsApi.favouritePosts() }
+    override suspend fun favouritePosts(
+        searchPostsDto: SearchPostsDto,
+        page: Int,
+        pageSize: Int
+    ): Result<List<IdeaPost>> = withContext(ioDispatcher) {
+        val officesId = searchPostsDto.filtersDto.offices
+        val sortingFilterId = searchPostsDto.filtersDto.sortingFilter
+        val search = searchPostsDto.searchDto.search
+        handleResponse {
+            postsApi.favouritePosts(
+                officesId = officesId,
+                sortingFilterId = sortingFilterId,
+                search = search,
+                page = page,
+                pageSize = pageSize
+            )
         }
+    }
 
     override suspend fun postsByAuthorId(authorId: Long, page: Int, pageSize: Int) =
         withContext(ioDispatcher) {

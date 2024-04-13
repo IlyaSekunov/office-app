@@ -19,6 +19,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -104,6 +105,7 @@ import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
+import ru.ilyasekunov.officeapp.ui.home.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.util.toRussianString
@@ -120,8 +122,8 @@ fun HomeScreen(
     onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
     onSortingFilterRemoveClick: () -> Unit,
     onDeletePostClick: (IdeaPost) -> Unit,
-    onPostLikeClick: (post: IdeaPost) -> Unit,
-    onPostDislikeClick: (post: IdeaPost) -> Unit,
+    onPostLikeClick: (IdeaPost) -> Unit,
+    onPostDislikeClick: (IdeaPost) -> Unit,
     onRetryInfoLoad: () -> Unit,
     onPullToRefresh: () -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
@@ -300,12 +302,13 @@ fun HomeAppBar(
     onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
     onSortingFilterRemoveClick: () -> Unit,
     onFiltersClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    title: (@Composable ColumnScope.(PaddingValues) -> Unit)? = null
 ) {
     val sortingFiltersUiState = filtersUiState.sortingFiltersUiState
     val officeFilterUiState = filtersUiState.officeFiltersUiState
     val showSortingFilter = sortingFiltersUiState.selected != null
-    val showOfficeFilters = filtersUiState.officeFiltersUiState.any { it.isSelected }
+    val showOfficeFilters = officeFilterUiState.any { it.isSelected }
     Column(
         modifier = modifier
             .shadow(blurRadius = 4.dp)
@@ -317,23 +320,26 @@ fun HomeAppBar(
             onSearchValueChange = onSearchValueChange,
             onFiltersClick = onFiltersClick
         )
-        if (showOfficeFilters || showSortingFilter) {
-            Spacer(modifier = Modifier.height(20.dp))
-            if (showOfficeFilters) {
-                AppliedOfficeFilters(
-                    officeFilters = officeFilterUiState,
-                    onOfficeFilterRemoveClick = onOfficeFilterRemoveClick
+        if (title != null) {
+            title(PaddingValues(top = 20.dp, bottom = 10.dp))
+        }
+        if (showOfficeFilters) {
+            AppliedOfficeFilters(
+                officeFilters = officeFilterUiState,
+                onOfficeFilterRemoveClick = onOfficeFilterRemoveClick,
+                modifier = Modifier.padding(
+                    top = if (title == null) 20.dp else 10.dp
                 )
-            }
-            if (showSortingFilter) {
-                if (showOfficeFilters) {
-                    Spacer(modifier = Modifier.height(30.dp))
-                }
-                AppliedSortingFilter(
-                    sortingCategory = sortingFiltersUiState.selected!!,
-                    onSortingFilterRemoveClick = onSortingFilterRemoveClick
+            )
+        }
+        if (showSortingFilter) {
+            AppliedSortingFilter(
+                sortingCategory = sortingFiltersUiState.selected!!,
+                onSortingFilterRemoveClick = onSortingFilterRemoveClick,
+                modifier = Modifier.padding(
+                    top = if (showOfficeFilters) 30.dp else 10.dp
                 )
-            }
+            )
         }
     }
 }

@@ -28,15 +28,9 @@ import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpForbiddenException
+import ru.ilyasekunov.officeapp.ui.home.filters.FiltersUiState
+import ru.ilyasekunov.officeapp.ui.home.filters.FiltersUiStateHolder
 import javax.inject.Inject
-
-data class FiltersUiState(
-    val sortingFiltersUiState: SortingFiltersUiState = SortingFiltersUiState(),
-    val officeFiltersUiState: List<OfficeFilterUiState> = emptyList(),
-    val isLoading: Boolean = false,
-    val isErrorWhileLoading: Boolean = false,
-    val isLoaded: Boolean = false
-)
 
 data class OfficeFilterUiState(
     val office: Office,
@@ -68,8 +62,12 @@ class HomeViewModel @Inject constructor(
     private val _postsUiState: MutableStateFlow<PagingData<IdeaPost>> =
         MutableStateFlow(PagingData.empty())
     val postsUiState: StateFlow<PagingData<IdeaPost>> get() = _postsUiState
-    var filtersUiState by mutableStateOf(FiltersUiState())
-        private set
+    val filtersUiStateHolder = FiltersUiStateHolder(
+        initialFiltersUiState = FiltersUiState(),
+        coroutineScope = viewModelScope,
+        loadFiltersRequest = postsRepository::filters,
+        onUpdateFiltersState = ::loadPosts
+    )
     var searchUiState by mutableStateOf(SearchUiState())
         private set
     var currentUserUiState by mutableStateOf(CurrentUserUiState())
@@ -80,34 +78,8 @@ class HomeViewModel @Inject constructor(
         loadPosts()
     }
 
-    fun updateFiltersUiState(filtersUiState: FiltersUiState) {
-        this.filtersUiState = filtersUiState
-        loadPosts()
-    }
-
     fun updateSearchValue(searchValue: String) {
         searchUiState = searchUiState.copy(value = searchValue)
-        loadPosts()
-    }
-
-    fun removeOfficeFilter(officeFilter: OfficeFilterUiState) {
-        filtersUiState = filtersUiState.copy(
-            officeFiltersUiState = filtersUiState.officeFiltersUiState.map {
-                if (it == officeFilter) {
-                    it.copy(isSelected = false)
-                } else {
-                    it
-                }
-            }
-        )
-        loadPosts()
-    }
-
-    fun removeSortingFilter() {
-        val sortingFiltersUiState = filtersUiState.sortingFiltersUiState
-        filtersUiState = filtersUiState.copy(
-            sortingFiltersUiState = sortingFiltersUiState.copy(selected = null)
-        )
         loadPosts()
     }
 
@@ -175,17 +147,13 @@ class HomeViewModel @Inject constructor(
 
     fun loadPosts() {
         viewModelScope.launch {
-            if (!filtersUiState.isLoaded) {
-                loadFiltersSuspending()
+            if (!filtersUiStateHolder.isLoaded) {
+                filtersUiStateHolder.loadFilters().join()
             }
-            if (filtersUiState.isLoaded) {
+            if (filtersUiStateHolder.isLoaded) {
                 loadPostSuspending()
             }
         }
-    }
-
-    private fun updatePostsPagingData(postPagingData: PagingData<IdeaPost>) {
-        _postsUiState.value = postPagingData
     }
 
     private fun updatePost(updatedPost: IdeaPost) {
@@ -204,18 +172,10 @@ class HomeViewModel @Inject constructor(
         currentUserUiState = currentUserUiState.copy(isLoading = isLoading)
     }
 
-    private fun updateIsFiltersLoading(isLoading: Boolean) {
-        filtersUiState = filtersUiState.copy(isLoading = isLoading)
-    }
-
     private fun updateIsErrorWhileUserLoading(isErrorWhileLoading: Boolean) {
         currentUserUiState = currentUserUiState.copy(
             isErrorWhileLoading = isErrorWhileLoading
         )
-    }
-
-    private fun updateIsErrorWhileFiltersLoading(isErrorWhileLoading: Boolean) {
-        filtersUiState = filtersUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
     }
 
     private fun updateIsUserUnauthorized(isUnauthorized: Boolean) {
@@ -224,10 +184,6 @@ class HomeViewModel @Inject constructor(
 
     private fun updateUser(user: User?) {
         currentUserUiState = currentUserUiState.copy(user = user)
-    }
-
-    private fun updateFiltersIsLoaded(isLoaded: Boolean) {
-        filtersUiState = filtersUiState.copy(isLoaded = isLoaded)
     }
 
     fun loadCurrentUser() {
@@ -257,43 +213,13 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadPostSuspending() {
         postsPagingRepository.posts(
             searchPostsDto = SearchPostsDto(
-                filtersDto = filtersUiState.toFiltersDto(),
+                filtersDto = filtersUiStateHolder.filtersUiState.toFiltersDto(),
                 searchDto = searchUiState.toSearchDto()
             ),
         )
             .distinctUntilChanged()
             .cachedIn(viewModelScope)
-            .collectLatest { updatePostsPagingData(it) }
-    }
-
-    private suspend fun loadFiltersSuspending() {
-        updateIsFiltersLoading(true)
-        val filtersResult = postsRepository.filters()
-        when {
-            filtersResult.isSuccess -> {
-                val filters = filtersResult.getOrThrow()
-                filtersUiState = filters.toFiltersUiState()
-                updateIsErrorWhileFiltersLoading(false)
-                updateFiltersIsLoaded(true)
-            }
-
-            filtersResult.exceptionOrNull()!! is HttpForbiddenException -> {
-                updateIsUserUnauthorized(true)
-                updateFiltersIsLoaded(false)
-            }
-
-            else -> {
-                updateIsErrorWhileFiltersLoading(true)
-                updateFiltersIsLoaded(false)
-            }
-        }
-        updateIsFiltersLoading(false)
-    }
-
-    fun loadFilters() {
-        viewModelScope.launch {
-            loadFiltersSuspending()
-        }
+            .collectLatest { _postsUiState.value = it }
     }
 }
 

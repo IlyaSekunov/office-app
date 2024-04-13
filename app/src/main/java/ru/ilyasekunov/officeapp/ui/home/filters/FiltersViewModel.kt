@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
-import ru.ilyasekunov.officeapp.ui.home.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import javax.inject.Inject
 

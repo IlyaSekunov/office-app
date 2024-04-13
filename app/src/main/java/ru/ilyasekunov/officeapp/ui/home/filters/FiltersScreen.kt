@@ -68,7 +68,6 @@ import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.home.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import ru.ilyasekunov.officeapp.ui.home.SortingFiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.sortingCategoryName

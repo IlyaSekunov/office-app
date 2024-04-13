@@ -27,7 +27,13 @@ interface PostsApi {
     ): Response<List<IdeaPost>>
 
     @GET("posts/favourite")
-    suspend fun favouritePosts(): Response<List<IdeaPost>>
+    suspend fun favouritePosts(
+        @Query("office") officesId: List<Int>,
+        @Query("sorting_filter") sortingFilterId: Int? = null,
+        @Query("search") search: String,
+        @Query("page") page: Int,
+        @Query("page_size") pageSize: Int
+    ): Response<List<IdeaPost>>
 
     @GET("posts/by-author-id/{authorId}")
     suspend fun postsByAuthorId(

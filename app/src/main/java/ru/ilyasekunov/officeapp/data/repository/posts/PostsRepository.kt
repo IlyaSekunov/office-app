@@ -13,7 +13,12 @@ interface PostsRepository {
         pageSize: Int
     ): Result<List<IdeaPost>>
 
-    suspend fun favouritePosts(): Result<List<IdeaPost>>
+    suspend fun favouritePosts(
+        searchPostsDto: SearchPostsDto,
+        page: Int,
+        pageSize: Int
+    ): Result<List<IdeaPost>>
+
     suspend fun publishPost(post: PublishPostDto): Result<Unit>
     suspend fun editPostById(postId: Long, editedPostDto: EditPostDto): Result<Unit>
     suspend fun findPostById(postId: Long): Result<IdeaPost>

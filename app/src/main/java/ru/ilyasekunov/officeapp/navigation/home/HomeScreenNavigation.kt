@@ -1,8 +1,6 @@
 package ru.ilyasekunov.officeapp.navigation.home
 
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
@@ -13,7 +11,6 @@ import ru.ilyasekunov.officeapp.ui.home.HomeScreen
 import ru.ilyasekunov.officeapp.ui.home.HomeViewModel
 
 fun NavGraphBuilder.homeScreen(
-    viewModelStoreOwnerProvider: () -> ViewModelStoreOwner,
     navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
@@ -24,24 +21,23 @@ fun NavGraphBuilder.homeScreen(
     navigateToProfileScreen: () -> Unit,
     navigateToAuthGraph: () -> Unit
 ) {
-    composable(route = BottomNavigationScreen.Home.route) { backStackEntry ->
-        val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
-        val homeViewModel = hiltViewModel<HomeViewModel>(viewModelStoreOwner)
-        val posts = homeViewModel.postsUiState.collectAsLazyPagingItems()
+    composable(route = BottomNavigationScreen.Home.route) {
+        val viewModel = hiltViewModel<HomeViewModel>()
+        val posts = viewModel.postsUiState.collectAsLazyPagingItems()
         HomeScreen(
             posts = posts,
-            currentUserUiState = homeViewModel.currentUserUiState,
-            searchUiState = homeViewModel.searchUiState,
-            onSearchValueChange = homeViewModel::updateSearchValue,
-            filtersUiState = homeViewModel.filtersUiState,
-            onOfficeFilterRemoveClick = homeViewModel::removeOfficeFilter,
-            onSortingFilterRemoveClick = homeViewModel::removeSortingFilter,
-            onDeletePostClick = homeViewModel::deletePost,
-            onPostLikeClick = homeViewModel::updateLike,
-            onPostDislikeClick = homeViewModel::updateDislike,
+            currentUserUiState = viewModel.currentUserUiState,
+            searchUiState = viewModel.searchUiState,
+            onSearchValueChange = viewModel::updateSearchValue,
+            filtersUiState = viewModel.filtersUiStateHolder.filtersUiState,
+            onOfficeFilterRemoveClick = viewModel.filtersUiStateHolder::removeOfficeFilter,
+            onSortingFilterRemoveClick = viewModel.filtersUiStateHolder::removeSortingFilter,
+            onDeletePostClick = viewModel::deletePost,
+            onPostLikeClick = viewModel::updateLike,
+            onPostDislikeClick = viewModel::updateDislike,
             onRetryInfoLoad = {
-                homeViewModel.loadCurrentUser()
-                homeViewModel.loadPosts()
+                viewModel.loadCurrentUser()
+                viewModel.loadPosts()
             },
             onPullToRefresh = posts::refresh,
             navigateToFiltersScreen = navigateToFiltersScreen,

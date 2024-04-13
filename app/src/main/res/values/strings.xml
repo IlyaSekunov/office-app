@@ -70,4 +70,6 @@
     <string name="posts_not_exists">Данной записи не существует</string>
     <string name="message">Сообщение</string>
     <string name="error_while_publishing_comment">Ошибка при отправке комментария</string>
+    <string name="favourite_ideas">Понравившиеся идеи</string>
+    <string name="no_favourites_ideas">Понравившихся идей пока нет</string>
 </resources>

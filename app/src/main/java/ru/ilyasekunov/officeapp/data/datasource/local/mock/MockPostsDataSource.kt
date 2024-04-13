@@ -62,9 +62,49 @@ class MockPostsDataSource : PostsDataSource {
         )
     }
 
-    override suspend fun favouritePosts(): Result<List<IdeaPost>> {
-        val posts = Posts.filter { it.isLikePressed }
-        return Result.success(posts)
+    override suspend fun favouritePosts(
+        searchPostsDto: SearchPostsDto,
+        page: Int,
+        pageSize: Int
+    ): Result<List<IdeaPost>> {
+        val searchDto = searchPostsDto.searchDto
+        val filtersDto = searchPostsDto.filtersDto
+        val posts = Posts.asSequence()
+            .filter {
+                if (searchDto.search.isBlank()) {
+                    it.office.id in filtersDto.offices
+                } else {
+                    it.office.id in filtersDto.offices &&
+                            it.title.contains(searchDto.search)
+                }
+            }.filter { it.isLikePressed }
+            .toList()
+        val sortedPosts = when (filtersDto.sortingFilter) {
+            1 -> posts.sortedBy { it.likesCount }
+            2 -> posts.sortedBy { it.dislikesCount }
+            3 -> posts.sortedBy { it.commentsCount }
+            null -> posts.sortedBy { it.date }
+            else -> throw IllegalStateException("Unknown sorting filter")
+        }
+        val firstPostIndex = (page - 1) * pageSize
+        val lastPostIndex = firstPostIndex + pageSize
+        if (firstPostIndex > sortedPosts.lastIndex) {
+            return Result.success(emptyList())
+        }
+        if (lastPostIndex > sortedPosts.lastIndex) {
+            return Result.success(
+                sortedPosts.subList(
+                    fromIndex = firstPostIndex,
+                    toIndex = sortedPosts.lastIndex + 1
+                )
+            )
+        }
+        return Result.success(
+            sortedPosts.subList(
+                fromIndex = firstPostIndex,
+                toIndex = lastPostIndex
+            )
+        )
     }
 
     override suspend fun findPostById(postId: Long): Result<IdeaPost> {

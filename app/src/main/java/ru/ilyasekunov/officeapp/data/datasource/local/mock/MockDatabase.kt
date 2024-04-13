@@ -164,5 +164,22 @@ val Posts = mutableListOf(
     ideaPost,
     ideaPost.copy(id = 1),
     ideaPost.copy(id = 2),
-    ideaPost.copy(id = 3)
+    ideaPost.copy(id = 3),
+    ideaPost.copy(id = 4),
+    ideaPost.copy(id = 5),
+    ideaPost.copy(id = 6),
+    ideaPost.copy(id = 7),
+    ideaPost.copy(id = 8),
+    ideaPost.copy(id = 9),
+    ideaPost.copy(id = 10),
+    ideaPost.copy(id = 11),
+    ideaPost.copy(id = 12),
+    ideaPost.copy(id = 13),
+    ideaPost.copy(id = 14),
+    ideaPost.copy(id = 15),
+    ideaPost.copy(id = 16),
+    ideaPost.copy(id = 17),
+    ideaPost.copy(id = 18),
+    ideaPost.copy(id = 19),
+    ideaPost.copy(id = 20)
 )

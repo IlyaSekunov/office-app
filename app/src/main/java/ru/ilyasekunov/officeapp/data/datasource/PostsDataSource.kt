@@ -18,7 +18,13 @@ interface PostsDataSource {
         pageSize: Int
     ): Result<List<IdeaPost>>
 
-    suspend fun favouritePosts(): Result<List<IdeaPost>>
+    suspend fun favouritePosts(
+        searchPostsDto: SearchPostsDto,
+        @IntRange(from = 1)
+        page: Int,
+        @IntRange(from = 1)
+        pageSize: Int
+    ): Result<List<IdeaPost>>
 
     suspend fun postsByAuthorId(
         authorId: Long,
