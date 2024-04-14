@@ -213,7 +213,7 @@ fun UserManageAccountScreen(
 
     ObserveIsChangesSaved(
         userManageAccountUiState = userManageAccountUiState,
-        appCoroutineScope = LocalCoroutineScope.current,
+        coroutineScope = LocalCoroutineScope.current,
         snackbarHostState = LocalSnackbarHostState.current,
         navigateToProfileScreen = navigateToProfileScreen
     )
@@ -244,7 +244,7 @@ private fun ObserveChangesSavingError(
 @Composable
 private fun ObserveIsChangesSaved(
     userManageAccountUiState: UserManageAccountUiState,
-    appCoroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
     navigateToProfileScreen: () -> Unit
 ) {
@@ -252,7 +252,7 @@ private fun ObserveIsChangesSaved(
     val message = stringResource(R.string.profile_settings_changes_saved_succesfully)
     LaunchedEffect(userManageAccountUiState) {
         if (userManageAccountUiState.isChangesSaved) {
-            appCoroutineScope.launch {
+            coroutineScope.launch {
                 changesSavedSuccessfullySnackbar(
                     snackbarHostState = snackbarHostState,
                     message = message,
