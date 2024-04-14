@@ -34,10 +34,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import ru.ilyasekunov.officeapp.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
+import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
-import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.userInfoFieldErrorMessage
@@ -210,6 +213,8 @@ fun UserManageAccountScreen(
 
     ObserveIsChangesSaved(
         userManageAccountUiState = userManageAccountUiState,
+        appCoroutineScope = LocalCoroutineScope.current,
+        snackbarHostState = LocalSnackbarHostState.current,
         navigateToProfileScreen = navigateToProfileScreen
     )
 }
@@ -239,11 +244,21 @@ private fun ObserveChangesSavingError(
 @Composable
 private fun ObserveIsChangesSaved(
     userManageAccountUiState: UserManageAccountUiState,
+    appCoroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
     navigateToProfileScreen: () -> Unit
 ) {
     val currentNavigateToProfileScreen by rememberUpdatedState(navigateToProfileScreen)
+    val message = stringResource(R.string.profile_settings_changes_saved_succesfully)
     LaunchedEffect(userManageAccountUiState) {
         if (userManageAccountUiState.isChangesSaved) {
+            appCoroutineScope.launch {
+                changesSavedSuccessfullySnackbar(
+                    snackbarHostState = snackbarHostState,
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
+            }
             currentNavigateToProfileScreen()
         }
     }
@@ -270,6 +285,15 @@ fun SaveButton(
         )
     }
 }
+
+private suspend fun changesSavedSuccessfullySnackbar(
+    snackbarHostState: SnackbarHostState,
+    duration: SnackbarDuration,
+    message: String
+) = snackbarHostState.showSnackbar(
+    message = message,
+    duration = duration
+)
 
 @Preview
 @Composable

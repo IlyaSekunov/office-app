@@ -12,12 +12,14 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.navigation.MainGraphRoute
 import ru.ilyasekunov.officeapp.navigation.auth.authGraph
@@ -42,6 +44,9 @@ val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
 val LocalCurrentNavigationBarScreen = compositionLocalOf<BottomNavigationScreen> {
     error("No Current Navigation Bar Screen")
 }
+val LocalCoroutineScope = staticCompositionLocalOf<CoroutineScope> {
+    error("No Coroutine Scope provided")
+}
 
 @Composable
 fun OfficeApp() {
@@ -58,7 +63,8 @@ fun OfficeApp() {
         CompositionLocalProvider(
             values = arrayOf(
                 LocalSnackbarHostState provides remember { SnackbarHostState() },
-                LocalCurrentNavigationBarScreen provides currentBottomNavigationScreen
+                LocalCurrentNavigationBarScreen provides currentBottomNavigationScreen,
+                LocalCoroutineScope provides rememberCoroutineScope()
             )
         ) {
             NavHost(

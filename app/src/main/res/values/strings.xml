@@ -72,4 +72,5 @@
     <string name="error_while_publishing_comment">Ошибка при отправке комментария</string>
     <string name="favourite_ideas">Понравившиеся идеи</string>
     <string name="no_favourites_ideas">Понравившихся идей пока нет</string>
+    <string name="profile_settings_changes_saved_succesfully">Настройки успешно сохранены</string>
 </resources>

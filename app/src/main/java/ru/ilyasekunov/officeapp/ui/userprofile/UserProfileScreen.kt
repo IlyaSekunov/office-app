@@ -22,6 +22,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,8 +49,8 @@ import coil.request.ImageRequest
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.Job
 import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
+import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.UserInfoFieldUiState
@@ -78,6 +79,7 @@ fun UserProfileScreen(
         val containerColor = MaterialTheme.colorScheme.background
         Scaffold(
             containerColor = containerColor,
+            snackbarHost = { SnackbarHost(hostState = LocalSnackbarHostState.current) },
             bottomBar = {
                 BottomNavigationBar(
                     selectedScreen = LocalCurrentNavigationBarScreen.current,
