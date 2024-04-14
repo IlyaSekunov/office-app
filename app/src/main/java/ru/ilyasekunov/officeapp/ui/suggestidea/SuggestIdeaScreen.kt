@@ -47,9 +47,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import ru.ilyasekunov.officeapp.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
+import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.AttachedImages
@@ -72,7 +75,7 @@ fun SuggestIdeaScreen(
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = LocalSnackbarHostState.current
     if (suggestIdeaUiState.isLoading) {
         LoadingScreen()
     } else {
@@ -148,6 +151,8 @@ fun SuggestIdeaScreen(
 
     ObserveIsPublished(
         suggestIdeaUiState = suggestIdeaUiState,
+        coroutineScope = LocalCoroutineScope.current,
+        snackbarHostState = snackbarHostState,
         navigateToHomeScreen = navigateToHomeScreen
     )
 }
@@ -177,11 +182,21 @@ private fun ObserveNetworkError(
 @Composable
 private fun ObserveIsPublished(
     suggestIdeaUiState: SuggestIdeaUiState,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState,
     navigateToHomeScreen: () -> Unit
 ) {
     val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
+    val message = stringResource(R.string.idea_published_successfully)
     LaunchedEffect(suggestIdeaUiState) {
         if (suggestIdeaUiState.isPublished) {
+            coroutineScope.launch {
+                ideaPublishedSuccessfullySnackbar(
+                    snackbarHostState = snackbarHostState,
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
+            }
             currentNavigateToHomeScreen()
         }
     }
@@ -398,6 +413,15 @@ fun AttachImagesButton(
         )
     }
 }
+
+private suspend fun ideaPublishedSuccessfullySnackbar(
+    snackbarHostState: SnackbarHostState,
+    duration: SnackbarDuration,
+    message: String
+) = snackbarHostState.showSnackbar(
+    message = message,
+    duration = duration
+)
 
 @Preview
 @Composable
