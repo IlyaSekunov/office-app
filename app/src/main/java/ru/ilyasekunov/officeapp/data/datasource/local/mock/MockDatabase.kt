@@ -162,24 +162,43 @@ val Comments = mutableListOf(
 
 val Posts = mutableListOf(
     ideaPost,
-    ideaPost.copy(id = 1),
-    ideaPost.copy(id = 2),
+    ideaPost.copy(
+        id = 1,
+        attachedImages = listOf(
+            "https://i.pinimg.com/236x/93/ed/3a/93ed3af6411e1e8b997038c74c287a8a.jpg",
+            "https://bigpicture.ru/wp-content/uploads/2009/12/wave01-800x565.jpg"
+        )
+    ),
+    ideaPost.copy(
+        id = 2,
+        attachedImages = listOf(
+            "https://love.romanticcollection.ru/wp-content/uploads/priznaniya-44.jpg",
+            "https://fantiky.ru/wp-content/uploads/2023/03/tiger-130323-1-576x1024-1-450x800.jpg"
+        )
+    ),
     ideaPost.copy(id = 3),
     ideaPost.copy(id = 4),
-    ideaPost.copy(id = 5),
+    ideaPost.copy(
+        id = 5,
+        attachedImages = listOf(
+            "https://avatars.dzeninfra.ru/get-zen-vh/5413359/2a00000185b7739bc7fa55e2e588dfcb8707/1080x1920"
+        )
+    ),
     ideaPost.copy(id = 6),
-    ideaPost.copy(id = 7),
+    ideaPost.copy(
+        id = 7,
+        attachedImages = listOf(
+            "https://img.stablecog.com/insecure/1920w/aHR0cHM6Ly9iLnN0YWJsZWNvZy5jb20vMjAyZDNmYmItNDNlYi00MjU1LWEzNjYtYTM3MWIzM2E4NWFlLmpwZWc.webp",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVJS04WndV6zhVK60zhRM17bS9aCEmH3LagJ_7VhFIFA&s",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsGkKR5KYFXlcf45zzk_xcizhzGY3AX-iG3yGjFWqK4A&s"
+        )
+    ),
     ideaPost.copy(id = 8),
     ideaPost.copy(id = 9),
-    ideaPost.copy(id = 10),
-    ideaPost.copy(id = 11),
-    ideaPost.copy(id = 12),
-    ideaPost.copy(id = 13),
-    ideaPost.copy(id = 14),
-    ideaPost.copy(id = 15),
-    ideaPost.copy(id = 16),
-    ideaPost.copy(id = 17),
-    ideaPost.copy(id = 18),
-    ideaPost.copy(id = 19),
-    ideaPost.copy(id = 20)
+    ideaPost.copy(
+        id = 10,
+        attachedImages = listOf(
+            "https://masterpiecer-images.s3.yandex.net/5dccb025621011ee9210222e7fa838a6:upscaled"
+        )
+    ),
 )
