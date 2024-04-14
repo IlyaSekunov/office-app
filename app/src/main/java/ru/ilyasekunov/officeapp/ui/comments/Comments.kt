@@ -123,7 +123,6 @@ fun Comment(
     Row(
         horizontalArrangement = Arrangement.spacedBy(15.dp),
         modifier = modifier
-            .clip(MaterialTheme.shapes.medium)
             .clickable { }
             .padding(10.dp)
     ) {
