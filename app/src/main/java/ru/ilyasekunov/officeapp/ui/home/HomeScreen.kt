@@ -5,8 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -36,8 +34,6 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -46,7 +42,6 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -61,9 +56,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -72,6 +65,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -107,6 +101,8 @@ import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
+import ru.ilyasekunov.officeapp.ui.components.SuggestIdeaButton
+import ru.ilyasekunov.officeapp.ui.components.defaultSuggestIdeaFABScrollBehaviour
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
@@ -140,7 +136,7 @@ fun HomeScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = LocalSnackbarHostState.current
-    val postsLazyListState = rememberLazyListState()
+    val suggestIdeaFABScrollBehaviour = defaultSuggestIdeaFABScrollBehaviour()
     Scaffold(
         topBar = {
             HomeAppBar(
@@ -168,7 +164,7 @@ fun HomeScreen(
         floatingActionButton = {
             SuggestIdeaButton(
                 onClick = navigateToSuggestIdeaScreen,
-                postsLazyListState = postsLazyListState
+                scrollBehaviour = suggestIdeaFABScrollBehaviour
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -230,8 +226,9 @@ fun HomeScreen(
                         navigateToAuthorScreen = navigateToAuthorScreen,
                         navigateToEditIdeaScreen = navigateToEditIdeaScreen,
                         contentPadding = PaddingValues(top = 18.dp, bottom = 18.dp),
-                        postsLazyListState = postsLazyListState,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(suggestIdeaFABScrollBehaviour.nestedScrollConnection)
                     )
                 }
             }
@@ -250,11 +247,9 @@ fun IdeaPosts(
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
     modifier: Modifier = Modifier,
-    postsLazyListState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     LazyColumn(
-        state = postsLazyListState,
         contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
@@ -479,7 +474,7 @@ fun MenuSection(
             expanded = isMenuVisible,
             onDismissClick = { isMenuVisible = false },
             isAuthorPostCurrentUser = isAuthorPostCurrentUser,
-            onSuggestIdeaToMyOfficeClick = {/*TODO*/},
+            onSuggestIdeaToMyOfficeClick = {/*TODO*/ },
             onNavigateToAuthorClick = navigateToAuthorScreen,
             onEditClick = navigateToEditIdeaScreen,
             onDeleteClick = onDeletePostClick,
@@ -918,40 +913,6 @@ fun ActionItem(
 }
 
 @Composable
-fun SuggestIdeaButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    postsLazyListState: LazyListState
-) {
-    val isScrollingForward = postsLazyListState.collectIsScrollingForward()
-    AnimatedVisibility(
-        visible = !isScrollingForward,
-        enter = slideInVertically(
-            animationSpec = tween(),
-            initialOffsetY = { it / 2 }
-        ) + fadeIn(tween(150)),
-        exit = slideOutVertically(
-            animationSpec = tween(),
-            targetOffsetY = { it },
-        ) + fadeOut(tween(150))
-    ) {
-        FloatingActionButton(
-            onClick = onClick,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = Color.Black,
-            shape = MaterialTheme.shapes.medium,
-            modifier = modifier
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.outline_create_24),
-                contentDescription = "create_button",
-                modifier = Modifier.size(30.dp)
-            )
-        }
-    }
-}
-
-@Composable
 fun CurrentImageSection(
     currentImage: Int,
     imageCount: Int,
@@ -1015,20 +976,6 @@ private fun deletePostSnackbar(
             onSnackbarTimeOut()
         }
     }
-}
-
-@Composable
-private fun LazyListState.collectIsScrollingForward(): Boolean {
-    var previousScrollOffset by remember(this) {
-        mutableIntStateOf(firstVisibleItemScrollOffset)
-    }
-    return remember(this) {
-        derivedStateOf {
-            previousScrollOffset < firstVisibleItemScrollOffset.also {
-                previousScrollOffset = firstVisibleItemScrollOffset
-            }
-        }
-    }.value
 }
 
 @Preview
@@ -1118,19 +1065,6 @@ fun IdeaPostOfficePreview() {
                 office = Office(
                     id = 1, imageUrl = "", address = ""
                 )
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun SuggestIdeaButtonPreview() {
-    OfficeAppTheme {
-        Surface {
-            SuggestIdeaButton(
-                onClick = {},
-                postsLazyListState = rememberLazyListState()
             )
         }
     }

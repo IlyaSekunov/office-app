@@ -34,16 +34,15 @@ import androidx.paging.compose.itemKey
 import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
-import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.HomeAppBar
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import ru.ilyasekunov.officeapp.ui.home.SearchUiState
-import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorBlue
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorGreen
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorOrange
