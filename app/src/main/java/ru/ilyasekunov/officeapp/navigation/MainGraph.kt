@@ -235,14 +235,14 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToFavouriteScreen = { /*TODO*/ },
-            navigateToMyOfficeScreen = {
+            navigateToFavouriteScreen = {
                 navController.navigateToFavouriteIdeasScreen(
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
                         .build()
                 )
             },
+            navigateToMyOfficeScreen = {/* TODO */ },
             navigateToProfileScreen = {
                 navController.navigateToProfileScreen(
                     navOptions = NavOptions.Builder()

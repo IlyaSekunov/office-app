@@ -91,6 +91,7 @@ import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.ideaAuthor
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.ideaPost
@@ -154,7 +155,7 @@ fun HomeScreen(
         },
         bottomBar = {
             BottomNavigationBar(
-                selectedScreen = BottomNavigationScreen.Home,
+                selectedScreen = LocalCurrentNavigationBarScreen.current,
                 navigateToFavouriteScreen = navigateToFavouriteScreen,
                 navigateToMyOfficeScreen = navigateToMyOfficeScreen,
                 navigateToProfileScreen = navigateToProfileScreen,

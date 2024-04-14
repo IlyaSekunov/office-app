@@ -20,12 +20,14 @@ sealed class Screen(val route: String, val arguments: List<NamedNavArgument> = e
             navArgument("postId") { type = NavType.LongType }
         )
     )
+
     data object IdeaAuthor : Screen(
         route = "idea-author/{authorId}",
         arguments = listOf(
             navArgument("authorId") { type = NavType.LongType }
         )
     )
+
     data object IdeaDetails : Screen(
         route = "idea-details/{postId}?initiallyScrollToComments={initiallyScrollToComments}",
         arguments = listOf(
@@ -75,6 +77,15 @@ val bottomNavigationDestinations =
         BottomNavigationScreen.MyOffice,
         BottomNavigationScreen.Profile
     )
+
+val destinationsWithBottomNavBar =
+    listOf(
+        Screen.UserManageAccount,
+        Screen.FiltersScreen,
+        Screen.SuggestIdea,
+        Screen.EditIdea,
+        Screen.IdeaAuthor
+    ) + bottomNavigationDestinations
 
 const val AuthGraphRoute = "auth-graph"
 const val MainGraphRoute = "app-graph"

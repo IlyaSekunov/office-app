@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
@@ -89,7 +90,7 @@ fun SuggestIdeaScreen(
             },
             bottomBar = {
                 BottomNavigationBar(
-                    selectedScreen = BottomNavigationScreen.Home,
+                    selectedScreen = LocalCurrentNavigationBarScreen.current,
                     navigateToHomeScreen = navigateToHomeScreen,
                     navigateToFavouriteScreen = navigateToFavouriteScreen,
                     navigateToMyOfficeScreen = navigateToMyOfficeScreen,

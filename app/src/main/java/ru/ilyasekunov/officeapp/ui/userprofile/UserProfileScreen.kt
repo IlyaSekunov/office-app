@@ -47,6 +47,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.Job
+import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
@@ -79,7 +80,7 @@ fun UserProfileScreen(
             containerColor = containerColor,
             bottomBar = {
                 BottomNavigationBar(
-                    selectedScreen = BottomNavigationScreen.Profile,
+                    selectedScreen = LocalCurrentNavigationBarScreen.current,
                     navigateToHomeScreen = navigateToHomeScreen,
                     navigateToFavouriteScreen = navigateToFavouriteScreen,
                     navigateToMyOfficeScreen = navigateToMyOfficeScreen

@@ -24,14 +24,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.suggestidea.EditIdeaSection
 import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaTopBar
-import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 
 @Composable
 fun EditIdeaScreen(
@@ -66,7 +66,7 @@ fun EditIdeaScreen(
             },
             bottomBar = {
                 BottomNavigationBar(
-                    selectedScreen = BottomNavigationScreen.Home,
+                    selectedScreen = LocalCurrentNavigationBarScreen.current,
                     navigateToHomeScreen = navigateToHomeScreen,
                     navigateToFavouriteScreen = navigateToFavouriteScreen,
                     navigateToMyOfficeScreen = navigateToMyOfficeScreen,

@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
+import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
@@ -102,7 +103,7 @@ fun FavouriteIdeasScreen(
         },
         bottomBar = {
             BottomNavigationBar(
-                selectedScreen = BottomNavigationScreen.Favourite,
+                selectedScreen = LocalCurrentNavigationBarScreen.current,
                 navigateToHomeScreen = navigateToHomeScreen,
                 navigateToMyOfficeScreen = navigateToMyOfficeScreen,
                 navigateToProfileScreen = navigateToProfileScreen,

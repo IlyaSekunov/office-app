@@ -61,6 +61,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
@@ -104,7 +105,7 @@ fun FiltersScreen(
             },
             bottomBar = {
                 BottomNavigationBar(
-                    selectedScreen = BottomNavigationScreen.Home,
+                    selectedScreen = LocalCurrentNavigationBarScreen.current,
                     navigateToHomeScreen = navigateToHomeScreen,
                     navigateToFavouriteScreen = navigateToFavouriteScreen,
                     navigateToMyOfficeScreen = navigateToMyOfficeScreen,

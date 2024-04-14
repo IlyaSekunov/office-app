@@ -34,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
@@ -108,7 +109,7 @@ fun UserManageAccountScreen(
                 },
                 bottomBar = {
                     BottomNavigationBar(
-                        selectedScreen = BottomNavigationScreen.Profile,
+                        selectedScreen = LocalCurrentNavigationBarScreen.current,
                         navigateToHomeScreen = navigateToHomeScreen,
                         navigateToFavouriteScreen = navigateToFavouriteScreen,
                         navigateToMyOfficeScreen = navigateToMyOfficeScreen,
