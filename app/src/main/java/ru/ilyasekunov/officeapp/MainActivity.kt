@@ -91,7 +91,7 @@ private fun NavController.onCurrentBottomNavigationScreenChange(
             return@addOnDestinationChangedListener
         }
 
-        val newScreen = bottomNavigationDestinations.find { screen ->
+        val newScreen = bottomNavigationDestinations.lastOrNull { screen ->
             currentBackStack.value.any { it.destination.route == screen.route }
         }
         newScreen?.let {
