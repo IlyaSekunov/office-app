@@ -54,9 +54,11 @@ import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.attachedImagesCountExceededSnackbar
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.AttachedImages
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
@@ -226,12 +228,50 @@ fun EditIdeaSection(
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
         )
+        val onAttachImagesClick = rememberOnAttachImageButtonClick(
+            attachedImagesCount = attachedImages.size,
+            maxAttachedImagesCount = ImagePickerDefaults.MAX_ATTACH_IMAGES,
+            onAttachImageClick = onAttachImagesButtonClick,
+            coroutineScope = LocalCoroutineScope.current,
+            snackbarHostState = LocalSnackbarHostState.current
+        )
         Row(modifier = Modifier.fillMaxWidth()) {
             AttachImagesButton(
                 size = 50.dp,
-                onClick = onAttachImagesButtonClick,
+                onClick = onAttachImagesClick,
                 modifier = Modifier.padding(start = 20.dp, bottom = 10.dp, top = 10.dp)
             )
+        }
+    }
+}
+
+@Composable
+fun rememberOnAttachImageButtonClick(
+    attachedImagesCount: Int,
+    maxAttachedImagesCount: Int,
+    onAttachImageClick: () -> Unit,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+): () -> Unit {
+    val attachedImagesCountExceededMessage = stringResource(R.string.attached_images_count_exceeded)
+    return remember(
+        attachedImagesCount,
+        maxAttachedImagesCount,
+        onAttachImageClick,
+        coroutineScope,
+        snackbarHostState
+    ) {
+        if (attachedImagesCount >= maxAttachedImagesCount) {
+            {
+                attachedImagesCountExceededSnackbar(
+                    snackbarHostState = snackbarHostState,
+                    coroutineScope = coroutineScope,
+                    duration = SnackbarDuration.Short,
+                    message = attachedImagesCountExceededMessage
+                )
+            }
+        } else {
+            { onAttachImageClick() }
         }
     }
 }

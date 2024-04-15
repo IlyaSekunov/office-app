@@ -12,6 +12,7 @@ import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
+import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
 import javax.inject.Inject
 
 data class SuggestIdeaUiState(
@@ -46,14 +47,16 @@ class SuggestIdeaViewModel @Inject constructor(
     }
 
     private fun attachImage(image: Uri) {
-        viewModelScope.launch {
-            val attachedImages = suggestIdeaUiState.attachedImages
-            synchronized(suggestIdeaUiState) {
-                val imageId = if (attachedImages.isNotEmpty()) {
-                    attachedImages.maxOf { it.id } + 1
-                } else 0
-                val attachedImage = AttachedImage(id = imageId, image = image)
-                attachImage(attachedImage)
+        if (attachedImagesCount() < ImagePickerDefaults.MAX_ATTACH_IMAGES) {
+            viewModelScope.launch {
+                val attachedImages = suggestIdeaUiState.attachedImages
+                synchronized(suggestIdeaUiState) {
+                    val imageId = if (attachedImages.isNotEmpty()) {
+                        attachedImages.maxOf { it.id } + 1
+                    } else 0
+                    val attachedImage = AttachedImage(id = imageId, image = image)
+                    attachImage(attachedImage)
+                }
             }
         }
     }
@@ -120,4 +123,6 @@ class SuggestIdeaViewModel @Inject constructor(
     private fun updateIsNetworkError(isNetworkError: Boolean) {
         suggestIdeaUiState = suggestIdeaUiState.copy(isNetworkError = isNetworkError)
     }
+
+    private fun attachedImagesCount() = suggestIdeaUiState.attachedImages.size
 }

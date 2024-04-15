@@ -74,4 +74,5 @@
     <string name="no_favourites_ideas">Понравившихся идей пока нет</string>
     <string name="profile_settings_changes_saved_succesfully">Настройки успешно сохранены</string>
     <string name="idea_published_successfully">Идея успешно опубликована</string>
+    <string name="attached_images_count_exceeded">Вы не можете прикрепить больше изображений</string>
 </resources>
