@@ -17,18 +17,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
+import ru.ilyasekunov.officeapp.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
+import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.ideaEditedSuccessfullySnackbar
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.suggestidea.EditIdeaSection
 import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaTopBar
@@ -48,7 +51,8 @@ fun EditIdeaScreen(
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = LocalCoroutineScope.current
     if (editIdeaUiState.isLoading) {
         LoadingScreen()
     } else {
@@ -119,11 +123,14 @@ fun EditIdeaScreen(
     ObserveNetworkError(
         editIdeaUiState = editIdeaUiState,
         snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
         onActionPerformedClick = onRetryClick
     )
 
     ObserveIsPublished(
         editIdeaUiState = editIdeaUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
         navigateToHomeScreen = navigateToHomeScreen
     )
 }
@@ -132,6 +139,7 @@ fun EditIdeaScreen(
 private fun ObserveNetworkError(
     editIdeaUiState: EditIdeaUiState,
     snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
     onActionPerformedClick: () -> Unit,
 ) {
     val retryLabel = stringResource(R.string.retry)
@@ -141,6 +149,7 @@ private fun ObserveNetworkError(
         if (editIdeaUiState.isNetworkError) {
             networkErrorSnackbar(
                 snackbarHostState = snackbarHostState,
+                coroutineScope = coroutineScope,
                 duration = SnackbarDuration.Short,
                 message = serverErrorMessage,
                 retryLabel = retryLabel,
@@ -153,11 +162,20 @@ private fun ObserveNetworkError(
 @Composable
 private fun ObserveIsPublished(
     editIdeaUiState: EditIdeaUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
     navigateToHomeScreen: () -> Unit
 ) {
     val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
+    val message = stringResource(R.string.idea_edited_successfully)
     LaunchedEffect(editIdeaUiState) {
         if (editIdeaUiState.isPublished) {
+            ideaEditedSuccessfullySnackbar(
+                snackbarHostState = snackbarHostState,
+                coroutineScope = coroutineScope,
+                message = message,
+                duration = SnackbarDuration.Short
+            )
             currentNavigateToHomeScreen()
         }
     }

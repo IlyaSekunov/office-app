@@ -157,6 +157,7 @@ fun ObserveNetworkError(
         if (registrationUiState.isNetworkError) {
             networkErrorSnackbar(
                 snackbarHostState = snackbarHostState,
+                coroutineScope = this,
                 duration = SnackbarDuration.Short,
                 message = errorMessage,
                 retryLabel = retryLabel,

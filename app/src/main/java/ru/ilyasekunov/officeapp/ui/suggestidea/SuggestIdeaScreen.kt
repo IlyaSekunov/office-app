@@ -78,6 +78,7 @@ fun SuggestIdeaScreen(
     navigateBack: () -> Unit
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = LocalCoroutineScope.current
     if (suggestIdeaUiState.isLoading) {
         LoadingScreen()
     } else {
@@ -148,6 +149,7 @@ fun SuggestIdeaScreen(
     ObserveNetworkError(
         suggestIdeaUiState = suggestIdeaUiState,
         snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
         onActionPerformedClick = onRetryClick
     )
 
@@ -163,6 +165,7 @@ fun SuggestIdeaScreen(
 private fun ObserveNetworkError(
     suggestIdeaUiState: SuggestIdeaUiState,
     snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
     onActionPerformedClick: () -> Unit
 ) {
     val retryLabel = stringResource(R.string.retry)
@@ -172,6 +175,7 @@ private fun ObserveNetworkError(
         if (suggestIdeaUiState.isNetworkError) {
             networkErrorSnackbar(
                 snackbarHostState = snackbarHostState,
+                coroutineScope = coroutineScope,
                 duration = SnackbarDuration.Short,
                 message = serverErrorMessage,
                 retryLabel = retryLabel,

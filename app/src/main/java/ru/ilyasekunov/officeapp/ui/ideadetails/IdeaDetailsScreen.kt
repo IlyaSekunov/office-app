@@ -42,6 +42,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
+import kotlinx.coroutines.CoroutineScope
+import ru.ilyasekunov.officeapp.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Comment
@@ -100,6 +102,7 @@ fun IdeaDetailsScreen(
 
         else -> {
             val snackbarHostState = LocalSnackbarHostState.current
+            val coroutineScope = LocalCoroutineScope.current
             Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -140,6 +143,7 @@ fun IdeaDetailsScreen(
             ObserveIsErrorWhileSendingComment(
                 sendingMessageUiState = sendingMessageUiState,
                 snackbarHostState = snackbarHostState,
+                coroutineScope = coroutineScope,
                 onRetryButtonClick = onSendCommentClick
             )
         }
@@ -259,6 +263,7 @@ private fun LazyListScope.ideaDetailsSection(
 private fun ObserveIsErrorWhileSendingComment(
     sendingMessageUiState: SendingMessageUiState,
     snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
     onRetryButtonClick: () -> Unit
 ) {
     val errorMessage = stringResource(R.string.error_while_publishing_comment)
@@ -267,6 +272,7 @@ private fun ObserveIsErrorWhileSendingComment(
         if (sendingMessageUiState.isErrorWhileSending) {
             networkErrorSnackbar(
                 snackbarHostState = snackbarHostState,
+                coroutineScope = coroutineScope,
                 duration = SnackbarDuration.Short,
                 message = errorMessage,
                 retryLabel = retryLabel,

@@ -26,7 +26,6 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,7 +35,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.LocalSnackbarHostState
@@ -45,6 +43,7 @@ import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.userInfoFieldErrorMessage
+import ru.ilyasekunov.officeapp.ui.changesSavedSuccessfullySnackbar
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
@@ -71,7 +70,8 @@ fun UserManageAccountScreen(
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = LocalCoroutineScope.current
     val currentUserProfileUiState = userManageAccountUiState.currentUserProfileUiState
     val availableOfficesUiState = userManageAccountUiState.availableOfficesUiState
     when {
@@ -209,13 +209,14 @@ fun UserManageAccountScreen(
     ObserveChangesSavingError(
         userManageAccountUiState = userManageAccountUiState,
         snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
         onActionPerformedClick = onRetrySaveClick
     )
 
     ObserveIsChangesSaved(
         userManageAccountUiState = userManageAccountUiState,
-        coroutineScope = LocalCoroutineScope.current,
-        snackbarHostState = LocalSnackbarHostState.current,
+        coroutineScope = coroutineScope,
+        snackbarHostState = snackbarHostState,
         navigateToProfileScreen = navigateToProfileScreen
     )
 }
@@ -224,6 +225,7 @@ fun UserManageAccountScreen(
 private fun ObserveChangesSavingError(
     userManageAccountUiState: UserManageAccountUiState,
     snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
     onActionPerformedClick: () -> Unit
 ) {
     val retryLabel = stringResource(R.string.retry)
@@ -233,6 +235,7 @@ private fun ObserveChangesSavingError(
         if (userManageAccountUiState.isChangesSavingError) {
             networkErrorSnackbar(
                 snackbarHostState = snackbarHostState,
+                coroutineScope = coroutineScope,
                 duration = SnackbarDuration.Short,
                 message = serverErrorMessage,
                 retryLabel = retryLabel,
@@ -253,13 +256,12 @@ private fun ObserveIsChangesSaved(
     val message = stringResource(R.string.profile_settings_changes_saved_succesfully)
     LaunchedEffect(userManageAccountUiState) {
         if (userManageAccountUiState.isChangesSaved) {
-            coroutineScope.launch {
-                changesSavedSuccessfullySnackbar(
-                    snackbarHostState = snackbarHostState,
-                    message = message,
-                    duration = SnackbarDuration.Short
-                )
-            }
+            changesSavedSuccessfullySnackbar(
+                snackbarHostState = snackbarHostState,
+                coroutineScope = coroutineScope,
+                message = message,
+                duration = SnackbarDuration.Short
+            )
             currentNavigateToProfileScreen()
         }
     }
@@ -286,15 +288,6 @@ fun SaveButton(
         )
     }
 }
-
-private suspend fun changesSavedSuccessfullySnackbar(
-    snackbarHostState: SnackbarHostState,
-    duration: SnackbarDuration,
-    message: String
-) = snackbarHostState.showSnackbar(
-    message = message,
-    duration = duration
-)
 
 @Preview
 @Composable

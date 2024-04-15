@@ -38,6 +38,7 @@ import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.EmailTextField
 import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
+import ru.ilyasekunov.officeapp.ui.loginErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.validation.EmailValidationError
@@ -140,6 +141,7 @@ fun ObserveCredentialsValid(
         if (loginUiState.credentialsInvalid) {
             loginErrorSnackbar(
                 snackbarHostState = snackbarHostState,
+                coroutineScope = this,
                 message = loginErrorMessage
             )
         }
@@ -158,6 +160,7 @@ fun ObserveIsNetworkError(
         if (loginUiState.isNetworkError) {
             networkErrorSnackbar(
                 snackbarHostState = snackbarHostState,
+                coroutineScope = this,
                 duration = SnackbarDuration.Long,
                 message = errorMessage,
                 retryLabel = retryLabel,
@@ -225,17 +228,6 @@ fun passwordErrorMessage(error: PasswordValidationError) =
         PasswordValidationError.NO_SPEC_SYMBOLS -> stringResource(R.string.password_error_no_spec_symbols)
         PasswordValidationError.NO_CAPITAL_LETTER -> stringResource(R.string.password_error_no_capital_letter)
     }
-
-private suspend fun loginErrorSnackbar(
-    snackbarHostState: SnackbarHostState,
-    message: String,
-    duration: SnackbarDuration = SnackbarDuration.Short,
-    withDismissAction: Boolean = true
-) = snackbarHostState.showSnackbar(
-    message = message,
-    withDismissAction = withDismissAction,
-    duration = duration
-)
 
 @Preview
 @Composable

@@ -45,10 +45,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -59,7 +56,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -82,9 +78,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import ru.ilyasekunov.officeapp.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
@@ -103,6 +98,7 @@ import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.SuggestIdeaButton
 import ru.ilyasekunov.officeapp.ui.components.defaultSuggestIdeaFABScrollBehaviour
+import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
@@ -134,7 +130,7 @@ fun HomeScreen(
     navigateToProfileScreen: () -> Unit,
     navigateToAuthGraph: () -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
+    val coroutineScope = LocalCoroutineScope.current
     val snackbarHostState = LocalSnackbarHostState.current
     val suggestIdeaFABScrollBehaviour = defaultSuggestIdeaFABScrollBehaviour()
     Scaffold(
@@ -213,8 +209,8 @@ fun HomeScreen(
                         isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
                         onDeletePostClick = {
                             deletePostSnackbar(
-                                coroutineScope = coroutineScope,
                                 snackbarHostState = snackbarHostState,
+                                coroutineScope = coroutineScope,
                                 message = postDeletedMessage,
                                 undoLabel = undoLabel,
                                 onSnackbarTimeOut = { onDeletePostClick(it) }
@@ -959,24 +955,6 @@ fun sortingCategoryName(sortingCategory: SortingCategory) =
         SortingCategories.DISLIKES.id -> stringResource(R.string.by_dislikes)
         else -> throw IllegalStateException("Unknown sorting category - $sortingCategory")
     }
-
-private fun deletePostSnackbar(
-    coroutineScope: CoroutineScope,
-    snackbarHostState: SnackbarHostState,
-    message: String,
-    undoLabel: String,
-    onSnackbarTimeOut: () -> Unit
-) = coroutineScope.launch {
-    snackbarHostState.showSnackbar(
-        message = message,
-        actionLabel = undoLabel,
-        duration = SnackbarDuration.Short
-    ).also {
-        if (it != SnackbarResult.ActionPerformed) {
-            onSnackbarTimeOut()
-        }
-    }
-}
 
 @Preview
 @Composable
