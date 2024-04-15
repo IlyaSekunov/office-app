@@ -60,6 +60,7 @@ import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageBottomBar
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageUiState
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
+import ru.ilyasekunov.officeapp.ui.components.rememberNavigateBackArrowState
 import ru.ilyasekunov.officeapp.ui.home.AttachedImages
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.util.toRussianString
@@ -168,7 +169,11 @@ private fun IdeaDetailsScreenContent(
     BasicPullToRefreshContainer(
         onRefreshTrigger = onPullToRefresh
     ) {
-        val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour()
+        val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour(
+            state = rememberNavigateBackArrowState(
+                isVisible = !initiallyScrollToComments
+            )
+        )
         val topPadding = 48.dp
         LazyColumn(
             state = rememberIdeaDetailsScrollState(
