@@ -90,15 +90,15 @@ fun IdeaDetailsScreen(
     navigateBack: () -> Unit
 ) {
     when {
-        !ideaPostUiState.postExists -> PostsNotExists(navigateBack)
-        ideaPostUiState.isLoading || ideaPostUiState.ideaPost == null -> LoadingScreen()
-        sendingMessageUiState.isLoading -> LoadingScreen()
         ideaPostUiState.isErrorWhileLoading -> {
             ErrorScreen(
                 message = stringResource(R.string.error_connecting_to_server),
                 onRetryButtonClick = onRetryPostLoad
             )
         }
+        !ideaPostUiState.postExists -> PostsNotExists(navigateBack)
+        ideaPostUiState.isLoading || ideaPostUiState.ideaPost == null -> LoadingScreen()
+        sendingMessageUiState.isLoading -> LoadingScreen()
 
         else -> {
             val snackbarHostState = LocalSnackbarHostState.current
