@@ -15,8 +15,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -52,14 +54,7 @@ val LocalCoroutineScope = staticCompositionLocalOf<CoroutineScope> {
 fun OfficeApp() {
     OfficeAppTheme {
         val navController = rememberNavController()
-        var currentBottomNavigationScreen by remember {
-            mutableStateOf<BottomNavigationScreen>(BottomNavigationScreen.Home)
-        }
-        navController.onCurrentBottomNavigationScreenChange {
-            if (it != currentBottomNavigationScreen) {
-                currentBottomNavigationScreen = it
-            }
-        }
+        val currentBottomNavigationScreen = navController.currentBottomNavigationScreen()
         CompositionLocalProvider(
             values = arrayOf(
                 LocalSnackbarHostState provides remember { SnackbarHostState() },
@@ -78,24 +73,14 @@ fun OfficeApp() {
     }
 }
 
+@Composable
 @SuppressLint("RestrictedApi")
-private fun NavController.onCurrentBottomNavigationScreenChange(
-    block: (BottomNavigationScreen) -> Unit
-) {
-    addOnDestinationChangedListener { _, destination, _ ->
-        val newDestination = bottomNavigationDestinations.find {
-            it.route == destination.route
-        }
-        newDestination?.let {
-            block(it)
-            return@addOnDestinationChangedListener
-        }
-
-        val newScreen = bottomNavigationDestinations.lastOrNull { screen ->
-            currentBackStack.value.any { it.destination.route == screen.route }
-        }
-        newScreen?.let {
-            block(it)
-        }
+private fun NavController.currentBottomNavigationScreen(): BottomNavigationScreen {
+    val currentBackStackState by currentBackStack.collectAsStateWithLifecycle()
+    val lastBottomNavigationEntryInStack = currentBackStackState.lastOrNull {
+        bottomNavigationDestinations.any { screen -> screen.route == it.destination.route }
     }
+    return bottomNavigationDestinations.find {
+        it.route == lastBottomNavigationEntryInStack?.destination?.route
+    } ?: BottomNavigationScreen.Home
 }
