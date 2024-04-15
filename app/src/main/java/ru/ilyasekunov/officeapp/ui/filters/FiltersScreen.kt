@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,7 +69,7 @@ import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.components.CircleClickEffect
+import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import ru.ilyasekunov.officeapp.ui.home.SortingFiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.sortingCategoryName
@@ -188,17 +189,19 @@ fun FiltersTopAppBar(
             }
         },
         actions = {
-            CircleClickEffect(
-                onClick = onResetClick,
-                modifier = Modifier.padding(end = 20.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.discard),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.surfaceVariant
-                )
-            }
+            Text(
+                text = stringResource(R.string.discard),
+                style = MaterialTheme.typography.titleLarge,
+                fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                modifier = Modifier
+                    .padding(end = 20.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = rememberCircleClickEffectIndication(),
+                        onClick = onResetClick
+                    )
+            )
         },
         colors = colors,
         modifier = modifier

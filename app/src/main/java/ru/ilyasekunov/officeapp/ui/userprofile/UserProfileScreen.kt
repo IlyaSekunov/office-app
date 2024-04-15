@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -56,7 +57,7 @@ import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.UserInfoFieldUiState
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.components.CircleClickEffect
+import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
@@ -171,18 +172,21 @@ fun UserProfileContent(
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(16.dp))
-            CircleClickEffect(
-                onClick = onLogoutClick,
-                circleColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                modifier = Modifier.padding(start = 16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.log_out),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+            Text(
+                text = stringResource(R.string.log_out),
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 15.sp,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = rememberCircleClickEffectIndication(
+                            circleColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                        ),
+                        onClick = onLogoutClick
+                    )
+            )
             Spacer(modifier = Modifier.height(30.dp))
         }
     }

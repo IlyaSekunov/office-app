@@ -2,6 +2,7 @@ package ru.ilyasekunov.officeapp.ui.auth.login
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -36,9 +37,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
-import ru.ilyasekunov.officeapp.ui.components.CircleClickEffect
 import ru.ilyasekunov.officeapp.ui.components.EmailTextField
 import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
+import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
 import ru.ilyasekunov.officeapp.ui.loginErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
@@ -203,17 +204,19 @@ fun RegisterSection(
             fontSize = 14.sp
         )
         Spacer(modifier = Modifier.width(3.dp))
-        CircleClickEffect(
-            onClick = onRegisterClick,
-            circleColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-        ) {
-            Text(
-                text = stringResource(R.string.register),
-                style = MaterialTheme.typography.labelSmall,
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.primary
+        Text(
+            text = stringResource(R.string.register),
+            style = MaterialTheme.typography.labelSmall,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberCircleClickEffectIndication(
+                    circleColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                ),
+                onClick = onRegisterClick
             )
-        }
+        )
     }
 }
 
