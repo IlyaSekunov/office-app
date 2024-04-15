@@ -10,6 +10,7 @@ import androidx.compose.runtime.remember
 
 object ImagePickerDefaults {
     const val MAX_ATTACH_IMAGES = 10
+    const val COMMENTS_MAX_ATTACH_IMAGES = 1
 }
 
 abstract class ImagePicker<T>(

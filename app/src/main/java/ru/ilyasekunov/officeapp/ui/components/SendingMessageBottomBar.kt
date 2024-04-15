@@ -28,10 +28,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.ilyasekunov.officeapp.LocalCoroutineScope
+import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
 import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePicker
 import ru.ilyasekunov.officeapp.ui.modifiers.BorderSide
 import ru.ilyasekunov.officeapp.ui.modifiers.border
+import ru.ilyasekunov.officeapp.ui.suggestidea.rememberOnAttachImageButtonClick
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 data class SendingMessageUiState(
@@ -69,6 +73,7 @@ fun SendingMessageBottomBar(
         }
         CommentSection(
             message = sendingMessageUiState.message,
+            attachedImagesCount = sendingMessageUiState.attachedImages.size,
             onMessageValueChange = onMessageValueChange,
             onSendClick = onSendClick,
             onAttachImageClick = singleImagePicker::launch,
@@ -81,12 +86,20 @@ fun SendingMessageBottomBar(
 @Composable
 private fun CommentSection(
     message: String,
+    attachedImagesCount: Int,
     onMessageValueChange: (String) -> Unit,
     onSendClick: () -> Unit,
     onAttachImageClick: () -> Unit,
     containerColor: Color,
     modifier: Modifier = Modifier
 ) {
+    val onAttachImagesClick = rememberOnAttachImageButtonClick(
+        attachedImagesCount = attachedImagesCount,
+        maxAttachedImagesCount = ImagePickerDefaults.COMMENTS_MAX_ATTACH_IMAGES,
+        onAttachImageClick = onAttachImageClick,
+        coroutineScope = LocalCoroutineScope.current,
+        snackbarHostState = LocalSnackbarHostState.current
+    )
     TextField(
         value = message,
         onValueChange = onMessageValueChange,
@@ -94,7 +107,7 @@ private fun CommentSection(
             fontSize = 14.sp
         ),
         leadingIcon = {
-            IconButton(onClick = onAttachImageClick) {
+            IconButton(onClick = onAttachImagesClick) {
                 Icon(
                     painter = painterResource(R.drawable.outline_attach_file_24),
                     contentDescription = "attach_icon",

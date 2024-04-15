@@ -32,7 +32,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
+import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
@@ -99,7 +99,7 @@ fun IdeaDetailsScreen(
         }
 
         else -> {
-            val snackbarHostState = remember { SnackbarHostState() }
+            val snackbarHostState = LocalSnackbarHostState.current
             Scaffold(
                 containerColor = MaterialTheme.colorScheme.background,
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
