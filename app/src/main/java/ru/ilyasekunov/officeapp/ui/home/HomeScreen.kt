@@ -778,7 +778,7 @@ fun AttachedImages(
     Box(modifier = modifier) {
         HorizontalPager(
             state = attachedImagesPagerState,
-            pageSpacing = 10.dp,
+            pageSpacing = 4.dp,
             modifier = Modifier.fillMaxSize()
         ) {
             AsyncImageWithLoading(
