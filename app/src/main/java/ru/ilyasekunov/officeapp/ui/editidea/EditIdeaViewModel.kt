@@ -13,6 +13,7 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
+import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
 import javax.inject.Inject
 
 data class EditIdeaUiState(
@@ -48,12 +49,14 @@ class EditIdeaViewModel @Inject constructor(
     }
 
     private fun attachImage(image: Uri) {
-        viewModelScope.launch {
-            synchronized(editIdeaUiState) {
-                val attachedImages = editIdeaUiState.attachedImages
-                val imageId = attachedImages.maxOf { it.id } + 1
-                val attachedImage = AttachedImage(id = imageId, image = image)
-                attachImage(attachedImage)
+        if (attachedImagesCount() < ImagePickerDefaults.MAX_ATTACH_IMAGES) {
+            viewModelScope.launch {
+                synchronized(editIdeaUiState) {
+                    val attachedImages = editIdeaUiState.attachedImages
+                    val imageId = attachedImages.maxOf { it.id } + 1
+                    val attachedImage = AttachedImage(id = imageId, image = image)
+                    attachImage(attachedImage)
+                }
             }
         }
     }
@@ -130,6 +133,8 @@ class EditIdeaViewModel @Inject constructor(
     private fun updateIsNetworkError(isNetworkError: Boolean) {
         editIdeaUiState = editIdeaUiState.copy(isNetworkError = isNetworkError)
     }
+
+    private fun attachedImagesCount() = editIdeaUiState.attachedImages.size
 }
 
 fun IdeaPost.toEditIdeaUiState(): EditIdeaUiState =
