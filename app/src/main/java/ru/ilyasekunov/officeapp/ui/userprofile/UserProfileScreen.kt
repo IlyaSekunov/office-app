@@ -56,6 +56,7 @@ import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.UserInfoFieldUiState
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.components.CircleClickEffect
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
@@ -170,15 +171,18 @@ fun UserProfileContent(
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.log_out),
-                style = MaterialTheme.typography.bodyMedium,
-                fontSize = 15.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .clickable(onClick = onLogoutClick)
-            )
+            CircleClickEffect(
+                onClick = onLogoutClick,
+                circleColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                modifier = Modifier.padding(start = 16.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.log_out),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 15.sp,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
             Spacer(modifier = Modifier.height(30.dp))
         }
     }
