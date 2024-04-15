@@ -68,6 +68,7 @@ import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.components.CircleClickEffectElement
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import ru.ilyasekunov.officeapp.ui.home.SortingFiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.sortingCategoryName
@@ -187,7 +188,18 @@ fun FiltersTopAppBar(
             }
         },
         actions = {
-            Text(
+                  CircleClickEffectElement(
+                      onClick = onResetClick,
+                      modifier = Modifier.padding(end = 20.dp)
+                  ) {
+                      Text(
+                          text = stringResource(R.string.discard),
+                          style = MaterialTheme.typography.titleLarge,
+                          fontSize = 18.sp,
+                          color = MaterialTheme.colorScheme.surfaceVariant
+                      )
+                  }
+            /*Text(
                 text = stringResource(R.string.discard),
                 style = MaterialTheme.typography.titleLarge,
                 fontSize = 18.sp,
@@ -195,7 +207,7 @@ fun FiltersTopAppBar(
                 modifier = Modifier
                     .padding(end = 20.dp)
                     .clickable { onResetClick() }
-            )
+            )*/
         },
         colors = colors,
         modifier = modifier
