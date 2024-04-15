@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.auth.registration
 
+import android.net.Uri
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Column
@@ -48,7 +49,7 @@ import ru.ilyasekunov.officeapp.validation.UserInfoValidationError
 fun RegistrationUserInfoScreen(
     registrationUiState: RegistrationUiState,
     availableOfficesUiState: AvailableOfficesUiState,
-    onPhotoPickerClick: () -> Unit,
+    onAttachImage: (Uri?) -> Unit,
     onNameValueChange: (String) -> Unit,
     onSurnameValueChange: (String) -> Unit,
     onJobValueChange: (String) -> Unit,
@@ -111,7 +112,7 @@ fun RegistrationUserInfoScreen(
                 ) {
                     PhotoPicker(
                         selectedPhoto = registrationUiState.userInfoRegistrationUiState.photo,
-                        onPhotoPickerClick = onPhotoPickerClick,
+                        onPhotoPickerClick = onAttachImage,
                         modifier = Modifier
                             .size(180.dp)
                     )
@@ -221,7 +222,7 @@ fun RegistrationUserInfoScreenPreview() {
         RegistrationUserInfoScreen(
             registrationUiState = RegistrationUiState(),
             availableOfficesUiState = AvailableOfficesUiState(),
-            onPhotoPickerClick = {},
+            onAttachImage = {},
             onNameValueChange = {},
             onSurnameValueChange = {},
             onJobValueChange = {},

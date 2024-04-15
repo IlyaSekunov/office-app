@@ -10,7 +10,6 @@ import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountScreen
 import ru.ilyasekunov.officeapp.ui.userprofile.UserManageAccountViewModel
-import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePicker
 
 fun NavGraphBuilder.userManageAccountScreen(
     navigateToHomeScreen: () -> Unit,
@@ -25,12 +24,9 @@ fun NavGraphBuilder.userManageAccountScreen(
         exitTransition = { exitSlideRight() }
     ) {
         val userManageAccountViewModel = hiltViewModel<UserManageAccountViewModel>()
-        val singleImagePicker = rememberSingleImagePicker(
-            onUriPicked = userManageAccountViewModel::updatePhoto
-        )
         UserManageAccountScreen(
             userManageAccountUiState = userManageAccountViewModel.userManageAccountUiState,
-            onPhotoPickerClick = singleImagePicker::launch,
+            onAttachImage = userManageAccountViewModel::updatePhoto,
             onNameValueChange = userManageAccountViewModel::updateName,
             onSurnameValueChange = userManageAccountViewModel::updateSurname,
             onJobValueChange = userManageAccountViewModel::updateJob,

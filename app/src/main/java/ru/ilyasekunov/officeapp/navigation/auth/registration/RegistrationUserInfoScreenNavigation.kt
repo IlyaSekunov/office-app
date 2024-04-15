@@ -12,7 +12,6 @@ import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationUserInfoScreen
 import ru.ilyasekunov.officeapp.ui.auth.registration.RegistrationViewModel
-import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePicker
 
 fun NavGraphBuilder.registrationUserInfoScreen(
     viewModelStoreOwnerProvider: () -> ViewModelStoreOwner,
@@ -26,13 +25,10 @@ fun NavGraphBuilder.registrationUserInfoScreen(
     ) { backStackEntry ->
         val viewModelStoreOwner = remember(backStackEntry) { viewModelStoreOwnerProvider() }
         val registrationViewModel = hiltViewModel<RegistrationViewModel>(viewModelStoreOwner)
-        val singleImagePicker = rememberSingleImagePicker(
-            onUriPicked = registrationViewModel::updatePhoto
-        )
         RegistrationUserInfoScreen(
             registrationUiState = registrationViewModel.registrationUiState,
             availableOfficesUiState = registrationViewModel.availableOfficesUiState,
-            onPhotoPickerClick = singleImagePicker::launch,
+            onAttachImage = registrationViewModel::updatePhoto,
             onNameValueChange = registrationViewModel::updateName,
             onSurnameValueChange = registrationViewModel::updateSurname,
             onJobValueChange = registrationViewModel::updateJob,

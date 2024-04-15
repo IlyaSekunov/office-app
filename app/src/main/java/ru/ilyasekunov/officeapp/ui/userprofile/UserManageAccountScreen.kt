@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.userprofile
 
+import android.net.Uri
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Column
@@ -56,7 +57,7 @@ import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 @Composable
 fun UserManageAccountScreen(
     userManageAccountUiState: UserManageAccountUiState,
-    onPhotoPickerClick: () -> Unit,
+    onAttachImage: (Uri?) -> Unit,
     onNameValueChange: (String) -> Unit,
     onSurnameValueChange: (String) -> Unit,
     onJobValueChange: (String) -> Unit,
@@ -134,7 +135,7 @@ fun UserManageAccountScreen(
                 ) {
                     PhotoPicker(
                         selectedPhoto = mutableUserProfileUiState.photo,
-                        onPhotoPickerClick = onPhotoPickerClick,
+                        onPhotoPickerClick = onAttachImage,
                         modifier = Modifier.size(180.dp)
                     )
                     Spacer(modifier = Modifier.height(22.dp))
@@ -305,7 +306,7 @@ fun UserManageAccountScreenPreview() {
             onSurnameValueChange = {},
             onJobValueChange = {},
             onOfficeChange = {},
-            onPhotoPickerClick = {},
+            onAttachImage = {},
             onSaveButtonClick = {},
             onRetrySaveClick = {},
             onRetryLoadProfileClick = {},
