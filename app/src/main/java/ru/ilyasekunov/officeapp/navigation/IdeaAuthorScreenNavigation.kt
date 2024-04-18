@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.navigation
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -22,27 +23,22 @@ fun NavGraphBuilder.ideaAuthorScreen(
         route = Screen.IdeaAuthor.route,
         arguments = Screen.IdeaAuthor.arguments
     ) {backStackEntry ->
-        val authorId = backStackEntry.arguments?.getLong("authorId")!!
-        val ideaAuthorViewModel = hiltViewModel<IdeaAuthorViewModel>()
-        LaunchedEffect(Unit) {
-            ideaAuthorViewModel.loadIdeaAuthorById(authorId)
-            ideaAuthorViewModel.loadIdeasByAuthorId(authorId)
-        }
-
-        val ideas = ideaAuthorViewModel.authorIdeasUiState.collectAsLazyPagingItems()
+        val authorId = backStackEntry.arguments!!.getLong("authorId")
+        val viewModel = setUpIdeaAuthorViewModel(authorId)
+        val ideas = viewModel.authorIdeasUiState.collectAsLazyPagingItems()
         IdeaAuthorScreen(
-            ideaAuthorUiState = ideaAuthorViewModel.ideaAuthorUiState,
+            ideaAuthorUiState = viewModel.ideaAuthorUiState,
             ideas = ideas,
             onRetryLoadData = {
-                ideaAuthorViewModel.loadIdeaAuthorById(authorId)
+                viewModel.loadIdeaAuthorById(authorId)
                 ideas.refresh()
             },
             onPullToRefresh = {
-                ideaAuthorViewModel.loadIdeaAuthorById(authorId)
+                viewModel.loadIdeaAuthorById(authorId)
                 ideas.refresh()
             },
-            onIdeaLikeClick = ideaAuthorViewModel::updateLike,
-            onIdeaDislikeClick = ideaAuthorViewModel::updateDislike,
+            onIdeaLikeClick = viewModel::updateLike,
+            onIdeaDislikeClick = viewModel::updateDislike,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
@@ -58,4 +54,14 @@ fun NavController.navigateToIdeaAuthorScreen(
 ) {
     val destination = Screen.IdeaAuthor.route.replace("{authorId}", authorId.toString())
     navigate(destination, navOptions)
+}
+
+@Composable
+fun setUpIdeaAuthorViewModel(authorId: Long): IdeaAuthorViewModel {
+    val viewModel = hiltViewModel<IdeaAuthorViewModel>()
+    LaunchedEffect(Unit) {
+        viewModel.loadIdeaAuthorById(authorId)
+        viewModel.loadIdeasByAuthorId(authorId)
+    }
+    return viewModel
 }
