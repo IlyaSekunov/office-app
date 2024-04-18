@@ -24,6 +24,9 @@ import ru.ilyasekunov.officeapp.navigation.MainGraphRoute
 import ru.ilyasekunov.officeapp.navigation.auth.authGraph
 import ru.ilyasekunov.officeapp.navigation.bottomNavigationDestinations
 import ru.ilyasekunov.officeapp.navigation.mainGraph
+import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
+import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
+import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @AndroidEntryPoint
@@ -35,16 +38,6 @@ class MainActivity : ComponentActivity() {
             OfficeApp()
         }
     }
-}
-
-val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
-    error("No Snackbar Host State provided")
-}
-val LocalCurrentNavigationBarScreen = compositionLocalOf<BottomNavigationScreen> {
-    error("No Current Navigation Bar Screen")
-}
-val LocalCoroutineScope = staticCompositionLocalOf<CoroutineScope> {
-    error("No Coroutine Scope provided")
 }
 
 @Composable
