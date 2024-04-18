@@ -5,12 +5,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
-import ru.ilyasekunov.officeapp.navigation.Screen
 import ru.ilyasekunov.officeapp.ui.animations.enterSlideUp
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideDown
+import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePicker
 import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaScreen
 import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaViewModel
-import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePicker
 
 fun NavGraphBuilder.suggestIdeaScreen(
     navigateToHomeScreen: () -> Unit,

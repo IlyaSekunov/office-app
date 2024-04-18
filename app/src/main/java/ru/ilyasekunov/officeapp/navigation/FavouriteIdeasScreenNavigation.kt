@@ -6,7 +6,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.paging.compose.collectAsLazyPagingItems
-import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.favouriteideas.FavouriteIdeasScreen
 import ru.ilyasekunov.officeapp.ui.favouriteideas.FavouriteIdeasViewModel
 

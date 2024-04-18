@@ -78,14 +78,5 @@ val bottomNavigationDestinations =
         BottomNavigationScreen.Profile
     )
 
-val destinationsWithBottomNavBar =
-    listOf(
-        Screen.UserManageAccount,
-        Screen.FiltersScreen,
-        Screen.SuggestIdea,
-        Screen.EditIdea,
-        Screen.IdeaAuthor
-    ) + bottomNavigationDestinations
-
 const val AuthGraphRoute = "auth-graph"
 const val MainGraphRoute = "app-graph"
