@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.ui.favouriteideas.FavouriteIdeasViewModel
 import ru.ilyasekunov.officeapp.ui.home.HomeViewModel
 import ru.ilyasekunov.officeapp.ui.filters.FiltersScreen
+import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiStateHolder
 import ru.ilyasekunov.officeapp.ui.filters.FiltersViewModel
 
@@ -26,17 +27,14 @@ fun NavGraphBuilder.filtersScreen(
     composable(route = Screen.FiltersScreen.route) {
         val previousBackStackEntry = remember { previousBackStackEntryProvider() }
         val filtersUiStateHolder = filtersUiStateHolder(previousBackStackEntry)
-        val filtersViewModel = hiltViewModel<FiltersViewModel>()
-        LaunchedEffect(Unit) {
-            filtersViewModel.updateFiltersUiState(filtersUiStateHolder.filtersUiState)
-        }
+        val viewModel = setUpFiltersViewModel(filtersUiStateHolder.filtersUiState)
         FiltersScreen(
-            filtersUiState = filtersViewModel.filtersUiState,
-            onSortingCategoryClick = filtersViewModel::updateSortingCategory,
-            onOfficeFilterClick = filtersViewModel::updateOfficeFilterIsSelected,
-            onResetClick = filtersViewModel::reset,
+            filtersUiState = viewModel.filtersUiState,
+            onSortingCategoryClick = viewModel::updateSortingCategory,
+            onOfficeFilterClick = viewModel::updateOfficeFilterIsSelected,
+            onResetClick = viewModel::reset,
             onShowClick = {
-                filtersUiStateHolder.updateFiltersUiState(filtersViewModel.filtersUiState)
+                filtersUiStateHolder.updateFiltersUiState(viewModel.filtersUiState)
                 navigateBack()
             },
             onRetryLoad = filtersUiStateHolder::loadFilters,
@@ -65,3 +63,12 @@ private fun filtersUiStateHolder(previousBackStackEntry: NavBackStackEntry): Fil
 
         else -> throw IllegalStateException("No filters ui state holders associated with $previousBackStackEntry")
     }
+
+@Composable
+fun setUpFiltersViewModel(filtersUiState: FiltersUiState): FiltersViewModel {
+    val viewModel = hiltViewModel<FiltersViewModel>()
+    LaunchedEffect(Unit) {
+        viewModel.updateFiltersUiState(filtersUiState)
+    }
+    return viewModel
+}
