@@ -25,18 +25,25 @@ fun AsyncImageWithLoading(
             .size(coil.size.Size.ORIGINAL)
             .build()
     )
-    if (asyncImagePainter.state is AsyncImagePainter.State.Loading) {
-        Box(
-            modifier = modifier
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                .shimmer()
-        )
-    } else {
-        Image(
-            painter = asyncImagePainter,
-            contentDescription = "image",
-            contentScale = contentScale,
-            modifier = modifier
-        )
+    when (asyncImagePainter.state) {
+        is AsyncImagePainter.State.Success -> {
+            Image(
+                painter = asyncImagePainter,
+                contentDescription = "image",
+                contentScale = contentScale,
+                modifier = modifier
+            )
+        }
+
+        else -> ImageLoading(modifier)
     }
+}
+
+@Composable
+private fun ImageLoading(modifier: Modifier) {
+    Box(
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .shimmer()
+    )
 }
