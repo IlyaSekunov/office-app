@@ -1,9 +1,7 @@
 package ru.ilyasekunov.officeapp.navigation
 
-import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -21,12 +19,13 @@ fun NavGraphBuilder.ideaDetailsScreen(
 ) {
     composable(
         route = Screen.IdeaDetails.route,
+        arguments = Screen.IdeaDetails.arguments,
         enterTransition = { enterSlideLeft() },
         exitTransition = { exitSlideRight() }
     ) { backStackEntry ->
-        val navArguments = remember(backStackEntry) { backStackEntry.arguments!! }
-        val postId = rememberPostId(navArguments)
-        val initiallyScrollToComments = rememberInitiallyScrollToComments(navArguments)
+        val navArguments = backStackEntry.arguments!!
+        val postId = navArguments.getLong("postId")
+        val initiallyScrollToComments = navArguments.getBoolean("initiallyScrollToComments")
         val viewModel = setUpIdeaDetailsViewModel(postId)
         val comments = viewModel.commentsUiState.comments.collectAsLazyPagingItems()
         IdeaDetailsScreen(
@@ -66,18 +65,6 @@ fun NavController.navigateToIdeaDetailsScreen(
         .replace("{initiallyScrollToComments}", "$initiallyScrollToComments")
     navigate(destination, navOptions)
 }
-
-@Composable
-private fun rememberPostId(navArguments: Bundle): Long =
-    remember(navArguments) {
-        navArguments.getString("postId")!!.toLong()
-    }
-
-@Composable
-private fun rememberInitiallyScrollToComments(navArguments: Bundle): Boolean =
-    remember(navArguments) {
-        navArguments.getString("initiallyScrollToComments").toBoolean()
-    }
 
 @Composable
 private fun setUpIdeaDetailsViewModel(postId: Long): IdeaDetailsViewModel {
