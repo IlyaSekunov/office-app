@@ -1,7 +1,9 @@
 package ru.ilyasekunov.officeapp.ui.ideadetails
 
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -32,11 +35,16 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,6 +55,7 @@ import ru.ilyasekunov.officeapp.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Comment
+import ru.ilyasekunov.officeapp.data.model.CommentsSortingFilters
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
@@ -74,6 +83,7 @@ private object IdeaDetailsScreenDefaults {
 fun IdeaDetailsScreen(
     ideaPostUiState: IdeaPostUiState,
     sendingMessageUiState: SendingMessageUiState,
+    currentCommentsSortingFilter: CommentsSortingFilters,
     onRetryPostLoad: () -> Unit,
     onRetryCommentsLoad: () -> Unit,
     onPullToRefresh: suspend () -> Unit,
@@ -86,6 +96,7 @@ fun IdeaDetailsScreen(
     onRemoveImageClick: (AttachedImage) -> Unit,
     onSendCommentClick: () -> Unit,
     onMessageValueChange: (String) -> Unit,
+    onCommentsFilterSelect: (CommentsSortingFilters) -> Unit,
     initiallyScrollToComments: Boolean = false,
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit,
     navigateBack: () -> Unit
@@ -97,6 +108,7 @@ fun IdeaDetailsScreen(
                 onRetryButtonClick = onRetryPostLoad
             )
         }
+
         !ideaPostUiState.postExists -> PostsNotExists(navigateBack)
         ideaPostUiState.isLoading || ideaPostUiState.ideaPost == null -> LoadingScreen()
         sendingMessageUiState.isLoading -> LoadingScreen()
@@ -126,6 +138,8 @@ fun IdeaDetailsScreen(
             ) { paddingValues ->
                 IdeaDetailsScreenContent(
                     ideaPost = ideaPostUiState.ideaPost,
+                    currentCommentsSortingFilter = currentCommentsSortingFilter,
+                    onFilterClick = onCommentsFilterSelect,
                     onRetryCommentsLoad = onRetryCommentsLoad,
                     onPullToRefresh = onPullToRefresh,
                     comments = comments,
@@ -154,6 +168,8 @@ fun IdeaDetailsScreen(
 @Composable
 private fun IdeaDetailsScreenContent(
     ideaPost: IdeaPost,
+    currentCommentsSortingFilter: CommentsSortingFilters,
+    onFilterClick: (CommentsSortingFilters) -> Unit,
     onRetryCommentsLoad: () -> Unit,
     onPullToRefresh: suspend () -> Unit,
     comments: LazyPagingItems<Comment>,
@@ -190,8 +206,15 @@ private fun IdeaDetailsScreenContent(
                 ideaPost = ideaPost,
                 onLikeClick = onLikeClick,
                 onDislikeClick = onDislikeClick,
-                navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
-                modifier = Modifier.padding(bottom = 6.dp)
+                navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen
+            )
+            commentsInfoSection(
+                commentsCount = ideaPost.commentsCount,
+                currentSortingFilter = currentCommentsSortingFilter,
+                onFilterClick = onFilterClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
             )
             comments(
                 comments = comments,
@@ -259,6 +282,86 @@ private fun LazyListScope.ideaDetailsSection(
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outline,
                 modifier = Modifier.padding(horizontal = 10.dp)
+            )
+        }
+    }
+}
+
+private fun LazyListScope.commentsInfoSection(
+    commentsCount: Int,
+    currentSortingFilter: CommentsSortingFilters,
+    onFilterClick: (CommentsSortingFilters) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    item {
+        Box(modifier = modifier) {
+            var isMenuVisible by remember { mutableStateOf(false) }
+            CommentsCountAndSortingFilter(
+                commentsCount = commentsCount,
+                currentSortingFilter = currentSortingFilter,
+                onSortingFilterClick = { isMenuVisible = true },
+                modifier = Modifier.fillMaxWidth()
+            )
+            CommentsFiltersDropdownMenu(
+                currentCommentsFilter = currentSortingFilter,
+                onFilterClick = {
+                    onFilterClick(it)
+                    isMenuVisible = false
+                },
+                expanded = isMenuVisible,
+                onDismissClick = { isMenuVisible = false },
+                shape = MaterialTheme.shapes.medium,
+                containerColor = MaterialTheme.colorScheme.background,
+                textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
+                menuItemPaddings = PaddingValues(13.dp),
+                borderStroke = BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+                ),
+                modifier = Modifier.align(Alignment.TopEnd)
+            )
+        }
+    }
+}
+
+@Composable
+private fun CommentsCountAndSortingFilter(
+    commentsCount: Int,
+    currentSortingFilter: CommentsSortingFilters,
+    onSortingFilterClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = modifier
+    ) {
+        Text(
+            text = commentsCount.toRussianCommentsString(),
+            fontSize = 13.sp,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.surfaceVariant
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            modifier = Modifier
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = onSortingFilterClick
+                )
+        ) {
+            Text(
+                text = stringCommentsFilter(currentSortingFilter),
+                fontSize = 15.sp,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Icon(
+                painter = painterResource(R.drawable.baseline_keyboard_arrow_down_24),
+                contentDescription = "arrow_down",
+                tint = MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -416,3 +519,20 @@ private fun rememberIdeaDetailsScrollState(
     }
     return lazyListState
 }
+
+@Composable
+fun stringCommentsFilter(commentsFilter: CommentsSortingFilters) =
+    when (commentsFilter) {
+        CommentsSortingFilters.NEW -> stringResource(R.string.comments_filter_new)
+        CommentsSortingFilters.OLD -> stringResource(R.string.comments_filter_old)
+        CommentsSortingFilters.POPULAR -> stringResource(R.string.comments_filter_popular)
+        CommentsSortingFilters.UNPOPULAR -> stringResource(R.string.comments_filter_unpopular)
+    }
+
+fun Int.toRussianCommentsString(): String =
+    when (this % 10) {
+        0, 5, 6, 7, 8, 9 -> "$this КОММЕНТАРИЕВ"
+        1 -> "$this КОММЕНТАРИЙ"
+        2, 3, 4 -> "$this КОММЕНТАРИЯ"
+        else -> throw IllegalArgumentException()
+    }

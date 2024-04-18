@@ -17,7 +17,8 @@ import androidx.compose.ui.text.TextStyle
 
 data class MenuItemInfo(
     val text: String,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
+    val isSelected: Boolean = false
 )
 
 @Composable
@@ -46,7 +47,8 @@ fun BasicDropdownMenu(
                         text = {
                             Text(
                                 text = it.text,
-                                style = textStyle
+                                style = textStyle,
+                                color = if (it.isSelected) MaterialTheme.colorScheme.primary else Color.Unspecified
                             )
                         },
                         contentPadding = menuItemPaddings,

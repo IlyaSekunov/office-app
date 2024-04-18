@@ -15,9 +15,9 @@ object CommentsPagingDefaults {
 }
 
 class CommentsPagingRepository(private val commentsDataSource: CommentsDataSource) {
-    fun commentsByPostId(postId: Long): Flow<PagingData<Comment>> {
+    fun commentsByPostId(postId: Long, sortingFilterId: Int): Flow<PagingData<Comment>> {
         return Pager(config = CommentsPagingDefaults.PagingConfig) {
-            CommentsPagingDataSource(postId, commentsDataSource)
+            CommentsPagingDataSource(postId, sortingFilterId, commentsDataSource)
         }.flow
     }
 }

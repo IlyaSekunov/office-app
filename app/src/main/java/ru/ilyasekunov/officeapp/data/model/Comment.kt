@@ -13,3 +13,7 @@ data class Comment(
     val isDislikePressed: Boolean,
     val dislikesCount: Int
 )
+
+enum class CommentsSortingFilters(val id: Int) {
+    NEW(1), OLD(2), POPULAR(3), UNPOPULAR(4)
+}

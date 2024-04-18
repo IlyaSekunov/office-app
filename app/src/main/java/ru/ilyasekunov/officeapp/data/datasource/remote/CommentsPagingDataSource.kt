@@ -8,6 +8,7 @@ import ru.ilyasekunov.officeapp.data.repository.comments.CommentsPagingDefaults
 
 class CommentsPagingDataSource(
     private val postId: Long,
+    private val sortingCategoryId: Int,
     private val commentsDataSource: CommentsDataSource
 ) : PagingSource<Int, Comment>() {
     override fun getRefreshKey(state: PagingState<Int, Comment>): Int? {
@@ -20,7 +21,12 @@ class CommentsPagingDataSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Comment> {
         val page = params.key ?: 1
         val pageSize = CommentsPagingDefaults.PagingConfig.pageSize
-        val commentsResult = commentsDataSource.commentsByPostId(postId, page, pageSize)
+        val commentsResult = commentsDataSource.commentsByPostId(
+            postId = postId,
+            sortingFilterId = sortingCategoryId,
+            page = page,
+            pageSize = pageSize
+        )
         if (commentsResult.isSuccess) {
             val comments = commentsResult.getOrThrow()
             return LoadResult.Page(

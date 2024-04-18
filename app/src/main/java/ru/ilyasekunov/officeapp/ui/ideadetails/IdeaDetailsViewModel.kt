@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.CommentDto
 import ru.ilyasekunov.officeapp.data.model.Comment
+import ru.ilyasekunov.officeapp.data.model.CommentsSortingFilters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.repository.comments.CommentsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.comments.CommentsRepository
@@ -44,10 +45,19 @@ class IdeaDetailsViewModel @Inject constructor(
     private var _commentsUiState: MutableStateFlow<PagingData<Comment>> =
         MutableStateFlow(PagingData.empty())
     val commentsUiState: StateFlow<PagingData<Comment>> get() = _commentsUiState
+    var currentCommentsFilter by mutableStateOf(CommentsSortingFilters.NEW)
+        private set
     var ideaPostUiState by mutableStateOf(IdeaPostUiState())
         private set
     var sendingMessageUiState by mutableStateOf(SendingMessageUiState())
         private set
+
+    fun updateCommentsFilterUiState(commentsSortingCategory: CommentsSortingFilters) {
+        if (this.currentCommentsFilter != commentsSortingCategory) {
+            this.currentCommentsFilter = commentsSortingCategory
+            loadCommentsByPostId(ideaPostUiState.ideaPost!!.id)
+        }
+    }
 
     fun updateMessage(message: String) {
         sendingMessageUiState = sendingMessageUiState.copy(message = message)
@@ -258,7 +268,7 @@ class IdeaDetailsViewModel @Inject constructor(
 
     fun loadCommentsByPostId(postId: Long) {
         viewModelScope.launch {
-            commentsPagingRepository.commentsByPostId(postId)
+            commentsPagingRepository.commentsByPostId(postId, currentCommentsFilter.id)
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect {

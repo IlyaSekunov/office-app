@@ -23,6 +23,7 @@ fun NavGraphBuilder.ideaDetailsScreen(
         exitTransition = { exitSlideRight() }
     ) { backStackEntry ->
         val navArguments = remember(backStackEntry) { backStackEntry.arguments!! }
+        navArguments.getLong("sda")
         val postId = remember(navArguments) { navArguments.getString("postId")!!.toLong() }
         val initiallyScrollToComments = remember(navArguments) {
             navArguments.getString("initiallyScrollToComments").toBoolean()
@@ -38,6 +39,8 @@ fun NavGraphBuilder.ideaDetailsScreen(
         IdeaDetailsScreen(
             ideaPostUiState = ideaDetailsViewModel.ideaPostUiState,
             sendingMessageUiState = ideaDetailsViewModel.sendingMessageUiState,
+            currentCommentsSortingFilter = ideaDetailsViewModel.currentCommentsFilter,
+            onCommentsFilterSelect = ideaDetailsViewModel::updateCommentsFilterUiState,
             onRetryPostLoad = { ideaDetailsViewModel.loadPostById(postId) },
             onRetryCommentsLoad = { ideaDetailsViewModel.loadCommentsByPostId(postId) },
             onPullToRefresh = {

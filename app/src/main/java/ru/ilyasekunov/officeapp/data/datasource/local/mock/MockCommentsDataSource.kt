@@ -4,29 +4,38 @@ import okhttp3.internal.toImmutableList
 import ru.ilyasekunov.officeapp.data.datasource.CommentsDataSource
 import ru.ilyasekunov.officeapp.data.dto.CommentDto
 import ru.ilyasekunov.officeapp.data.model.Comment
+import ru.ilyasekunov.officeapp.data.model.CommentsSortingFilters
 import java.time.LocalDateTime
 
 class MockCommentsDataSource : CommentsDataSource {
     override suspend fun commentsByPostId(
         postId: Long,
+        sortingFilterId: Int,
         page: Int,
         pageSize: Int
     ): Result<List<Comment>> {
+        val sortedComments = when (sortingFilterId) {
+            CommentsSortingFilters.NEW.id -> Comments.sortedByDescending { it.date }
+            CommentsSortingFilters.OLD.id -> Comments.sortedBy { it.date }
+            CommentsSortingFilters.POPULAR.id -> Comments.sortedByDescending { it.likesCount + it.dislikesCount }
+            CommentsSortingFilters.UNPOPULAR.id -> Comments.sortedBy { it.likesCount + it.dislikesCount }
+            else -> Comments
+        }
         val firstPostIndex = (page - 1) * pageSize
         val lastPostIndex = firstPostIndex + pageSize
-        if (firstPostIndex > Comments.lastIndex) {
+        if (firstPostIndex > sortedComments.lastIndex) {
             return Result.success(emptyList())
         }
-        if (lastPostIndex > Comments.lastIndex) {
+        if (lastPostIndex > sortedComments.lastIndex) {
             return Result.success(
-                Comments.subList(
+                sortedComments.subList(
                     fromIndex = firstPostIndex,
-                    toIndex = Comments.lastIndex + 1
+                    toIndex = sortedComments.lastIndex + 1
                 ).toImmutableList()
             )
         }
         return Result.success(
-            Comments.subList(
+            sortedComments.subList(
                 fromIndex = firstPostIndex,
                 toIndex = lastPostIndex
             ).toImmutableList()

@@ -13,10 +13,11 @@ class CommentsRemoteDataSource(
 ) : CommentsDataSource {
     override suspend fun commentsByPostId(
         postId: Long,
+        sortingFilterId: Int,
         page: Int,
         pageSize: Int
     ): Result<List<Comment>> = withContext(ioDispatcher) {
-        handleResponse { commentsApi.commentsByPostId(postId, page, pageSize) }
+        handleResponse { commentsApi.commentsByPostId(postId, sortingFilterId, page, pageSize) }
     }
 
     override suspend fun pressLike(postId: Long, commentId: Long): Result<Unit> =

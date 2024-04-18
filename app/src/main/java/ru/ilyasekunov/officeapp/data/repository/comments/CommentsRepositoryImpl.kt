@@ -9,10 +9,11 @@ class CommentsRepositoryImpl(
 ) : CommentsRepository {
     override suspend fun commentsByPostId(
         postId: Long,
+        sortingFilterId: Int,
         page: Int,
         pageSize: Int
     ): Result<List<Comment>> {
-        return commentsDataSource.commentsByPostId(postId, page, pageSize)
+        return commentsDataSource.commentsByPostId(postId, sortingFilterId, page, pageSize)
     }
 
     override suspend fun pressLike(postId: Long, commentId: Long): Result<Unit> {

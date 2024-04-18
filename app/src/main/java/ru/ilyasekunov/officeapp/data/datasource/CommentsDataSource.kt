@@ -6,6 +6,7 @@ import ru.ilyasekunov.officeapp.data.model.Comment
 interface CommentsDataSource {
     suspend fun commentsByPostId(
         postId: Long,
+        sortingFilterId: Int,
         page: Int,
         pageSize: Int
     ): Result<List<Comment>>

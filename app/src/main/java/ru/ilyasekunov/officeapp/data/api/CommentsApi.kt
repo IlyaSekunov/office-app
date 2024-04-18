@@ -14,6 +14,7 @@ interface CommentsApi {
     @GET("posts/{postId}/comments")
     suspend fun commentsByPostId(
         @Path("postId") postId: Long,
+        @Query("sorting_filter") sortingFilterId: Int,
         @Query("page") page: Int,
         @Query("page_size") pageSize: Int
     ): Response<List<Comment>>

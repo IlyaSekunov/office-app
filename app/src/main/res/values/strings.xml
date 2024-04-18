@@ -76,4 +76,8 @@
     <string name="idea_published_successfully">Идея успешно опубликована</string>
     <string name="attached_images_count_exceeded">Вы не можете прикрепить больше изображений</string>
     <string name="idea_edited_successfully">Идея успешна отредактирована</string>
+    <string name="comments_filter_new">Сначала новые</string>
+    <string name="comments_filter_old">Сначала старые</string>
+    <string name="comments_filter_popular">Сначала популярные</string>
+    <string name="comments_filter_unpopular">Сначала непопулярные</string>
 </resources>
