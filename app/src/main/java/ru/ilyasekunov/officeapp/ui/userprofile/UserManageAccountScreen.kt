@@ -35,13 +35,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
-import ru.ilyasekunov.officeapp.LocalCoroutineScope
-import ru.ilyasekunov.officeapp.LocalCurrentNavigationBarScreen
-import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
+import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
+import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.auth.registration.userInfoFieldErrorMessage
 import ru.ilyasekunov.officeapp.ui.changesSavedSuccessfullySnackbar
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar

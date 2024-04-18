@@ -28,9 +28,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.ilyasekunov.officeapp.LocalCoroutineScope
-import ru.ilyasekunov.officeapp.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
+import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
 import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePicker
 import ru.ilyasekunov.officeapp.ui.modifiers.BorderSide
