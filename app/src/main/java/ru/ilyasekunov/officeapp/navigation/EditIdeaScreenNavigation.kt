@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.navigation
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -21,23 +22,19 @@ fun NavGraphBuilder.editIdeaScreen(
         route = Screen.EditIdea.route,
         arguments = Screen.EditIdea.arguments
     ) { backStackEntry ->
-        val postId = backStackEntry.arguments?.getLong("postId")!!
-        val editIdeaViewModel = hiltViewModel<EditIdeaViewModel>()
-        LaunchedEffect(Unit) {
-            editIdeaViewModel.loadPostById(postId)
-        }
-
+        val postId = backStackEntry.arguments!!.getLong("postId")
+        val viewModel = setUpEditIdeaViewModel(postId)
         val multipleImagePicker = rememberMultipleImagePicker(
-            onUrisPicked = editIdeaViewModel::attachImages
+            onUrisPicked = viewModel::attachImages
         )
         EditIdeaScreen(
-            editIdeaUiState = editIdeaViewModel.editIdeaUiState,
-            onTitleValueChange = editIdeaViewModel::updateTitle,
-            onIdeaBodyValueChange = editIdeaViewModel::updateContent,
-            onRemoveImageClick = editIdeaViewModel::removeImage,
-            onPublishClick = editIdeaViewModel::editPost,
+            editIdeaUiState = viewModel.editIdeaUiState,
+            onTitleValueChange = viewModel::updateTitle,
+            onIdeaBodyValueChange = viewModel::updateContent,
+            onRemoveImageClick = viewModel::removeImage,
+            onPublishClick = viewModel::editPost,
             onAttachImagesButtonClick = multipleImagePicker::launch,
-            onRetryClick = editIdeaViewModel::editPost,
+            onRetryClick = viewModel::editPost,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
@@ -52,4 +49,13 @@ fun NavController.navigateToEditIdeaScreen(
 ) {
     val destination = Screen.EditIdea.route.replace("{postId}", postId.toString())
     navigate(destination, navOptions)
+}
+
+@Composable
+fun setUpEditIdeaViewModel(postId: Long): EditIdeaViewModel {
+    val viewModel = hiltViewModel<EditIdeaViewModel>()
+    LaunchedEffect(Unit) {
+        viewModel.loadPostById(postId)
+    }
+    return viewModel
 }
