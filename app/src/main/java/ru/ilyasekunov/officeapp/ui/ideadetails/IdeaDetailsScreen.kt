@@ -110,8 +110,7 @@ fun IdeaDetailsScreen(
         }
 
         !ideaPostUiState.postExists -> PostsNotExists(navigateBack)
-        ideaPostUiState.isLoading || ideaPostUiState.ideaPost == null -> LoadingScreen()
-        sendingMessageUiState.isLoading -> LoadingScreen()
+        ideaPostUiState.isLoading || sendingMessageUiState.isLoading -> LoadingScreen()
 
         else -> {
             val snackbarHostState = LocalSnackbarHostState.current
@@ -137,7 +136,7 @@ fun IdeaDetailsScreen(
                     .statusBarsPadding()
             ) { paddingValues ->
                 IdeaDetailsScreenContent(
-                    ideaPost = ideaPostUiState.ideaPost,
+                    ideaPost = ideaPostUiState.ideaPost!!,
                     currentCommentsSortingFilter = currentCommentsSortingFilter,
                     onFilterClick = onCommentsFilterSelect,
                     onRetryCommentsLoad = onRetryCommentsLoad,

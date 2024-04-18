@@ -30,10 +30,32 @@ import javax.inject.Inject
 
 data class IdeaPostUiState(
     val ideaPost: IdeaPost? = null,
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val isErrorWhileLoading: Boolean = false,
     val postExists: Boolean = true
 )
+
+class CommentsUiState {
+    private var _comments: MutableStateFlow<PagingData<Comment>> =
+        MutableStateFlow(PagingData.empty())
+    val comments: StateFlow<PagingData<Comment>> get() = _comments
+    var currentSortingFilter by mutableStateOf(CommentsSortingFilters.NEW)
+        private set
+
+    fun updateComment(comment: Comment) {
+        _comments.update { pagingData ->
+            pagingData.map { if (it.id == comment.id) comment else it }
+        }
+    }
+
+    fun updateSortingFilter(sortingFilter: CommentsSortingFilters) {
+        currentSortingFilter = sortingFilter
+    }
+
+    fun updateComments(commentsPagingData: PagingData<Comment>) {
+        _comments.value = commentsPagingData
+    }
+}
 
 @HiltViewModel
 class IdeaDetailsViewModel @Inject constructor(
@@ -42,19 +64,15 @@ class IdeaDetailsViewModel @Inject constructor(
     private val commentsRepository: CommentsRepository,
     private val commentsPagingRepository: CommentsPagingRepository
 ) : ViewModel() {
-    private var _commentsUiState: MutableStateFlow<PagingData<Comment>> =
-        MutableStateFlow(PagingData.empty())
-    val commentsUiState: StateFlow<PagingData<Comment>> get() = _commentsUiState
-    var currentCommentsFilter by mutableStateOf(CommentsSortingFilters.NEW)
-        private set
     var ideaPostUiState by mutableStateOf(IdeaPostUiState())
         private set
+    val commentsUiState = CommentsUiState()
     var sendingMessageUiState by mutableStateOf(SendingMessageUiState())
         private set
 
-    fun updateCommentsFilterUiState(commentsSortingCategory: CommentsSortingFilters) {
-        if (this.currentCommentsFilter != commentsSortingCategory) {
-            this.currentCommentsFilter = commentsSortingCategory
+    fun updateCommentsSortingFilter(commentsSortingFilter: CommentsSortingFilters) {
+        if (commentsUiState.currentSortingFilter != commentsSortingFilter) {
+            commentsUiState.updateSortingFilter(commentsSortingFilter)
             loadCommentsByPostId(ideaPostUiState.ideaPost!!.id)
         }
     }
@@ -97,12 +115,6 @@ class IdeaDetailsViewModel @Inject constructor(
 
     private fun updatePost(post: IdeaPost) {
         ideaPostUiState = ideaPostUiState.copy(ideaPost = post)
-    }
-
-    private fun updateComment(comment: Comment) {
-        _commentsUiState.update { pagingData ->
-            pagingData.map { if (it.id == comment.id) comment else it }
-        }
     }
 
     private fun updateIsSendingMessageStateLoading(isLoading: Boolean) {
@@ -188,7 +200,7 @@ class IdeaDetailsViewModel @Inject constructor(
                         likesCount = likesCount
                     )
                 }
-            updateComment(changedComment)
+            commentsUiState.updateComment(changedComment)
             val postId = ideaPostUiState.ideaPost!!.id
             if (isLikePressed) {
                 commentsRepository.pressLike(postId, changedComment.id)
@@ -216,7 +228,7 @@ class IdeaDetailsViewModel @Inject constructor(
                     dislikesCount = dislikesCount
                 )
             }
-            updateComment(changedComment)
+            commentsUiState.updateComment(changedComment)
             val postId = ideaPostUiState.ideaPost!!.id
             if (isDislikePressed) {
                 commentsRepository.pressDislike(postId, changedComment.id)
@@ -268,11 +280,14 @@ class IdeaDetailsViewModel @Inject constructor(
 
     fun loadCommentsByPostId(postId: Long) {
         viewModelScope.launch {
-            commentsPagingRepository.commentsByPostId(postId, currentCommentsFilter.id)
+            commentsPagingRepository.commentsByPostId(
+                postId = postId,
+                sortingFilterId = commentsUiState.currentSortingFilter.id
+            )
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collect {
-                    _commentsUiState.value = it
+                    commentsUiState.updateComments(it)
                 }
         }
     }

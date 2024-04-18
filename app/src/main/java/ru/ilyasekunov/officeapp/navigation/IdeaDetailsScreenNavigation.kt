@@ -1,5 +1,7 @@
 package ru.ilyasekunov.officeapp.navigation
 
+import android.os.Bundle
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -23,39 +25,30 @@ fun NavGraphBuilder.ideaDetailsScreen(
         exitTransition = { exitSlideRight() }
     ) { backStackEntry ->
         val navArguments = remember(backStackEntry) { backStackEntry.arguments!! }
-        navArguments.getLong("sda")
-        val postId = remember(navArguments) { navArguments.getString("postId")!!.toLong() }
-        val initiallyScrollToComments = remember(navArguments) {
-            navArguments.getString("initiallyScrollToComments").toBoolean()
-        }
-
-        val ideaDetailsViewModel = hiltViewModel<IdeaDetailsViewModel>()
-        LaunchedEffect(Unit) {
-            ideaDetailsViewModel.loadPostById(postId)
-            ideaDetailsViewModel.loadCommentsByPostId(postId)
-        }
-
-        val comments = ideaDetailsViewModel.commentsUiState.collectAsLazyPagingItems()
+        val postId = rememberPostId(navArguments)
+        val initiallyScrollToComments = rememberInitiallyScrollToComments(navArguments)
+        val viewModel = setUpIdeaDetailsViewModel(postId)
+        val comments = viewModel.commentsUiState.comments.collectAsLazyPagingItems()
         IdeaDetailsScreen(
-            ideaPostUiState = ideaDetailsViewModel.ideaPostUiState,
-            sendingMessageUiState = ideaDetailsViewModel.sendingMessageUiState,
-            currentCommentsSortingFilter = ideaDetailsViewModel.currentCommentsFilter,
-            onCommentsFilterSelect = ideaDetailsViewModel::updateCommentsFilterUiState,
-            onRetryPostLoad = { ideaDetailsViewModel.loadPostById(postId) },
-            onRetryCommentsLoad = { ideaDetailsViewModel.loadCommentsByPostId(postId) },
+            ideaPostUiState = viewModel.ideaPostUiState,
+            sendingMessageUiState = viewModel.sendingMessageUiState,
+            currentCommentsSortingFilter = viewModel.commentsUiState.currentSortingFilter,
+            onCommentsFilterSelect = viewModel::updateCommentsSortingFilter,
+            onRetryPostLoad = { viewModel.loadPostById(postId) },
+            onRetryCommentsLoad = { viewModel.loadCommentsByPostId(postId) },
             onPullToRefresh = {
-                ideaDetailsViewModel.loadPostByIdSuspending(postId)
+                viewModel.loadPostByIdSuspending(postId)
                 comments.refresh()
             },
             comments = comments,
-            onCommentLikeClick = ideaDetailsViewModel::updateCommentLike,
-            onCommentDislikeClick = ideaDetailsViewModel::updateCommentDislike,
-            onLikeClick = ideaDetailsViewModel::updatePostLike,
-            onDislikeClick = ideaDetailsViewModel::updatePostDislike,
-            onMessageValueChange = ideaDetailsViewModel::updateMessage,
-            onAttachImage = ideaDetailsViewModel::attachImage,
-            onRemoveImageClick = ideaDetailsViewModel::removeImage,
-            onSendCommentClick = ideaDetailsViewModel::sendComment,
+            onCommentLikeClick = viewModel::updateCommentLike,
+            onCommentDislikeClick = viewModel::updateCommentDislike,
+            onLikeClick = viewModel::updatePostLike,
+            onDislikeClick = viewModel::updatePostDislike,
+            onMessageValueChange = viewModel::updateMessage,
+            onAttachImage = viewModel::attachImage,
+            onRemoveImageClick = viewModel::removeImage,
+            onSendCommentClick = viewModel::sendComment,
             initiallyScrollToComments = initiallyScrollToComments,
             navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
             navigateBack = navigateBack
@@ -72,4 +65,26 @@ fun NavController.navigateToIdeaDetailsScreen(
         .replace("{postId}", "$postId")
         .replace("{initiallyScrollToComments}", "$initiallyScrollToComments")
     navigate(destination, navOptions)
+}
+
+@Composable
+private fun rememberPostId(navArguments: Bundle): Long =
+    remember(navArguments) {
+        navArguments.getString("postId")!!.toLong()
+    }
+
+@Composable
+private fun rememberInitiallyScrollToComments(navArguments: Bundle): Boolean =
+    remember(navArguments) {
+        navArguments.getString("initiallyScrollToComments").toBoolean()
+    }
+
+@Composable
+private fun setUpIdeaDetailsViewModel(postId: Long): IdeaDetailsViewModel {
+    val viewModel = hiltViewModel<IdeaDetailsViewModel>()
+    LaunchedEffect(Unit) {
+        viewModel.loadPostById(postId)
+        viewModel.loadCommentsByPostId(postId)
+    }
+    return viewModel
 }
