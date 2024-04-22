@@ -89,37 +89,42 @@ class EditIdeaViewModel @Inject constructor(
     fun editPost() {
         viewModelScope.launch {
             updateIsLoading(true)
-            val uploadedImages = uploadImagesFromUris()
-            if (editIdeaUiState.isNetworkError) {
+            val uploadedImagesUrlsResult = uploadImagesFromUris()
+            if (uploadedImagesUrlsResult.isFailure) {
+                updateIsNetworkError(true)
+                updateIsPublished(false)
                 updateIsLoading(false)
                 return@launch
             }
-            val editPostDto = EditPostDto(
-                title = editIdeaUiState.title,
-                content = editIdeaUiState.content,
-                attachedImages = uploadedImages
-            )
-            postsRepository.editPostById(editIdeaUiState.postId, editPostDto)
-            updateIsLoading(false)
-            updateIsNetworkError(false)
+
+            val uploadedImagesUrls = uploadedImagesUrlsResult.getOrThrow()
+            val editPostDto = editIdeaUiState.toEditPostDto(uploadedImagesUrls)
+            val editPostResult = postsRepository.editPostById(editIdeaUiState.postId, editPostDto)
+            if (editPostResult.isSuccess) {
+                updateIsNetworkError(false)
+                updateIsPublished(true)
+            } else {
+                updateIsNetworkError(true)
+                updateIsPublished(false)
+            }
             updateIsPublished(true)
         }
     }
 
-    private suspend fun uploadImagesFromUris(): List<String> {
-        val imagesToConvert = editIdeaUiState.attachedImages.filter { it.image is Uri }
-        val imagesUrls = ArrayList<String>()
-        imagesToConvert.forEach {
-            val imageUrlResponse = imagesRepository.uploadImage(it.image as Uri)
+    private suspend fun uploadImagesFromUris(): Result<List<String>> {
+        val newAttachedImages = editIdeaUiState.attachedImages.newAttachedImages()
+        val newAttachedImagesUrls = ArrayList<String>()
+        newAttachedImages.forEach {
+            val imageUrlResponse = imagesRepository.uploadImage(it)
             if (imageUrlResponse.isSuccess) {
                 val imageUrl = imageUrlResponse.getOrThrow()
-                imagesUrls += imageUrl
+                newAttachedImagesUrls += imageUrl
             } else {
-                updateIsNetworkError(true)
-                return emptyList()
+                return Result.failure(imageUrlResponse.exceptionOrNull()!!)
             }
         }
-        return imagesUrls
+        val oldAttachedImagesUrls = editIdeaUiState.attachedImages.oldAttachedImages()
+        return Result.success(newAttachedImagesUrls + oldAttachedImagesUrls)
     }
 
     private fun updateIsLoading(isLoading: Boolean) {
@@ -133,6 +138,16 @@ class EditIdeaViewModel @Inject constructor(
     private fun updateIsNetworkError(isNetworkError: Boolean) {
         editIdeaUiState = editIdeaUiState.copy(isNetworkError = isNetworkError)
     }
+
+    private fun List<AttachedImage>.oldAttachedImages(): List<String> = asSequence()
+        .filter { it.image is String }
+        .map { it.image as String }
+        .toList()
+
+    private fun List<AttachedImage>.newAttachedImages(): List<Uri> = asSequence()
+        .filter { it.image is Uri }
+        .map { it.image as Uri }
+        .toList()
 
     private fun attachedImagesCount() = editIdeaUiState.attachedImages.size
 }
@@ -148,4 +163,11 @@ fun IdeaPost.toEditIdeaUiState(): EditIdeaUiState =
                 image = image
             )
         }
+    )
+
+fun EditIdeaUiState.toEditPostDto(imagesUrls: List<String>) =
+    EditPostDto(
+        title = title,
+        content = content,
+        attachedImages = imagesUrls
     )

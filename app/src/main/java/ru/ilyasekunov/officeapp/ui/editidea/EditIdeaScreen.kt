@@ -51,82 +51,126 @@ fun EditIdeaScreen(
     navigateToProfileScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    val snackbarHostState = LocalSnackbarHostState.current
-    val coroutineScope = LocalCoroutineScope.current
-    if (editIdeaUiState.isLoading) {
-        LoadingScreen()
-    } else {
-        Scaffold(
-            containerColor = MaterialTheme.colorScheme.background,
-            topBar = {
-                SuggestIdeaTopBar(
-                    onCloseClick = navigateBack,
-                    onPublishClick = onPublishClick,
-                    modifier = Modifier.padding(start = 10.dp, end = 15.dp)
-                )
-            },
-            snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState)
-            },
-            bottomBar = {
-                BottomNavigationBar(
-                    selectedScreen = LocalCurrentNavigationBarScreen.current,
-                    navigateToHomeScreen = navigateToHomeScreen,
-                    navigateToFavouriteScreen = navigateToFavouriteScreen,
-                    navigateToMyOfficeScreen = navigateToMyOfficeScreen,
-                    navigateToProfileScreen = navigateToProfileScreen
-                )
-            },
+    when {
+        editIdeaUiState.isLoading -> LoadingScreen()
+        else -> EditIdeaScreenContent(
+            editIdeaUiState = editIdeaUiState,
+            onTitleValueChange = onTitleValueChange,
+            onIdeaBodyValueChange = onIdeaBodyValueChange,
+            onRemoveImageClick = onRemoveImageClick,
+            onPublishClick = onPublishClick,
+            onAttachImagesButtonClick = onAttachImagesButtonClick,
+            onRetryClick = onRetryClick,
+            navigateToHomeScreen = navigateToHomeScreen,
+            navigateToFavouriteScreen = navigateToFavouriteScreen,
+            navigateToMyOfficeScreen = navigateToMyOfficeScreen,
+            navigateToProfileScreen = navigateToProfileScreen,
+            navigateBack = navigateBack,
             modifier = Modifier.fillMaxSize()
-        ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(top = 10.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.editing),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(start = 20.dp)
-                )
-                Spacer(modifier = Modifier.height(14.dp))
+        )
+    }
+}
 
-                val writingIdeaSectionShape = MaterialTheme.shapes.large.copy(
-                    bottomStart = CornerSize(0.dp),
-                    bottomEnd = CornerSize(0.dp)
-                )
-                val writingIdeaSectionBorderWidth = 1.dp
-                EditIdeaSection(
-                    title = editIdeaUiState.title,
-                    content = editIdeaUiState.content,
-                    attachedImages = editIdeaUiState.attachedImages,
-                    onTitleValueChange = onTitleValueChange,
-                    onIdeaBodyValueChange = onIdeaBodyValueChange,
-                    onRemoveImageClick = onRemoveImageClick,
-                    onAttachImagesButtonClick = onAttachImagesButtonClick,
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(writingIdeaSectionShape)
-                        .offset(y = writingIdeaSectionBorderWidth)
-                        .border(
-                            width = writingIdeaSectionBorderWidth,
-                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                            shape = writingIdeaSectionShape
-                        )
-                )
-            }
+@Composable
+private fun EditIdeaScreenContent(
+    editIdeaUiState: EditIdeaUiState,
+    onTitleValueChange: (String) -> Unit,
+    onIdeaBodyValueChange: (String) -> Unit,
+    onRemoveImageClick: (AttachedImage) -> Unit,
+    onPublishClick: () -> Unit,
+    onAttachImagesButtonClick: () -> Unit,
+    onRetryClick: () -> Unit,
+    navigateToHomeScreen: () -> Unit,
+    navigateToFavouriteScreen: () -> Unit,
+    navigateToMyOfficeScreen: () -> Unit,
+    navigateToProfileScreen: () -> Unit,
+    navigateBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val snackbarHostState = LocalSnackbarHostState.current
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            SuggestIdeaTopBar(
+                onCloseClick = navigateBack,
+                onPublishClick = onPublishClick,
+                modifier = Modifier.padding(start = 10.dp, end = 15.dp)
+            )
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        bottomBar = {
+            BottomNavigationBar(
+                selectedScreen = LocalCurrentNavigationBarScreen.current,
+                navigateToHomeScreen = navigateToHomeScreen,
+                navigateToFavouriteScreen = navigateToFavouriteScreen,
+                navigateToMyOfficeScreen = navigateToMyOfficeScreen,
+                navigateToProfileScreen = navigateToProfileScreen
+            )
+        },
+        modifier = modifier
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(top = 10.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.editing),
+                style = MaterialTheme.typography.titleLarge,
+                fontSize = 24.sp,
+                modifier = Modifier.padding(start = 20.dp)
+            )
+            Spacer(modifier = Modifier.height(14.dp))
+
+            val writingIdeaSectionShape = MaterialTheme.shapes.large.copy(
+                bottomStart = CornerSize(0.dp),
+                bottomEnd = CornerSize(0.dp)
+            )
+            val writingIdeaSectionBorderWidth = 1.dp
+            EditIdeaSection(
+                title = editIdeaUiState.title,
+                content = editIdeaUiState.content,
+                attachedImages = editIdeaUiState.attachedImages,
+                onTitleValueChange = onTitleValueChange,
+                onIdeaBodyValueChange = onIdeaBodyValueChange,
+                onRemoveImageClick = onRemoveImageClick,
+                onAttachImagesButtonClick = onAttachImagesButtonClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(writingIdeaSectionShape)
+                    .offset(y = writingIdeaSectionBorderWidth)
+                    .border(
+                        width = writingIdeaSectionBorderWidth,
+                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                        shape = writingIdeaSectionShape
+                    )
+            )
         }
     }
+    ObserveStateChanges(
+        editIdeaUiState = editIdeaUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = LocalCoroutineScope.current,
+        onRetryClick = onRetryClick,
+        navigateToHomeScreen = navigateToHomeScreen
+    )
+}
 
+@Composable
+private fun ObserveStateChanges(
+    editIdeaUiState: EditIdeaUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onRetryClick: () -> Unit,
+    navigateToHomeScreen: () -> Unit
+) {
     ObserveNetworkError(
         editIdeaUiState = editIdeaUiState,
         snackbarHostState = snackbarHostState,
         coroutineScope = coroutineScope,
         onActionPerformedClick = onRetryClick
     )
-
     ObserveIsPublished(
         editIdeaUiState = editIdeaUiState,
         snackbarHostState = snackbarHostState,
