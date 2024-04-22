@@ -1,6 +1,5 @@
 package ru.ilyasekunov.officeapp.ui.auth.registration
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -41,6 +40,8 @@ import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
 import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
+import ru.ilyasekunov.officeapp.validation.EmailValidationError
+import ru.ilyasekunov.officeapp.validation.PasswordValidationError
 
 @Composable
 fun RegistrationMainScreen(
@@ -51,95 +52,84 @@ fun RegistrationMainScreen(
     onRegisterButtonClick: () -> Unit,
     navigateToLoginScreen: () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
     when {
         registrationUiState.isLoading -> LoadingScreen()
-        else -> {
-            Scaffold(
-                snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-            ) { paddingValues ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .imePadding()
-                        .padding(paddingValues)
-                        .background(color = MaterialTheme.colorScheme.background)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    Spacer(modifier = Modifier.height(150.dp))
-                    Text(
-                        text = stringResource(R.string.registration),
-                        style = MaterialTheme.typography.displayMedium,
-                        fontSize = 36.sp
-                    )
-                    Spacer(modifier = Modifier.height(75.dp))
+        else -> RegistrationMainScreenContent(
+            registrationUiState = registrationUiState,
+            onEmailValueChange = onEmailValueChange,
+            onPasswordValueChange = onPasswordValueChange,
+            onRepeatPasswordValueChange = onRepeatPasswordValueChange,
+            onRegisterButtonClick = onRegisterButtonClick,
+            navigateToLoginScreen = navigateToLoginScreen,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
 
-                    val emailErrorMessage = if (registrationUiState.emailUiState.error != null) {
-                        emailErrorMessage(error = registrationUiState.emailUiState.error)
-                    } else null
-                    EmailTextField(
-                        value = registrationUiState.emailUiState.email,
-                        errorMessage = emailErrorMessage,
-                        onValueChange = onEmailValueChange,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 12.dp, end = 12.dp)
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    val passwordErrorMessage = when {
-                        registrationUiState.passwordsDiffer -> {
-                            stringResource(R.string.repeated_password_error_differ_from_password)
-                        }
-
-                        registrationUiState.passwordUiState.error != null -> {
-                            passwordErrorMessage(error = registrationUiState.passwordUiState.error)
-                        }
-
-                        else -> null
-                    }
-                    PasswordTextField(
-                        value = registrationUiState.passwordUiState.password,
-                        errorMessage = passwordErrorMessage,
-                        onValueChange = onPasswordValueChange,
-                        placeholder = stringResource(R.string.password),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 12.dp, end = 12.dp)
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    val repeatedPasswordErrorMessage = when {
-                        registrationUiState.passwordsDiffer -> {
-                            stringResource(R.string.repeated_password_error_differ_from_password)
-                        }
-
-                        registrationUiState.repeatedPasswordUiState.error != null -> {
-                            passwordErrorMessage(error = registrationUiState.repeatedPasswordUiState.error)
-                        }
-
-                        else -> null
-                    }
-                    PasswordTextField(
-                        value = registrationUiState.repeatedPasswordUiState.password,
-                        errorMessage = repeatedPasswordErrorMessage,
-                        onValueChange = onRepeatPasswordValueChange,
-                        placeholder = stringResource(R.string.repeat_password),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 12.dp, end = 12.dp)
-                    )
-                    Spacer(modifier = Modifier.height(50.dp))
-                    RegisterButton(onClick = onRegisterButtonClick)
-                    Spacer(modifier = Modifier.height(28.dp))
-                    LoginSection(onLoginClick = navigateToLoginScreen)
-                    Spacer(modifier = Modifier.height(50.dp))
-                }
-            }
+@Composable
+private fun RegistrationMainScreenContent(
+    registrationUiState: RegistrationUiState,
+    onEmailValueChange: (String) -> Unit,
+    onPasswordValueChange: (String) -> Unit,
+    onRepeatPasswordValueChange: (String) -> Unit,
+    onRegisterButtonClick: () -> Unit,
+    navigateToLoginScreen: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.background,
+        modifier = modifier.imePadding()
+    ) { paddingValues ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = stringResource(R.string.registration),
+                style = MaterialTheme.typography.displayMedium,
+                fontSize = 36.sp,
+                modifier = Modifier.padding(top = 150.dp, bottom = 75.dp)
+            )
+            RegistrationEmailTextField(
+                email = registrationUiState.emailUiState.email,
+                onEmailValueChange = onEmailValueChange,
+                emailValidationError = registrationUiState.emailUiState.error,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(30.dp))
+            RegistrationPasswordTextField(
+                password = registrationUiState.passwordUiState.password,
+                passwordsDiffer = registrationUiState.passwordsDiffer,
+                onPasswordValueChange = onPasswordValueChange,
+                passwordValidationError = registrationUiState.passwordUiState.error,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(30.dp))
+            RegistrationPasswordTextField(
+                password = registrationUiState.repeatedPasswordUiState.password,
+                passwordsDiffer = registrationUiState.passwordsDiffer,
+                onPasswordValueChange = onRepeatPasswordValueChange,
+                passwordValidationError = registrationUiState.repeatedPasswordUiState.error,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(50.dp))
+            RegisterButton(onClick = onRegisterButtonClick)
+            Spacer(modifier = Modifier.height(28.dp))
+            LoginSection(onLoginClick = navigateToLoginScreen)
+            Spacer(modifier = Modifier.height(50.dp))
         }
     }
-
     ObserveNetworkError(
         registrationUiState = registrationUiState,
         snackbarHostState = snackbarHostState,
@@ -148,29 +138,45 @@ fun RegistrationMainScreen(
 }
 
 @Composable
-fun ObserveNetworkError(
-    registrationUiState: RegistrationUiState,
-    snackbarHostState: SnackbarHostState,
-    onRetryClick: () -> Unit
+private fun RegistrationEmailTextField(
+    email: String,
+    onEmailValueChange: (String) -> Unit,
+    emailValidationError: EmailValidationError?,
+    modifier: Modifier = Modifier
 ) {
-    val errorMessage = stringResource(R.string.error_connecting_to_server)
-    val retryLabel = stringResource(R.string.retry)
-    LaunchedEffect(registrationUiState) {
-        if (registrationUiState.isNetworkError) {
-            networkErrorSnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = this,
-                duration = SnackbarDuration.Short,
-                message = errorMessage,
-                retryLabel = retryLabel,
-                onRetryClick = onRetryClick
-            )
-        }
-    }
+    val emailErrorMessage = emailValidationError?.let { emailErrorMessage(it) }
+    EmailTextField(
+        value = email,
+        errorMessage = emailErrorMessage,
+        onValueChange = onEmailValueChange,
+        modifier = modifier
+    )
 }
 
 @Composable
-fun RegisterButton(
+private fun RegistrationPasswordTextField(
+    password: String,
+    passwordsDiffer: Boolean,
+    onPasswordValueChange: (String) -> Unit,
+    passwordValidationError: PasswordValidationError?,
+    modifier: Modifier = Modifier
+) {
+    val passwordErrorMessage = if (passwordsDiffer) {
+        stringResource(R.string.repeated_password_error_differ_from_password)
+    } else {
+        passwordValidationError?.let { passwordErrorMessage(it) }
+    }
+    PasswordTextField(
+        value = password,
+        errorMessage = passwordErrorMessage,
+        onValueChange = onPasswordValueChange,
+        placeholder = stringResource(R.string.password),
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun RegisterButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -189,7 +195,7 @@ fun RegisterButton(
 }
 
 @Composable
-fun LoginSection(
+private fun LoginSection(
     modifier: Modifier = Modifier,
     onLoginClick: () -> Unit,
 ) {
@@ -216,9 +222,31 @@ fun LoginSection(
     }
 }
 
+@Composable
+private fun ObserveNetworkError(
+    registrationUiState: RegistrationUiState,
+    snackbarHostState: SnackbarHostState,
+    onRetryClick: () -> Unit
+) {
+    val errorMessage = stringResource(R.string.error_connecting_to_server)
+    val retryLabel = stringResource(R.string.retry)
+    LaunchedEffect(registrationUiState) {
+        if (registrationUiState.isNetworkError) {
+            networkErrorSnackbar(
+                snackbarHostState = snackbarHostState,
+                coroutineScope = this,
+                duration = SnackbarDuration.Short,
+                message = errorMessage,
+                retryLabel = retryLabel,
+                onRetryClick = onRetryClick
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
-fun RegistrationMainScreenPreview() {
+private fun RegistrationMainScreenPreview() {
     OfficeAppTheme {
         Surface {
             RegistrationMainScreen(
