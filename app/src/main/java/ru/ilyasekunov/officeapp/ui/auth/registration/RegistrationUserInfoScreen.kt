@@ -21,7 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,7 +44,6 @@ import ru.ilyasekunov.officeapp.ui.components.UserInfoTextField
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.validation.UserInfoValidationError
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegistrationUserInfoScreen(
     registrationUiState: RegistrationUiState,
@@ -68,119 +67,118 @@ fun RegistrationUserInfoScreen(
             )
         }
 
-        else -> {
-            val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
-                state = rememberTopAppBarState(),
-                snapAnimationSpec = spring(
-                    dampingRatio = Spring.DampingRatioNoBouncy,
-                    stiffness = Spring.StiffnessMediumLow,
-                    visibilityThreshold = null
-                )
+        else -> RegistrationUserInfoScreenContent(
+            registrationUiState = registrationUiState,
+            availableOfficesUiState = availableOfficesUiState,
+            onAttachImage = onAttachImage,
+            onNameValueChange = onNameValueChange,
+            onSurnameValueChange = onSurnameValueChange,
+            onJobValueChange = onJobValueChange,
+            onOfficeChange = onOfficeChange,
+            onSaveButtonClick = onSaveButtonClick,
+            navigateBack = navigateBack,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+    ObserveIsRegistrationSuccess(
+        registrationUiState = registrationUiState,
+        navigateToHomeScreen = navigateToHomeScreen
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RegistrationUserInfoScreenContent(
+    registrationUiState: RegistrationUiState,
+    availableOfficesUiState: AvailableOfficesUiState,
+    onAttachImage: (Uri?) -> Unit,
+    onNameValueChange: (String) -> Unit,
+    onSurnameValueChange: (String) -> Unit,
+    onJobValueChange: (String) -> Unit,
+    onOfficeChange: (Office) -> Unit,
+    onSaveButtonClick: () -> Unit,
+    navigateBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
+        snapAnimationSpec = spring(
+            dampingRatio = Spring.DampingRatioNoBouncy,
+            stiffness = Spring.StiffnessMediumLow,
+            visibilityThreshold = null
+        )
+    )
+    Scaffold(
+        topBar = {
+            RegistrationMainScreenTopAppBar(
+                navigateBack = navigateBack,
+                scrollBehavior = topAppBarScrollBehavior
             )
-            Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text = stringResource(R.string.top_bar_register_screen_title),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontSize = 20.sp
-                            )
-                        },
-                        navigationIcon = {
-                            NavigateBackArrow(onClick = navigateBack)
-                        },
-                        scrollBehavior = topAppBarScrollBehavior,
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.background,
-                            scrolledContainerColor = MaterialTheme.colorScheme.background
-                        )
-                    )
-                },
-                containerColor = MaterialTheme.colorScheme.background,
+        },
+        containerColor = MaterialTheme.colorScheme.background,
+        modifier = modifier
+            .imePadding()
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+    ) { paddingValues ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
+        ) {
+            PhotoPicker(
+                selectedPhoto = registrationUiState.userInfoRegistrationUiState.photo,
+                onPhotoPickerClick = onAttachImage,
+                modifier = Modifier.size(180.dp)
+            )
+            Spacer(modifier = Modifier.height(36.dp))
+            RegistrationNameTextField(
+                name = registrationUiState.userInfoRegistrationUiState.name.value,
+                onNameValueChange = onNameValueChange,
+                nameValidationError = registrationUiState.userInfoRegistrationUiState.name.error,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .imePadding()
-                        .padding(it)
-                ) {
-                    PhotoPicker(
-                        selectedPhoto = registrationUiState.userInfoRegistrationUiState.photo,
-                        onPhotoPickerClick = onAttachImage,
-                        modifier = Modifier
-                            .size(180.dp)
-                    )
-                    Spacer(modifier = Modifier.height(36.dp))
-
-                    val nameError = registrationUiState.userInfoRegistrationUiState.name.error
-                    val nameErrorMessage = if (nameError != null) {
-                        userInfoFieldErrorMessage(nameError)
-                    } else null
-                    UserInfoTextField(
-                        value = registrationUiState.userInfoRegistrationUiState.name.value,
-                        label = stringResource(R.string.name),
-                        errorMessage = nameErrorMessage,
-                        placeholder = stringResource(R.string.your_name),
-                        onValueChange = onNameValueChange,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 12.dp, end = 12.dp)
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    val surnameError = registrationUiState.userInfoRegistrationUiState.surname.error
-                    val surnameErrorMessage = if (surnameError != null) {
-                        userInfoFieldErrorMessage(surnameError)
-                    } else null
-                    UserInfoTextField(
-                        value = registrationUiState.userInfoRegistrationUiState.surname.value,
-                        label = stringResource(R.string.surname),
-                        errorMessage = surnameErrorMessage,
-                        placeholder = stringResource(R.string.your_surname),
-                        onValueChange = onSurnameValueChange,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 12.dp, end = 12.dp)
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-
-                    val jobError = registrationUiState.userInfoRegistrationUiState.job.error
-                    val jobErrorMessage = if (jobError != null) {
-                        userInfoFieldErrorMessage(jobError)
-                    } else null
-                    UserInfoTextField(
-                        value = registrationUiState.userInfoRegistrationUiState.job.value,
-                        label = stringResource(R.string.job),
-                        errorMessage = jobErrorMessage,
-                        placeholder = stringResource(R.string.your_job),
-                        onValueChange = onJobValueChange,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 12.dp, end = 12.dp)
-                    )
-                    Spacer(modifier = Modifier.height(30.dp))
-                    OfficePicker(
-                        officeList = availableOfficesUiState.availableOffices,
-                        initialSelectedOffice = registrationUiState.userInfoRegistrationUiState.currentOffice!!,
-                        officeWidth = 170.dp,
-                        officeHeight = 180.dp,
-                        onOfficeChange = onOfficeChange
-                    )
-                    Spacer(modifier = Modifier.height(45.dp))
-                    EndRegistrationButton(onClick = onSaveButtonClick)
-                    Spacer(modifier = Modifier.height(30.dp))
-                }
-            }
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(30.dp))
+            RegistrationSurnameTextField(
+                surname = registrationUiState.userInfoRegistrationUiState.surname.value,
+                onSurnameValueChange = onSurnameValueChange,
+                surnameValidationError = registrationUiState.userInfoRegistrationUiState.surname.error,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(30.dp))
+            RegistrationJobTextField(
+                job = registrationUiState.userInfoRegistrationUiState.job.value,
+                onJobValueChange = onJobValueChange,
+                jobValidationError = registrationUiState.userInfoRegistrationUiState.job.error,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(30.dp))
+            OfficePicker(
+                officeList = availableOfficesUiState.availableOffices,
+                initialSelectedOffice = registrationUiState.userInfoRegistrationUiState.currentOffice!!,
+                officeWidth = 170.dp,
+                officeHeight = 180.dp,
+                onOfficeChange = onOfficeChange
+            )
+            EndRegistrationButton(
+                onClick = onSaveButtonClick,
+                modifier = Modifier.padding(top = 45.dp, bottom = 30.dp)
+            )
         }
     }
+}
 
-    // Observe isRegistrationSuccess to navigate to home screen
+@Composable
+fun ObserveIsRegistrationSuccess(
+    registrationUiState: RegistrationUiState,
+    navigateToHomeScreen: () -> Unit
+) {
     val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
     LaunchedEffect(registrationUiState) {
         if (registrationUiState.isRegistrationSuccess) {
@@ -189,8 +187,89 @@ fun RegistrationUserInfoScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EndRegistrationButton(
+private fun RegistrationMainScreenTopAppBar(
+    navigateBack: () -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = stringResource(R.string.top_bar_register_screen_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontSize = 20.sp
+            )
+        },
+        navigationIcon = {
+            NavigateBackArrow(onClick = navigateBack)
+        },
+        scrollBehavior = scrollBehavior,
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            scrolledContainerColor = MaterialTheme.colorScheme.background
+        ),
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun RegistrationNameTextField(
+    name: String,
+    onNameValueChange: (String) -> Unit,
+    nameValidationError: UserInfoValidationError?,
+    modifier: Modifier = Modifier
+) {
+    val nameErrorMessage = nameValidationError?.let { userInfoFieldErrorMessage(it) }
+    UserInfoTextField(
+        value = name,
+        label = stringResource(R.string.name),
+        errorMessage = nameErrorMessage,
+        placeholder = stringResource(R.string.your_name),
+        onValueChange = onNameValueChange,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun RegistrationSurnameTextField(
+    surname: String,
+    onSurnameValueChange: (String) -> Unit,
+    surnameValidationError: UserInfoValidationError?,
+    modifier: Modifier = Modifier
+) {
+    val surnameErrorMessage = surnameValidationError?.let { userInfoFieldErrorMessage(it) }
+    UserInfoTextField(
+        value = surname,
+        label = stringResource(R.string.surname),
+        errorMessage = surnameErrorMessage,
+        placeholder = stringResource(R.string.your_surname),
+        onValueChange = onSurnameValueChange,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun RegistrationJobTextField(
+    job: String,
+    onJobValueChange: (String) -> Unit,
+    jobValidationError: UserInfoValidationError?,
+    modifier: Modifier = Modifier
+) {
+    val jobErrorMessage = jobValidationError?.let { userInfoFieldErrorMessage(it) }
+    UserInfoTextField(
+        value = job,
+        label = stringResource(R.string.job),
+        errorMessage = jobErrorMessage,
+        placeholder = stringResource(R.string.your_job),
+        onValueChange = onJobValueChange,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun EndRegistrationButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -217,7 +296,7 @@ fun userInfoFieldErrorMessage(error: UserInfoValidationError) =
 
 @Preview
 @Composable
-fun RegistrationUserInfoScreenPreview() {
+private fun RegistrationUserInfoScreenPreview() {
     OfficeAppTheme {
         RegistrationUserInfoScreen(
             registrationUiState = RegistrationUiState(),
