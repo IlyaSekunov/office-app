@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material3.HorizontalDivider
@@ -49,8 +47,7 @@ import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.components.DislikeButton
-import ru.ilyasekunov.officeapp.ui.components.LikeButton
+import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
@@ -105,14 +102,16 @@ fun IdeaAuthorScreen(
                 onIdeaDislikeClick = onIdeaDislikeClick,
                 navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
                 navigateBack = navigateBack,
-                modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = paddingValues.calculateBottomPadding())
             )
         }
     }
 }
 
 @Composable
-fun IdeaAuthorScreenContent(
+private fun IdeaAuthorScreenContent(
     ideaAuthorUiState: IdeaAuthorUiState,
     ideas: LazyPagingItems<IdeaPost>,
     onPullToRefresh: suspend () -> Unit,
@@ -128,9 +127,7 @@ fun IdeaAuthorScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp),
             contentPadding = PaddingValues(bottom = 20.dp),
-            modifier = modifier
-                .fillMaxSize()
-                .nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
+            modifier = modifier.nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
         ) {
             item {
                 IdeaAuthorSection(
@@ -197,7 +194,7 @@ private fun LazyListScope.ideas(
 }
 
 @Composable
-fun IdeaAuthorSection(
+private fun IdeaAuthorSection(
     ideaAuthorUiState: IdeaAuthorUiState,
     contentTopPadding: Dp,
     modifier: Modifier = Modifier
@@ -232,9 +229,7 @@ fun IdeaAuthorSection(
 }
 
 @Composable
-fun AuthorNotExistsScreen(
-    modifier: Modifier = Modifier
-) {
+private fun AuthorNotExistsScreen(modifier: Modifier = Modifier) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -250,7 +245,7 @@ fun AuthorNotExistsScreen(
 }
 
 @Composable
-fun OfficeSection(
+private fun OfficeSection(
     office: Office,
     officeImageSize: DpSize,
     modifier: Modifier = Modifier
@@ -286,7 +281,7 @@ fun OfficeSection(
 }
 
 @Composable
-fun Idea(
+private fun Idea(
     idea: IdeaPost,
     onIdeaClick: () -> Unit,
     onLikeClick: () -> Unit,
@@ -304,31 +299,29 @@ fun Idea(
             .background(MaterialTheme.colorScheme.background)
             .padding(15.dp)
     ) {
-        Column {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
             Text(
                 text = idea.title,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Justify,
                 fontSize = 16.sp
             )
-            Spacer(modifier = Modifier.height(10.dp))
-            Row {
-                LikeButton(
-                    onClick = onLikeClick,
-                    iconSize = 18.dp,
-                    textSize = 14.sp,
-                    isPressed = idea.isLikePressed,
-                    count = idea.likesCount
-                )
-                Spacer(modifier = Modifier.width(20.dp))
-                DislikeButton(
-                    onClick = onDislikeClick,
-                    iconSize = 18.dp,
-                    textSize = 14.sp,
-                    isPressed = idea.isDislikePressed,
-                    count = idea.dislikesCount
-                )
-            }
+            LikesAndDislikesSection(
+                isLikePressed = idea.isLikePressed,
+                likesCount = idea.likesCount,
+                onLikeClick = onLikeClick,
+                isDislikePressed = idea.isDislikePressed,
+                dislikesCount = idea.dislikesCount,
+                onDislikeClick = onDislikeClick,
+                spaceBetweenCategories = 20.dp,
+                likesIconSize = 18.dp,
+                dislikesIconSize = 18.dp,
+                textSize = 14.sp,
+                buttonsWithBackground = true,
+                buttonsWithRippleEffect = true
+            )
         }
         Text(
             text = idea.date.toRussianString(),
