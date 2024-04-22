@@ -112,15 +112,13 @@ fun Comment(
             .size(coil.size.Size.ORIGINAL)
             .build()
     )
-    val authorImageModifier = remember {
-        Modifier
-            .size(50.dp)
-            .clip(CircleShape)
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = null
-            ) { navigateToIdeaAuthorScreen(comment.author.id) }
-    }
+    val authorImageModifier = Modifier
+        .size(50.dp)
+        .clip(CircleShape)
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null
+        ) { navigateToIdeaAuthorScreen(comment.author.id) }
     Row(
         horizontalArrangement = Arrangement.spacedBy(15.dp),
         modifier = modifier
@@ -128,7 +126,6 @@ fun Comment(
             .padding(10.dp)
     ) {
         when (authorImagePainter.state) {
-            is AsyncImagePainter.State.Loading -> CommentIsLoading(authorImageModifier)
             is AsyncImagePainter.State.Success -> {
                 Image(
                     painter = authorImagePainter,
@@ -144,8 +141,7 @@ fun Comment(
                     navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen
                 )
             }
-
-            else -> {}
+            else -> CommentIsLoading(authorImageModifier)
         }
     }
 }
