@@ -2,6 +2,7 @@ package ru.ilyasekunov.officeapp.ui.auth.registration
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -199,13 +199,15 @@ private fun LoginSection(
     modifier: Modifier = Modifier,
     onLoginClick: () -> Unit,
 ) {
-    Row(modifier = modifier) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(3.dp),
+        modifier = modifier
+    ) {
         Text(
             text = stringResource(R.string.have_account),
             style = MaterialTheme.typography.labelSmall,
             fontSize = 14.sp
         )
-        Spacer(modifier = Modifier.width(3.dp))
         Text(
             text = stringResource(R.string.enter),
             style = MaterialTheme.typography.labelSmall,
