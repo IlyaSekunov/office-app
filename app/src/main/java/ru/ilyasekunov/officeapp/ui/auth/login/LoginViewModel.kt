@@ -96,7 +96,11 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun credentialsValid() = isEmailValid() && isPasswordValid()
+    private fun credentialsValid(): Boolean {
+        val isEmailValid = isEmailValid()
+        val isPasswordValid = isPasswordValid()
+        return isEmailValid && isPasswordValid
+    }
 
     private fun isEmailValid(): Boolean {
         val emailValidationResult = validateEmail(loginUiState.emailUiState.email)
