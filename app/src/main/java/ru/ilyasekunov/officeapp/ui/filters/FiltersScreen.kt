@@ -384,7 +384,7 @@ private fun SortingFilters(
 }
 
 @Composable
-fun CurrentSelectedFilterDivider(
+private fun CurrentSelectedFilterDivider(
     width: Dp,
     filters: List<SortingCategory>,
     currentSelectedFilter: SortingCategory?,
