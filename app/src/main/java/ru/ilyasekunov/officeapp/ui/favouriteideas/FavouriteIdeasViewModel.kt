@@ -24,14 +24,23 @@ import ru.ilyasekunov.officeapp.ui.home.toFiltersDto
 import ru.ilyasekunov.officeapp.ui.home.toSearchDto
 import javax.inject.Inject
 
+class FavouriteIdeasUiState(
+    favouriteIdeas: PagingData<IdeaPost> = PagingData.empty()
+) {
+    private val _favouriteIdeas = MutableStateFlow(favouriteIdeas)
+    val favouriteIdeas: StateFlow<PagingData<IdeaPost>> get() = _favouriteIdeas
+
+    fun updateFavouriteIdeas(favouriteIdeas: PagingData<IdeaPost>) {
+        _favouriteIdeas.value = favouriteIdeas
+    }
+}
+
 @HiltViewModel
 class FavouriteIdeasViewModel @Inject constructor(
     postsRepository: PostsRepository,
     private val postsPagingRepository: PostsPagingRepository
 ) : ViewModel() {
-    private val _favouriteIdeasUiState: MutableStateFlow<PagingData<IdeaPost>> =
-        MutableStateFlow(PagingData.empty())
-    val favouriteIdeasUiState: StateFlow<PagingData<IdeaPost>> get() = _favouriteIdeasUiState
+    val favouriteIdeasUiState = FavouriteIdeasUiState()
     val filtersUiStateHolder = FiltersUiStateHolder(
         initialFiltersUiState = FiltersUiState(),
         coroutineScope = viewModelScope,
@@ -70,6 +79,8 @@ class FavouriteIdeasViewModel @Inject constructor(
         )
             .distinctUntilChanged()
             .cachedIn(viewModelScope)
-            .collectLatest { _favouriteIdeasUiState.value = it }
+            .collectLatest {
+                favouriteIdeasUiState.updateFavouriteIdeas(it)
+            }
     }
 }

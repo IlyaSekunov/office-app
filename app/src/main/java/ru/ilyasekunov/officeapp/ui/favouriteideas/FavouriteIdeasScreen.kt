@@ -49,6 +49,7 @@ import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorOrange
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorPurple
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorRed
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorYellow
+import ru.ilyasekunov.officeapp.util.isEmpty
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -79,25 +80,14 @@ fun FavouriteIdeasScreen(
 ) {
     Scaffold(
         topBar = {
-            HomeAppBar(
-                searchUiState = searchUiState,
-                onSearchValueChange = onSearchValueChange,
+            FavouriteIdeasTopAppBar(
                 filtersUiState = filtersUiState,
                 onOfficeFilterRemoveClick = onOfficeFilterRemoveClick,
+                searchUiState = searchUiState,
+                onSearchValueChange = onSearchValueChange,
                 onSortingFilterRemoveClick = onSortingFilterRemoveClick,
-                onFiltersClick = navigateToFiltersScreen,
-                modifier = Modifier.fillMaxWidth(),
-                title = { paddingValues ->
-                    Text(
-                        text = stringResource(R.string.favourite_ideas),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontSize = 20.sp,
-                        modifier = Modifier
-                            .padding(paddingValues)
-                            .fillMaxWidth()
-                            .wrapContentWidth(Alignment.CenterHorizontally)
-                    )
-                }
+                navigateToFiltersScreen = navigateToFiltersScreen,
+                modifier = Modifier.fillMaxWidth()
             )
         },
         bottomBar = {
@@ -112,29 +102,13 @@ fun FavouriteIdeasScreen(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
-        val postsRefreshing = favouriteIdeas.loadState.refresh == LoadState.Loading
-        val isErrorWhilePostsLoading = favouriteIdeas.loadState.hasError
         when {
-            postsRefreshing || filtersUiState.isLoading -> LoadingScreen()
-
-            isErrorWhilePostsLoading || filtersUiState.isErrorWhileLoading -> {
+            isScreenLoading(favouriteIdeas, filtersUiState) -> LoadingScreen()
+            isErrorWhileLoading(favouriteIdeas, filtersUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
                     onRetryButtonClick = onRetryInfoLoad
                 )
-            }
-
-            favouriteIdeas.itemCount == 0 -> {
-                BasicPullToRefreshContainer(
-                    onRefreshTrigger = onPullToRefresh,
-                    modifier = Modifier.padding(paddingValues)
-                ) {
-                    NoFavouriteIdeas(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                    )
-                }
             }
 
             else -> {
@@ -142,12 +116,20 @@ fun FavouriteIdeasScreen(
                     onRefreshTrigger = onPullToRefresh,
                     modifier = Modifier.padding(paddingValues)
                 ) {
-                    FavouriteIdeas(
-                        favouriteIdeas = favouriteIdeas,
-                        favouriteIdeaSize = 100.dp,
-                        onIdeaClick = navigateToIdeaDetailsScreen,
-                        modifier = Modifier.fillMaxSize()
-                    )
+                    if (favouriteIdeas.isEmpty()) {
+                        NoFavouriteIdeas(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                        )
+                    } else {
+                        FavouriteIdeas(
+                            favouriteIdeas = favouriteIdeas,
+                            favouriteIdeaSize = 100.dp,
+                            onIdeaClick = navigateToIdeaDetailsScreen,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
             }
         }
@@ -155,9 +137,39 @@ fun FavouriteIdeasScreen(
 }
 
 @Composable
-fun NoFavouriteIdeas(
+private fun FavouriteIdeasTopAppBar(
+    filtersUiState: FiltersUiState,
+    onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
+    searchUiState: SearchUiState,
+    onSearchValueChange: (String) -> Unit,
+    onSortingFilterRemoveClick: () -> Unit,
+    navigateToFiltersScreen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    HomeAppBar(
+        searchUiState = searchUiState,
+        onSearchValueChange = onSearchValueChange,
+        filtersUiState = filtersUiState,
+        onOfficeFilterRemoveClick = onOfficeFilterRemoveClick,
+        onSortingFilterRemoveClick = onSortingFilterRemoveClick,
+        onFiltersClick = navigateToFiltersScreen,
+        modifier = modifier,
+        title = { paddingValues ->
+            Text(
+                text = stringResource(R.string.favourite_ideas),
+                style = MaterialTheme.typography.titleLarge,
+                fontSize = 20.sp,
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxWidth()
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            )
+        }
+    )
+}
+
+@Composable
+private fun NoFavouriteIdeas(modifier: Modifier = Modifier) {
     Text(
         text = stringResource(R.string.no_favourites_ideas),
         style = MaterialTheme.typography.bodyLarge,
@@ -168,7 +180,7 @@ fun NoFavouriteIdeas(
 }
 
 @Composable
-fun FavouriteIdeas(
+private fun FavouriteIdeas(
     favouriteIdeas: LazyPagingItems<IdeaPost>,
     favouriteIdeaSize: Dp,
     onIdeaClick: (postId: Long) -> Unit,
@@ -209,7 +221,7 @@ fun FavouriteIdeas(
 }
 
 @Composable
-fun FavouriteIdea(
+private fun FavouriteIdea(
     ideaPost: IdeaPost,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -253,3 +265,16 @@ val ColorSaver = listSaver(
         )
     }
 )
+
+private fun isScreenLoading(
+    favouriteIdeas: LazyPagingItems<IdeaPost>,
+    filtersUiState: FiltersUiState
+): Boolean {
+    val areFavouriteIdeasLoading = favouriteIdeas.loadState.refresh == LoadState.Loading
+    return areFavouriteIdeasLoading || filtersUiState.isLoading
+}
+
+private fun isErrorWhileLoading(
+    favouriteIdeas: LazyPagingItems<IdeaPost>,
+    filtersUiState: FiltersUiState
+) = favouriteIdeas.loadState.hasError || filtersUiState.isErrorWhileLoading
