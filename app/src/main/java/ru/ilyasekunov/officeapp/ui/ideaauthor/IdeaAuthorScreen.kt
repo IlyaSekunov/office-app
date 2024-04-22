@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -54,6 +55,7 @@ import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoSection
+import ru.ilyasekunov.officeapp.util.isEmpty
 import ru.ilyasekunov.officeapp.util.toRussianString
 import java.time.LocalDateTime
 
@@ -63,8 +65,8 @@ fun IdeaAuthorScreen(
     ideas: LazyPagingItems<IdeaPost>,
     onRetryLoadData: () -> Unit,
     onPullToRefresh: suspend () -> Unit,
-    onIdeaLikeClick: (idea: IdeaPost, isPressed: Boolean) -> Unit,
-    onIdeaDislikeClick: (idea: IdeaPost, isPressed: Boolean) -> Unit,
+    onIdeaLikeClick: (idea: IdeaPost) -> Unit,
+    onIdeaDislikeClick: (idea: IdeaPost) -> Unit,
     navigateToIdeaDetailsScreen: (Long) -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
@@ -85,10 +87,9 @@ fun IdeaAuthorScreen(
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { paddingValues ->
-        val ideasLoading = ideas.loadState.refresh == LoadState.Loading
         when {
-            ideaAuthorUiState.isLoading || ideasLoading -> LoadingScreen()
-            ideaAuthorUiState.isErrorWhileLoading || ideas.loadState.hasError -> {
+            isScreenLoading(ideaAuthorUiState, ideas) -> LoadingScreen()
+            isErrorWhileLoading(ideaAuthorUiState, ideas) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
                     onRetryButtonClick = onRetryLoadData
@@ -115,8 +116,8 @@ fun IdeaAuthorScreenContent(
     ideaAuthorUiState: IdeaAuthorUiState,
     ideas: LazyPagingItems<IdeaPost>,
     onPullToRefresh: suspend () -> Unit,
-    onIdeaLikeClick: (idea: IdeaPost, isPressed: Boolean) -> Unit,
-    onIdeaDislikeClick: (idea: IdeaPost, isPressed: Boolean) -> Unit,
+    onIdeaLikeClick: (idea: IdeaPost) -> Unit,
+    onIdeaDislikeClick: (idea: IdeaPost) -> Unit,
     navigateToIdeaDetailsScreen: (Long) -> Unit,
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier
@@ -125,6 +126,8 @@ fun IdeaAuthorScreenContent(
         val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour()
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            contentPadding = PaddingValues(bottom = 20.dp),
             modifier = modifier
                 .fillMaxSize()
                 .nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
@@ -134,13 +137,14 @@ fun IdeaAuthorScreenContent(
                     ideaAuthorUiState = ideaAuthorUiState,
                     contentTopPadding = 15.dp
                 )
-                Spacer(modifier = Modifier.height(24.dp))
+            }
+            item {
                 Text(
                     text = stringResource(R.string.ideas),
                     style = MaterialTheme.typography.titleLarge,
-                    fontSize = 26.sp
+                    fontSize = 26.sp,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 10.dp)
                 )
-                Spacer(modifier = Modifier.height(30.dp))
             }
             ideas(
                 ideas = ideas,
@@ -162,11 +166,11 @@ fun IdeaAuthorScreenContent(
 
 private fun LazyListScope.ideas(
     ideas: LazyPagingItems<IdeaPost>,
-    onIdeaLikeClick: (idea: IdeaPost, isPressed: Boolean) -> Unit,
-    onIdeaDislikeClick: (idea: IdeaPost, isPressed: Boolean) -> Unit,
+    onIdeaLikeClick: (idea: IdeaPost) -> Unit,
+    onIdeaDislikeClick: (idea: IdeaPost) -> Unit,
     navigateToIdeaDetailsScreen: (Long) -> Unit
 ) {
-    if (ideas.itemCount == 0) {
+    if (ideas.isEmpty()) {
         item {
             Text(
                 text = stringResource(R.string.list_is_empty_yet),
@@ -184,16 +188,10 @@ private fun LazyListScope.ideas(
             Idea(
                 idea = idea,
                 onIdeaClick = { navigateToIdeaDetailsScreen(idea.id) },
-                onLikeClick = { onIdeaLikeClick(idea, !idea.isLikePressed) },
-                onDislikeClick = {
-                    onIdeaDislikeClick(
-                        idea,
-                        !idea.isDislikePressed
-                    )
-                },
+                onLikeClick = { onIdeaLikeClick(idea) },
+                onDislikeClick = { onIdeaDislikeClick(idea) },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -341,6 +339,19 @@ fun Idea(
         )
     }
 }
+
+private fun isScreenLoading(
+    ideaAuthorUiState: IdeaAuthorUiState,
+    ideas: LazyPagingItems<IdeaPost>
+): Boolean {
+    val areIdeasLoading = ideas.loadState.refresh == LoadState.Loading
+    return areIdeasLoading || ideaAuthorUiState.isLoading
+}
+
+private fun isErrorWhileLoading(
+    ideaAuthorUiState: IdeaAuthorUiState,
+    ideas: LazyPagingItems<IdeaPost>
+) = ideas.loadState.hasError || ideaAuthorUiState.isErrorWhileLoading
 
 @Preview
 @Composable

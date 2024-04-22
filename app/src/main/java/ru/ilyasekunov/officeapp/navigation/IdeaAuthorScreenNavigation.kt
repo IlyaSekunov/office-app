@@ -22,10 +22,10 @@ fun NavGraphBuilder.ideaAuthorScreen(
     composable(
         route = Screen.IdeaAuthor.route,
         arguments = Screen.IdeaAuthor.arguments
-    ) {backStackEntry ->
+    ) { backStackEntry ->
         val authorId = backStackEntry.arguments!!.getLong("authorId")
         val viewModel = setUpIdeaAuthorViewModel(authorId)
-        val ideas = viewModel.authorIdeasUiState.collectAsLazyPagingItems()
+        val ideas = viewModel.authorIdeasUiState.ideas.collectAsLazyPagingItems()
         IdeaAuthorScreen(
             ideaAuthorUiState = viewModel.ideaAuthorUiState,
             ideas = ideas,
@@ -57,7 +57,7 @@ fun NavController.navigateToIdeaAuthorScreen(
 }
 
 @Composable
-fun setUpIdeaAuthorViewModel(authorId: Long): IdeaAuthorViewModel {
+private fun setUpIdeaAuthorViewModel(authorId: Long): IdeaAuthorViewModel {
     val viewModel = hiltViewModel<IdeaAuthorViewModel>()
     LaunchedEffect(Unit) {
         viewModel.loadIdeaAuthorById(authorId)

@@ -5,15 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
@@ -22,6 +18,7 @@ import ru.ilyasekunov.officeapp.data.repository.author.AuthorRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
+import ru.ilyasekunov.officeapp.ui.favouriteideas.IdeasUiState
 import javax.inject.Inject
 
 data class IdeaAuthorUiState(
@@ -43,12 +40,11 @@ class IdeaAuthorViewModel @Inject constructor(
 ) : ViewModel() {
     var ideaAuthorUiState by mutableStateOf(IdeaAuthorUiState())
         private set
-    private val _authorIdeasUiState: MutableStateFlow<PagingData<IdeaPost>> =
-        MutableStateFlow(PagingData.empty())
-    val authorIdeasUiState: StateFlow<PagingData<IdeaPost>> get() = _authorIdeasUiState
+    val authorIdeasUiState = IdeasUiState()
 
-    fun updateLike(idea: IdeaPost, isPressed: Boolean) {
+    fun updateLike(idea: IdeaPost) {
         viewModelScope.launch {
+            val isPressed = !idea.isLikePressed
             val likesCount = if (isPressed) idea.likesCount + 1 else idea.likesCount - 1
             val changedIdea =
                 if (idea.isDislikePressed) {
@@ -73,8 +69,9 @@ class IdeaAuthorViewModel @Inject constructor(
         }
     }
 
-    fun updateDislike(post: IdeaPost, isPressed: Boolean) {
+    fun updateDislike(post: IdeaPost) {
         viewModelScope.launch {
+            val isPressed = !post.isDislikePressed
             val dislikesCount = if (isPressed) post.dislikesCount + 1 else post.dislikesCount - 1
             val changedIdea = if (post.isLikePressed) {
                 post.copy(
@@ -99,9 +96,12 @@ class IdeaAuthorViewModel @Inject constructor(
     }
 
     private fun updateIdea(updatedPost: IdeaPost) {
-        _authorIdeasUiState.update { pagingData ->
-            pagingData.map { if (it.id == updatedPost.id) updatedPost else it }
+        val authorIdeas = authorIdeasUiState.ideas
+        val updatedIdeas = authorIdeas.value.map {
+            if (it.id == updatedPost.id) updatedPost
+            else it
         }
+        authorIdeasUiState.updateIdeas(updatedIdeas)
     }
 
     private fun updateIsIdeaAuthorLoading(isLoading: Boolean) {
@@ -147,7 +147,7 @@ class IdeaAuthorViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collectLatest {
-                    _authorIdeasUiState.value = it
+                    authorIdeasUiState.updateIdeas(it)
                 }
         }
     }

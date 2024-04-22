@@ -18,8 +18,7 @@ fun NavGraphBuilder.favouriteIdeasScreen(
 ) {
     composable(route = BottomNavigationScreen.Favourite.route) {
         val viewModel = hiltViewModel<FavouriteIdeasViewModel>()
-        val favouriteIdeas =
-            viewModel.favouriteIdeasUiState.favouriteIdeas.collectAsLazyPagingItems()
+        val favouriteIdeas = viewModel.favouriteIdeasUiState.ideas.collectAsLazyPagingItems()
         FavouriteIdeasScreen(
             favouriteIdeas = favouriteIdeas,
             filtersUiState = viewModel.filtersUiStateHolder.filtersUiState,
