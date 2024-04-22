@@ -149,20 +149,9 @@ class RegistrationViewModel @Inject constructor(
                     updateIsLoading(false)
                     return@launch
                 }
-                val photoUrl = photoUrlResult.getOrThrow()
 
-                val userInfo = registrationUiState.userInfoRegistrationUiState
-                val registrationForm = RegistrationForm(
-                    email = registrationUiState.emailUiState.email,
-                    password = registrationUiState.passwordUiState.password,
-                    userInfo = UserDto(
-                        name = userInfo.name.value,
-                        surname = userInfo.surname.value,
-                        job = userInfo.job.value,
-                        officeId = userInfo.currentOffice!!.id,
-                        photo = photoUrl
-                    )
-                )
+                val photoUrl = photoUrlResult.getOrThrow()
+                val registrationForm = registrationUiState.toRegistrationForm(photoUrl)
                 val registrationResult = authRepository.register(registrationForm)
                 if (registrationResult.isSuccess) {
                     updateIsNetworkError(false)
@@ -249,6 +238,12 @@ class RegistrationViewModel @Inject constructor(
         registrationUiState = registrationUiState.copy(passwordsDiffer = passwordsDiffer)
     }
 
+    private fun updateAvailableOfficeIsError(isErrorWhileLoading: Boolean) {
+        availableOfficesUiState = availableOfficesUiState.copy(
+            isErrorWhileLoading = isErrorWhileLoading
+        )
+    }
+
     fun loadAvailableOffices() {
         viewModelScope.launch {
             updateAvailableOfficesIsLoading(true)
@@ -326,43 +321,46 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private fun userInfoValid(): Boolean {
-        val userInfoRegistrationUiState = registrationUiState.userInfoRegistrationUiState
-        var isValidationSuccess = true
-
-        val name = userInfoRegistrationUiState.name.value
-        val nameValidationResult = validateUserInfo(name)
-        if (nameValidationResult is UserInfoValidationResult.Failure) {
-            updateNameValidationError(nameValidationResult.error)
-            isValidationSuccess = false
-        } else {
-            updateNameValidationError(null)
-        }
-
-        val surname = userInfoRegistrationUiState.surname.value
-        val surnameValidationResult = validateUserInfo(surname)
-        if (surnameValidationResult is UserInfoValidationResult.Failure) {
-            updateSurnameValidationError(surnameValidationResult.error)
-            isValidationSuccess = false
-        } else {
-            updateSurnameValidationError(null)
-        }
-
-        val job = userInfoRegistrationUiState.job.value
-        val jobValidationResult = validateUserInfo(job)
-        if (jobValidationResult is UserInfoValidationResult.Failure) {
-            updateJobValidationError(jobValidationResult.error)
-            isValidationSuccess = false
-        } else {
-            updateJobValidationError(null)
-        }
-
-        return isValidationSuccess
+        val isNameValid = isNameValid()
+        val isSurnameValid = isSurnameValid()
+        val isJobValid = isJobValid()
+        return isNameValid && isSurnameValid && isJobValid
     }
 
-    private fun updateAvailableOfficeIsError(isErrorWhileLoading: Boolean) {
-        availableOfficesUiState = availableOfficesUiState.copy(
-            isErrorWhileLoading = isErrorWhileLoading
-        )
+    private fun isNameValid(): Boolean {
+        val name = registrationUiState.userInfoRegistrationUiState.name.value
+        val nameValidationResult = validateUserInfo(name)
+        return if (nameValidationResult is UserInfoValidationResult.Failure) {
+            updateNameValidationError(nameValidationResult.error)
+            false
+        } else {
+            updateNameValidationError(null)
+            true
+        }
+    }
+
+    private fun isSurnameValid(): Boolean {
+        val surname = registrationUiState.userInfoRegistrationUiState.name.value
+        val surnameValidationResult = validateUserInfo(surname)
+        return if (surnameValidationResult is UserInfoValidationResult.Failure) {
+            updateSurnameValidationError(surnameValidationResult.error)
+            false
+        } else {
+            updateSurnameValidationError(null)
+            true
+        }
+    }
+
+    private fun isJobValid(): Boolean {
+        val job = registrationUiState.userInfoRegistrationUiState.name.value
+        val jobValidationResult = validateUserInfo(job)
+        return if (jobValidationResult is UserInfoValidationResult.Failure) {
+            updateJobValidationError(jobValidationResult.error)
+            false
+        } else {
+            updateJobValidationError(null)
+            true
+        }
     }
 
     private suspend fun uploadUserPhoto(): Result<String?> {
@@ -379,4 +377,19 @@ class RegistrationViewModel @Inject constructor(
             }
         } ?: Result.success(null)
     }
+}
+
+private fun RegistrationUiState.toRegistrationForm(photoUrl: String?): RegistrationForm {
+    val userInfo = userInfoRegistrationUiState
+    return RegistrationForm(
+        email = emailUiState.email,
+        password = passwordUiState.password,
+        userInfo = UserDto(
+            name = userInfo.name.value,
+            surname = userInfo.surname.value,
+            job = userInfo.job.value,
+            officeId = userInfo.currentOffice!!.id,
+            photo = photoUrl
+        )
+    )
 }
