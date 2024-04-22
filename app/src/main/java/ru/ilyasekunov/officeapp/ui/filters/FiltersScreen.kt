@@ -2,7 +2,6 @@ package ru.ilyasekunov.officeapp.ui.filters
 
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -50,24 +49,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.rememberAsyncImagePainter
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
+import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
@@ -75,7 +76,6 @@ import ru.ilyasekunov.officeapp.ui.home.SortingFiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.sortingCategoryName
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FiltersScreen(
     filtersUiState: FiltersUiState,
@@ -88,75 +88,95 @@ fun FiltersScreen(
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
     navigateToProfileScreen: () -> Unit,
-    navigateBack: () -> Unit,
+    navigateBack: () -> Unit
 ) {
-    if (filtersUiState.isLoading) {
-        LoadingScreen()
-    } else {
-        Scaffold(
-            topBar = {
-                FiltersTopAppBar(
-                    navigateBack = navigateBack,
-                    onResetClick = onResetClick,
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        scrolledContainerColor = MaterialTheme.colorScheme.background
-                    )
-                )
-            },
-            bottomBar = {
-                BottomNavigationBar(
-                    selectedScreen = LocalCurrentNavigationBarScreen.current,
-                    navigateToHomeScreen = navigateToHomeScreen,
-                    navigateToFavouriteScreen = navigateToFavouriteScreen,
-                    navigateToMyOfficeScreen = navigateToMyOfficeScreen,
-                    navigateToProfileScreen = navigateToProfileScreen
-                )
-            },
+    when {
+        filtersUiState.isLoading -> LoadingScreen()
+        else -> FiltersScreenContent(
+            filtersUiState = filtersUiState,
+            onSortingCategoryClick = onSortingCategoryClick,
+            onOfficeFilterClick = onOfficeFilterClick,
+            onResetClick = onResetClick,
+            onShowClick = onShowClick,
+            onRetryLoad = onRetryLoad,
+            navigateToHomeScreen = navigateToHomeScreen,
+            navigateToFavouriteScreen = navigateToFavouriteScreen,
+            navigateToMyOfficeScreen = navigateToMyOfficeScreen,
+            navigateToProfileScreen = navigateToProfileScreen,
+            navigateBack = navigateBack,
             modifier = Modifier.fillMaxSize()
-        ) { paddingValues ->
-            if (filtersUiState.isErrorWhileLoading) {
-                ErrorScreen(
-                    message = stringResource(R.string.error_connecting_to_server),
-                    onRetryButtonClick = onRetryLoad
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FiltersScreenContent(
+    filtersUiState: FiltersUiState,
+    onSortingCategoryClick: (SortingCategory) -> Unit,
+    onOfficeFilterClick: (OfficeFilterUiState) -> Unit,
+    onResetClick: () -> Unit,
+    onShowClick: () -> Unit,
+    onRetryLoad: () -> Unit,
+    navigateToHomeScreen: () -> Unit,
+    navigateToFavouriteScreen: () -> Unit,
+    navigateToMyOfficeScreen: () -> Unit,
+    navigateToProfileScreen: () -> Unit,
+    navigateBack: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Scaffold(
+        topBar = {
+            FiltersTopAppBar(
+                navigateBack = navigateBack,
+                onResetClick = onResetClick,
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    scrolledContainerColor = MaterialTheme.colorScheme.background
                 )
-            } else {
-                Column(
+            )
+        },
+        bottomBar = {
+            BottomNavigationBar(
+                selectedScreen = LocalCurrentNavigationBarScreen.current,
+                navigateToHomeScreen = navigateToHomeScreen,
+                navigateToFavouriteScreen = navigateToFavouriteScreen,
+                navigateToMyOfficeScreen = navigateToMyOfficeScreen,
+                navigateToProfileScreen = navigateToProfileScreen
+            )
+        },
+        modifier = modifier
+    ) { paddingValues ->
+        if (filtersUiState.isErrorWhileLoading) {
+            ErrorScreen(
+                message = stringResource(R.string.error_connecting_to_server),
+                onRetryButtonClick = onRetryLoad
+            )
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .padding(top = 5.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                OfficeFiltersSection(
+                    officeList = filtersUiState.officeFiltersUiState,
+                    onOfficeClick = onOfficeFilterClick,
+                    officeFilterSize = DpSize(width = 345.dp, height = 80.dp),
+                    modifier = Modifier.padding(start = 20.dp, end = 20.dp)
+                )
+                Spacer(modifier = Modifier.height(22.dp))
+                SortingFiltersSection(
+                    sortingFiltersUiState = filtersUiState.sortingFiltersUiState,
+                    onFilterClick = onSortingCategoryClick
+                )
+                Spacer(modifier = Modifier.height(46.dp))
+                ApplyFiltersButton(
+                    onClick = onShowClick,
                     modifier = Modifier
-                        .padding(paddingValues)
-                        .padding(top = 5.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    OfficeFiltersSection(
-                        officeList = filtersUiState.officeFiltersUiState,
-                        onOfficeClick = onOfficeFilterClick,
-                        officeFilterSize = DpSize(width = 345.dp, height = 80.dp),
-                        modifier = Modifier.padding(start = 20.dp, end = 20.dp)
-                    )
-                    Spacer(modifier = Modifier.height(22.dp))
-                    SortingFiltersSection(
-                        sortingFiltersUiState = filtersUiState.sortingFiltersUiState,
-                        onFilterClick = onSortingCategoryClick
-                    )
-                    Spacer(modifier = Modifier.height(46.dp))
-                    Button(
-                        onClick = onShowClick,
-                        shape = MaterialTheme.shapes.large,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        ),
-                        contentPadding = PaddingValues(12.dp),
-                        modifier = Modifier
-                            .align(Alignment.CenterHorizontally)
-                            .fillMaxWidth()
-                    ) {
-                        Text(
-                            text = stringResource(R.string.show),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontSize = 16.sp
-                        )
-                    }
-                }
+                        .align(Alignment.CenterHorizontally)
+                        .fillMaxWidth()
+                )
             }
         }
     }
@@ -209,39 +229,38 @@ fun FiltersTopAppBar(
 }
 
 @Composable
-fun OfficeFiltersSection(
+private fun OfficeFiltersSection(
     officeList: List<OfficeFilterUiState>,
     onOfficeClick: (OfficeFilterUiState) -> Unit,
     officeFilterSize: DpSize,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(18.dp),
+        modifier = modifier
+    ) {
         Text(
             text = stringResource(R.string.offices),
             style = MaterialTheme.typography.titleLarge,
             fontSize = 18.sp,
             color = MaterialTheme.colorScheme.surfaceVariant,
-            modifier = Modifier.padding(start = 20.dp)
+            modifier = Modifier.padding(start = 20.dp, bottom = 7.dp)
         )
-        Spacer(modifier = Modifier.height(25.dp))
-        officeList.forEachIndexed { index, office ->
+        officeList.forEach {
             OfficeFilter(
-                officeFilterUiState = office,
-                onOfficeClick = { onOfficeClick(office) },
+                officeFilterUiState = it,
+                onOfficeClick = { onOfficeClick(it) },
                 modifier = Modifier.size(
                     width = officeFilterSize.width,
                     height = officeFilterSize.height
                 )
             )
-            if (index != officeList.lastIndex) {
-                Spacer(modifier = Modifier.height(18.dp))
-            }
         }
     }
 }
 
 @Composable
-fun OfficeFilter(
+private fun OfficeFilter(
     officeFilterUiState: OfficeFilterUiState,
     onOfficeClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -263,10 +282,8 @@ fun OfficeFilter(
             .background(color.copy(alpha = 0.15f))
             .clickable(onClick = onOfficeClick)
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(officeFilterUiState.office.imageUrl),
-            contentDescription = "office_image",
-            contentScale = ContentScale.Crop,
+        AsyncImageWithLoading(
+            model = officeFilterUiState.office.imageUrl,
             modifier = Modifier
                 .fillMaxHeight()
                 .aspectRatio(1f / 1f)
@@ -293,7 +310,7 @@ fun OfficeFilter(
 }
 
 @Composable
-fun SortingFiltersSection(
+private fun SortingFiltersSection(
     sortingFiltersUiState: SortingFiltersUiState,
     onFilterClick: (SortingCategory) -> Unit,
     modifier: Modifier = Modifier
@@ -318,63 +335,33 @@ fun SortingFiltersSection(
 }
 
 @Composable
-fun SortingFilters(
+private fun SortingFilters(
     sortingFiltersUiState: SortingFiltersUiState,
     onFilterClick: (SortingCategory) -> Unit,
     modifier: Modifier
 ) {
-    val filters = sortingFiltersUiState.filters
-    val selectedCategory = sortingFiltersUiState.selected
     Box {
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outline
-        )
-
-        val density = LocalDensity.current.density
-        var pickedCategoryDividerWidth by remember { mutableStateOf(0.dp) }
-        val pickedCategoryDividerOffset = remember(
-            filters,
-            selectedCategory,
-            pickedCategoryDividerWidth
-        ) {
-            (filters.indexOf(selectedCategory) * pickedCategoryDividerWidth.value).dp
-        }
-
-        val animatedPickedCategoryDividerOffset by animateIntOffsetAsState(
-            targetValue = IntOffset(
-                x = (pickedCategoryDividerOffset.value * density).toInt(),
-                y = 0
-            ),
-            animationSpec = tween(
-                durationMillis = 100
-            ),
-            label = "picked_horizontal_divider_offset"
-        )
-        HorizontalDivider(
-            modifier = Modifier
-                .width(pickedCategoryDividerWidth)
-                .offset(y = (-1).dp)
-                .offset { animatedPickedCategoryDividerOffset },
-            thickness = 3.dp,
-            color = MaterialTheme.colorScheme.primary
-        )
-
+        val filters = sortingFiltersUiState.filters
+        val currentSelectedFilter = sortingFiltersUiState.selected
+        val density = LocalDensity.current
+        var sortingFilterWidth by remember { mutableStateOf(0.dp) }
         Column {
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline
+            )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = modifier
-                    .onGloballyPositioned { coordinates ->
-                        val rowWidthPx = coordinates.size.width
-                        val filtersCount = filters.size.coerceIn(1, null)
-                        val oneFilterWidthPx = rowWidthPx / filtersCount
-                        pickedCategoryDividerWidth = (oneFilterWidthPx / density).dp
+                    .onSizeChanged { size ->
+                        sortingFilterWidth =
+                            calculateSortingFilterWidth(size, filters.size, density)
                     }
             ) {
                 filters.forEach {
                     SortingFilter(
                         sortingCategory = it,
-                        isSelected = selectedCategory == it,
+                        isSelected = currentSelectedFilter == it,
                         modifier = Modifier
                             .clickable { onFilterClick(it) }
                             .fillMaxHeight()
@@ -387,11 +374,45 @@ fun SortingFilters(
                 color = MaterialTheme.colorScheme.outline
             )
         }
+        CurrentSelectedFilterDivider(
+            width = sortingFilterWidth,
+            filters = filters,
+            currentSelectedFilter = currentSelectedFilter,
+            modifier = Modifier.offset(y = (-1).dp)
+        )
     }
 }
 
 @Composable
-fun SortingFilter(
+fun CurrentSelectedFilterDivider(
+    width: Dp,
+    filters: List<SortingCategory>,
+    currentSelectedFilter: SortingCategory?,
+    modifier: Modifier = Modifier
+) {
+    val density = LocalDensity.current
+    val pickedCategoryDividerOffset = remember(filters, currentSelectedFilter, width) {
+        (filters.indexOf(currentSelectedFilter) * width.value).dp
+    }
+    val animatedPickedCategoryDividerOffset by animateIntOffsetAsState(
+        targetValue = IntOffset(
+            x = with(density) { pickedCategoryDividerOffset.toPx() }.toInt(),
+            y = 0
+        ),
+        animationSpec = tween(durationMillis = 100),
+        label = "horizontal_divider_offset"
+    )
+    HorizontalDivider(
+        modifier = modifier
+            .width(width)
+            .offset { animatedPickedCategoryDividerOffset },
+        thickness = 3.dp,
+        color = MaterialTheme.colorScheme.primary
+    )
+}
+
+@Composable
+private fun SortingFilter(
     sortingCategory: SortingCategory,
     isSelected: Boolean,
     modifier: Modifier = Modifier
@@ -410,9 +431,42 @@ fun SortingFilter(
     )
 }
 
+@Composable
+private fun ApplyFiltersButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        shape = MaterialTheme.shapes.large,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        ),
+        contentPadding = PaddingValues(12.dp),
+        modifier = modifier
+    ) {
+        Text(
+            text = stringResource(R.string.show),
+            style = MaterialTheme.typography.bodyLarge,
+            fontSize = 16.sp
+        )
+    }
+}
+
+private fun calculateSortingFilterWidth(
+    rowSize: IntSize,
+    actualFiltersCount: Int,
+    density: Density
+): Dp {
+    val rowWidthPx = rowSize.width
+    val filtersCount = actualFiltersCount.coerceAtLeast(1)
+    val oneFilterWidthPx = rowWidthPx / filtersCount
+    return with(density) { oneFilterWidthPx.toDp() }
+}
+
 @Preview
 @Composable
-fun OfficeFilterPreview() {
+private fun OfficeFilterPreview() {
     OfficeAppTheme {
         OfficeFilter(
             officeFilterUiState = OfficeFilterUiState(
