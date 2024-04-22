@@ -1,6 +1,5 @@
 package ru.ilyasekunov.officeapp.ui.auth.login
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -55,125 +54,119 @@ fun LoginScreen(
     navigateToRegistrationMainScreen: () -> Unit,
     navigateToHomeScreen: () -> Unit
 ) {
+    when {
+        loginUiState.isLoading -> LoadingScreen()
+        else -> LoginScreenContent(
+            loginUiState = loginUiState,
+            onEmailValueChange = onEmailValueChange,
+            onPasswordValueChange = onPasswordValueChange,
+            onLoginButtonClick = onLoginButtonClick,
+            navigateToRegistrationMainScreen = navigateToRegistrationMainScreen,
+            navigateToHomeScreen = navigateToHomeScreen,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
+private fun LoginScreenContent(
+    loginUiState: LoginUiState,
+    onEmailValueChange: (String) -> Unit,
+    onPasswordValueChange: (String) -> Unit,
+    onLoginButtonClick: () -> Unit,
+    navigateToRegistrationMainScreen: () -> Unit,
+    navigateToHomeScreen: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val snackbarHostState = remember { SnackbarHostState() }
-    if (loginUiState.isLoading) {
-        LoadingScreen()
-    } else {
-        Scaffold(
-            snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-        ) { paddingValues ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.background,
+        modifier = modifier.imePadding()
+    ) { paddingValues ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Text(
+                text = stringResource(R.string.login),
+                style = MaterialTheme.typography.displayMedium,
+                fontSize = 36.sp,
+                modifier = Modifier.padding(top = 190.dp, bottom = 75.dp)
+            )
+            LoginEmailTextField(
+                email = loginUiState.emailUiState.email,
+                onEmailValueChange = onEmailValueChange,
+                emailValidationError = loginUiState.emailUiState.error,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .imePadding()
-                    .background(color = MaterialTheme.colorScheme.background)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Spacer(modifier = Modifier.height(190.dp))
-                Text(
-                    text = stringResource(R.string.login),
-                    style = MaterialTheme.typography.displayMedium,
-                    fontSize = 36.sp
-                )
-                Spacer(modifier = Modifier.height(75.dp))
-
-                val emailErrorMessage = if (loginUiState.emailUiState.error != null) {
-                    emailErrorMessage(error = loginUiState.emailUiState.error)
-                } else null
-                EmailTextField(
-                    value = loginUiState.emailUiState.email,
-                    errorMessage = emailErrorMessage,
-                    onValueChange = onEmailValueChange,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 12.dp, end = 12.dp)
-                )
-                Spacer(modifier = Modifier.height(30.dp))
-
-                val passwordErrorMessage = if (loginUiState.passwordUiState.error != null) {
-                    passwordErrorMessage(error = loginUiState.passwordUiState.error)
-                } else null
-                PasswordTextField(
-                    value = loginUiState.passwordUiState.password,
-                    errorMessage = passwordErrorMessage,
-                    onValueChange = onPasswordValueChange,
-                    placeholder = stringResource(R.string.password),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 12.dp, end = 12.dp)
-                )
-                Spacer(modifier = Modifier.height(40.dp))
-                LoginButton(onClick = onLoginButtonClick)
-                Spacer(modifier = Modifier.height(28.dp))
-                RegisterSection(onRegisterClick = navigateToRegistrationMainScreen)
-                Spacer(modifier = Modifier.height(50.dp))
-            }
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(30.dp))
+            LoginPasswordTextField(
+                password = loginUiState.passwordUiState.password,
+                onPasswordValueChange = onPasswordValueChange,
+                passwordValidationError = loginUiState.passwordUiState.error,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+            )
+            LoginButton(
+                onClick = onLoginButtonClick,
+                modifier = Modifier.padding(top = 40.dp, bottom = 28.dp)
+            )
+            RegisterSection(
+                onRegisterClick = navigateToRegistrationMainScreen,
+                modifier = Modifier.padding(bottom = 20.dp)
+            )
         }
     }
-
-    // Observe isLoggedIn to navigate to home screen after successful logging
-    val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
-    LaunchedEffect(loginUiState) {
-        if (loginUiState.isLoggedIn) {
-            currentNavigateToHomeScreen()
-        }
-    }
-
-    ObserveCredentialsValid(
-        loginUiState = loginUiState,
-        snackbarHostState = snackbarHostState
-    )
-
-    ObserveIsNetworkError(
+    ObserveLoginStateChanges(
         loginUiState = loginUiState,
         snackbarHostState = snackbarHostState,
-        onRetryClick = onLoginButtonClick
+        onLoginButtonClick = onLoginButtonClick,
+        navigateToHomeScreen = navigateToHomeScreen
     )
 }
 
 @Composable
-fun ObserveCredentialsValid(
-    loginUiState: LoginUiState,
-    snackbarHostState: SnackbarHostState
+private fun LoginEmailTextField(
+    email: String,
+    onEmailValueChange: (String) -> Unit,
+    emailValidationError: EmailValidationError?,
+    modifier: Modifier = Modifier
 ) {
-    val loginErrorMessage = stringResource(R.string.incorrect_login_or_password)
-    LaunchedEffect(loginUiState) {
-        if (loginUiState.credentialsInvalid) {
-            loginErrorSnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = this,
-                message = loginErrorMessage
-            )
-        }
-    }
+    val emailErrorMessage = emailValidationError?.let { emailErrorMessage(it) }
+    EmailTextField(
+        value = email,
+        errorMessage = emailErrorMessage,
+        onValueChange = onEmailValueChange,
+        modifier = modifier
+    )
 }
 
 @Composable
-fun ObserveIsNetworkError(
-    loginUiState: LoginUiState,
-    snackbarHostState: SnackbarHostState,
-    onRetryClick: () -> Unit
+private fun LoginPasswordTextField(
+    password: String,
+    onPasswordValueChange: (String) -> Unit,
+    passwordValidationError: PasswordValidationError?,
+    modifier: Modifier = Modifier
 ) {
-    val errorMessage = stringResource(R.string.error_connecting_to_server)
-    val retryLabel = stringResource(R.string.retry)
-    LaunchedEffect(loginUiState) {
-        if (loginUiState.isNetworkError) {
-            networkErrorSnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = this,
-                duration = SnackbarDuration.Long,
-                message = errorMessage,
-                retryLabel = retryLabel,
-                onRetryClick = onRetryClick
-            )
-        }
-    }
+    val passwordErrorMessage = passwordValidationError?.let { passwordErrorMessage(it) }
+    PasswordTextField(
+        value = password,
+        errorMessage = passwordErrorMessage,
+        onValueChange = onPasswordValueChange,
+        placeholder = stringResource(R.string.password),
+        modifier = modifier
+    )
 }
 
 @Composable
-fun LoginButton(
+private fun LoginButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -193,7 +186,7 @@ fun LoginButton(
 }
 
 @Composable
-fun RegisterSection(
+private fun RegisterSection(
     onRegisterClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -221,6 +214,80 @@ fun RegisterSection(
 }
 
 @Composable
+private fun ObserveLoginStateChanges(
+    loginUiState: LoginUiState,
+    snackbarHostState: SnackbarHostState,
+    onLoginButtonClick: () -> Unit,
+    navigateToHomeScreen: () -> Unit
+) {
+    ObserveIsLoggedIn(
+        loginUiState = loginUiState,
+        navigateToHomeScreen = navigateToHomeScreen
+    )
+    ObserveCredentialsValid(
+        loginUiState = loginUiState,
+        snackbarHostState = snackbarHostState
+    )
+    ObserveIsNetworkError(
+        loginUiState = loginUiState,
+        snackbarHostState = snackbarHostState,
+        onRetryClick = onLoginButtonClick
+    )
+}
+
+@Composable
+private fun ObserveIsLoggedIn(
+    loginUiState: LoginUiState,
+    navigateToHomeScreen: () -> Unit
+) {
+    val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
+    LaunchedEffect(loginUiState) {
+        if (loginUiState.isLoggedIn) {
+            currentNavigateToHomeScreen()
+        }
+    }
+}
+
+@Composable
+private fun ObserveCredentialsValid(
+    loginUiState: LoginUiState,
+    snackbarHostState: SnackbarHostState
+) {
+    val loginErrorMessage = stringResource(R.string.incorrect_login_or_password)
+    LaunchedEffect(loginUiState) {
+        if (loginUiState.credentialsInvalid) {
+            loginErrorSnackbar(
+                snackbarHostState = snackbarHostState,
+                coroutineScope = this,
+                message = loginErrorMessage
+            )
+        }
+    }
+}
+
+@Composable
+private fun ObserveIsNetworkError(
+    loginUiState: LoginUiState,
+    snackbarHostState: SnackbarHostState,
+    onRetryClick: () -> Unit
+) {
+    val errorMessage = stringResource(R.string.error_connecting_to_server)
+    val retryLabel = stringResource(R.string.retry)
+    LaunchedEffect(loginUiState) {
+        if (loginUiState.isNetworkError) {
+            networkErrorSnackbar(
+                snackbarHostState = snackbarHostState,
+                coroutineScope = this,
+                duration = SnackbarDuration.Long,
+                message = errorMessage,
+                retryLabel = retryLabel,
+                onRetryClick = onRetryClick
+            )
+        }
+    }
+}
+
+@Composable
 fun emailErrorMessage(error: EmailValidationError) =
     when (error) {
         EmailValidationError.BLANK -> stringResource(R.string.email_error_is_blank)
@@ -239,7 +306,7 @@ fun passwordErrorMessage(error: PasswordValidationError) =
 
 @Preview
 @Composable
-fun LoginScreenPreview() {
+private fun LoginScreenPreview() {
     OfficeAppTheme {
         Surface {
             LoginScreen(
