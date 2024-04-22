@@ -96,26 +96,28 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun credentialsValid(): Boolean {
-        var isValidationSuccess = true
+    private fun credentialsValid() = isEmailValid() && isPasswordValid()
 
+    private fun isEmailValid(): Boolean {
         val emailValidationResult = validateEmail(loginUiState.emailUiState.email)
-        if (emailValidationResult is EmailValidationResult.Failure) {
+        return if (emailValidationResult is EmailValidationResult.Failure) {
             updateEmailValidationError(emailValidationResult.error)
-            isValidationSuccess = false
+            false
         } else {
             updateEmailValidationError(null)
+            true
         }
+    }
 
+    private fun isPasswordValid(): Boolean {
         val passwordValidationResult = validatePassword(loginUiState.passwordUiState.password)
-        if (passwordValidationResult is PasswordValidationResult.Failure) {
+        return if (passwordValidationResult is PasswordValidationResult.Failure) {
             updatePasswordValidationError(passwordValidationResult.error)
-            isValidationSuccess = false
+            false
         } else {
             updatePasswordValidationError(null)
+            true
         }
-
-        return isValidationSuccess
     }
 
     private fun updateIsLoading(isLoading: Boolean) {
