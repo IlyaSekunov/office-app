@@ -91,6 +91,7 @@ fun LazyListScope.comments(
                         color = MaterialTheme.colorScheme.primary,
                         strokeWidth = 3.dp,
                         modifier = Modifier
+                            .padding(bottom = 20.dp)
                             .fillMaxWidth()
                             .size(20.dp)
                             .wrapContentWidth(Alignment.CenterHorizontally)

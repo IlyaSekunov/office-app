@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.data.datasource.local.mock
 
+import kotlinx.coroutines.delay
 import okhttp3.internal.toImmutableList
 import ru.ilyasekunov.officeapp.data.datasource.CommentsDataSource
 import ru.ilyasekunov.officeapp.data.dto.CommentDto
@@ -14,6 +15,7 @@ class MockCommentsDataSource : CommentsDataSource {
         page: Int,
         pageSize: Int
     ): Result<List<Comment>> {
+        delay(3000L)
         val sortedComments = when (sortingFilterId) {
             CommentsSortingFilters.NEW.id -> Comments.sortedByDescending { it.date }
             CommentsSortingFilters.OLD.id -> Comments.sortedBy { it.date }
@@ -43,6 +45,7 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun pressLike(postId: Long, commentId: Long): Result<Unit> {
+        delay(3000L)
         val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
         val comment = Comments[commentIndex]
         Comments[commentIndex] = comment.copy(
@@ -56,6 +59,7 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun removeLike(postId: Long, commentId: Long): Result<Unit> {
+        delay(3000L)
         val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
         val comment = Comments[commentIndex]
         Comments[commentIndex] = comment.copy(
@@ -66,6 +70,7 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun pressDislike(postId: Long, commentId: Long): Result<Unit> {
+        delay(3000L)
         val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
         val comment = Comments[commentIndex]
         Comments[commentIndex] = comment.copy(
@@ -79,6 +84,7 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun removeDislike(postId: Long, commentId: Long): Result<Unit> {
+        delay(3000L)
         val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
         val comment = Comments[commentIndex]
         Comments[commentIndex] = comment.copy(
@@ -89,6 +95,7 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun sendComment(postId: Long, commentDto: CommentDto): Result<Unit> {
+        delay(3000L)
         Comments += commentDto.toComment()
         return Result.success(Unit)
     }

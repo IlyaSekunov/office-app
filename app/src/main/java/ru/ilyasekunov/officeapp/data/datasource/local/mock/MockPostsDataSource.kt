@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.data.datasource.local.mock
 
+import kotlinx.coroutines.delay
 import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
@@ -13,6 +14,7 @@ import java.time.LocalDateTime
 
 class MockPostsDataSource : PostsDataSource {
     override suspend fun publishPost(post: PublishPostDto): Result<Unit> {
+        delay(3000L)
         synchronized(Posts) {
             Posts += post.toIdeaPost()
         }
@@ -24,6 +26,7 @@ class MockPostsDataSource : PostsDataSource {
         page: Int,
         pageSize: Int
     ): Result<List<IdeaPost>> {
+        delay(3000L)
         val searchDto = searchPostsDto.searchDto
         val filtersDto = searchPostsDto.filtersDto
         val posts = Posts.filter {
@@ -67,6 +70,7 @@ class MockPostsDataSource : PostsDataSource {
         page: Int,
         pageSize: Int
     ): Result<List<IdeaPost>> {
+        delay(3000L)
         val searchDto = searchPostsDto.searchDto
         val filtersDto = searchPostsDto.filtersDto
         val posts = Posts.asSequence()
@@ -108,6 +112,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun findPostById(postId: Long): Result<IdeaPost> {
+        delay(3000L)
         val post = Posts.find { it.id == postId }
         return post?.let {
             Result.success(it)
@@ -119,6 +124,7 @@ class MockPostsDataSource : PostsDataSource {
         page: Int,
         pageSize: Int
     ): Result<List<IdeaPost>> {
+        delay(3000L)
         val posts = Posts.filter { it.ideaAuthor.id == authorId }
         val firstPostIndex = (page - 1) * pageSize
         val lastPostIndex = firstPostIndex + pageSize
@@ -142,6 +148,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun editPostById(postId: Long, editedPost: EditPostDto): Result<Unit> {
+        delay(3000L)
         val post = Posts.find { it.id == postId }
         post?.let {
             val updatedPost = it.copy(
@@ -155,6 +162,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun deletePostById(postId: Long): Result<Unit> {
+        delay(3000L)
         val post = Posts.find { it.id == postId }
         post?.let {
             Posts -= it
@@ -163,6 +171,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun pressLike(postId: Long): Result<Unit> {
+        delay(3000L)
         val post = Posts.find { it.id == postId }
         post?.let {
             Posts[Posts.indexOf(it)] = it.copy(
@@ -177,6 +186,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun removeLike(postId: Long): Result<Unit> {
+        delay(3000L)
         val post = Posts.find { it.id == postId }
         post?.let {
             Posts[Posts.indexOf(it)] = it.copy(
@@ -188,6 +198,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun pressDislike(postId: Long): Result<Unit> {
+        delay(3000L)
         val post = Posts.find { it.id == postId }
         post?.let {
             Posts[Posts.indexOf(it)] = it.copy(
@@ -202,6 +213,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun removeDislike(postId: Long): Result<Unit> {
+        delay(3000L)
         val post = Posts.find { it.id == postId }
         post?.let {
             Posts[Posts.indexOf(it)] = it.copy(
@@ -212,13 +224,16 @@ class MockPostsDataSource : PostsDataSource {
         return Result.success(Unit)
     }
 
-    override suspend fun filters(): Result<Filters> =
-        Result.success(
+    override suspend fun filters(): Result<Filters> {
+        delay(3000L)
+        return Result.success(
             Filters(
                 offices = Offices,
                 sortingCategories = SortingCategories
             )
         )
+    }
+
 
     private fun PublishPostDto.toIdeaPost(): IdeaPost =
         IdeaPost(

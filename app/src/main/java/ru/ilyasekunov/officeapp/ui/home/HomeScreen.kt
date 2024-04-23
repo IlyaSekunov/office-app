@@ -102,6 +102,7 @@ import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
+import ru.ilyasekunov.officeapp.util.isAppending
 import ru.ilyasekunov.officeapp.util.isEmpty
 import ru.ilyasekunov.officeapp.util.isError
 import ru.ilyasekunov.officeapp.util.toRussianString
@@ -261,12 +262,13 @@ private fun IdeaPosts(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        if (posts.loadState.append == LoadState.Loading) {
+        if (posts.isAppending()) {
             item {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
                     strokeWidth = 3.dp,
                     modifier = Modifier
+                        .padding(bottom = 20.dp)
                         .fillMaxWidth()
                         .size(20.dp)
                         .wrapContentWidth(Alignment.CenterHorizontally)

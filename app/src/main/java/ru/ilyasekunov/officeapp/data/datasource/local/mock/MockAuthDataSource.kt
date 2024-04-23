@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.data.datasource.local.mock
 
+import kotlinx.coroutines.delay
 import ru.ilyasekunov.officeapp.data.datasource.AuthDataSource
 import ru.ilyasekunov.officeapp.data.dto.LoginForm
 import ru.ilyasekunov.officeapp.data.dto.RegistrationForm
@@ -23,6 +24,7 @@ class MockAuthDataSource : AuthDataSource {
     }
 
     override suspend fun isEmailValid(email: String): Result<Boolean> {
+        delay(3000L)
         return Result.success(true)
     }
 }
