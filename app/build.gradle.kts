@@ -60,6 +60,9 @@ dependencies {
     implementation(platform("androidx.compose:compose-bom:2024.04.01"))
     implementation("androidx.compose.ui:ui:1.7.0-alpha07")
 
+    // Lottie
+    implementation("com.airbnb.android:lottie-compose:6.4.0")
+
     // Paging library
     implementation("androidx.paging:paging-compose:3.3.0-beta01")
 

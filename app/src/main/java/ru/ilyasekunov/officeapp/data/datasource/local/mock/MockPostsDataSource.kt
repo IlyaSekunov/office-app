@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.data.datasource.local.mock
 
+import kotlinx.coroutines.delay
 import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
