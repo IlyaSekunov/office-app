@@ -105,6 +105,7 @@ import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.util.isAppending
 import ru.ilyasekunov.officeapp.util.isEmpty
 import ru.ilyasekunov.officeapp.util.isError
+import ru.ilyasekunov.officeapp.util.isRefreshing
 import ru.ilyasekunov.officeapp.util.toRussianString
 import ru.ilyasekunov.officeapp.util.toThousandsString
 import java.time.LocalDateTime
@@ -947,10 +948,8 @@ private fun isScreenLoading(
     posts: LazyPagingItems<IdeaPost>,
     currentUserUiState: CurrentUserUiState,
     filtersUiState: FiltersUiState
-): Boolean {
-    val arePostsLoading = posts.loadState.refresh == LoadState.Loading
-    return arePostsLoading || currentUserUiState.isLoading || filtersUiState.isLoading
-}
+) = posts.isRefreshing() || currentUserUiState.isLoading || filtersUiState.isLoading
+
 
 private fun isErrorWhileLoading(
     posts: LazyPagingItems<IdeaPost>,

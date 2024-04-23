@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import ru.ilyasekunov.officeapp.R
@@ -49,6 +48,7 @@ import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorOrange
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorPurple
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorRed
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorYellow
+import ru.ilyasekunov.officeapp.util.isAppending
 import ru.ilyasekunov.officeapp.util.isEmpty
 import ru.ilyasekunov.officeapp.util.isError
 import ru.ilyasekunov.officeapp.util.isRefreshing
@@ -207,7 +207,7 @@ private fun FavouriteIdeas(
                     .size(favouriteIdeaSize)
             )
         }
-        if (favouriteIdeas.loadState.append == LoadState.Loading) {
+        if (favouriteIdeas.isAppending()) {
             item {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
