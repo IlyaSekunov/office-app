@@ -18,6 +18,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -33,16 +36,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
+import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
 import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
-import ru.ilyasekunov.officeapp.ui.components.UserInfoTextField
+import ru.ilyasekunov.officeapp.ui.components.UserJobTextField
+import ru.ilyasekunov.officeapp.ui.components.UserNameTextField
+import ru.ilyasekunov.officeapp.ui.components.UserSurnameTextField
+import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
-import ru.ilyasekunov.officeapp.validation.UserInfoValidationError
 
 @Composable
 fun RegistrationUserInfoScreen(
@@ -59,8 +67,8 @@ fun RegistrationUserInfoScreen(
     navigateToHomeScreen: () -> Unit
 ) {
     when {
-        registrationUiState.isLoading || availableOfficesUiState.isLoading -> LoadingScreen()
-        availableOfficesUiState.isErrorWhileLoading -> {
+        isScreenLoading(registrationUiState, availableOfficesUiState) -> LoadingScreen()
+        isErrorWhileLoading(availableOfficesUiState) -> {
             ErrorScreen(
                 message = stringResource(R.string.error_connecting_to_server),
                 onRetryButtonClick = onRetryButtonClick
@@ -77,13 +85,10 @@ fun RegistrationUserInfoScreen(
             onOfficeChange = onOfficeChange,
             onSaveButtonClick = onSaveButtonClick,
             navigateBack = navigateBack,
+            navigateToHomeScreen = navigateToHomeScreen,
             modifier = Modifier.fillMaxSize()
         )
     }
-    ObserveIsRegistrationSuccess(
-        registrationUiState = registrationUiState,
-        navigateToHomeScreen = navigateToHomeScreen
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,6 +103,7 @@ fun RegistrationUserInfoScreenContent(
     onOfficeChange: (Office) -> Unit,
     onSaveButtonClick: () -> Unit,
     navigateBack: () -> Unit,
+    navigateToHomeScreen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
@@ -107,6 +113,7 @@ fun RegistrationUserInfoScreenContent(
             visibilityThreshold = null
         )
     )
+    val snackbarHostState = LocalSnackbarHostState.current
     Scaffold(
         topBar = {
             RegistrationMainScreenTopAppBar(
@@ -114,6 +121,7 @@ fun RegistrationUserInfoScreenContent(
                 scrollBehavior = topAppBarScrollBehavior
             )
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background,
         modifier = modifier
             .imePadding()
@@ -132,7 +140,7 @@ fun RegistrationUserInfoScreenContent(
                 modifier = Modifier.size(180.dp)
             )
             Spacer(modifier = Modifier.height(36.dp))
-            RegistrationNameTextField(
+            UserNameTextField(
                 name = registrationUiState.userInfoRegistrationUiState.name.value,
                 onNameValueChange = onNameValueChange,
                 nameValidationError = registrationUiState.userInfoRegistrationUiState.name.error,
@@ -141,7 +149,7 @@ fun RegistrationUserInfoScreenContent(
                     .padding(horizontal = 12.dp)
             )
             Spacer(modifier = Modifier.height(30.dp))
-            RegistrationSurnameTextField(
+            UserSurnameTextField(
                 surname = registrationUiState.userInfoRegistrationUiState.surname.value,
                 onSurnameValueChange = onSurnameValueChange,
                 surnameValidationError = registrationUiState.userInfoRegistrationUiState.surname.error,
@@ -150,7 +158,7 @@ fun RegistrationUserInfoScreenContent(
                     .padding(horizontal = 12.dp)
             )
             Spacer(modifier = Modifier.height(30.dp))
-            RegistrationJobTextField(
+            UserJobTextField(
                 job = registrationUiState.userInfoRegistrationUiState.job.value,
                 onJobValueChange = onJobValueChange,
                 jobValidationError = registrationUiState.userInfoRegistrationUiState.job.error,
@@ -172,10 +180,61 @@ fun RegistrationUserInfoScreenContent(
             )
         }
     }
+    ObserveStateChanges(
+        registrationUiState = registrationUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = LocalCoroutineScope.current,
+        onRetryButtonClick = onSaveButtonClick,
+        navigateToHomeScreen = navigateToHomeScreen
+    )
 }
 
 @Composable
-fun ObserveIsRegistrationSuccess(
+private fun ObserveStateChanges(
+    registrationUiState: RegistrationUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onRetryButtonClick: () -> Unit,
+    navigateToHomeScreen: () -> Unit
+) {
+    ObserveIsNetworkError(
+        registrationUiState = registrationUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
+        onRetryButtonClick = onRetryButtonClick
+    )
+    ObserveIsRegistrationSuccess(
+        registrationUiState = registrationUiState,
+        navigateToHomeScreen = navigateToHomeScreen
+    )
+}
+
+@Composable
+private fun ObserveIsNetworkError(
+    registrationUiState: RegistrationUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onRetryButtonClick: () -> Unit
+) {
+    val currentOnRetryButtonClick by rememberUpdatedState(onRetryButtonClick)
+    val errorMessage = stringResource(R.string.error_while_registration)
+    val retryLabel = stringResource(R.string.retry)
+    LaunchedEffect(registrationUiState) {
+        if (registrationUiState.isNetworkError) {
+            networkErrorSnackbar(
+                snackbarHostState = snackbarHostState,
+                coroutineScope = coroutineScope,
+                duration = SnackbarDuration.Short,
+                message = errorMessage,
+                retryLabel = retryLabel,
+                onRetryClick = currentOnRetryButtonClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun ObserveIsRegistrationSuccess(
     registrationUiState: RegistrationUiState,
     navigateToHomeScreen: () -> Unit
 ) {
@@ -215,60 +274,6 @@ private fun RegistrationMainScreenTopAppBar(
 }
 
 @Composable
-private fun RegistrationNameTextField(
-    name: String,
-    onNameValueChange: (String) -> Unit,
-    nameValidationError: UserInfoValidationError?,
-    modifier: Modifier = Modifier
-) {
-    val nameErrorMessage = nameValidationError?.let { userInfoFieldErrorMessage(it) }
-    UserInfoTextField(
-        value = name,
-        label = stringResource(R.string.name),
-        errorMessage = nameErrorMessage,
-        placeholder = stringResource(R.string.your_name),
-        onValueChange = onNameValueChange,
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun RegistrationSurnameTextField(
-    surname: String,
-    onSurnameValueChange: (String) -> Unit,
-    surnameValidationError: UserInfoValidationError?,
-    modifier: Modifier = Modifier
-) {
-    val surnameErrorMessage = surnameValidationError?.let { userInfoFieldErrorMessage(it) }
-    UserInfoTextField(
-        value = surname,
-        label = stringResource(R.string.surname),
-        errorMessage = surnameErrorMessage,
-        placeholder = stringResource(R.string.your_surname),
-        onValueChange = onSurnameValueChange,
-        modifier = modifier
-    )
-}
-
-@Composable
-fun RegistrationJobTextField(
-    job: String,
-    onJobValueChange: (String) -> Unit,
-    jobValidationError: UserInfoValidationError?,
-    modifier: Modifier = Modifier
-) {
-    val jobErrorMessage = jobValidationError?.let { userInfoFieldErrorMessage(it) }
-    UserInfoTextField(
-        value = job,
-        label = stringResource(R.string.job),
-        errorMessage = jobErrorMessage,
-        placeholder = stringResource(R.string.your_job),
-        onValueChange = onJobValueChange,
-        modifier = modifier
-    )
-}
-
-@Composable
 private fun EndRegistrationButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -288,11 +293,14 @@ private fun EndRegistrationButton(
     }
 }
 
-@Composable
-fun userInfoFieldErrorMessage(error: UserInfoValidationError) =
-    when (error) {
-        UserInfoValidationError.BLANK -> stringResource(R.string.user_info_field_error_is_blank)
-    }
+private fun isScreenLoading(
+    registrationUiState: RegistrationUiState,
+    availableOfficesUiState: AvailableOfficesUiState,
+) = registrationUiState.isLoading || availableOfficesUiState.isLoading
+
+private fun isErrorWhileLoading(
+    availableOfficesUiState: AvailableOfficesUiState,
+) = availableOfficesUiState.isErrorWhileLoading
 
 @Preview
 @Composable

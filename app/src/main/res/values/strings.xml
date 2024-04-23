@@ -80,4 +80,5 @@
     <string name="comments_filter_old">Сначала старые</string>
     <string name="comments_filter_popular">Сначала популярные</string>
     <string name="comments_filter_unpopular">Сначала непопулярные</string>
+    <string name="error_while_registration">Ошибка при регистрации</string>
 </resources>
