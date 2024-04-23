@@ -49,7 +49,7 @@ val userInfoPreview = User(
     surname = "Комарницкий",
     job = "Сотрудник Tinkoff",
     office = Offices[2],
-    photo = ""
+    photo = "https://img2.akspic.ru/previews/2/7/7/4/7/174772/174772-skelet-18650-past-rebro-kost-500x.jpg"
 )
 
 var User: User? = userInfoPreview
