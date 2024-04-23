@@ -1,17 +1,14 @@
 package ru.ilyasekunov.officeapp.ui.userprofile
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -36,18 +33,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImagePainter
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.Job
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
@@ -55,6 +46,7 @@ import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.auth.registration.UserInfoFieldUiState
+import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
@@ -75,43 +67,43 @@ fun UserProfileScreen(
     navigateToMyOfficeScreen: () -> Unit,
     navigateToAuthGraph: () -> Unit
 ) {
-    if (userProfileUiState.isLoading) {
-        LoadingScreen()
-    } else {
-        val containerColor = MaterialTheme.colorScheme.background
-        Scaffold(
-            containerColor = containerColor,
-            snackbarHost = { SnackbarHost(hostState = LocalSnackbarHostState.current) },
-            bottomBar = {
-                BottomNavigationBar(
-                    selectedScreen = LocalCurrentNavigationBarScreen.current,
-                    navigateToHomeScreen = navigateToHomeScreen,
-                    navigateToFavouriteScreen = navigateToFavouriteScreen,
-                    navigateToMyOfficeScreen = navigateToMyOfficeScreen
-                )
-            },
-            modifier = Modifier.fillMaxSize()
-        ) { paddingValues ->
-            if (userProfileUiState.isErrorWhileUserLoading) {
-                ErrorScreen(
-                    message = stringResource(R.string.error_connecting_to_server),
-                    onRetryButtonClick = onRetryUserLoadClick
-                )
-            } else {
-                UserProfileContent(
-                    userProfileUiState = userProfileUiState,
-                    userInfoSectionContainerColor = containerColor,
-                    onManageAccountClick = onManageAccountClick,
-                    onMyOfficeClick = onMyOfficeClick,
-                    onMyIdeasClick = onMyIdeasClick,
-                    onLogoutClick = onLogoutClick,
-                    onPullToRefresh = onPullToRefresh,
-                    modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
-                )
+    when {
+        userProfileUiState.isLoading -> LoadingScreen()
+        else -> {
+            val containerColor = MaterialTheme.colorScheme.background
+            Scaffold(
+                snackbarHost = { SnackbarHost(hostState = LocalSnackbarHostState.current) },
+                bottomBar = {
+                    BottomNavigationBar(
+                        selectedScreen = LocalCurrentNavigationBarScreen.current,
+                        navigateToHomeScreen = navigateToHomeScreen,
+                        navigateToFavouriteScreen = navigateToFavouriteScreen,
+                        navigateToMyOfficeScreen = navigateToMyOfficeScreen
+                    )
+                },
+                containerColor = containerColor,
+                modifier = Modifier.fillMaxSize()
+            ) { paddingValues ->
+                if (userProfileUiState.isErrorWhileUserLoading) {
+                    ErrorScreen(
+                        message = stringResource(R.string.error_connecting_to_server),
+                        onRetryButtonClick = onRetryUserLoadClick
+                    )
+                } else {
+                    UserProfileContent(
+                        userProfileUiState = userProfileUiState,
+                        userInfoSectionContainerColor = containerColor,
+                        onManageAccountClick = onManageAccountClick,
+                        onMyOfficeClick = onMyOfficeClick,
+                        onMyIdeasClick = onMyIdeasClick,
+                        onLogoutClick = onLogoutClick,
+                        onPullToRefresh = onPullToRefresh,
+                        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
+                    )
+                }
             }
         }
     }
-
     ObserveIsLoggedOut(
         userProfileUiState = userProfileUiState,
         navigateToAuthGraph = navigateToAuthGraph
@@ -119,7 +111,7 @@ fun UserProfileScreen(
 }
 
 @Composable
-fun UserProfileContent(
+private fun UserProfileContent(
     userProfileUiState: UserProfileUiState,
     userInfoSectionContainerColor: Color,
     onManageAccountClick: () -> Unit,
@@ -171,14 +163,13 @@ fun UserProfileContent(
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                 color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = stringResource(R.string.log_out),
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 15.sp,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .padding(start = 16.dp)
+                    .padding(start = 16.dp, top = 16.dp, bottom = 30.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = rememberCircleClickEffectIndication(
@@ -187,7 +178,6 @@ fun UserProfileContent(
                         onClick = onLogoutClick
                     )
             )
-            Spacer(modifier = Modifier.height(30.dp))
         }
     }
 }
@@ -215,27 +205,6 @@ fun UserInfoSection(
     modifier: Modifier = Modifier,
     contentTopPadding: Dp = 15.dp
 ) {
-    val imagePainter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(photoUrl)
-            .size(coil.size.Size.ORIGINAL)
-            .build()
-    )
-    val imageShape = MaterialTheme.shapes.extraLarge
-    val imageBorderColor = MaterialTheme.colorScheme.primary
-    val imageBorderShape = MaterialTheme.shapes.extraLarge
-    val imageModifier = remember {
-        Modifier
-            .statusBarsPadding()
-            .padding(top = contentTopPadding)
-            .size(width = 160.dp, height = 160.dp)
-            .clip(imageShape)
-            .border(
-                width = 1.dp,
-                color = imageBorderColor,
-                shape = imageBorderShape
-            )
-    }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -248,53 +217,36 @@ fun UserInfoSection(
             )
             .background(containerColor)
     ) {
-        when (imagePainter.state) {
-            is AsyncImagePainter.State.Loading -> {
-                Box(
-                    modifier = imageModifier
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        )
-                        .shimmer()
+        AsyncImageWithLoading(
+            model = photoUrl,
+            modifier = Modifier
+                .statusBarsPadding()
+                .padding(top = contentTopPadding)
+                .size(width = 160.dp, height = 160.dp)
+                .clip(MaterialTheme.shapes.extraLarge)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = MaterialTheme.shapes.extraLarge
                 )
-            }
-
-            is AsyncImagePainter.State.Success -> {
-                Image(
-                    painter = imagePainter,
-                    contentDescription = "user_photo",
-                    contentScale = ContentScale.Crop,
-                    modifier = imageModifier
-                )
-            }
-
-            else -> {
-                NoPhoto(
-                    modifier = imageModifier
-                        .background(
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                        )
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(10.dp))
+        )
         Text(
             text = "$name $surname",
             style = MaterialTheme.typography.titleMedium,
-            fontSize = 24.sp
+            fontSize = 24.sp,
+            modifier = Modifier.padding(top = 10.dp, bottom = 6.dp)
         )
-        Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = job,
             style = MaterialTheme.typography.titleMedium,
-            fontSize = 15.sp
+            fontSize = 15.sp,
+            modifier = Modifier.padding(bottom = 10.dp)
         )
-        Spacer(modifier = Modifier.height(10.dp))
     }
 }
 
 @Composable
-fun Option(
+private fun Option(
     icon: Painter,
     text: String,
     onClick: () -> Unit,
@@ -321,33 +273,9 @@ fun Option(
     }
 }
 
-@Composable
-fun NoPhoto(modifier: Modifier = Modifier) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-    ) {
-        Text(
-            text = stringResource(R.string.no_photo),
-            style = MaterialTheme.typography.titleMedium,
-            fontSize = 20.sp
-        )
-    }
-}
-
 @Preview
 @Composable
-fun NoPhotoPreview() {
-    OfficeAppTheme {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            NoPhoto(modifier = Modifier.size(100.dp))
-        }
-    }
-}
-
-@Preview
-@Composable
-fun UserInfoSectionPreview() {
+private fun UserInfoSectionPreview() {
     OfficeAppTheme {
         Surface {
             UserInfoSection(
@@ -363,7 +291,7 @@ fun UserInfoSectionPreview() {
 
 @Preview
 @Composable
-fun UserProfileScreenPreview() {
+private fun UserProfileScreenPreview() {
     OfficeAppTheme {
         UserProfileScreen(
             userProfileUiState = UserProfileUiState(
