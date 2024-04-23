@@ -171,13 +171,14 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun pressLike(postId: Long): Result<Unit> {
-        delay(3000L)
         val post = Posts.find { it.id == postId }
         post?.let {
-            Posts[Posts.indexOf(it)] = it.copy(
-                isLikePressed = true,
-                likesCount = it.likesCount + 1
-            )
+            synchronized(this) {
+                Posts[Posts.indexOf(it)] = it.copy(
+                    isLikePressed = true,
+                    likesCount = it.likesCount + 1
+                )
+            }
             if (post.isDislikePressed) {
                 removeDislike(postId)
             }
@@ -186,25 +187,27 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun removeLike(postId: Long): Result<Unit> {
-        delay(3000L)
         val post = Posts.find { it.id == postId }
         post?.let {
-            Posts[Posts.indexOf(it)] = it.copy(
-                isLikePressed = false,
-                likesCount = it.likesCount - 1
-            )
+            synchronized(this) {
+                Posts[Posts.indexOf(it)] = it.copy(
+                    isLikePressed = false,
+                    likesCount = it.likesCount - 1
+                )
+            }
         }
         return Result.success(Unit)
     }
 
     override suspend fun pressDislike(postId: Long): Result<Unit> {
-        delay(3000L)
         val post = Posts.find { it.id == postId }
         post?.let {
-            Posts[Posts.indexOf(it)] = it.copy(
-                isDislikePressed = true,
-                dislikesCount = it.dislikesCount + 1
-            )
+            synchronized(this) {
+                Posts[Posts.indexOf(it)] = it.copy(
+                    isDislikePressed = true,
+                    dislikesCount = it.dislikesCount + 1
+                )
+            }
             if (post.isLikePressed) {
                 removeLike(postId)
             }
@@ -213,13 +216,14 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun removeDislike(postId: Long): Result<Unit> {
-        delay(3000L)
         val post = Posts.find { it.id == postId }
         post?.let {
-            Posts[Posts.indexOf(it)] = it.copy(
-                isDislikePressed = false,
-                dislikesCount = it.dislikesCount - 1
-            )
+            synchronized(this) {
+                Posts[Posts.indexOf(it)] = it.copy(
+                    isDislikePressed = false,
+                    dislikesCount = it.dislikesCount - 1
+                )
+            }
         }
         return Result.success(Unit)
     }
