@@ -74,42 +74,39 @@ class SuggestIdeaViewModel @Inject constructor(
     fun publishPost() {
         viewModelScope.launch {
             updateIsLoading(true)
-            val uploadedImages = uploadImagesFromUris()
-            if (suggestIdeaUiState.isNetworkError) {
+            val uploadedImagesResult = uploadImagesFromUris()
+            if (uploadedImagesResult.isFailure) {
+                updateIsPublished(false)
+                updateIsNetworkError(true)
                 updateIsLoading(false)
                 return@launch
             }
 
-            val publishPostDto = PublishPostDto(
-                title = suggestIdeaUiState.title,
-                content = suggestIdeaUiState.content,
-                attachedImages = uploadedImages
-            )
+            val uploadedImagesUrls = uploadedImagesResult.getOrThrow()
+            val publishPostDto = suggestIdeaUiState.toPublishPostDto(uploadedImagesUrls)
             val publishResult = postsRepository.publishPost(publishPostDto)
             if (publishResult.isSuccess) {
                 updateIsNetworkError(false)
                 updateIsPublished(true)
             } else {
                 updateIsNetworkError(true)
+                updateIsPublished(false)
             }
             updateIsLoading(false)
         }
     }
 
-    private suspend fun uploadImagesFromUris(): List<String> {
-        val imagesUrls = ArrayList<String>()
-        suggestIdeaUiState.attachedImages.forEach {
+    private suspend fun uploadImagesFromUris(): Result<List<String>> {
+        val imagesUrls = suggestIdeaUiState.attachedImages.map {
             val imageUrlResult = imagesRepository.uploadImage(it.image as Uri)
             if (imageUrlResult.isSuccess) {
-                val imageUrl = imageUrlResult.getOrThrow()
-                imagesUrls += imageUrl
+                val uploadedImageUrl = imageUrlResult.getOrThrow()
+                uploadedImageUrl
             } else {
-                updateIsNetworkError(true)
-                return emptyList()
+                return Result.failure(imageUrlResult.exceptionOrNull()!!)
             }
         }
-        updateIsNetworkError(false)
-        return imagesUrls
+        return Result.success(imagesUrls)
     }
 
     private fun updateIsLoading(isLoading: Boolean) {
@@ -126,3 +123,10 @@ class SuggestIdeaViewModel @Inject constructor(
 
     private fun attachedImagesCount() = suggestIdeaUiState.attachedImages.size
 }
+
+fun SuggestIdeaUiState.toPublishPostDto(uploadedImagesUrls: List<String>) =
+    PublishPostDto(
+        title = title,
+        content = content,
+        attachedImages = uploadedImagesUrls
+    )
