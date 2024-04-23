@@ -45,13 +45,15 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun pressLike(postId: Long, commentId: Long): Result<Unit> {
-        delay(3000L)
         val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
         val comment = Comments[commentIndex]
-        Comments[commentIndex] = comment.copy(
-            isLikePressed = true,
-            likesCount = comment.likesCount + 1
-        )
+        synchronized(this) {
+            Comments[commentIndex] = comment.copy(
+                isLikePressed = true,
+                likesCount = comment.likesCount + 1
+            )
+
+        }
         if (comment.isDislikePressed) {
             removeDislike(postId, commentId)
         }
@@ -59,24 +61,26 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun removeLike(postId: Long, commentId: Long): Result<Unit> {
-        delay(3000L)
         val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
         val comment = Comments[commentIndex]
-        Comments[commentIndex] = comment.copy(
-            isLikePressed = false,
-            likesCount = comment.likesCount - 1
-        )
+        synchronized(this) {
+            Comments[commentIndex] = comment.copy(
+                isLikePressed = false,
+                likesCount = comment.likesCount - 1
+            )
+        }
         return Result.success(Unit)
     }
 
     override suspend fun pressDislike(postId: Long, commentId: Long): Result<Unit> {
-        delay(3000L)
         val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
         val comment = Comments[commentIndex]
-        Comments[commentIndex] = comment.copy(
-            isDislikePressed = true,
-            dislikesCount = comment.dislikesCount + 1
-        )
+        synchronized(this) {
+            Comments[commentIndex] = comment.copy(
+                isDislikePressed = true,
+                dislikesCount = comment.dislikesCount + 1
+            )
+        }
         if (comment.isLikePressed) {
             removeLike(postId, commentId)
         }
@@ -84,13 +88,14 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun removeDislike(postId: Long, commentId: Long): Result<Unit> {
-        delay(3000L)
         val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
         val comment = Comments[commentIndex]
-        Comments[commentIndex] = comment.copy(
-            isDislikePressed = false,
-            dislikesCount = comment.dislikesCount - 1
-        )
+        synchronized(this) {
+            Comments[commentIndex] = comment.copy(
+                isDislikePressed = false,
+                dislikesCount = comment.dislikesCount - 1
+            )
+        }
         return Result.success(Unit)
     }
 
