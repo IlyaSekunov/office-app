@@ -22,7 +22,7 @@ fun NavGraphBuilder.homeScreen(
 ) {
     composable(route = BottomNavigationScreen.Home.route) {
         val viewModel = hiltViewModel<HomeViewModel>()
-        val posts = viewModel.postsUiState.collectAsLazyPagingItems()
+        val posts = viewModel.postsUiState.ideas.collectAsLazyPagingItems()
         HomeScreen(
             posts = posts,
             currentUserUiState = viewModel.currentUserUiState,

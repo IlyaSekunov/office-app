@@ -63,7 +63,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -102,6 +102,7 @@ import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
+import ru.ilyasekunov.officeapp.util.isEmpty
 import ru.ilyasekunov.officeapp.util.toRussianString
 import ru.ilyasekunov.officeapp.util.toThousandsString
 import java.time.LocalDateTime
@@ -154,9 +155,7 @@ fun HomeScreen(
                 modifier = Modifier.background(MaterialTheme.colorScheme.background)
             )
         },
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState)
-        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             SuggestIdeaButton(
                 onClick = navigateToSuggestIdeaScreen,
@@ -166,66 +165,55 @@ fun HomeScreen(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
-        val postsRefreshing = posts.loadState.refresh == LoadState.Loading
-        val isErrorWhilePostsLoading = posts.loadState.hasError
         when {
             currentUserUiState.isUnauthorized -> {
                 navigateToAuthGraph()
             }
 
-            postsRefreshing || currentUserUiState.isLoading || filtersUiState.isLoading -> {
-                LoadingScreen()
-            }
-
-            isErrorWhilePostsLoading || filtersUiState.isErrorWhileLoading || currentUserUiState.isErrorWhileLoading -> {
+            isScreenLoading(posts, currentUserUiState, filtersUiState) -> LoadingScreen()
+            isErrorWhileLoading(posts, currentUserUiState, filtersUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
                     onRetryButtonClick = onRetryInfoLoad
                 )
             }
-
-            posts.itemCount == 0 -> {
-                BasicPullToRefreshContainer(
-                    onRefreshTrigger = onPullToRefresh,
-                    modifier = Modifier.padding(paddingValues)
-                ) {
-                    NoPostsAvailable(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                    )
-                }
-            }
-
             else -> {
-                val postDeletedMessage = stringResource(R.string.post_deleted)
-                val undoLabel = stringResource(R.string.undo)
                 BasicPullToRefreshContainer(
                     onRefreshTrigger = onPullToRefresh,
                     modifier = Modifier.padding(paddingValues)
                 ) {
-                    IdeaPosts(
-                        posts = posts,
-                        isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
-                        onDeletePostClick = {
-                            deletePostSnackbar(
-                                snackbarHostState = snackbarHostState,
-                                coroutineScope = coroutineScope,
-                                message = postDeletedMessage,
-                                undoLabel = undoLabel,
-                                onSnackbarTimeOut = { onDeletePostClick(it) }
-                            )
-                        },
-                        onPostLikeClick = onPostLikeClick,
-                        onPostDislikeClick = onPostDislikeClick,
-                        navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
-                        navigateToAuthorScreen = navigateToAuthorScreen,
-                        navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                        contentPadding = PaddingValues(top = 18.dp, bottom = 18.dp),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .nestedScroll(suggestIdeaFABScrollBehaviour.nestedScrollConnection)
-                    )
+                    if (posts.isEmpty()) {
+                        NoPostsAvailable(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                        )
+                    } else {
+                        val postDeletedMessage = stringResource(R.string.post_deleted)
+                        val undoLabel = stringResource(R.string.undo)
+                        IdeaPosts(
+                            posts = posts,
+                            isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
+                            onDeletePostClick = {
+                                deletePostSnackbar(
+                                    snackbarHostState = snackbarHostState,
+                                    coroutineScope = coroutineScope,
+                                    message = postDeletedMessage,
+                                    undoLabel = undoLabel,
+                                    onSnackbarTimeOut = { onDeletePostClick(it) }
+                                )
+                            },
+                            onPostLikeClick = onPostLikeClick,
+                            onPostDislikeClick = onPostDislikeClick,
+                            navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
+                            navigateToAuthorScreen = navigateToAuthorScreen,
+                            navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+                            contentPadding = PaddingValues(top = 18.dp, bottom = 18.dp),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .nestedScroll(suggestIdeaFABScrollBehaviour.nestedScrollConnection)
+                        )
+                    }
                 }
             }
         }
@@ -233,7 +221,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun IdeaPosts(
+private fun IdeaPosts(
     posts: LazyPagingItems<IdeaPost>,
     isIdeaAuthorCurrentUser: (IdeaAuthor) -> Boolean,
     onDeletePostClick: (IdeaPost) -> Unit,
@@ -339,7 +327,7 @@ fun HomeAppBar(
 }
 
 @Composable
-fun NoPostsAvailable(
+private fun NoPostsAvailable(
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -400,9 +388,8 @@ fun IdeaPost(
                 text = ideaPost.title,
                 style = MaterialTheme.typography.titleLarge,
                 fontSize = 20.sp,
-                modifier = Modifier.padding(start = 20.dp)
+                modifier = Modifier.padding(start = 20.dp, bottom = 25.dp)
             )
-            Spacer(modifier = Modifier.height(25.dp))
             Text(
                 text = ideaPost.content,
                 style = MaterialTheme.typography.bodyMedium,
@@ -423,11 +410,10 @@ fun IdeaPost(
                         .padding(start = 5.dp, top = 15.dp, end = 5.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
             IdeaPostOffice(
-                office = ideaPost.office, modifier = Modifier.padding(start = 16.dp)
+                office = ideaPost.office,
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp)
             )
-            Spacer(modifier = Modifier.height(18.dp))
             LikesDislikesCommentsSection(
                 likesCount = ideaPost.likesCount,
                 isLikePressed = ideaPost.isLikePressed,
@@ -437,9 +423,9 @@ fun IdeaPost(
                 onDislikeClick = onDislikeClick,
                 commentsCount = ideaPost.commentsCount,
                 onCommentClick = onCommentClick,
-                modifier = Modifier.padding(start = 16.dp)
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 18.dp, bottom = 14.dp)
             )
-            Spacer(modifier = Modifier.height(14.dp))
         }
         MenuSection(
             isAuthorPostCurrentUser = isAuthorPostCurrentUser,
@@ -454,7 +440,7 @@ fun IdeaPost(
 }
 
 @Composable
-fun MenuSection(
+private fun MenuSection(
     isAuthorPostCurrentUser: Boolean,
     navigateToAuthorScreen: () -> Unit,
     navigateToEditIdeaScreen: () -> Unit,
@@ -489,7 +475,7 @@ fun MenuSection(
 }
 
 @Composable
-fun IdeaPostAuthor(
+private fun IdeaPostAuthor(
     ideaAuthor: IdeaAuthor,
     postDate: LocalDateTime,
     modifier: Modifier = Modifier
@@ -525,7 +511,7 @@ fun IdeaPostAuthor(
 }
 
 @Composable
-fun AppliedSortingFilter(
+private fun AppliedSortingFilter(
     sortingCategory: SortingCategory,
     onSortingFilterRemoveClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -549,7 +535,7 @@ fun AppliedSortingFilter(
 }
 
 @Composable
-fun AppliedOfficeFilters(
+private fun AppliedOfficeFilters(
     officeFilters: List<OfficeFilterUiState>,
     onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
     modifier: Modifier = Modifier
@@ -578,7 +564,7 @@ fun AppliedOfficeFilters(
 }
 
 @Composable
-fun SearchTextField(
+private fun SearchTextField(
     searchValue: String,
     onSearchValueChange: (String) -> Unit,
     onFiltersClick: () -> Unit,
@@ -588,7 +574,6 @@ fun SearchTextField(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            //.statusBarsPadding()
             .fillMaxWidth()
             .clip(shape)
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
@@ -647,7 +632,7 @@ fun SearchTextField(
 }
 
 @Composable
-fun OfficeFilterSearch(
+private fun OfficeFilterSearch(
     office: Office,
     size: DpSize,
     onRemoveClick: () -> Unit,
@@ -712,14 +697,14 @@ fun OfficeFilterSearch(
 }
 
 @Composable
-fun SortingCategoryFilter(
+private fun SortingCategoryFilter(
     sortingCategory: SortingCategory,
     onRemoveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val closeIconSize = 20.dp
     var textWidth by remember { mutableStateOf(0.dp) }
-    val density = LocalDensity.current.density
+    val density = LocalDensity.current
     Box(
         modifier = modifier.height(30.dp)
     ) {
@@ -730,8 +715,8 @@ fun SortingCategoryFilter(
             modifier = Modifier
                 .padding(end = closeIconSize)
                 .align(Alignment.Center)
-                .onGloballyPositioned {
-                    textWidth = (it.size.width / density).dp
+                .onSizeChanged {
+                    textWidth = with(density) { it.width.toDp() }
                 }
         )
         Icon(
@@ -802,7 +787,7 @@ fun AttachedImages(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun IdeaPostOffice(
+private fun IdeaPostOffice(
     office: Office,
     modifier: Modifier = Modifier
 ) {
@@ -817,10 +802,8 @@ fun IdeaPostOffice(
             )
             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
     ) {
-        Image(
-            painter = rememberAsyncImagePainter(office.imageUrl),
-            contentDescription = "office_photo",
-            contentScale = ContentScale.Crop,
+        AsyncImageWithLoading(
+            model = office.imageUrl,
             modifier = Modifier
                 .size(50.dp)
                 .clip(CircleShape)
@@ -877,7 +860,7 @@ fun LikesDislikesCommentsSection(
 }
 
 @Composable
-fun ActionItem(
+private fun ActionItem(
     @DrawableRes iconId: Int,
     count: Int,
     color: Color,
@@ -957,9 +940,29 @@ fun sortingCategoryName(sortingCategory: SortingCategory) =
         else -> throw IllegalStateException("Unknown sorting category - $sortingCategory")
     }
 
+private fun isScreenLoading(
+    posts: LazyPagingItems<IdeaPost>,
+    currentUserUiState: CurrentUserUiState,
+    filtersUiState: FiltersUiState
+): Boolean {
+    val arePostsLoading = posts.loadState.refresh == LoadState.Loading
+    return arePostsLoading || currentUserUiState.isLoading || filtersUiState.isLoading
+}
+
+private fun isErrorWhileLoading(
+    posts: LazyPagingItems<IdeaPost>,
+    currentUserUiState: CurrentUserUiState,
+    filtersUiState: FiltersUiState
+): Boolean {
+    val isErrorWhilePostsLoading = posts.loadState.hasError
+    val isErrorWhileUserLoading = currentUserUiState.isErrorWhileLoading
+    val isErrorWhileFiltersLoading = filtersUiState.isErrorWhileLoading
+    return isErrorWhilePostsLoading || isErrorWhileUserLoading || isErrorWhileFiltersLoading
+}
+
 @Preview
 @Composable
-fun IdeaPostPreview() {
+private fun IdeaPostPreview() {
     OfficeAppTheme {
         Surface {
             IdeaPost(
@@ -979,7 +982,7 @@ fun IdeaPostPreview() {
 
 @Preview
 @Composable
-fun HomeAppBarPreview() {
+private fun HomeAppBarPreview() {
     OfficeAppTheme {
         HomeAppBar(
             searchUiState = SearchUiState(),
@@ -995,7 +998,7 @@ fun HomeAppBarPreview() {
 
 @Preview
 @Composable
-fun IdeaPostAuthorPreview() {
+private fun IdeaPostAuthorPreview() {
     OfficeAppTheme {
         Surface {
             IdeaPostAuthor(
@@ -1008,7 +1011,7 @@ fun IdeaPostAuthorPreview() {
 
 @Preview
 @Composable
-fun OfficeFilterSearchPreview() {
+private fun OfficeFilterSearchPreview() {
     OfficeAppTheme {
         Surface {
             OfficeFilterSearch(
@@ -1026,7 +1029,7 @@ fun OfficeFilterSearchPreview() {
 
 @Preview
 @Composable
-fun SortingCategoryFilterPreview() {
+private fun SortingCategoryFilterPreview() {
     OfficeAppTheme {
         Surface {
             SortingCategoryFilter(sortingCategory = SortingCategory(id = 0, "Комментариям"),
@@ -1037,7 +1040,7 @@ fun SortingCategoryFilterPreview() {
 
 @Preview
 @Composable
-fun IdeaPostOfficePreview() {
+private fun IdeaPostOfficePreview() {
     OfficeAppTheme {
         Surface {
             IdeaPostOffice(

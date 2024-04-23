@@ -5,16 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.SearchDto
@@ -28,6 +24,7 @@ import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpForbiddenException
+import ru.ilyasekunov.officeapp.ui.favouriteideas.IdeasUiState
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiStateHolder
 import javax.inject.Inject
@@ -59,9 +56,7 @@ class HomeViewModel @Inject constructor(
     private val postsPagingRepository: PostsPagingRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {
-    private val _postsUiState: MutableStateFlow<PagingData<IdeaPost>> =
-        MutableStateFlow(PagingData.empty())
-    val postsUiState: StateFlow<PagingData<IdeaPost>> get() = _postsUiState
+    val postsUiState = IdeasUiState()
     val filtersUiStateHolder = FiltersUiStateHolder(
         initialFiltersUiState = FiltersUiState(),
         coroutineScope = viewModelScope,
@@ -157,15 +152,18 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun updatePost(updatedPost: IdeaPost) {
-        _postsUiState.update { pagingData ->
-            pagingData.map { if (it.id == updatedPost.id) updatedPost else it }
+        val postsPagingData = postsUiState.ideas.value
+        val updatedPostsPagingData = postsPagingData.map {
+            if (it.id == updatedPost.id) updatedPost
+            else it
         }
+        postsUiState.updateIdeas(updatedPostsPagingData)
     }
 
     private fun removePost(post: IdeaPost) {
-        _postsUiState.update { pagingData ->
-            pagingData.filter { it.id != post.id }
-        }
+        val postsPagingData = postsUiState.ideas.value
+        val updatedPostsPagingData = postsPagingData.filter { it.id != post.id }
+        postsUiState.updateIdeas(updatedPostsPagingData)
     }
 
     private fun updateIsCurrentUserLoading(isLoading: Boolean) {
@@ -219,7 +217,7 @@ class HomeViewModel @Inject constructor(
         )
             .distinctUntilChanged()
             .cachedIn(viewModelScope)
-            .collectLatest { _postsUiState.value = it }
+            .collectLatest { postsUiState.updateIdeas(it) }
     }
 }
 
