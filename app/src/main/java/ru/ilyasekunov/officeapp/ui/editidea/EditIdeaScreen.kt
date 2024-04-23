@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
@@ -52,7 +52,7 @@ fun EditIdeaScreen(
     navigateBack: () -> Unit
 ) {
     when {
-        editIdeaUiState.isLoading -> LoadingScreen()
+        editIdeaUiState.isLoading -> AnimatedLoadingScreen()
         else -> EditIdeaScreenContent(
             editIdeaUiState = editIdeaUiState,
             onTitleValueChange = onTitleValueChange,

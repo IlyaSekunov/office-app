@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
@@ -78,7 +78,7 @@ fun SuggestIdeaScreen(
     navigateBack: () -> Unit
 ) {
     when {
-        suggestIdeaUiState.isLoading -> LoadingScreen()
+        suggestIdeaUiState.isLoading -> AnimatedLoadingScreen()
         else -> SuggestIdeaScreenContent(
             suggestIdeaUiState = suggestIdeaUiState,
             onTitleValueChange = onTitleValueChange,

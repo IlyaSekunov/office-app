@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import ru.ilyasekunov.officeapp.R
@@ -42,8 +41,8 @@ import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
@@ -53,6 +52,8 @@ import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBeha
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoSection
 import ru.ilyasekunov.officeapp.util.isEmpty
+import ru.ilyasekunov.officeapp.util.isError
+import ru.ilyasekunov.officeapp.util.isRefreshing
 import ru.ilyasekunov.officeapp.util.toRussianString
 import java.time.LocalDateTime
 
@@ -85,7 +86,7 @@ fun IdeaAuthorScreen(
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { paddingValues ->
         when {
-            isScreenLoading(ideaAuthorUiState, ideas) -> LoadingScreen()
+            isScreenLoading(ideaAuthorUiState, ideas) -> AnimatedLoadingScreen()
             isErrorWhileLoading(ideaAuthorUiState, ideas) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
@@ -336,15 +337,13 @@ private fun Idea(
 private fun isScreenLoading(
     ideaAuthorUiState: IdeaAuthorUiState,
     ideas: LazyPagingItems<IdeaPost>
-): Boolean {
-    val areIdeasLoading = ideas.loadState.refresh == LoadState.Loading
-    return areIdeasLoading || ideaAuthorUiState.isLoading
-}
+) = ideas.isRefreshing() || ideaAuthorUiState.isLoading
+
 
 private fun isErrorWhileLoading(
     ideaAuthorUiState: IdeaAuthorUiState,
     ideas: LazyPagingItems<IdeaPost>
-) = ideas.loadState.hasError || ideaAuthorUiState.isErrorWhileLoading
+) = ideas.isError() || ideaAuthorUiState.isErrorWhileLoading
 
 @Preview
 @Composable

@@ -65,8 +65,8 @@ import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
@@ -91,7 +91,7 @@ fun FiltersScreen(
     navigateBack: () -> Unit
 ) {
     when {
-        filtersUiState.isLoading -> LoadingScreen()
+        filtersUiState.isLoading -> AnimatedLoadingScreen()
         else -> FiltersScreenContent(
             filtersUiState = filtersUiState,
             onSortingCategoryClick = onSortingCategoryClick,

@@ -39,8 +39,8 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
@@ -67,7 +67,7 @@ fun RegistrationUserInfoScreen(
     navigateToHomeScreen: () -> Unit
 ) {
     when {
-        isScreenLoading(registrationUiState, availableOfficesUiState) -> LoadingScreen()
+        isScreenLoading(registrationUiState, availableOfficesUiState) -> AnimatedLoadingScreen()
         isErrorWhileLoading(availableOfficesUiState) -> {
             ErrorScreen(
                 message = stringResource(R.string.error_connecting_to_server),

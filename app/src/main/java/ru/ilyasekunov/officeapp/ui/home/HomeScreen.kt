@@ -87,8 +87,8 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.data.model.SortingCategories
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
@@ -103,6 +103,7 @@ import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.util.isEmpty
+import ru.ilyasekunov.officeapp.util.isError
 import ru.ilyasekunov.officeapp.util.toRussianString
 import ru.ilyasekunov.officeapp.util.toThousandsString
 import java.time.LocalDateTime
@@ -170,7 +171,7 @@ fun HomeScreen(
                 navigateToAuthGraph()
             }
 
-            isScreenLoading(posts, currentUserUiState, filtersUiState) -> LoadingScreen()
+            isScreenLoading(posts, currentUserUiState, filtersUiState) -> AnimatedLoadingScreen()
             isErrorWhileLoading(posts, currentUserUiState, filtersUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
@@ -954,10 +955,9 @@ private fun isErrorWhileLoading(
     currentUserUiState: CurrentUserUiState,
     filtersUiState: FiltersUiState
 ): Boolean {
-    val isErrorWhilePostsLoading = posts.loadState.hasError
     val isErrorWhileUserLoading = currentUserUiState.isErrorWhileLoading
     val isErrorWhileFiltersLoading = filtersUiState.isErrorWhileLoading
-    return isErrorWhilePostsLoading || isErrorWhileUserLoading || isErrorWhileFiltersLoading
+    return posts.isError() || isErrorWhileUserLoading || isErrorWhileFiltersLoading
 }
 
 @Preview

@@ -35,7 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.EmailTextField
 import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
 import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
@@ -55,7 +55,7 @@ fun LoginScreen(
     navigateToHomeScreen: () -> Unit
 ) {
     when {
-        loginUiState.isLoading -> LoadingScreen()
+        loginUiState.isLoading -> AnimatedLoadingScreen()
         else -> LoginScreenContent(
             loginUiState = loginUiState,
             onEmailValueChange = onEmailValueChange,

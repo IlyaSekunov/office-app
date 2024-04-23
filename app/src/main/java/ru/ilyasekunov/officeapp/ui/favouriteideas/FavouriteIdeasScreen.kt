@@ -33,8 +33,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
@@ -50,6 +50,8 @@ import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorPurple
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorRed
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorYellow
 import ru.ilyasekunov.officeapp.util.isEmpty
+import ru.ilyasekunov.officeapp.util.isError
+import ru.ilyasekunov.officeapp.util.isRefreshing
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -103,7 +105,7 @@ fun FavouriteIdeasScreen(
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         when {
-            isScreenLoading(favouriteIdeas, filtersUiState) -> LoadingScreen()
+            isScreenLoading(favouriteIdeas, filtersUiState) -> AnimatedLoadingScreen()
             isErrorWhileLoading(favouriteIdeas, filtersUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
@@ -269,12 +271,10 @@ val ColorSaver = listSaver(
 private fun isScreenLoading(
     favouriteIdeas: LazyPagingItems<IdeaPost>,
     filtersUiState: FiltersUiState
-): Boolean {
-    val areFavouriteIdeasLoading = favouriteIdeas.loadState.refresh == LoadState.Loading
-    return areFavouriteIdeasLoading || filtersUiState.isLoading
-}
+) = favouriteIdeas.isRefreshing() || filtersUiState.isLoading
+
 
 private fun isErrorWhileLoading(
     favouriteIdeas: LazyPagingItems<IdeaPost>,
     filtersUiState: FiltersUiState
-) = favouriteIdeas.loadState.hasError || filtersUiState.isErrorWhileLoading
+) = favouriteIdeas.isError() || filtersUiState.isErrorWhileLoading

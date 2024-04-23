@@ -41,8 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Job
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.auth.registration.UserInfoFieldUiState
@@ -68,7 +68,7 @@ fun UserProfileScreen(
     navigateToAuthGraph: () -> Unit
 ) {
     when {
-        userProfileUiState.isLoading -> LoadingScreen()
+        userProfileUiState.isLoading -> AnimatedLoadingScreen()
         else -> {
             val containerColor = MaterialTheme.colorScheme.background
             Scaffold(

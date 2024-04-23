@@ -32,7 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.auth.login.emailErrorMessage
 import ru.ilyasekunov.officeapp.ui.auth.login.passwordErrorMessage
 import ru.ilyasekunov.officeapp.ui.components.EmailTextField
@@ -53,7 +53,7 @@ fun RegistrationMainScreen(
     navigateToLoginScreen: () -> Unit
 ) {
     when {
-        registrationUiState.isLoading -> LoadingScreen()
+        registrationUiState.isLoading -> AnimatedLoadingScreen()
         else -> RegistrationMainScreenContent(
             registrationUiState = registrationUiState,
             onEmailValueChange = onEmailValueChange,

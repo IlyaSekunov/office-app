@@ -32,7 +32,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImagePainter
@@ -45,6 +44,10 @@ import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
+import ru.ilyasekunov.officeapp.util.isAppending
+import ru.ilyasekunov.officeapp.util.isEmpty
+import ru.ilyasekunov.officeapp.util.isError
+import ru.ilyasekunov.officeapp.util.isRefreshing
 import ru.ilyasekunov.officeapp.util.toRussianString
 
 fun LazyListScope.comments(
@@ -55,8 +58,8 @@ fun LazyListScope.comments(
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit
 ) {
     when {
-        comments.loadState.refresh == LoadState.Loading -> item { LoadingScreen() }
-        comments.loadState.hasError -> {
+        comments.isRefreshing() -> item { LoadingScreen() }
+        comments.isError() -> {
             item {
                 ErrorScreen(
                     message = stringResource(R.string.error_while_loading),
@@ -65,7 +68,7 @@ fun LazyListScope.comments(
             }
         }
 
-        comments.itemCount == 0 -> item {
+        comments.isEmpty() -> item {
             CommentsListIsEmpty(modifier = Modifier.padding(10.dp))
         }
 
@@ -82,7 +85,7 @@ fun LazyListScope.comments(
                     navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen
                 )
             }
-            if (comments.loadState.append == LoadState.Loading) {
+            if (comments.isAppending()) {
                 item {
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,

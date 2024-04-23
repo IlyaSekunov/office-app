@@ -3,6 +3,8 @@ package ru.ilyasekunov.officeapp.ui
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -15,7 +17,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import ru.ilyasekunov.officeapp.R
 
 @Composable
-fun LoadingScreen() {
+fun AnimatedLoadingScreen() {
     val composition by rememberLottieComposition(
         LottieCompositionSpec.RawRes(R.raw.loading_animation_sand_clocks)
     )
@@ -29,3 +31,14 @@ fun LoadingScreen() {
     )
 }
 
+@Composable
+fun LoadingScreen() {
+    CircularProgressIndicator(
+        color = MaterialTheme.colorScheme.primary,
+        strokeWidth = 3.dp,
+        modifier = Modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+            .size(40.dp)
+    )
+}

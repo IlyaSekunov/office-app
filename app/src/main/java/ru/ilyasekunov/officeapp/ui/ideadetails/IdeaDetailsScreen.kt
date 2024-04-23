@@ -56,8 +56,8 @@ import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.data.model.CommentsSortingFilters
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.comments.comments
@@ -110,7 +110,7 @@ fun IdeaDetailsScreen(
         }
 
         !ideaPostUiState.postExists -> PostsNotExists(navigateBack)
-        ideaPostUiState.isLoading || sendingMessageUiState.isLoading -> LoadingScreen()
+        isScreenLoading(ideaPostUiState, sendingMessageUiState) -> AnimatedLoadingScreen()
 
         else -> {
             val snackbarHostState = LocalSnackbarHostState.current
@@ -193,7 +193,7 @@ private fun IdeaDetailsScreenContent(
         LazyColumn(
             state = rememberIdeaDetailsScrollState(
                 initiallyScrollToComments = initiallyScrollToComments,
-                scrollOffset = (topPadding.value * LocalDensity.current.density).toInt()
+                scrollOffset = with(LocalDensity.current) { topPadding.toPx() }.toInt()
             ),
             contentPadding = PaddingValues(top = topPadding, bottom = 14.dp),
             modifier = modifier
@@ -535,3 +535,8 @@ fun Int.toRussianCommentsString(): String =
         2, 3, 4 -> "$this КОММЕНТАРИЯ"
         else -> throw IllegalArgumentException()
     }
+
+private fun isScreenLoading(
+    ideaPostUiState: IdeaPostUiState,
+    sendingMessageUiState: SendingMessageUiState
+) = ideaPostUiState.isLoading || sendingMessageUiState.isLoading
