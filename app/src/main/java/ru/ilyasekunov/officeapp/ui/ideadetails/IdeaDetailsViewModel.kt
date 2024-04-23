@@ -253,10 +253,8 @@ class IdeaDetailsViewModel @Inject constructor(
                     return@launch
                 }
 
-                val commentDto = CommentDto(
-                    content = sendingMessageUiState.message,
-                    attachedImage = uploadedImageResult.getOrThrow()
-                )
+                val uploadedImageUrl = uploadedImageResult.getOrThrow()
+                val commentDto = sendingMessageUiState.toCommentDto(uploadedImageUrl)
                 val postId = ideaPostUiState.ideaPost!!.id
                 val sendCommentResult = commentsRepository.sendComment(postId, commentDto)
                 if (sendCommentResult.isSuccess) {
@@ -333,3 +331,9 @@ class IdeaDetailsViewModel @Inject constructor(
 
     private fun isMessageValid() = sendingMessageUiState.message.isNotBlank()
 }
+
+fun SendingMessageUiState.toCommentDto(uploadedImageUrl: String?) =
+    CommentDto(
+        content = message,
+        attachedImage = uploadedImageUrl
+    )
