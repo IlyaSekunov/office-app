@@ -202,23 +202,20 @@ class UserManageAccountViewModel @Inject constructor(
                 val photoUrlResult = uploadUserPhoto()
                 if (photoUrlResult.isFailure) {
                     updateIsChangesSavingError(true)
+                    updateIsChangesSaved(false)
                     updateIsChangesSaving(false)
                     return@launch
                 }
+
                 val photoUrl = photoUrlResult.getOrThrow()
-                val userDto = UserDto(
-                    name = userProfileUiState.name.value,
-                    surname = userProfileUiState.surname.value,
-                    job = userProfileUiState.job.value,
-                    photo = photoUrl,
-                    officeId = userProfileUiState.currentOffice!!.id
-                )
+                val userDto = userProfileUiState.toUserDto(photoUrl)
                 val saveChangesResult = userRepository.saveChanges(userDto)
                 if (saveChangesResult.isSuccess) {
                     updateIsChangesSavingError(false)
                     updateIsChangesSaved(true)
                 } else {
                     updateIsChangesSavingError(true)
+                    updateIsChangesSaved(false)
                 }
                 updateIsChangesSaving(false)
             }
@@ -226,37 +223,46 @@ class UserManageAccountViewModel @Inject constructor(
     }
 
     private fun userInfoValid(): Boolean {
-        val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
-        var isValidationSuccess = true
+        val isNameValid = isNameValid()
+        val isSurnameValid = isSurnameValid()
+        val isJobValid = isJobValid()
+        return isNameValid && isSurnameValid && isJobValid
+    }
 
-        val name = userProfileUiState.name.value
+    private fun isNameValid(): Boolean {
+        val name = userManageAccountUiState.mutableUserProfileUiState.name.value
         val nameValidationResult = validateUserInfo(name)
-        if (nameValidationResult is UserInfoValidationResult.Failure) {
+        return if (nameValidationResult is UserInfoValidationResult.Failure) {
             updateNameValidationError(nameValidationResult.error)
-            isValidationSuccess = false
+            false
         } else {
             updateNameValidationError(null)
+            true
         }
+    }
 
-        val surname = userProfileUiState.surname.value
+    private fun isSurnameValid(): Boolean {
+        val surname = userManageAccountUiState.mutableUserProfileUiState.surname.value
         val surnameValidationResult = validateUserInfo(surname)
-        if (surnameValidationResult is UserInfoValidationResult.Failure) {
+        return if (surnameValidationResult is UserInfoValidationResult.Failure) {
             updateSurnameValidationError(surnameValidationResult.error)
-            isValidationSuccess = false
+            false
         } else {
             updateSurnameValidationError(null)
+            true
         }
+    }
 
-        val job = userProfileUiState.job.value
+    private fun isJobValid(): Boolean {
+        val job = userManageAccountUiState.mutableUserProfileUiState.job.value
         val jobValidationResult = validateUserInfo(job)
-        if (jobValidationResult is UserInfoValidationResult.Failure) {
+        return if (jobValidationResult is UserInfoValidationResult.Failure) {
             updateJobValidationError(jobValidationResult.error)
-            isValidationSuccess = false
+            false
         } else {
             updateJobValidationError(null)
+            true
         }
-
-        return isValidationSuccess
     }
 
     fun loadUserProfile() {
@@ -291,20 +297,28 @@ class UserManageAccountViewModel @Inject constructor(
         }
     }
 
-    private suspend fun uploadUserPhoto(): Result<String?> {
-        val pickedPhoto = userManageAccountUiState.mutableUserProfileUiState.photo
-        return if (pickedPhoto is Uri) {
-            val photoUrlResult = imagesRepository.uploadImage(pickedPhoto)
-            if (photoUrlResult.isSuccess) {
-                val photoUrl = photoUrlResult.getOrThrow()
-                Result.success(photoUrl)
-            } else {
-                photoUrlResult
+    private suspend fun uploadUserPhoto(): Result<String?> =
+        when (val pickedPhoto = userManageAccountUiState.mutableUserProfileUiState.photo) {
+            is Uri -> {
+                val photoUrlResult = imagesRepository.uploadImage(pickedPhoto)
+                if (photoUrlResult.isSuccess) {
+                    val photoUrl = photoUrlResult.getOrThrow()
+                    Result.success(photoUrl)
+                } else {
+                    photoUrlResult
+                }
             }
-        } else if (pickedPhoto is String) {
-            Result.success(pickedPhoto)
-        } else {
-            Result.success(null)
+
+            is String -> Result.success(pickedPhoto)
+            else -> Result.success(null)
         }
-    }
 }
+
+fun UserProfileUiState.toUserDto(photoUrl: String?) =
+    UserDto(
+        name = name.value,
+        surname = surname.value,
+        job = job.value,
+        photo = photoUrl,
+        officeId = currentOffice!!.id
+    )
