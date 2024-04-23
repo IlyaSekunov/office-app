@@ -179,6 +179,7 @@ fun HomeScreen(
                     onRetryButtonClick = onRetryInfoLoad
                 )
             }
+
             else -> {
                 BasicPullToRefreshContainer(
                     onRefreshTrigger = onPullToRefresh,
@@ -460,10 +461,21 @@ private fun MenuSection(
             expanded = isMenuVisible,
             onDismissClick = { isMenuVisible = false },
             isAuthorPostCurrentUser = isAuthorPostCurrentUser,
-            onSuggestIdeaToMyOfficeClick = {/*TODO*/ },
-            onNavigateToAuthorClick = navigateToAuthorScreen,
-            onEditClick = navigateToEditIdeaScreen,
-            onDeleteClick = onDeletePostClick,
+            onSuggestIdeaToMyOfficeClick = {
+                isMenuVisible = false
+            },
+            onNavigateToAuthorClick = {
+                navigateToAuthorScreen()
+                isMenuVisible = false
+            },
+            onEditClick = {
+                navigateToEditIdeaScreen()
+                isMenuVisible = false
+            },
+            onDeleteClick = {
+                onDeletePostClick()
+                isMenuVisible = false
+            },
             shape = MaterialTheme.shapes.medium,
             containerColor = MaterialTheme.colorScheme.background,
             textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
