@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -22,17 +23,16 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
+import ru.ilyasekunov.officeapp.ui.modifiers.conditional
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -42,33 +42,30 @@ fun Office(
     onClick: () -> Unit,
     modifier: Modifier
 ) {
-    val basicImageModifier = modifier
-        .clip(MaterialTheme.shapes.large)
-        .clickable(onClick = onClick)
-    val officeImageModifier = if (isSelected)
-        basicImageModifier
-            .border(
-                width = 4.dp,
-                shape = MaterialTheme.shapes.large,
-                color = MaterialTheme.colorScheme.primary
-            )
-    else basicImageModifier
-
+    val shape = MaterialTheme.shapes.large
+    val selectedColor = MaterialTheme.colorScheme.primary
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        AsyncImage(
+        AsyncImageWithLoading(
             model = office.imageUrl,
-            contentDescription = "office_image",
-            contentScale = ContentScale.Crop,
-            modifier = officeImageModifier
+            modifier = modifier
+                .padding(bottom = 7.dp)
+                .clip(shape)
+                .clickable(onClick = onClick)
+                .conditional(isSelected) {
+                    border(
+                        width = 4.dp,
+                        shape = shape,
+                        color = selectedColor
+                    )
+                }
         )
-        Spacer(modifier = Modifier.height(7.dp))
         if (isSelected) {
             Text(
                 text = office.address,
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 14.sp,
                 maxLines = 1,
-                color = MaterialTheme.colorScheme.primary,
+                color = selectedColor,
                 modifier = Modifier.basicMarquee()
             )
         } else {
