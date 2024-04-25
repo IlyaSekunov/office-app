@@ -12,8 +12,15 @@ class MockAuthDataSource : AuthDataSource {
         TODO("Not yet implemented")
     }
 
-    override suspend fun userInfo(): Result<User> =
-        if (User != null) Result.success(User!!) else Result.failure(Exception())
+    override suspend fun userInfo(): Result<User> {
+        delay(3000L)
+        return if (User != null) {
+            Result.success(User!!)
+        } else {
+            Result.failure(Exception())
+        }
+    }
+
 
     override suspend fun login(loginForm: LoginForm): Result<Tokens> {
         TODO("Not yet implemented")

@@ -14,8 +14,8 @@ sealed class EmailValidationResult {
 fun validateEmail(email: String): EmailValidationResult =
     when {
         email.isBlank() -> EmailValidationResult.Failure(EmailValidationError.BLANK)
-        !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> EmailValidationResult.Failure(
-            error = EmailValidationError.NOT_EMAIL_PATTERN
-        )
+        email.notMatchesEmailPattern() -> EmailValidationResult.Failure(EmailValidationError.NOT_EMAIL_PATTERN)
         else -> EmailValidationResult.Success
     }
+
+fun String.notMatchesEmailPattern() = !Patterns.EMAIL_ADDRESS.matcher(this).matches()
