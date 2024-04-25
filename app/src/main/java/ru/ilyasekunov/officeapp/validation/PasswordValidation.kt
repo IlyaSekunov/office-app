@@ -24,13 +24,17 @@ fun validatePassword(password: String): PasswordValidationResult =
             PasswordValidationResult.Failure(PasswordValidationError.TOO_SHORT)
         }
 
-        !password.any { it in PasswordValidationDefaults.SPEC_SYMBOLS } -> {
+        password.notContainsSpecSymbols() -> {
             PasswordValidationResult.Failure(PasswordValidationError.NO_SPEC_SYMBOLS)
         }
 
-        !password.any { it in 'A'..'Z' } -> {
+        password.notContainsCapitalLetter() -> {
             PasswordValidationResult.Failure(PasswordValidationError.NO_CAPITAL_LETTER)
         }
 
         else -> PasswordValidationResult.Success
     }
+
+fun String.notContainsSpecSymbols() = !this.any { it in PasswordValidationDefaults.SPEC_SYMBOLS }
+
+fun String.notContainsCapitalLetter() = !this.any { it in 'A'..'Z' }
