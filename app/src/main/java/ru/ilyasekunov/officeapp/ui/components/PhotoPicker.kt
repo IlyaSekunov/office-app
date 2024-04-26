@@ -32,7 +32,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePicker
+import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePickerRequest
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
@@ -47,7 +47,7 @@ fun PhotoPicker(
             .size(coil.size.Size.ORIGINAL)
             .build()
     )
-    val singleImagePicker = rememberSingleImagePicker { onPhotoPickerClick(it) }
+    val singleImagePickerRequest = rememberSingleImagePickerRequest(onResult = onPhotoPickerClick)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -68,7 +68,7 @@ fun PhotoPicker(
                     color = MaterialTheme.colorScheme.primary,
                     shape = MaterialTheme.shapes.large
                 )
-                .clickable(onClick = singleImagePicker::launch),
+                .clickable(onClick = singleImagePickerRequest),
             contentAlignment = Alignment.Center
         ) {
             when (imagePainter.state) {

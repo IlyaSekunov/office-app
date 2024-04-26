@@ -32,7 +32,7 @@ import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
-import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePicker
+import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePickerRequest
 import ru.ilyasekunov.officeapp.ui.modifiers.BorderSide
 import ru.ilyasekunov.officeapp.ui.modifiers.border
 import ru.ilyasekunov.officeapp.ui.suggestidea.rememberOnAttachImageButtonClick
@@ -55,8 +55,8 @@ fun SendingMessageBottomBar(
     containerColor: Color,
     modifier: Modifier = Modifier
 ) {
-    val singleImagePicker = rememberSingleImagePicker {
-        it?.let { onImageAttach(it) }
+    val singleImagePickerRequest = rememberSingleImagePickerRequest { uri ->
+        uri?.let { onImageAttach(it) }
     }
     Column(
         modifier = modifier
@@ -76,7 +76,7 @@ fun SendingMessageBottomBar(
             attachedImagesCount = sendingMessageUiState.attachedImages.size,
             onMessageValueChange = onMessageValueChange,
             onSendClick = onSendClick,
-            onAttachImageClick = singleImagePicker::launch,
+            onAttachImageClick = singleImagePickerRequest,
             containerColor = containerColor,
             modifier = Modifier.fillMaxWidth()
         )

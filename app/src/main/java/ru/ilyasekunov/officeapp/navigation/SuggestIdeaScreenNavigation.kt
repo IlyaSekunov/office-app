@@ -7,7 +7,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.ui.animations.enterSlideUp
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideDown
-import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePicker
+import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePickerRequest
 import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaScreen
 import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaViewModel
 
@@ -23,18 +23,18 @@ fun NavGraphBuilder.suggestIdeaScreen(
         enterTransition = { enterSlideUp() },
         exitTransition = { exitSlideDown() }
     ) {
-        val suggestIdeaViewModel = hiltViewModel<SuggestIdeaViewModel>()
-        val multipleImagePicker = rememberMultipleImagePicker(
-            onUrisPicked = suggestIdeaViewModel::attachImages
+        val viewModel = hiltViewModel<SuggestIdeaViewModel>()
+        val multipleImagePickerRequest = rememberMultipleImagePickerRequest(
+            onResult = viewModel::attachImages
         )
         SuggestIdeaScreen(
-            suggestIdeaUiState = suggestIdeaViewModel.suggestIdeaUiState,
-            onTitleValueChange = suggestIdeaViewModel::updateTitle,
-            onIdeaBodyValueChange = suggestIdeaViewModel::updateContent,
-            onRemoveImageClick = suggestIdeaViewModel::removeImage,
-            onPublishClick = suggestIdeaViewModel::publishPost,
-            onAttachImagesButtonClick = multipleImagePicker::launch,
-            onRetryClick = suggestIdeaViewModel::publishPost,
+            suggestIdeaUiState = viewModel.suggestIdeaUiState,
+            onTitleValueChange = viewModel::updateTitle,
+            onIdeaBodyValueChange = viewModel::updateContent,
+            onRemoveImageClick = viewModel::removeImage,
+            onPublishClick = viewModel::publishPost,
+            onAttachImagesButtonClick = multipleImagePickerRequest,
+            onRetryClick = viewModel::publishPost,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,

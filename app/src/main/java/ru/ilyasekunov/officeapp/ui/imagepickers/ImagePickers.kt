@@ -1,7 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.imagepickers
 
 import android.net.Uri
-import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,38 +12,34 @@ object ImagePickerDefaults {
     const val COMMENTS_MAX_ATTACH_IMAGES = 1
 }
 
-abstract class ImagePicker<T>(
-    private val activityResultLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, T>
-) {
-    fun launch() {
-        activityResultLauncher.launch(
-            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-        )
+@Composable
+fun rememberSingleImagePickerRequest(onResult: (Uri?) -> Unit): () -> Unit {
+    val activityResultLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = onResult
+    )
+    return remember(activityResultLauncher, onResult) {
+        {
+            activityResultLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        }
     }
 }
 
-class SingleImagePicker(
-    activityResultLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, Uri?>
-) : ImagePicker<Uri?>(activityResultLauncher)
-
-class MultipleImagePicker(
-    activityResultLauncher: ManagedActivityResultLauncher<PickVisualMediaRequest, List<Uri>>
-) : ImagePicker<List<Uri>>(activityResultLauncher)
-
 @Composable
-fun rememberSingleImagePicker(onUriPicked: (Uri?) -> Unit): SingleImagePicker {
-    val activityResultLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { onUriPicked(it) }
-    return remember(activityResultLauncher) { SingleImagePicker(activityResultLauncher) }
-}
-
-@Composable
-fun rememberMultipleImagePicker(onUrisPicked: (List<Uri>) -> Unit): MultipleImagePicker {
+fun rememberMultipleImagePickerRequest(onResult: (List<Uri>) -> Unit): () -> Unit {
     val activityResultLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(
             maxItems = ImagePickerDefaults.MAX_ATTACH_IMAGES
-        )
-    ) { onUrisPicked(it) }
-    return remember(activityResultLauncher) { MultipleImagePicker(activityResultLauncher) }
+        ),
+        onResult = onResult
+    )
+    return remember(activityResultLauncher, onResult) {
+        {
+            activityResultLauncher.launch(
+                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            )
+        }
+    }
 }

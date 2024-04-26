@@ -9,7 +9,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.ui.editidea.EditIdeaScreen
 import ru.ilyasekunov.officeapp.ui.editidea.EditIdeaViewModel
-import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePicker
+import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePickerRequest
 
 fun NavGraphBuilder.editIdeaScreen(
     navigateToHomeScreen: () -> Unit,
@@ -24,8 +24,8 @@ fun NavGraphBuilder.editIdeaScreen(
     ) { backStackEntry ->
         val postId = backStackEntry.arguments!!.getLong("postId")
         val viewModel = setUpEditIdeaViewModel(postId)
-        val multipleImagePicker = rememberMultipleImagePicker(
-            onUrisPicked = viewModel::attachImages
+        val multipleImagePickerRequest = rememberMultipleImagePickerRequest(
+            onResult = viewModel::attachImages
         )
         EditIdeaScreen(
             editIdeaUiState = viewModel.editIdeaUiState,
@@ -33,7 +33,7 @@ fun NavGraphBuilder.editIdeaScreen(
             onIdeaBodyValueChange = viewModel::updateContent,
             onRemoveImageClick = viewModel::removeImage,
             onPublishClick = viewModel::editPost,
-            onAttachImagesButtonClick = multipleImagePicker::launch,
+            onAttachImagesButtonClick = multipleImagePickerRequest,
             onRetryClick = viewModel::editPost,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
