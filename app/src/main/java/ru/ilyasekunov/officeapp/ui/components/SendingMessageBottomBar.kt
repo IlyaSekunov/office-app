@@ -32,7 +32,6 @@ import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
-import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePickerRequest
 import ru.ilyasekunov.officeapp.ui.modifiers.BorderSide
 import ru.ilyasekunov.officeapp.ui.modifiers.border
 import ru.ilyasekunov.officeapp.ui.suggestidea.rememberOnAttachImageButtonClick
@@ -55,9 +54,6 @@ fun SendingMessageBottomBar(
     containerColor: Color,
     modifier: Modifier = Modifier
 ) {
-    val singleImagePickerRequest = rememberSingleImagePickerRequest { uri ->
-        uri?.let { onImageAttach(it) }
-    }
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -76,7 +72,7 @@ fun SendingMessageBottomBar(
             attachedImagesCount = sendingMessageUiState.attachedImages.size,
             onMessageValueChange = onMessageValueChange,
             onSendClick = onSendClick,
-            onAttachImageClick = singleImagePickerRequest,
+            onAttachImageClick = onImageAttach,
             containerColor = containerColor,
             modifier = Modifier.fillMaxWidth()
         )
@@ -89,14 +85,14 @@ private fun CommentSection(
     attachedImagesCount: Int,
     onMessageValueChange: (String) -> Unit,
     onSendClick: () -> Unit,
-    onAttachImageClick: () -> Unit,
+    onAttachImageClick: (Uri) -> Unit,
     containerColor: Color,
     modifier: Modifier = Modifier
 ) {
     val onAttachImagesClick = rememberOnAttachImageButtonClick(
         attachedImagesCount = attachedImagesCount,
         maxAttachedImagesCount = ImagePickerDefaults.COMMENTS_MAX_ATTACH_IMAGES,
-        onAttachImageClick = onAttachImageClick,
+        onAttachImagesClick = { onAttachImageClick(it.first()) },
         coroutineScope = LocalCoroutineScope.current,
         snackbarHostState = LocalSnackbarHostState.current
     )

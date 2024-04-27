@@ -136,7 +136,7 @@ fun RegistrationUserInfoScreenContent(
         ) {
             PhotoPicker(
                 selectedPhoto = registrationUiState.userInfoRegistrationUiState.photo,
-                onPhotoPickerClick = onAttachImage,
+                onSelectedPhoto = onAttachImage,
                 modifier = Modifier.size(180.dp)
             )
             Spacer(modifier = Modifier.height(36.dp))

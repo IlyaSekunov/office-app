@@ -7,7 +7,6 @@ import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.ui.animations.enterSlideUp
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideDown
-import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePickerRequest
 import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaScreen
 import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaViewModel
 
@@ -24,16 +23,13 @@ fun NavGraphBuilder.suggestIdeaScreen(
         exitTransition = { exitSlideDown() }
     ) {
         val viewModel = hiltViewModel<SuggestIdeaViewModel>()
-        val multipleImagePickerRequest = rememberMultipleImagePickerRequest(
-            onResult = viewModel::attachImages
-        )
         SuggestIdeaScreen(
             suggestIdeaUiState = viewModel.suggestIdeaUiState,
             onTitleValueChange = viewModel::updateTitle,
             onIdeaBodyValueChange = viewModel::updateContent,
             onRemoveImageClick = viewModel::removeImage,
             onPublishClick = viewModel::publishPost,
-            onAttachImagesButtonClick = multipleImagePickerRequest,
+            onAttachImagesButtonClick = viewModel::attachImages,
             onRetryClick = viewModel::publishPost,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,

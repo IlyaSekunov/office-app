@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.components
 
+import android.content.Context
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -7,9 +8,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,13 +33,15 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.permissions.rememberStorageAccessPermissionRequest
+import ru.ilyasekunov.officeapp.permissions.storageAccessPermissionsGranted
 import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePickerRequest
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
 fun PhotoPicker(
     selectedPhoto: Any?,
-    onPhotoPickerClick: (Uri?) -> Unit,
+    onSelectedPhoto: (Uri?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val imagePainter = rememberAsyncImagePainter(
@@ -47,16 +50,14 @@ fun PhotoPicker(
             .size(coil.size.Size.ORIGINAL)
             .build()
     )
-    val singleImagePickerRequest = rememberSingleImagePickerRequest(onResult = onPhotoPickerClick)
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    val onPhotoPickerClick = rememberOnPhotoPickerClick(onSelectedPhoto)
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = stringResource(R.string.photo_picker_title),
             style = MaterialTheme.typography.titleSmall,
-            fontSize = 20.sp
+            fontSize = 20.sp,
+            modifier = Modifier.padding(bottom = 17.dp)
         )
-        Spacer(modifier = Modifier.height(17.dp))
         Box(
             modifier = modifier
                 .clip(MaterialTheme.shapes.large)
@@ -68,7 +69,7 @@ fun PhotoPicker(
                     color = MaterialTheme.colorScheme.primary,
                     shape = MaterialTheme.shapes.large
                 )
-                .clickable(onClick = singleImagePickerRequest),
+                .clickable(onClick = onPhotoPickerClick),
             contentAlignment = Alignment.Center
         ) {
             when (imagePainter.state) {
@@ -82,6 +83,7 @@ fun PhotoPicker(
                             .size(30.dp)
                     )
                 }
+
                 is AsyncImagePainter.State.Success -> {
                     Image(
                         painter = imagePainter,
@@ -96,6 +98,7 @@ fun PhotoPicker(
                         modifier = Modifier.size(30.dp)
                     )
                 }
+
                 else -> {
                     Icon(
                         painter = painterResource(R.drawable.outline_photo_camera_24),
@@ -109,6 +112,38 @@ fun PhotoPicker(
     }
 }
 
+@Composable
+fun rememberOnPhotoPickerClick(onSelectedPhoto: (Uri?) -> Unit): () -> Unit {
+    val context = LocalContext.current
+    val singleImagePickerRequest = rememberSingleImagePickerRequest(onResult = onSelectedPhoto)
+    val storageAccessPermissionRequest = rememberStorageAccessPermissionRequest { granted ->
+        if (granted) {
+            singleImagePickerRequest()
+        }
+    }
+    return remember(singleImagePickerRequest, storageAccessPermissionRequest) {
+        {
+            onImagePickerClick(
+                context = context,
+                openImagePickerRequest = singleImagePickerRequest,
+                storageAccessPermissionRequest = storageAccessPermissionRequest
+            )
+        }
+    }
+}
+
+fun onImagePickerClick(
+    context: Context,
+    openImagePickerRequest: () -> Unit,
+    storageAccessPermissionRequest: () -> Unit
+) {
+    if (storageAccessPermissionsGranted(context)) {
+        openImagePickerRequest()
+    } else {
+        storageAccessPermissionRequest()
+    }
+}
+
 @Preview
 @Composable
 fun PhotoPickerPreview() {
@@ -116,7 +151,7 @@ fun PhotoPickerPreview() {
         Surface {
             PhotoPicker(
                 selectedPhoto = null,
-                onPhotoPickerClick = {},
+                onSelectedPhoto = {},
                 modifier = Modifier.size(150.dp)
             )
         }

@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.suggestidea
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.permissions.rememberStorageAccessPermissionRequest
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
@@ -58,7 +61,9 @@ import ru.ilyasekunov.officeapp.ui.attachedImagesCountExceededSnackbar
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.AttachedImages
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.components.onImagePickerClick
 import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
+import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePickerRequest
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
@@ -69,7 +74,7 @@ fun SuggestIdeaScreen(
     onIdeaBodyValueChange: (String) -> Unit,
     onRemoveImageClick: (AttachedImage) -> Unit,
     onPublishClick: () -> Unit,
-    onAttachImagesButtonClick: () -> Unit,
+    onAttachImagesButtonClick: (List<Uri>) -> Unit,
     onRetryClick: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
@@ -104,7 +109,7 @@ private fun SuggestIdeaScreenContent(
     onIdeaBodyValueChange: (String) -> Unit,
     onRemoveImageClick: (AttachedImage) -> Unit,
     onPublishClick: () -> Unit,
-    onAttachImagesButtonClick: () -> Unit,
+    onAttachImagesButtonClick: (List<Uri>) -> Unit,
     onRetryClick: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
@@ -259,7 +264,7 @@ fun EditIdeaSection(
     attachedImages: List<AttachedImage>,
     onTitleValueChange: (String) -> Unit,
     onIdeaBodyValueChange: (String) -> Unit,
-    onAttachImagesButtonClick: () -> Unit,
+    onAttachImagesButtonClick: (List<Uri>) -> Unit,
     onRemoveImageClick: (image: AttachedImage) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -279,7 +284,7 @@ fun EditIdeaSection(
         val onAttachImagesClick = rememberOnAttachImageButtonClick(
             attachedImagesCount = attachedImages.size,
             maxAttachedImagesCount = ImagePickerDefaults.MAX_ATTACH_IMAGES,
-            onAttachImageClick = onAttachImagesButtonClick,
+            onAttachImagesClick = onAttachImagesButtonClick,
             coroutineScope = LocalCoroutineScope.current,
             snackbarHostState = LocalSnackbarHostState.current
         )
@@ -298,15 +303,24 @@ fun EditIdeaSection(
 fun rememberOnAttachImageButtonClick(
     attachedImagesCount: Int,
     maxAttachedImagesCount: Int,
-    onAttachImageClick: () -> Unit,
+    onAttachImagesClick: (List<Uri>) -> Unit,
     coroutineScope: CoroutineScope,
     snackbarHostState: SnackbarHostState
 ): () -> Unit {
     val attachedImagesCountExceededMessage = stringResource(R.string.attached_images_count_exceeded)
+    val multipleImagePickerRequest = rememberMultipleImagePickerRequest(
+        onResult = onAttachImagesClick
+    )
+    val storageAccessPermissionRequest = rememberStorageAccessPermissionRequest { granted ->
+        if (granted) {
+            multipleImagePickerRequest()
+        }
+    }
+    val context = LocalContext.current
     return remember(
         attachedImagesCount,
         maxAttachedImagesCount,
-        onAttachImageClick,
+        multipleImagePickerRequest,
         coroutineScope,
         snackbarHostState
     ) {
@@ -320,7 +334,13 @@ fun rememberOnAttachImageButtonClick(
                 )
             }
         } else {
-            { onAttachImageClick() }
+            {
+                onImagePickerClick(
+                    context = context,
+                    openImagePickerRequest = multipleImagePickerRequest,
+                    storageAccessPermissionRequest = storageAccessPermissionRequest
+                )
+            }
         }
     }
 }

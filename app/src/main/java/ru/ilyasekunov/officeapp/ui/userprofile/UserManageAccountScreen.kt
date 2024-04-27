@@ -154,7 +154,7 @@ private fun UserManageAccountScreenContent(
         ) {
             PhotoPicker(
                 selectedPhoto = mutableUserProfileUiState.photo,
-                onPhotoPickerClick = onAttachImage,
+                onSelectedPhoto = onAttachImage,
                 modifier = Modifier.size(180.dp)
             )
             UserNameTextField(

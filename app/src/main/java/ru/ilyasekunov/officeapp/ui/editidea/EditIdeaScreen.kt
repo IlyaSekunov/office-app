@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.editidea
 
+import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -43,7 +44,7 @@ fun EditIdeaScreen(
     onIdeaBodyValueChange: (String) -> Unit,
     onRemoveImageClick: (AttachedImage) -> Unit,
     onPublishClick: () -> Unit,
-    onAttachImagesButtonClick: () -> Unit,
+    onAttachImagesButtonClick: (List<Uri>) -> Unit,
     onRetryClick: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
@@ -78,7 +79,7 @@ private fun EditIdeaScreenContent(
     onIdeaBodyValueChange: (String) -> Unit,
     onRemoveImageClick: (AttachedImage) -> Unit,
     onPublishClick: () -> Unit,
-    onAttachImagesButtonClick: () -> Unit,
+    onAttachImagesButtonClick: (List<Uri>) -> Unit,
     onRetryClick: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
