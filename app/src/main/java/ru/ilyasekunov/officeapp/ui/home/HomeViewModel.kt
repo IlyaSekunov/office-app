@@ -160,24 +160,28 @@ class HomeViewModel @Inject constructor(
     fun loadCurrentUser() {
         viewModelScope.launch {
             updateIsCurrentUserLoading(true)
-            val userInfoResult = authRepository.userInfo()
-            when {
-                userInfoResult.isSuccess -> {
-                    val user = userInfoResult.getOrThrow()
-                    updateIsErrorWhileUserLoading(false)
-                    updateIsUserUnauthorized(false)
-                    updateUser(user)
-                }
-
-                userInfoResult.exceptionOrNull()!! is HttpForbiddenException -> {
-                    updateIsUserUnauthorized(true)
-                }
-
-                else -> {
-                    updateIsErrorWhileUserLoading(true)
-                }
-            }
+            refreshCurrentUser()
             updateIsCurrentUserLoading(false)
+        }
+    }
+
+    suspend fun refreshCurrentUser() {
+        val userInfoResult = authRepository.userInfo()
+        when {
+            userInfoResult.isSuccess -> {
+                val user = userInfoResult.getOrThrow()
+                updateIsErrorWhileUserLoading(false)
+                updateIsUserUnauthorized(false)
+                updateUser(user)
+            }
+
+            userInfoResult.exceptionOrNull()!! is HttpForbiddenException -> {
+                updateIsUserUnauthorized(true)
+            }
+
+            else -> {
+                updateIsErrorWhileUserLoading(true)
+            }
         }
     }
 

@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
@@ -61,7 +62,7 @@ fun UserProfileScreen(
     onMyIdeasClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onRetryUserLoadClick: () -> Unit,
-    onPullToRefresh: suspend () -> Unit,
+    onPullToRefresh: CoroutineScope.() -> Job,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -118,7 +119,7 @@ private fun UserProfileContent(
     onMyOfficeClick: () -> Unit,
     onMyIdeasClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onPullToRefresh: suspend () -> Unit,
+    onPullToRefresh: CoroutineScope.() -> Job,
     modifier: Modifier = Modifier
 ) {
     BasicPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {

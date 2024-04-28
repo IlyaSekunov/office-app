@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
@@ -73,7 +75,7 @@ fun FavouriteIdeasScreen(
     onSearchValueChange: (String) -> Unit,
     onSortingFilterRemoveClick: () -> Unit,
     onRetryInfoLoad: () -> Unit,
-    onPullToRefresh: () -> Unit,
+    onPullToRefresh: CoroutineScope.() -> Job,
     navigateToFiltersScreen: () -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long) -> Unit,
     navigateToHomeScreen: () -> Unit,

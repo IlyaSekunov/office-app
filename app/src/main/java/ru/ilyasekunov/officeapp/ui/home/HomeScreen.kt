@@ -76,6 +76,8 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.ideaAuthor
@@ -121,7 +123,7 @@ fun HomeScreen(
     onPostLikeClick: (IdeaPost) -> Unit,
     onPostDislikeClick: (IdeaPost) -> Unit,
     onRetryInfoLoad: () -> Unit,
-    onPullToRefresh: () -> Unit,
+    onPullToRefresh: CoroutineScope.() -> Job,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
@@ -171,7 +173,7 @@ fun HomeScreen(
                 navigateToAuthGraph()
             }
 
-            isScreenLoading(posts, currentUserUiState, filtersUiState) -> AnimatedLoadingScreen()
+            isScreenLoading(currentUserUiState, filtersUiState) -> AnimatedLoadingScreen()
             isErrorWhileLoading(posts, currentUserUiState, filtersUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
@@ -956,10 +958,9 @@ fun sortingCategoryName(sortingCategory: SortingCategory) =
     }
 
 private fun isScreenLoading(
-    posts: LazyPagingItems<IdeaPost>,
     currentUserUiState: CurrentUserUiState,
     filtersUiState: FiltersUiState
-) = posts.isRefreshing() || currentUserUiState.isLoading || filtersUiState.isLoading
+) = currentUserUiState.isLoading || filtersUiState.isLoading
 
 
 private fun isErrorWhileLoading(

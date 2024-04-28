@@ -8,6 +8,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
 import ru.ilyasekunov.officeapp.ui.ideadetails.IdeaDetailsScreen
@@ -36,8 +37,14 @@ fun NavGraphBuilder.ideaDetailsScreen(
             onRetryPostLoad = { viewModel.loadPostById(postId) },
             onRetryCommentsLoad = { viewModel.loadCommentsByPostId(postId) },
             onPullToRefresh = {
-                viewModel.loadPostByIdSuspending(postId)
-                comments.refresh()
+                launch {
+                    launch {
+                        viewModel.refreshPostById(postId)
+                    }
+                    launch {
+                        comments.refresh()
+                    }
+                }
             },
             comments = comments,
             onCommentLikeClick = viewModel::updateCommentLike,

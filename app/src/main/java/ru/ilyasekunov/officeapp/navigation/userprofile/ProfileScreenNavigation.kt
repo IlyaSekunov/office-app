@@ -5,6 +5,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.animations.enterSlideLeft
 import ru.ilyasekunov.officeapp.ui.animations.exitSlideRight
@@ -32,7 +33,11 @@ fun NavGraphBuilder.profileScreen(
             onMyIdeasClick = navigateToMyIdeasScreen,
             onLogoutClick = userProfileViewModel::logout,
             onRetryUserLoadClick = userProfileViewModel::loadUserProfile,
-            onPullToRefresh = userProfileViewModel::refreshUserProfile,
+            onPullToRefresh = {
+                launch {
+                    userProfileViewModel.refreshUserProfile()
+                }
+            },
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,

@@ -6,6 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.ui.office.MyOfficeScreen
 import ru.ilyasekunov.officeapp.ui.office.MyOfficeViewModel
 
@@ -32,10 +33,17 @@ fun NavGraphBuilder.myOfficeScreen(
             officeEmployees = officeEmployees,
             onRetryDataLoad = viewModel::loadData,
             onPullToRefresh = {
-                suggestedIdeas.refresh()
-                ideasInProgress.refresh()
-                implementedIdeas.refresh()
-                officeEmployees.refresh()
+                launch {
+                    launch {
+                        viewModel.refreshCurrentUser()
+                    }
+                    launch {
+                        suggestedIdeas.refresh()
+                        ideasInProgress.refresh()
+                        implementedIdeas.refresh()
+                        officeEmployees.refresh()
+                    }
+                }
             },
             onPostLikeClick = viewModel::updateLike,
             onPostDislikeClick = viewModel::updateDislike,

@@ -6,6 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.ui.favouriteideas.FavouriteIdeasScreen
 import ru.ilyasekunov.officeapp.ui.favouriteideas.FavouriteIdeasViewModel
 
@@ -27,7 +28,16 @@ fun NavGraphBuilder.favouriteIdeasScreen(
             onSearchValueChange = viewModel::updateSearchValue,
             onSortingFilterRemoveClick = viewModel.filtersUiStateHolder::removeSortingFilter,
             onRetryInfoLoad = viewModel::loadFavouritePosts,
-            onPullToRefresh = favouriteIdeas::refresh,
+            onPullToRefresh = {
+                launch {
+                    launch {
+                        viewModel.filtersUiStateHolder.refreshFilters()
+                    }
+                    launch {
+                        favouriteIdeas.refresh()
+                    }
+                }
+            },
             navigateToFiltersScreen = navigateToFiltersScreen,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
             navigateToHomeScreen = navigateToHomeScreen,

@@ -92,25 +92,29 @@ class IdeaAuthorViewModel @Inject constructor(
     fun loadIdeaAuthorById(authorId: Long) {
         viewModelScope.launch {
             updateIsIdeaAuthorLoading(true)
-            val ideaAuthorResult = authorRepository.ideaAuthorById(authorId)
-            when {
-                ideaAuthorResult.isSuccess -> {
-                    val ideaAuthor = ideaAuthorResult.getOrThrow()
-                    ideaAuthorUiState = ideaAuthor.toIdeaAuthorUiState()
-                    updateIsIdeaAuthorExists(true)
-                    updateIsErrorWhileIdeaAuthorLoading(false)
-                }
-
-                ideaAuthorResult.exceptionOrNull()!! is HttpNotFoundException -> {
-                    updateIsErrorWhileIdeaAuthorLoading(false)
-                    updateIsIdeaAuthorExists(false)
-                }
-
-                else -> {
-                    updateIsErrorWhileIdeaAuthorLoading(true)
-                }
-            }
+            refreshIdeaAuthorById(authorId)
             updateIsIdeaAuthorLoading(false)
+        }
+    }
+
+    suspend fun refreshIdeaAuthorById(authorId: Long) {
+        val ideaAuthorResult = authorRepository.ideaAuthorById(authorId)
+        when {
+            ideaAuthorResult.isSuccess -> {
+                val ideaAuthor = ideaAuthorResult.getOrThrow()
+                ideaAuthorUiState = ideaAuthor.toIdeaAuthorUiState()
+                updateIsIdeaAuthorExists(true)
+                updateIsErrorWhileIdeaAuthorLoading(false)
+            }
+
+            ideaAuthorResult.exceptionOrNull()!! is HttpNotFoundException -> {
+                updateIsErrorWhileIdeaAuthorLoading(false)
+                updateIsIdeaAuthorExists(false)
+            }
+
+            else -> {
+                updateIsErrorWhileIdeaAuthorLoading(true)
+            }
         }
     }
 

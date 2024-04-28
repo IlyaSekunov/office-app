@@ -159,24 +159,28 @@ class MyOfficeViewModel @Inject constructor(
     private fun loadCurrentUser() {
         viewModelScope.launch {
             updateCurrentUserIsLoading(true)
-            val userResult = authRepository.userInfo()
-            when {
-                userResult.isSuccess -> {
-                    updateIsErrorWhileUserLoading(false)
-                    updateIsUserUnauthorized(false)
-                    val user = userResult.getOrThrow()
-                    updateCurrentUser(user)
-                }
-
-                userResult.exceptionOrNull()!! is HttpForbiddenException -> {
-                    updateIsUserUnauthorized(true)
-                }
-
-                else -> {
-                    updateIsErrorWhileUserLoading(true)
-                }
-            }
+            refreshCurrentUser()
             updateCurrentUserIsLoading(false)
+        }
+    }
+
+    suspend fun refreshCurrentUser() {
+        val userResult = authRepository.userInfo()
+        when {
+            userResult.isSuccess -> {
+                updateIsErrorWhileUserLoading(false)
+                updateIsUserUnauthorized(false)
+                val user = userResult.getOrThrow()
+                updateCurrentUser(user)
+            }
+
+            userResult.exceptionOrNull()!! is HttpForbiddenException -> {
+                updateIsUserUnauthorized(true)
+            }
+
+            else -> {
+                updateIsErrorWhileUserLoading(true)
+            }
         }
     }
 

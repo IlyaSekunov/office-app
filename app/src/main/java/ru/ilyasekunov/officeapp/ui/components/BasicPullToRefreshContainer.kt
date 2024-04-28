@@ -14,11 +14,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BasicPullToRefreshContainer(
-    onRefreshTrigger: suspend () -> Unit,
+    onRefreshTrigger: CoroutineScope.() -> Job,
     modifier: Modifier = Modifier,
     shape: Shape = PullToRefreshDefaults.shape,
     containerColor: Color = MaterialTheme.colorScheme.onPrimary,
@@ -28,7 +30,7 @@ fun BasicPullToRefreshContainer(
     val pullToRefreshState = rememberPullToRefreshState()
     if (pullToRefreshState.isRefreshing) {
         LaunchedEffect(Unit) {
-            onRefreshTrigger()
+            onRefreshTrigger().join()
             pullToRefreshState.endRefresh()
         }
     }

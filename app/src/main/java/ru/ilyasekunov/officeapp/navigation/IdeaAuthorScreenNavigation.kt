@@ -8,6 +8,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.ui.ideaauthor.IdeaAuthorScreen
 import ru.ilyasekunov.officeapp.ui.ideaauthor.IdeaAuthorViewModel
 
@@ -34,8 +35,14 @@ fun NavGraphBuilder.ideaAuthorScreen(
                 ideas.refresh()
             },
             onPullToRefresh = {
-                viewModel.loadIdeaAuthorById(authorId)
-                ideas.refresh()
+                launch {
+                    launch {
+                        viewModel.refreshIdeaAuthorById(authorId)
+                    }
+                    launch {
+                        ideas.refresh()
+                    }
+                }
             },
             onIdeaLikeClick = viewModel::updateLike,
             onIdeaDislikeClick = viewModel::updateDislike,

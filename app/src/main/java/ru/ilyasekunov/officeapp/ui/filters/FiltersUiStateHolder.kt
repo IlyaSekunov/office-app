@@ -73,16 +73,20 @@ class FiltersUiStateHolder(
     fun loadFilters(): Job =
         coroutineScope.launch {
             updateIsFiltersLoading(true)
-            val filtersResult = loadFiltersRequest()
-            if (filtersResult.isSuccess) {
-                val filters = filtersResult.getOrThrow()
-                filtersUiState = filters.toFiltersUiState()
-                updateIsErrorWhileFiltersLoading(false)
-                updateFiltersIsLoaded(true)
-            } else {
-                updateIsErrorWhileFiltersLoading(true)
-                updateFiltersIsLoaded(false)
-            }
+            refreshFilters()
             updateIsFiltersLoading(false)
         }
+
+    suspend fun refreshFilters() {
+        val filtersResult = loadFiltersRequest()
+        if (filtersResult.isSuccess) {
+            val filters = filtersResult.getOrThrow()
+            filtersUiState = filters.toFiltersUiState()
+            updateIsErrorWhileFiltersLoading(false)
+            updateFiltersIsLoaded(true)
+        } else {
+            updateIsErrorWhileFiltersLoading(true)
+            updateFiltersIsLoaded(false)
+        }
+    }
 }

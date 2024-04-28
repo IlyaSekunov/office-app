@@ -36,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.itemKey
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
@@ -62,7 +64,7 @@ fun IdeaAuthorScreen(
     ideaAuthorUiState: IdeaAuthorUiState,
     ideas: LazyPagingItems<IdeaPost>,
     onRetryLoadData: () -> Unit,
-    onPullToRefresh: suspend () -> Unit,
+    onPullToRefresh: CoroutineScope.() -> Job,
     onIdeaLikeClick: (idea: IdeaPost) -> Unit,
     onIdeaDislikeClick: (idea: IdeaPost) -> Unit,
     navigateToIdeaDetailsScreen: (Long) -> Unit,
@@ -115,7 +117,7 @@ fun IdeaAuthorScreen(
 private fun IdeaAuthorScreenContent(
     ideaAuthorUiState: IdeaAuthorUiState,
     ideas: LazyPagingItems<IdeaPost>,
-    onPullToRefresh: suspend () -> Unit,
+    onPullToRefresh: CoroutineScope.() -> Job,
     onIdeaLikeClick: (idea: IdeaPost) -> Unit,
     onIdeaDislikeClick: (idea: IdeaPost) -> Unit,
     navigateToIdeaDetailsScreen: (Long) -> Unit,

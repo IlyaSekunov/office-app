@@ -6,6 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import androidx.paging.compose.collectAsLazyPagingItems
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.ui.home.HomeScreen
 import ru.ilyasekunov.officeapp.ui.home.HomeViewModel
 
@@ -38,7 +39,19 @@ fun NavGraphBuilder.homeScreen(
                 viewModel.loadCurrentUser()
                 viewModel.loadPosts()
             },
-            onPullToRefresh = posts::refresh,
+            onPullToRefresh = {
+                launch {
+                    launch {
+                        viewModel.refreshCurrentUser()
+                    }
+                    launch {
+                        viewModel.filtersUiStateHolder.refreshFilters()
+                    }
+                    launch {
+                        posts.refresh()
+                    }
+                }
+            },
             navigateToFiltersScreen = navigateToFiltersScreen,
             navigateToSuggestIdeaScreen = navigateToSuggestIdeaScreen,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,

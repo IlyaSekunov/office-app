@@ -214,7 +214,7 @@ class IdeaDetailsViewModel @Inject constructor(
     fun loadPostById(postId: Long) {
         viewModelScope.launch {
             updateIsPostLoading(true)
-            loadPostByIdSuspending(postId)
+            refreshPostById(postId)
             updateIsPostLoading(false)
         }
     }
@@ -233,7 +233,7 @@ class IdeaDetailsViewModel @Inject constructor(
         }
     }
 
-    suspend fun loadPostByIdSuspending(postId: Long) {
+    suspend fun refreshPostById(postId: Long) {
         val postResult = postsRepository.findPostById(postId)
         when {
             postResult.isSuccess -> {

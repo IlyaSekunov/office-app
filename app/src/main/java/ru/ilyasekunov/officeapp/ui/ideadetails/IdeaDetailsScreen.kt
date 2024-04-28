@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.data.model.CommentsSortingFilters
@@ -86,7 +87,7 @@ fun IdeaDetailsScreen(
     currentCommentsSortingFilter: CommentsSortingFilters,
     onRetryPostLoad: () -> Unit,
     onRetryCommentsLoad: () -> Unit,
-    onPullToRefresh: suspend () -> Unit,
+    onPullToRefresh: CoroutineScope.() -> Job,
     comments: LazyPagingItems<Comment>,
     onCommentLikeClick: (Comment) -> Unit,
     onCommentDislikeClick: (Comment) -> Unit,
@@ -170,7 +171,7 @@ private fun IdeaDetailsScreenContent(
     currentCommentsSortingFilter: CommentsSortingFilters,
     onFilterClick: (CommentsSortingFilters) -> Unit,
     onRetryCommentsLoad: () -> Unit,
-    onPullToRefresh: suspend () -> Unit,
+    onPullToRefresh: CoroutineScope.() -> Job,
     comments: LazyPagingItems<Comment>,
     onCommentLikeClick: (Comment) -> Unit,
     onCommentDislikeClick: (Comment) -> Unit,
