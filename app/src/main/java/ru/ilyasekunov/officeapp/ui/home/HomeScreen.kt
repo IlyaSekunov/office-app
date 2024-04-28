@@ -40,7 +40,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -185,38 +184,30 @@ fun HomeScreen(
                     onRefreshTrigger = onPullToRefresh,
                     modifier = Modifier.padding(paddingValues)
                 ) {
-                    if (posts.isEmpty()) {
-                        NoPostsAvailable(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState())
-                        )
-                    } else {
-                        val postDeletedMessage = stringResource(R.string.post_deleted)
-                        val undoLabel = stringResource(R.string.undo)
-                        IdeaPosts(
-                            posts = posts,
-                            isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
-                            onDeletePostClick = {
-                                deletePostSnackbar(
-                                    snackbarHostState = snackbarHostState,
-                                    coroutineScope = coroutineScope,
-                                    message = postDeletedMessage,
-                                    undoLabel = undoLabel,
-                                    onSnackbarTimeOut = { onDeletePostClick(it) }
-                                )
-                            },
-                            onPostLikeClick = onPostLikeClick,
-                            onPostDislikeClick = onPostDislikeClick,
-                            navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
-                            navigateToAuthorScreen = navigateToAuthorScreen,
-                            navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                            contentPadding = PaddingValues(top = 18.dp, bottom = 18.dp),
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .nestedScroll(suggestIdeaFABScrollBehaviour.nestedScrollConnection)
-                        )
-                    }
+                    val postDeletedMessage = stringResource(R.string.post_deleted)
+                    val undoLabel = stringResource(R.string.undo)
+                    IdeaPosts(
+                        posts = posts,
+                        isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
+                        onDeletePostClick = {
+                            deletePostSnackbar(
+                                snackbarHostState = snackbarHostState,
+                                coroutineScope = coroutineScope,
+                                message = postDeletedMessage,
+                                undoLabel = undoLabel,
+                                onSnackbarTimeOut = { onDeletePostClick(it) }
+                            )
+                        },
+                        onPostLikeClick = onPostLikeClick,
+                        onPostDislikeClick = onPostDislikeClick,
+                        navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
+                        navigateToAuthorScreen = navigateToAuthorScreen,
+                        navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+                        contentPadding = PaddingValues(top = 18.dp, bottom = 18.dp),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(suggestIdeaFABScrollBehaviour.nestedScrollConnection)
+                    )
                 }
             }
         }
@@ -241,39 +232,48 @@ private fun IdeaPosts(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
     ) {
-        items(
-            count = posts.itemCount,
-            key = posts.itemKey { it.id }
-        ) {
-            val post = posts[it]!!
-            IdeaPost(
-                ideaPost = post,
-                isAuthorPostCurrentUser = isIdeaAuthorCurrentUser(post.ideaAuthor),
-                onPostClick = {
-                    navigateToIdeaDetailsScreen(post.id, false)
-                },
-                onLikeClick = { onPostLikeClick(post) },
-                onDislikeClick = { onPostDislikeClick(post) },
-                onCommentClick = {
-                    navigateToIdeaDetailsScreen(post.id, true)
-                },
-                navigateToAuthorScreen = navigateToAuthorScreen,
-                navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                onDeletePostClick = onDeletePostClick,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-        if (posts.isAppending()) {
-            item {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 3.dp,
-                    modifier = Modifier
-                        .padding(bottom = 20.dp)
-                        .fillMaxWidth()
-                        .size(20.dp)
-                        .wrapContentWidth(Alignment.CenterHorizontally)
-                )
+        when {
+            posts.isEmpty() && !posts.isRefreshing() -> {
+                item {
+                    NoPostsAvailable(modifier = Modifier.fillMaxSize())
+                }
+            }
+            else -> {
+                items(
+                    count = posts.itemCount,
+                    key = posts.itemKey { it.id }
+                ) {
+                    val post = posts[it]!!
+                    IdeaPost(
+                        ideaPost = post,
+                        isAuthorPostCurrentUser = isIdeaAuthorCurrentUser(post.ideaAuthor),
+                        onPostClick = {
+                            navigateToIdeaDetailsScreen(post.id, false)
+                        },
+                        onLikeClick = { onPostLikeClick(post) },
+                        onDislikeClick = { onPostDislikeClick(post) },
+                        onCommentClick = {
+                            navigateToIdeaDetailsScreen(post.id, true)
+                        },
+                        navigateToAuthorScreen = navigateToAuthorScreen,
+                        navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+                        onDeletePostClick = onDeletePostClick,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                if (posts.isAppending()) {
+                    item {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            strokeWidth = 3.dp,
+                            modifier = Modifier
+                                .padding(bottom = 20.dp)
+                                .fillMaxWidth()
+                                .size(20.dp)
+                                .wrapContentWidth(Alignment.CenterHorizontally)
+                        )
+                    }
+                }
             }
         }
     }
