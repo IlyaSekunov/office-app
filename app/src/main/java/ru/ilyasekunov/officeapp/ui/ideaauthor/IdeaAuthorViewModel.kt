@@ -19,6 +19,8 @@ import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
 import ru.ilyasekunov.officeapp.ui.favouriteideas.IdeasUiState
+import ru.ilyasekunov.officeapp.ui.updateDislike
+import ru.ilyasekunov.officeapp.ui.updateLike
 import javax.inject.Inject
 
 data class IdeaAuthorUiState(
@@ -44,53 +46,24 @@ class IdeaAuthorViewModel @Inject constructor(
 
     fun updateLike(idea: IdeaPost) {
         viewModelScope.launch {
-            val isPressed = !idea.isLikePressed
-            val likesCount = if (isPressed) idea.likesCount + 1 else idea.likesCount - 1
-            val changedIdea =
-                if (idea.isDislikePressed) {
-                    idea.copy(
-                        isDislikePressed = false,
-                        dislikesCount = idea.dislikesCount - 1,
-                        isLikePressed = isPressed,
-                        likesCount = likesCount
-                    )
-                } else {
-                    idea.copy(
-                        isLikePressed = isPressed,
-                        likesCount = likesCount
-                    )
-                }
-            updateIdea(changedIdea)
-            if (isPressed) {
-                postsRepository.pressLike(changedIdea.id)
+            val updatePost = idea.updateLike()
+            updateIdea(updatePost)
+            if (updatePost.isLikePressed) {
+                postsRepository.pressLike(updatePost.id)
             } else {
-                postsRepository.removeLike(changedIdea.id)
+                postsRepository.removeLike(updatePost.id)
             }
         }
     }
 
     fun updateDislike(post: IdeaPost) {
         viewModelScope.launch {
-            val isPressed = !post.isDislikePressed
-            val dislikesCount = if (isPressed) post.dislikesCount + 1 else post.dislikesCount - 1
-            val changedIdea = if (post.isLikePressed) {
-                post.copy(
-                    isLikePressed = false,
-                    likesCount = post.likesCount - 1,
-                    isDislikePressed = isPressed,
-                    dislikesCount = dislikesCount
-                )
+            val updatedPost = post.updateDislike()
+            updateIdea(updatedPost)
+            if (updatedPost.isDislikePressed) {
+                postsRepository.pressDislike(updatedPost.id)
             } else {
-                post.copy(
-                    isDislikePressed = isPressed,
-                    dislikesCount = dislikesCount
-                )
-            }
-            updateIdea(changedIdea)
-            if (isPressed) {
-                postsRepository.pressDislike(changedIdea.id)
-            } else {
-                postsRepository.removeDislike(changedIdea.id)
+                postsRepository.removeDislike(updatedPost.id)
             }
         }
     }

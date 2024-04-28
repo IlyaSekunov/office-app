@@ -26,6 +26,8 @@ import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageUiState
+import ru.ilyasekunov.officeapp.ui.updateDislike
+import ru.ilyasekunov.officeapp.ui.updateLike
 import javax.inject.Inject
 
 data class IdeaPostUiState(
@@ -130,24 +132,9 @@ class IdeaDetailsViewModel @Inject constructor(
     fun updatePostLike() {
         viewModelScope.launch {
             val post = ideaPostUiState.ideaPost!!
-            val isPressed = !post.isLikePressed
-            val likesCount = if (isPressed) post.likesCount + 1 else post.likesCount - 1
-            val changedPost =
-                if (post.isDislikePressed) {
-                    post.copy(
-                        isDislikePressed = false,
-                        dislikesCount = post.dislikesCount - 1,
-                        isLikePressed = isPressed,
-                        likesCount = likesCount
-                    )
-                } else {
-                    post.copy(
-                        isLikePressed = isPressed,
-                        likesCount = likesCount
-                    )
-                }
-            updatePost(changedPost)
-            if (isPressed) {
+            val updatedPost = post.updateLike()
+            updatePost(updatedPost)
+            if (updatedPost.isLikePressed) {
                 postsRepository.pressLike(post.id)
             } else {
                 postsRepository.removeLike(post.id)
@@ -158,23 +145,9 @@ class IdeaDetailsViewModel @Inject constructor(
     fun updatePostDislike() {
         viewModelScope.launch {
             val post = ideaPostUiState.ideaPost!!
-            val isPressed = !post.isDislikePressed
-            val dislikesCount = if (isPressed) post.dislikesCount + 1 else post.dislikesCount - 1
-            val changedPost = if (post.isLikePressed) {
-                post.copy(
-                    isLikePressed = false,
-                    likesCount = post.likesCount - 1,
-                    isDislikePressed = isPressed,
-                    dislikesCount = dislikesCount
-                )
-            } else {
-                post.copy(
-                    isDislikePressed = isPressed,
-                    dislikesCount = dislikesCount
-                )
-            }
-            updatePost(changedPost)
-            if (isPressed) {
+            val updatedPost = post.updateDislike()
+            updatePost(updatedPost)
+            if (updatedPost.isDislikePressed) {
                 postsRepository.pressDislike(post.id)
             } else {
                 postsRepository.removeDislike(post.id)
@@ -184,56 +157,26 @@ class IdeaDetailsViewModel @Inject constructor(
 
     fun updateCommentLike(comment: Comment) {
         viewModelScope.launch {
-            val isLikePressed = !comment.isLikePressed
-            val likesCount = if (isLikePressed) comment.likesCount + 1 else comment.likesCount - 1
-            val changedComment =
-                if (comment.isDislikePressed) {
-                    comment.copy(
-                        isDislikePressed = false,
-                        dislikesCount = comment.dislikesCount - 1,
-                        isLikePressed = isLikePressed,
-                        likesCount = likesCount
-                    )
-                } else {
-                    comment.copy(
-                        isLikePressed = isLikePressed,
-                        likesCount = likesCount
-                    )
-                }
-            commentsUiState.updateComment(changedComment)
+            val updatedComment = comment.updateLike()
+            commentsUiState.updateComment(updatedComment)
             val postId = ideaPostUiState.ideaPost!!.id
-            if (isLikePressed) {
-                commentsRepository.pressLike(postId, changedComment.id)
+            if (updatedComment.isLikePressed) {
+                commentsRepository.pressLike(postId, updatedComment.id)
             } else {
-                commentsRepository.removeLike(postId, changedComment.id)
+                commentsRepository.removeLike(postId, updatedComment.id)
             }
         }
     }
 
     fun updateCommentDislike(comment: Comment) {
         viewModelScope.launch {
-            val isDislikePressed = !comment.isDislikePressed
-            val dislikesCount =
-                if (isDislikePressed) comment.dislikesCount + 1 else comment.dislikesCount - 1
-            val changedComment = if (comment.isLikePressed) {
-                comment.copy(
-                    isLikePressed = false,
-                    likesCount = comment.likesCount - 1,
-                    isDislikePressed = isDislikePressed,
-                    dislikesCount = dislikesCount
-                )
-            } else {
-                comment.copy(
-                    isDislikePressed = isDislikePressed,
-                    dislikesCount = dislikesCount
-                )
-            }
-            commentsUiState.updateComment(changedComment)
+            val updatedComment = comment.updateDislike()
+            commentsUiState.updateComment(updatedComment)
             val postId = ideaPostUiState.ideaPost!!.id
-            if (isDislikePressed) {
-                commentsRepository.pressDislike(postId, changedComment.id)
+            if (updatedComment.isDislikePressed) {
+                commentsRepository.pressDislike(postId, updatedComment.id)
             } else {
-                commentsRepository.removeDislike(postId, changedComment.id)
+                commentsRepository.removeDislike(postId, updatedComment.id)
             }
         }
     }
