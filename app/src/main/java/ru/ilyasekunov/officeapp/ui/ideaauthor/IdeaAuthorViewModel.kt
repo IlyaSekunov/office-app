@@ -18,7 +18,7 @@ import ru.ilyasekunov.officeapp.data.repository.author.AuthorRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
-import ru.ilyasekunov.officeapp.ui.favouriteideas.IdeasUiState
+import ru.ilyasekunov.officeapp.ui.IdeasUiState
 import ru.ilyasekunov.officeapp.ui.updateDislike
 import ru.ilyasekunov.officeapp.ui.updateLike
 import javax.inject.Inject

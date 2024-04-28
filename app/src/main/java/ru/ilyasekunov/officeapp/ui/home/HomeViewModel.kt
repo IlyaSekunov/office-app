@@ -24,7 +24,7 @@ import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpForbiddenException
-import ru.ilyasekunov.officeapp.ui.favouriteideas.IdeasUiState
+import ru.ilyasekunov.officeapp.ui.IdeasUiState
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiStateHolder
 import ru.ilyasekunov.officeapp.ui.updateDislike
