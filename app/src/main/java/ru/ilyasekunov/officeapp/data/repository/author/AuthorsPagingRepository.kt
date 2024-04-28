@@ -5,7 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import ru.ilyasekunov.officeapp.data.datasource.AuthorDataSource
-import ru.ilyasekunov.officeapp.data.datasource.remote.AuthorsPagingDataSource
+import ru.ilyasekunov.officeapp.data.datasource.pager.PagingDataSource
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 
 object AuthorsPagingDefaults {
@@ -19,7 +19,7 @@ class AuthorsPagingRepository(private val authorDataSource: AuthorDataSource) {
         val pagingConfig = AuthorsPagingDefaults.PagingConfig
         return Pager(config = pagingConfig) {
             val pageSize = pagingConfig.pageSize
-            AuthorsPagingDataSource(authorDataSource) { page ->
+            PagingDataSource(authorDataSource) { page ->
                 officeEmployees(page, pageSize)
             }
         }.flow

@@ -5,7 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import ru.ilyasekunov.officeapp.data.datasource.CommentsDataSource
-import ru.ilyasekunov.officeapp.data.datasource.remote.CommentsPagingDataSource
+import ru.ilyasekunov.officeapp.data.datasource.pager.PagingDataSource
 import ru.ilyasekunov.officeapp.data.model.Comment
 
 object CommentsPagingDefaults {
@@ -16,8 +16,17 @@ object CommentsPagingDefaults {
 
 class CommentsPagingRepository(private val commentsDataSource: CommentsDataSource) {
     fun commentsByPostId(postId: Long, sortingFilterId: Int): Flow<PagingData<Comment>> {
-        return Pager(config = CommentsPagingDefaults.PagingConfig) {
-            CommentsPagingDataSource(postId, sortingFilterId, commentsDataSource)
+        val pageConfig = CommentsPagingDefaults.PagingConfig
+        return Pager(config = pageConfig) {
+            val pageSize = pageConfig.pageSize
+            PagingDataSource(commentsDataSource) { page ->
+                commentsByPostId(
+                    postId = postId,
+                    sortingFilterId = sortingFilterId,
+                    page = page,
+                    pageSize = pageSize
+                )
+            }
         }.flow
     }
 }
