@@ -1,16 +1,8 @@
 package ru.ilyasekunov.officeapp.data.repository.comments
 
 import ru.ilyasekunov.officeapp.data.dto.CommentDto
-import ru.ilyasekunov.officeapp.data.model.Comment
 
 interface CommentsRepository {
-    suspend fun commentsByPostId(
-        postId: Long,
-        sortingFilterId: Int,
-        page: Int,
-        pageSize: Int
-    ): Result<List<Comment>>
-
     suspend fun pressLike(
         postId: Long,
         commentId: Long

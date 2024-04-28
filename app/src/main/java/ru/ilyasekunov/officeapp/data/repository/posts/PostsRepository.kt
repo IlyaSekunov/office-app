@@ -1,40 +1,11 @@
 package ru.ilyasekunov.officeapp.data.repository.posts
 
-import androidx.annotation.IntRange
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
-import ru.ilyasekunov.officeapp.data.dto.SearchPostsDto
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
 interface PostsRepository {
-    suspend fun posts(
-        searchPostsDto: SearchPostsDto,
-        page: Int,
-        pageSize: Int
-    ): Result<List<IdeaPost>>
-
-    suspend fun favouritePosts(
-        searchPostsDto: SearchPostsDto,
-        page: Int,
-        pageSize: Int
-    ): Result<List<IdeaPost>>
-
-    suspend fun suggestedIdeas(
-        page: Int,
-        pageSize: Int
-    ): Result<List<IdeaPost>>
-
-    suspend fun ideasInProgress(
-        page: Int,
-        pageSize: Int
-    ): Result<List<IdeaPost>>
-
-    suspend fun implementedIdeas(
-        page: Int,
-        pageSize: Int
-    ): Result<List<IdeaPost>>
-
     suspend fun publishPost(post: PublishPostDto): Result<Unit>
     suspend fun editPostById(postId: Long, editedPostDto: EditPostDto): Result<Unit>
     suspend fun findPostById(postId: Long): Result<IdeaPost>
