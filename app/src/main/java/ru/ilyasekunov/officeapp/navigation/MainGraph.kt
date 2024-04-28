@@ -52,7 +52,17 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = {
+                navController.navigateToMyOfficeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = BottomNavigationScreen.MyOffice.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
             navigateToFiltersScreen = {
                 navController.navigateToFiltersScreen(
                     navOptions = NavOptions.Builder()
@@ -130,7 +140,13 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = {
+                navController.navigateToMyOfficeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
             navigateToProfileScreen = {
                 navController.navigateToProfileScreen(
                     navOptions = NavOptions.Builder()
@@ -151,7 +167,13 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = {
+                navController.navigateToMyOfficeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
             navigateToMyIdeasScreen = { /*TODO*/ },
             navigateToAuthGraph = {
                 navController.navigateToAuthGraph(
@@ -206,7 +228,13 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = {
+                navController.navigateToMyOfficeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
             navigateToProfileScreen = {
                 navController.navigateToProfileScreen(
                     navOptions = NavOptions.Builder()
@@ -242,7 +270,13 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToMyOfficeScreen = {/* TODO */ },
+            navigateToMyOfficeScreen = {
+                navController.navigateToMyOfficeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
             navigateToProfileScreen = {
                 navController.navigateToProfileScreen(
                     navOptions = NavOptions.Builder()
@@ -275,7 +309,13 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = {
+                navController.navigateToMyOfficeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
             navigateToProfileScreen = {
                 navController.navigateToProfileScreen(
                     navOptions = NavOptions.Builder()
@@ -308,7 +348,13 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = {
+                navController.navigateToMyOfficeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
             navigateToProfileScreen = {
                 navController.navigateToProfileScreen(
                     navOptions = NavOptions.Builder()
@@ -354,7 +400,13 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
-            navigateToMyOfficeScreen = { /*TODO*/ },
+            navigateToMyOfficeScreen = {
+                navController.navigateToMyOfficeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
             navigateToProfileScreen = {
                 navController.navigateToProfileScreen(
                     navOptions = NavOptions.Builder()
@@ -374,6 +426,77 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                 )
             },
             navigateBack = navController::popBackStack
+        )
+        myOfficeScreen(
+            navigateToIdeaDetailsScreen = { postId, initiallyScrollToComments ->
+                navController.navigateToIdeaDetailsScreen(
+                    postId = postId,
+                    initiallyScrollToComments = initiallyScrollToComments,
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
+            navigateToAuthorScreen = {
+                navController.navigateToIdeaAuthorScreen(
+                    authorId = it,
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
+            navigateToEditIdeaScreen = { postId ->
+                navController.navigateToEditIdeaScreen(
+                    postId = postId,
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
+            navigateToFavouriteScreen = {
+                navController.navigateToFavouriteIdeasScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = BottomNavigationScreen.Favourite.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
+            navigateToHomeScreen = {
+                navController.navigateToHomeScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = BottomNavigationScreen.Home.route,
+                            inclusive = false
+                        )
+                        .build()
+                )
+            },
+            navigateToProfileScreen = {
+                navController.navigateToProfileScreen(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = BottomNavigationScreen.Profile.route,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            },
+            navigateToAuthGraph = {
+                navController.navigateToAuthGraph(
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .setPopUpTo(
+                            route = MainGraphRoute,
+                            inclusive = true
+                        )
+                        .build()
+                )
+            }
         )
     }
 }

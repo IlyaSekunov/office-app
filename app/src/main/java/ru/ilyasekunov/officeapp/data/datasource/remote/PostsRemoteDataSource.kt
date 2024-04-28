@@ -63,6 +63,21 @@ class PostsRemoteDataSource(
             handleResponse { postsApi.postsByAuthorId(authorId, page, pageSize) }
         }
 
+    override suspend fun suggestedIdeas(page: Int, pageSize: Int): Result<List<IdeaPost>> =
+        withContext(ioDispatcher) {
+            handleResponse { postsApi.suggestedIdeas(page, pageSize) }
+        }
+
+    override suspend fun ideasInProgress(page: Int, pageSize: Int): Result<List<IdeaPost>> =
+        withContext(ioDispatcher) {
+            handleResponse { postsApi.ideasInProgress(page, pageSize) }
+        }
+
+    override suspend fun implementedIdeas(page: Int, pageSize: Int): Result<List<IdeaPost>> =
+        withContext(ioDispatcher) {
+            handleResponse { postsApi.implementedIdeas(page, pageSize) }
+        }
+
     override suspend fun editPostById(
         postId: Long, editedPost: EditPostDto
     ): Result<Unit> = withContext(ioDispatcher) {
@@ -97,6 +112,11 @@ class PostsRemoteDataSource(
     override suspend fun filters(): Result<Filters> =
         withContext(ioDispatcher) {
             handleResponse { postsApi.filters() }
+        }
+
+    override suspend fun suggestIdeaToMyOffice(postId: Long): Result<Unit> =
+        withContext(ioDispatcher) {
+            handleResponse { postsApi.suggestIdeaToMyOffice(postId) }
         }
 
     override suspend fun findPostById(postId: Long): Result<IdeaPost> =

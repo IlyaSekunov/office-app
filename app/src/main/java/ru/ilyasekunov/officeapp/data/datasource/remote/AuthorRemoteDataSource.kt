@@ -14,4 +14,9 @@ class AuthorRemoteDataSource(
         withContext(ioDispatcher) {
             handleResponse { authorApi.ideaAuthorById(authorId) }
         }
+
+    override suspend fun officeEmployees(page: Int, pageSize: Int): Result<List<IdeaAuthor>> =
+        withContext(ioDispatcher) {
+            handleResponse { authorApi.officeEmployees(page, pageSize) }
+        }
 }

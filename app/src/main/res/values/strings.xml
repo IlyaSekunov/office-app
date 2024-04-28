@@ -81,4 +81,8 @@
     <string name="comments_filter_popular">Сначала популярные</string>
     <string name="comments_filter_unpopular">Сначала непопулярные</string>
     <string name="error_while_registration">Ошибка при регистрации</string>
+    <string name="ideas_suggested">Предложенные</string>
+    <string name="ideas_in_progress">В разработке</string>
+    <string name="ideas_implemented">Реализованные</string>
+    <string name="workers">Работники</string>
 </resources>

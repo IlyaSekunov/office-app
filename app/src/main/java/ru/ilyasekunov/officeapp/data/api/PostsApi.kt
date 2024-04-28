@@ -42,6 +42,24 @@ interface PostsApi {
         @Query("page_size") pageSize: Int
     ): Response<List<IdeaPost>>
 
+    @GET("posts/my-office/suggested")
+    suspend fun suggestedIdeas(
+        @Query("page") page: Int,
+        @Query("page_size") pageSize: Int
+    ): Response<List<IdeaPost>>
+
+    @GET("posts/my-office/in-progress")
+    suspend fun ideasInProgress(
+        @Query("page") page: Int,
+        @Query("page_size") pageSize: Int
+    ): Response<List<IdeaPost>>
+
+    @GET("posts/my-office/implemented")
+    suspend fun implementedIdeas(
+        @Query("page") page: Int,
+        @Query("page_size") pageSize: Int
+    ): Response<List<IdeaPost>>
+
     @GET("posts/{postId}")
     suspend fun findPostById(@Path("postId") postId: Long): Response<IdeaPost>
 
@@ -68,4 +86,7 @@ interface PostsApi {
 
     @GET("posts/filters")
     suspend fun filters(): Response<Filters>
+
+    @POST("posts/{postId}/suggest-idea")
+    suspend fun suggestIdeaToMyOffice(@Path("postId") postId: Long): Response<Unit>
 }

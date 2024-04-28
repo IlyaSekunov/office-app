@@ -51,4 +51,34 @@ class PostsPagingRepository(private val postsDataSource: PostsDataSource) {
             }
         }.flow
     }
+
+    fun suggestedIdeas(): Flow<PagingData<IdeaPost>> {
+        val pagingConfig = PostsPagingDefaults.PagingConfig
+        return Pager(config = pagingConfig) {
+            val pageSize = pagingConfig.pageSize
+            PostsPagingDataSource(postsDataSource) { page ->
+                suggestedIdeas(page, pageSize)
+            }
+        }.flow
+    }
+
+    fun ideasInProgress(): Flow<PagingData<IdeaPost>> {
+        val pagingConfig = PostsPagingDefaults.PagingConfig
+        return Pager(config = pagingConfig) {
+            val pageSize = pagingConfig.pageSize
+            PostsPagingDataSource(postsDataSource) { page ->
+                ideasInProgress(page, pageSize)
+            }
+        }.flow
+    }
+
+    fun implementedIdeas(): Flow<PagingData<IdeaPost>> {
+        val pagingConfig = PostsPagingDefaults.PagingConfig
+        return Pager(config = pagingConfig) {
+            val pageSize = pagingConfig.pageSize
+            PostsPagingDataSource(postsDataSource) { page ->
+                implementedIdeas(page, pageSize)
+            }
+        }.flow
+    }
 }

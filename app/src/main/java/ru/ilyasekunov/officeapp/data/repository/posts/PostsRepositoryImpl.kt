@@ -26,6 +26,18 @@ class PostsRepositoryImpl(
         return postsDatasource.favouritePosts(searchPostsDto, page, pageSize)
     }
 
+    override suspend fun suggestedIdeas(page: Int, pageSize: Int): Result<List<IdeaPost>> {
+        return postsDatasource.suggestedIdeas(page, pageSize)
+    }
+
+    override suspend fun ideasInProgress(page: Int, pageSize: Int): Result<List<IdeaPost>> {
+        return postsDatasource.ideasInProgress(page, pageSize)
+    }
+
+    override suspend fun implementedIdeas(page: Int, pageSize: Int): Result<List<IdeaPost>> {
+        return postsDatasource.implementedIdeas(page, pageSize)
+    }
+
     override suspend fun publishPost(post: PublishPostDto): Result<Unit> {
         return postsDatasource.publishPost(post)
     }
@@ -60,5 +72,9 @@ class PostsRepositoryImpl(
 
     override suspend fun filters(): Result<Filters> {
         return postsDatasource.filters()
+    }
+
+    override suspend fun suggestIdeaToMyOffice(postId: Long): Result<Unit> {
+        return postsDatasource.suggestIdeaToMyOffice(postId)
     }
 }

@@ -147,6 +147,78 @@ class MockPostsDataSource : PostsDataSource {
         )
     }
 
+    override suspend fun suggestedIdeas(page: Int, pageSize: Int): Result<List<IdeaPost>> {
+        delay(3000L)
+        val posts = Posts.filter { !it.isInProgress && !it.isImplemented }
+        val firstPostIndex = (page - 1) * pageSize
+        val lastPostIndex = firstPostIndex + pageSize
+        if (firstPostIndex > posts.lastIndex) {
+            return Result.success(emptyList())
+        }
+        if (lastPostIndex > posts.lastIndex) {
+            return Result.success(
+                posts.subList(
+                    fromIndex = firstPostIndex,
+                    toIndex = posts.lastIndex + 1
+                )
+            )
+        }
+        return Result.success(
+            posts.subList(
+                fromIndex = firstPostIndex,
+                toIndex = lastPostIndex
+            )
+        )
+    }
+
+    override suspend fun ideasInProgress(page: Int, pageSize: Int): Result<List<IdeaPost>> {
+        delay(3000L)
+        val posts = Posts.filter { it.isInProgress }
+        val firstPostIndex = (page - 1) * pageSize
+        val lastPostIndex = firstPostIndex + pageSize
+        if (firstPostIndex > posts.lastIndex) {
+            return Result.success(emptyList())
+        }
+        if (lastPostIndex > posts.lastIndex) {
+            return Result.success(
+                posts.subList(
+                    fromIndex = firstPostIndex,
+                    toIndex = posts.lastIndex + 1
+                )
+            )
+        }
+        return Result.success(
+            posts.subList(
+                fromIndex = firstPostIndex,
+                toIndex = lastPostIndex
+            )
+        )
+    }
+
+    override suspend fun implementedIdeas(page: Int, pageSize: Int): Result<List<IdeaPost>> {
+        delay(3000L)
+        val posts = Posts.filter { it.isImplemented }
+        val firstPostIndex = (page - 1) * pageSize
+        val lastPostIndex = firstPostIndex + pageSize
+        if (firstPostIndex > posts.lastIndex) {
+            return Result.success(emptyList())
+        }
+        if (lastPostIndex > posts.lastIndex) {
+            return Result.success(
+                posts.subList(
+                    fromIndex = firstPostIndex,
+                    toIndex = posts.lastIndex + 1
+                )
+            )
+        }
+        return Result.success(
+            posts.subList(
+                fromIndex = firstPostIndex,
+                toIndex = lastPostIndex
+            )
+        )
+    }
+
     override suspend fun editPostById(postId: Long, editedPost: EditPostDto): Result<Unit> {
         delay(3000L)
         val post = Posts.find { it.id == postId }
@@ -238,6 +310,11 @@ class MockPostsDataSource : PostsDataSource {
         )
     }
 
+    override suspend fun suggestIdeaToMyOffice(postId: Long): Result<Unit> {
+        delay(3000L)
+        return Result.success(Unit)
+    }
+
 
     private fun PublishPostDto.toIdeaPost(): IdeaPost =
         IdeaPost(
@@ -252,7 +329,9 @@ class MockPostsDataSource : PostsDataSource {
             dislikesCount = 0,
             commentsCount = 0,
             isLikePressed = false,
-            isDislikePressed = false
+            isDislikePressed = false,
+            isImplemented = false,
+            isInProgress = false
         )
 }
 

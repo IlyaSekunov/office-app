@@ -34,6 +34,27 @@ interface PostsDataSource {
         pageSize: Int
     ): Result<List<IdeaPost>>
 
+    suspend fun suggestedIdeas(
+        @IntRange(from = 1)
+        page: Int,
+        @IntRange(from = 1)
+        pageSize: Int
+    ): Result<List<IdeaPost>>
+
+    suspend fun ideasInProgress(
+        @IntRange(from = 1)
+        page: Int,
+        @IntRange(from = 1)
+        pageSize: Int
+    ): Result<List<IdeaPost>>
+
+    suspend fun implementedIdeas(
+        @IntRange(from = 1)
+        page: Int,
+        @IntRange(from = 1)
+        pageSize: Int
+    ): Result<List<IdeaPost>>
+
     suspend fun editPostById(
         postId: Long,
         editedPost: EditPostDto
@@ -45,4 +66,5 @@ interface PostsDataSource {
     suspend fun pressDislike(postId: Long): Result<Unit>
     suspend fun removeDislike(postId: Long): Result<Unit>
     suspend fun filters(): Result<Filters>
+    suspend fun suggestIdeaToMyOffice(postId: Long): Result<Unit>
 }

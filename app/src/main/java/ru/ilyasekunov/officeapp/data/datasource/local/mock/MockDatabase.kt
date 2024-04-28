@@ -63,7 +63,12 @@ val ideaAuthor = IdeaAuthor(
     office = Offices[2]
 )
 
-val Users = mutableListOf(ideaAuthor, User!!.toIdeaAuthor())
+val Users = mutableListOf(
+    ideaAuthor,
+    User!!.toIdeaAuthor(),
+    ideaAuthor.copy(id = 2),
+    ideaAuthor.copy(id = 3)
+)
 
 val ideaPost = IdeaPost(
     id = 0,
@@ -83,7 +88,9 @@ val ideaPost = IdeaPost(
     isLikePressed = true,
     dislikesCount = 101,
     isDislikePressed = false,
-    commentsCount = 342
+    commentsCount = 342,
+    isInProgress = false,
+    isImplemented = false
 )
 
 val Comments = mutableListOf(

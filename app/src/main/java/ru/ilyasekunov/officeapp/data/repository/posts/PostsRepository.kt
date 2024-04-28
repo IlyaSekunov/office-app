@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.data.repository.posts
 
+import androidx.annotation.IntRange
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.dto.SearchPostsDto
@@ -19,6 +20,21 @@ interface PostsRepository {
         pageSize: Int
     ): Result<List<IdeaPost>>
 
+    suspend fun suggestedIdeas(
+        page: Int,
+        pageSize: Int
+    ): Result<List<IdeaPost>>
+
+    suspend fun ideasInProgress(
+        page: Int,
+        pageSize: Int
+    ): Result<List<IdeaPost>>
+
+    suspend fun implementedIdeas(
+        page: Int,
+        pageSize: Int
+    ): Result<List<IdeaPost>>
+
     suspend fun publishPost(post: PublishPostDto): Result<Unit>
     suspend fun editPostById(postId: Long, editedPostDto: EditPostDto): Result<Unit>
     suspend fun findPostById(postId: Long): Result<IdeaPost>
@@ -28,4 +44,5 @@ interface PostsRepository {
     suspend fun pressDislike(postId: Long): Result<Unit>
     suspend fun removeDislike(postId: Long): Result<Unit>
     suspend fun filters(): Result<Filters>
+    suspend fun suggestIdeaToMyOffice(postId: Long): Result<Unit>
 }

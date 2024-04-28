@@ -16,6 +16,7 @@ import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepositoryImpl
 import ru.ilyasekunov.officeapp.data.repository.author.AuthorRepository
 import ru.ilyasekunov.officeapp.data.repository.author.AuthorRepositoryImpl
+import ru.ilyasekunov.officeapp.data.repository.author.AuthorsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.comments.CommentsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.comments.CommentsRepository
 import ru.ilyasekunov.officeapp.data.repository.comments.CommentsRepositoryImpl
@@ -81,6 +82,12 @@ object RepositoryModule {
         //@RemoteDataSource authorDataSource: AuthorDataSource
         @MockDataSource authorDataSource: AuthorDataSource
     ): AuthorRepository = AuthorRepositoryImpl(authorDataSource)
+
+    @Provides
+    @Singleton
+    fun provideAuthorsPagingRepository(
+        @MockDataSource authorDataSource: AuthorDataSource
+    ): AuthorsPagingRepository = AuthorsPagingRepository(authorDataSource)
 
     @Provides
     @Singleton

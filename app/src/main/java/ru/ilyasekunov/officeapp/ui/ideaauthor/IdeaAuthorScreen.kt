@@ -378,7 +378,9 @@ private fun IdeaPreview() {
                     isLikePressed = true,
                     dislikesCount = 101,
                     isDislikePressed = false,
-                    commentsCount = 0
+                    commentsCount = 0,
+                    isInProgress = false,
+                    isImplemented = false
                 ),
                 onIdeaClick = {},
                 onLikeClick = {},
