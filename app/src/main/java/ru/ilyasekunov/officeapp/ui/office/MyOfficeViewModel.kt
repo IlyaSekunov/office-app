@@ -168,13 +168,13 @@ class MyOfficeViewModel @Inject constructor(
             loadSuggestedIdeas()
             loadIdeasInProgress()
             loadImplementedIdeas()
-            loadOfficeWorkers()
+            loadOfficeEmployees()
         }
     }
 
-    private fun loadOfficeWorkers() {
+    private fun loadOfficeEmployees() {
         viewModelScope.launch {
-            authorPagingRepository.officeWorkers()
+            authorPagingRepository.officeEmployees()
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collectLatest {

@@ -15,7 +15,7 @@ object AuthorsPagingDefaults {
 }
 
 class AuthorsPagingRepository(private val authorDataSource: AuthorDataSource) {
-    fun officeWorkers(): Flow<PagingData<IdeaAuthor>> {
+    fun officeEmployees(): Flow<PagingData<IdeaAuthor>> {
         val pagingConfig = AuthorsPagingDefaults.PagingConfig
         return Pager(config = pagingConfig) {
             val pageSize = pagingConfig.pageSize
