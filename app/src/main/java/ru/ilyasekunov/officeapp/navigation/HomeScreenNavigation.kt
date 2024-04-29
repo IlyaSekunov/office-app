@@ -47,9 +47,7 @@ fun NavGraphBuilder.homeScreen(
                     launch {
                         viewModel.filtersUiStateHolder.refreshFilters()
                     }
-                    launch {
-                        posts.refresh()
-                    }
+                    posts.refresh()
                 }
             },
             navigateToFiltersScreen = navigateToFiltersScreen,

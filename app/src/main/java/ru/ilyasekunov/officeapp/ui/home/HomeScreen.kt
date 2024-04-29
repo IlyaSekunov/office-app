@@ -45,6 +45,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -134,7 +135,6 @@ fun HomeScreen(
     navigateToProfileScreen: () -> Unit,
     navigateToAuthGraph: () -> Unit
 ) {
-    val coroutineScope = LocalCoroutineScope.current
     val snackbarHostState = LocalSnackbarHostState.current
     val suggestIdeaFABScrollBehaviour = defaultSuggestIdeaFABScrollBehaviour()
     Scaffold(
@@ -173,7 +173,7 @@ fun HomeScreen(
                 navigateToAuthGraph()
             }
 
-            isScreenLoading(currentUserUiState, filtersUiState) -> AnimatedLoadingScreen()
+            isScreenLoading(posts, currentUserUiState, filtersUiState) -> AnimatedLoadingScreen()
             isErrorWhileLoading(posts, currentUserUiState, filtersUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
@@ -182,37 +182,68 @@ fun HomeScreen(
             }
 
             else -> {
-                BasicPullToRefreshContainer(
-                    onRefreshTrigger = onPullToRefresh,
-                    modifier = Modifier.padding(paddingValues)
-                ) {
-                    val postDeletedMessage = stringResource(R.string.post_deleted)
-                    val undoLabel = stringResource(R.string.undo)
-                    IdeaPosts(
-                        posts = posts,
-                        isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
-                        onDeletePostClick = {
-                            deletePostSnackbar(
-                                snackbarHostState = snackbarHostState,
-                                coroutineScope = coroutineScope,
-                                message = postDeletedMessage,
-                                undoLabel = undoLabel,
-                                onSnackbarTimeOut = { onDeletePostClick(it) }
-                            )
-                        },
-                        onPostLikeClick = onPostLikeClick,
-                        onPostDislikeClick = onPostDislikeClick,
-                        navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
-                        navigateToAuthorScreen = navigateToAuthorScreen,
-                        navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                        contentPadding = PaddingValues(top = 18.dp, bottom = 18.dp),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .nestedScroll(suggestIdeaFABScrollBehaviour.nestedScrollConnection)
-                    )
-                }
+                HomeScreenContent(
+                    posts = posts,
+                    currentUserUiState = currentUserUiState,
+                    onDeletePostClick = onDeletePostClick,
+                    onPostLikeClick = onPostLikeClick,
+                    onPostDislikeClick = onPostDislikeClick,
+                    onPullToRefresh = onPullToRefresh,
+                    navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
+                    navigateToAuthorScreen = navigateToAuthorScreen,
+                    navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+                    snackbarHostState = snackbarHostState,
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .fillMaxSize()
+                        .nestedScroll(suggestIdeaFABScrollBehaviour.nestedScrollConnection)
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun HomeScreenContent(
+    posts: LazyPagingItems<IdeaPost>,
+    currentUserUiState: CurrentUserUiState,
+    onDeletePostClick: (IdeaPost) -> Unit,
+    onPostLikeClick: (IdeaPost) -> Unit,
+    onPostDislikeClick: (IdeaPost) -> Unit,
+    onPullToRefresh: CoroutineScope.() -> Job,
+    navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
+    navigateToAuthorScreen: (authorId: Long) -> Unit,
+    navigateToEditIdeaScreen: (postId: Long) -> Unit,
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = LocalSnackbarHostState.current,
+    coroutineScope: CoroutineScope = LocalCoroutineScope.current,
+) {
+    BasicPullToRefreshContainer(
+        onRefreshTrigger = onPullToRefresh,
+        modifier = modifier
+    ) {
+        val postDeletedMessage = stringResource(R.string.post_deleted)
+        val undoLabel = stringResource(R.string.undo)
+        IdeaPosts(
+            posts = posts,
+            isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
+            onDeletePostClick = {
+                deletePostSnackbar(
+                    snackbarHostState = snackbarHostState,
+                    coroutineScope = coroutineScope,
+                    message = postDeletedMessage,
+                    undoLabel = undoLabel,
+                    onSnackbarTimeOut = { onDeletePostClick(it) }
+                )
+            },
+            onPostLikeClick = onPostLikeClick,
+            onPostDislikeClick = onPostDislikeClick,
+            navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
+            navigateToAuthorScreen = navigateToAuthorScreen,
+            navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+            contentPadding = PaddingValues(vertical = 18.dp),
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }
 
@@ -240,6 +271,7 @@ private fun IdeaPosts(
                     NoPostsAvailable(modifier = Modifier.fillMaxSize())
                 }
             }
+
             else -> {
                 items(
                     count = posts.itemCount,
@@ -958,9 +990,13 @@ fun sortingCategoryName(sortingCategory: SortingCategory) =
     }
 
 private fun isScreenLoading(
+    posts: LazyPagingItems<IdeaPost>,
     currentUserUiState: CurrentUserUiState,
     filtersUiState: FiltersUiState
-) = currentUserUiState.isLoading || filtersUiState.isLoading
+): Boolean {
+    val postsLoading = posts.isRefreshing() && posts.isEmpty()
+    return postsLoading || currentUserUiState.isLoading || filtersUiState.isLoading
+}
 
 
 private fun isErrorWhileLoading(
