@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -41,7 +42,6 @@ import com.valentinilk.shimmer.shimmer
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
-import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.util.isAppending
@@ -58,7 +58,18 @@ fun LazyListScope.comments(
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit
 ) {
     when {
-        comments.isRefreshing() -> item { LoadingScreen() }
+        comments.isRefreshing() && !comments.isEmpty() -> item {
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 3.dp,
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth()
+                    .requiredSize(24.dp)
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            )
+        }
+
         comments.isError() -> {
             item {
                 ErrorScreen(
@@ -68,7 +79,7 @@ fun LazyListScope.comments(
             }
         }
 
-        comments.isEmpty() -> item {
+        comments.isEmpty() && !comments.isRefreshing() -> item {
             CommentsListIsEmpty(modifier = Modifier.padding(10.dp))
         }
 
@@ -93,7 +104,7 @@ fun LazyListScope.comments(
                         modifier = Modifier
                             .padding(bottom = 20.dp)
                             .fillMaxWidth()
-                            .size(20.dp)
+                            .requiredSize(24.dp)
                             .wrapContentWidth(Alignment.CenterHorizontally)
                     )
                 }
@@ -145,6 +156,7 @@ fun Comment(
                     navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen
                 )
             }
+
             else -> CommentIsLoading(authorImageModifier)
         }
     }

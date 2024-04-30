@@ -77,7 +77,7 @@ import ru.ilyasekunov.officeapp.util.toRussianString
 import java.time.LocalDateTime
 
 private object IdeaDetailsScreenDefaults {
-    const val COMMENTS_SECTION_OFFSET_INDEX = 1
+    const val COMMENTS_SECTION_OFFSET_INDEX = 5
 }
 
 @Composable
@@ -103,7 +103,7 @@ fun IdeaDetailsScreen(
     navigateBack: () -> Unit
 ) {
     when {
-        ideaPostUiState.isErrorWhileLoading -> {
+        isErrorWhileLoading(ideaPostUiState) -> {
             ErrorScreen(
                 message = stringResource(R.string.error_connecting_to_server),
                 onRetryButtonClick = onRetryPostLoad
@@ -182,25 +182,53 @@ private fun IdeaDetailsScreenContent(
     modifier: Modifier = Modifier,
     initiallyScrollToComments: Boolean = false
 ) {
-    BothDirectedPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
-        val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour(
-            state = rememberNavigateBackArrowState(isVisible = !initiallyScrollToComments)
-        )
-        val topPadding = 48.dp
+    val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour(
+        state = rememberNavigateBackArrowState(isVisible = !initiallyScrollToComments)
+    )
+    val topPadding = 48.dp
+    BothDirectedPullToRefreshContainer(
+        onRefreshTrigger = onPullToRefresh,
+        modifier = modifier.nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
+    ) {
         LazyColumn(
             state = rememberIdeaDetailsScrollState(
                 initiallyScrollToComments = initiallyScrollToComments,
                 scrollOffset = with(LocalDensity.current) { topPadding.toPx() }.toInt()
             ),
             contentPadding = PaddingValues(top = topPadding, bottom = 14.dp),
-            modifier = modifier.nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
+            modifier = Modifier.fillMaxSize()
         ) {
-            ideaDetailsSection(
+            authorInfoSection(
+                ideaPost = ideaPost,
+                navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 10.dp)
+            )
+            item {
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(10.dp)
+                )
+            }
+            ideaPostDetailSection(
+                ideaPost = ideaPost,
+                modifier = Modifier.padding(bottom = 18.dp)
+            )
+            commentsAndDislikeSection(
                 ideaPost = ideaPost,
                 onLikeClick = onLikeClick,
                 onDislikeClick = onDislikeClick,
-                navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen
+                modifier = Modifier.padding(horizontal = 10.dp)
             )
+            item {
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 16.dp)
+                )
+            }
             commentsInfoSection(
                 commentsCount = ideaPost.commentsCount,
                 currentSortingFilter = currentCommentsSortingFilter,
@@ -227,56 +255,55 @@ private fun IdeaDetailsScreenContent(
     }
 }
 
-private fun LazyListScope.ideaDetailsSection(
+private fun LazyListScope.ideaPostDetailSection(
+    ideaPost: IdeaPost,
+    modifier: Modifier = Modifier
+) {
+    item {
+        IdeaPostDetailSection(
+            ideaPost = ideaPost,
+            modifier = modifier
+        )
+    }
+}
+
+private fun LazyListScope.commentsAndDislikeSection(
     ideaPost: IdeaPost,
     onLikeClick: () -> Unit,
     onDislikeClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    item {
+        LikesAndDislikesSection(
+            isLikePressed = ideaPost.isLikePressed,
+            likesCount = ideaPost.likesCount,
+            onLikeClick = onLikeClick,
+            isDislikePressed = ideaPost.isDislikePressed,
+            dislikesCount = ideaPost.dislikesCount,
+            onDislikeClick = onDislikeClick,
+            likesIconSize = 16.dp,
+            dislikesIconSize = 16.dp,
+            textSize = 14.sp,
+            spaceBetweenCategories = 15.dp,
+            buttonsWithBackground = true,
+            buttonsWithRippleEffect = true,
+            modifier = modifier
+        )
+    }
+}
+
+private fun LazyListScope.authorInfoSection(
+    ideaPost: IdeaPost,
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     item {
-        Column(modifier = modifier) {
-            AuthorInfoSection(
-                ideaAuthor = ideaPost.ideaAuthor,
-                date = ideaPost.date,
-                onClick = {
-                    navigateToIdeaAuthorScreen(ideaPost.ideaAuthor.id)
-                },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 10.dp)
-            )
-            HorizontalDivider(
-                thickness = 1.dp,
-                color = MaterialTheme.colorScheme.outline,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(10.dp)
-            )
-            IdeaPostDetailSection(ideaPost = ideaPost)
-            Spacer(modifier = Modifier.height(18.dp))
-            LikesAndDislikesSection(
-                isLikePressed = ideaPost.isLikePressed,
-                likesCount = ideaPost.likesCount,
-                onLikeClick = onLikeClick,
-                isDislikePressed = ideaPost.isDislikePressed,
-                dislikesCount = ideaPost.dislikesCount,
-                onDislikeClick = onDislikeClick,
-                likesIconSize = 16.dp,
-                dislikesIconSize = 16.dp,
-                textSize = 14.sp,
-                spaceBetweenCategories = 15.dp,
-                buttonsWithBackground = true,
-                buttonsWithRippleEffect = true,
-                modifier = Modifier.padding(horizontal = 10.dp)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(
-                thickness = 1.dp,
-                color = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.padding(horizontal = 10.dp)
-            )
-        }
+        AuthorInfoSection(
+            ideaAuthor = ideaPost.ideaAuthor,
+            date = ideaPost.date,
+            onClick = { navigateToIdeaAuthorScreen(ideaPost.ideaAuthor.id) },
+            modifier = modifier
+        )
     }
 }
 
@@ -534,3 +561,6 @@ private fun isScreenLoading(
     ideaPostUiState: IdeaPostUiState,
     sendingMessageUiState: SendingMessageUiState
 ) = ideaPostUiState.isLoading || sendingMessageUiState.isLoading
+
+private fun isErrorWhileLoading(ideaPostUiState: IdeaPostUiState) =
+    ideaPostUiState.isErrorWhileLoading
