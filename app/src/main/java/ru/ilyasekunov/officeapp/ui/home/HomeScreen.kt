@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
@@ -301,9 +302,9 @@ private fun IdeaPosts(
                             color = MaterialTheme.colorScheme.primary,
                             strokeWidth = 3.dp,
                             modifier = Modifier
-                                .padding(bottom = 20.dp)
+                                .padding(20.dp)
                                 .fillMaxWidth()
-                                .size(20.dp)
+                                .requiredSize(28.dp)
                                 .wrapContentWidth(Alignment.CenterHorizontally)
                         )
                     }
