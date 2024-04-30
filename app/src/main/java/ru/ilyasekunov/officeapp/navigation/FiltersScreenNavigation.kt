@@ -10,11 +10,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import ru.ilyasekunov.officeapp.ui.favouriteideas.FavouriteIdeasViewModel
-import ru.ilyasekunov.officeapp.ui.home.HomeViewModel
 import ru.ilyasekunov.officeapp.ui.filters.FiltersScreen
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiStateHolder
 import ru.ilyasekunov.officeapp.ui.filters.FiltersViewModel
+import ru.ilyasekunov.officeapp.ui.home.HomeViewModel
 
 fun NavGraphBuilder.filtersScreen(
     previousBackStackEntryProvider: () -> NavBackStackEntry,
@@ -67,7 +67,7 @@ private fun filtersUiStateHolder(previousBackStackEntry: NavBackStackEntry): Fil
 @Composable
 fun setUpFiltersViewModel(filtersUiState: FiltersUiState): FiltersViewModel {
     val viewModel = hiltViewModel<FiltersViewModel>()
-    LaunchedEffect(Unit) {
+    LaunchedEffect(filtersUiState) {
         viewModel.updateFiltersUiState(filtersUiState)
     }
     return viewModel
