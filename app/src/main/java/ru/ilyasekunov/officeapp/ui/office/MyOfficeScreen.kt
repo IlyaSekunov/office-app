@@ -20,8 +20,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -65,6 +67,7 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
+import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
@@ -132,21 +135,8 @@ fun MyOfficeScreen(
                 navigateToAuthGraph()
             }
 
-            isScreenLoading(
-                currentUserUiState,
-                suggestedIdeas,
-                ideasInProgress,
-                implementedIdeas,
-                officeEmployees
-            ) -> AnimatedLoadingScreen()
-
-            isErrorWhileLoading(
-                currentUserUiState,
-                suggestedIdeas,
-                ideasInProgress,
-                implementedIdeas,
-                officeEmployees
-            ) -> {
+            isScreenLoading(currentUserUiState) -> AnimatedLoadingScreen()
+            isErrorWhileLoading(currentUserUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
                     onRetryButtonClick = onRetryDataLoad
@@ -375,24 +365,56 @@ private fun EmployeesGroupContent(
     navigateToAuthorScreen: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyHorizontalGrid(
-        rows = GridCells.Fixed(2),
-        contentPadding = PaddingValues(horizontal = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(26.dp),
-        verticalArrangement = Arrangement.spacedBy(40.dp),
-        modifier = modifier.height(200.dp)
-    ) {
-        items(
-            count = employees.itemCount,
-            key = employees.itemKey { it.id }
-        ) {
-            val employee = employees[it]!!
-            EmployeeInfo(
-                employee = employee,
-                onClick = { navigateToAuthorScreen(employee.id) }
-            )
+    when {
+        employees.isRefreshing() && employees.isEmpty() -> LoadingScreen()
+        employees.isError() -> ErrorWhileEmployeesLoading()
+        else -> {
+            LazyHorizontalGrid(
+                rows = GridCells.Fixed(2),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(26.dp),
+                verticalArrangement = Arrangement.spacedBy(40.dp),
+                modifier = modifier.height(200.dp)
+            ) {
+                items(
+                    count = employees.itemCount,
+                    key = employees.itemKey { it.id }
+                ) {
+                    val employee = employees[it]!!
+                    EmployeeInfo(
+                        employee = employee,
+                        onClick = { navigateToAuthorScreen(employee.id) }
+                    )
+                }
+                if (employees.isAppending()) {
+                    item {
+                        CircularProgressIndicator(
+                            color = MaterialTheme.colorScheme.primary,
+                            strokeWidth = 3.dp,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(10.dp)
+                                .wrapContentSize(Alignment.Center)
+                                .requiredSize(24.dp)
+                        )
+                    }
+                }
+            }
         }
     }
+}
+
+@Composable
+private fun ErrorWhileEmployeesLoading(modifier: Modifier = Modifier) {
+    Text(
+        text = stringResource(R.string.error_while_employees_loading),
+        style = MaterialTheme.typography.bodyLarge,
+        fontSize = 14.sp,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+    )
 }
 
 @Composable
@@ -538,53 +560,110 @@ private fun IdeasGroupExpanded(
                 .fillMaxWidth()
                 .padding(vertical = 16.dp, horizontal = 30.dp)
         )
-        if (!ideas.isEmpty()) {
-            HorizontalDivider(
-                thickness = 1.dp,
-                color = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.padding(horizontal = 10.dp)
-            )
-            LazyColumn(
-                contentPadding = PaddingValues(vertical = 14.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(ideasExpandedAspectRation(ideas.itemCount))
-            ) {
-                items(
-                    count = ideas.itemCount,
-                    key = ideas.itemKey { it.id }
-                ) {
-                    val post = ideas[it]!!
-                    IdeaPost(
-                        ideaPost = post,
-                        isAuthorPostCurrentUser = post.ideaAuthor.id == currentUserUiState.user!!.id,
-                        onPostClick = { navigateToIdeaDetailsScreen(post.id) },
-                        onLikeClick = { onPostLikeClick(post) },
-                        onDislikeClick = { onPostDislikeClick(post) },
-                        onCommentClick = { onPostCommentsClick(post) },
-                        navigateToAuthorScreen = navigateToAuthorScreen,
-                        navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                        onDeletePostClick = onDeletePostClick,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                if (ideas.isAppending()) {
-                    item {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = 3.dp,
-                            modifier = Modifier
-                                .padding(bottom = 20.dp)
-                                .fillMaxWidth()
-                                .size(20.dp)
-                                .wrapContentWidth(Alignment.CenterHorizontally)
-                        )
-                    }
-                }
+        when {
+            ideas.isRefreshing() && ideas.isEmpty() -> {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 3.dp,
+                    modifier = Modifier
+                        .padding(bottom = 20.dp)
+                        .fillMaxWidth()
+                        .size(20.dp)
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
+            }
+
+            ideas.isError() -> ErrorWhileIdeasLoading(modifier = Modifier.padding(20.dp))
+            !ideas.isEmpty() -> {
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(horizontal = 10.dp)
+                )
+                IdeasGroupExpandedContent(
+                    ideas = ideas,
+                    currentUserUiState = currentUserUiState,
+                    onPostLikeClick = onPostLikeClick,
+                    onPostDislikeClick = onPostDislikeClick,
+                    onPostCommentsClick = onPostCommentsClick,
+                    onDeletePostClick = onDeletePostClick,
+                    navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
+                    navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+                    navigateToAuthorScreen = navigateToAuthorScreen,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(ideasExpandedAspectRation(ideas.itemCount))
+                )
             }
         }
     }
+}
+
+@Composable
+private fun IdeasGroupExpandedContent(
+    ideas: LazyPagingItems<IdeaPost>,
+    currentUserUiState: CurrentUserUiState,
+    onPostLikeClick: (IdeaPost) -> Unit,
+    onPostDislikeClick: (IdeaPost) -> Unit,
+    onPostCommentsClick: (IdeaPost) -> Unit,
+    onDeletePostClick: (IdeaPost) -> Unit,
+    navigateToIdeaDetailsScreen: (Long) -> Unit,
+    navigateToEditIdeaScreen: (Long) -> Unit,
+    navigateToAuthorScreen: (Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        contentPadding = PaddingValues(vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .aspectRatio(ideasExpandedAspectRation(ideas.itemCount))
+    ) {
+        items(
+            count = ideas.itemCount,
+            key = ideas.itemKey { it.id }
+        ) {
+            val post = ideas[it]!!
+            IdeaPost(
+                ideaPost = post,
+                isAuthorPostCurrentUser = post.ideaAuthor.id == currentUserUiState.user!!.id,
+                onPostClick = { navigateToIdeaDetailsScreen(post.id) },
+                onLikeClick = { onPostLikeClick(post) },
+                onDislikeClick = { onPostDislikeClick(post) },
+                onCommentClick = { onPostCommentsClick(post) },
+                navigateToAuthorScreen = navigateToAuthorScreen,
+                navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+                onDeletePostClick = onDeletePostClick,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        if (ideas.isAppending()) {
+            item {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    strokeWidth = 3.dp,
+                    modifier = Modifier
+                        .padding(20.dp)
+                        .fillMaxWidth()
+                        .requiredSize(24.dp)
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ErrorWhileIdeasLoading(modifier: Modifier = Modifier) {
+    Text(
+        text = stringResource(R.string.error_while_ideas_loading),
+        style = MaterialTheme.typography.bodyLarge,
+        fontSize = 14.sp,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = modifier
+            .fillMaxSize()
+            .wrapContentSize(Alignment.Center)
+    )
 }
 
 @Composable
@@ -718,7 +797,7 @@ private fun InfoGroupsSection(
                         }
                     }
             )
-            WorkersGroupTitle(
+            EmployeesGroupTitle(
                 onClick = onEmployeesClick,
                 modifier = Modifier
                     .conditional(selected == InfoGroup.EMPLOYEES) {
@@ -759,7 +838,7 @@ private fun IdeasGroupTitle(
 }
 
 @Composable
-fun WorkersGroupTitle(
+private fun EmployeesGroupTitle(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -785,29 +864,10 @@ private fun ideasGroupName(ideasGroup: IdeasGroup) =
         IdeasGroup.IMPLEMENTED -> stringResource(R.string.ideas_implemented)
     }
 
-private fun isScreenLoading(
-    currentUserUiState: CurrentUserUiState,
-    suggestedIdeas: LazyPagingItems<IdeaPost>,
-    ideasInProgress: LazyPagingItems<IdeaPost>,
-    implementedIdeas: LazyPagingItems<IdeaPost>,
-    officeEmployees: LazyPagingItems<IdeaAuthor>
-) = currentUserUiState.isLoading ||
-        suggestedIdeas.isRefreshing() ||
-        ideasInProgress.isRefreshing() ||
-        implementedIdeas.isRefreshing() ||
-        officeEmployees.isRefreshing()
+private fun isScreenLoading(currentUserUiState: CurrentUserUiState) = currentUserUiState.isLoading
 
-private fun isErrorWhileLoading(
-    currentUserUiState: CurrentUserUiState,
-    suggestedIdeas: LazyPagingItems<IdeaPost>,
-    ideasInProgress: LazyPagingItems<IdeaPost>,
-    implementedIdeas: LazyPagingItems<IdeaPost>,
-    officeEmployees: LazyPagingItems<IdeaAuthor>
-) = currentUserUiState.isErrorWhileLoading ||
-        suggestedIdeas.isError() ||
-        ideasInProgress.isError() ||
-        implementedIdeas.isError() ||
-        officeEmployees.isError()
+private fun isErrorWhileLoading(currentUserUiState: CurrentUserUiState) =
+    currentUserUiState.isErrorWhileLoading
 
 private fun ideasExpandedAspectRation(ideasCount: Int) =
     1f / min(ideasCount, 3).coerceAtLeast(1)
