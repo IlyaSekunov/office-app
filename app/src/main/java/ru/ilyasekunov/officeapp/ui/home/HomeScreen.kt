@@ -94,7 +94,7 @@ import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
-import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
+import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.SuggestIdeaButton
@@ -218,7 +218,7 @@ private fun HomeScreenContent(
     snackbarHostState: SnackbarHostState = LocalSnackbarHostState.current,
     coroutineScope: CoroutineScope = LocalCoroutineScope.current,
 ) {
-    BasicPullToRefreshContainer(
+    BothDirectedPullToRefreshContainer(
         onRefreshTrigger = onPullToRefresh,
         modifier = modifier
     ) {

@@ -64,7 +64,7 @@ import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.comments.comments
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
-import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
+import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageBottomBar
@@ -182,13 +182,9 @@ private fun IdeaDetailsScreenContent(
     modifier: Modifier = Modifier,
     initiallyScrollToComments: Boolean = false
 ) {
-    BasicPullToRefreshContainer(
-        onRefreshTrigger = onPullToRefresh
-    ) {
+    BothDirectedPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
         val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour(
-            state = rememberNavigateBackArrowState(
-                isVisible = !initiallyScrollToComments
-            )
+            state = rememberNavigateBackArrowState(isVisible = !initiallyScrollToComments)
         )
         val topPadding = 48.dp
         LazyColumn(
@@ -197,10 +193,7 @@ private fun IdeaDetailsScreenContent(
                 scrollOffset = with(LocalDensity.current) { topPadding.toPx() }.toInt()
             ),
             contentPadding = PaddingValues(top = topPadding, bottom = 14.dp),
-            modifier = modifier
-                .nestedScroll(
-                    connection = navigateBackArrowScrollBehaviour.nestedScrollConnection
-                )
+            modifier = modifier.nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
         ) {
             ideaDetailsSection(
                 ideaPost = ideaPost,

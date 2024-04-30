@@ -72,7 +72,7 @@ import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
-import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
+import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
 import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
@@ -194,7 +194,7 @@ fun MyOfficeScreenContent(
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BasicPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
+    BothDirectedPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier

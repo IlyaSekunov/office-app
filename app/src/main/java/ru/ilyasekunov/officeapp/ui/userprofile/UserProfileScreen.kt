@@ -47,8 +47,8 @@ import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.auth.registration.UserInfoFieldUiState
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
-import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.components.UpsidePullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
@@ -123,7 +123,7 @@ private fun UserProfileContent(
     onPullToRefresh: CoroutineScope.() -> Job,
     modifier: Modifier = Modifier
 ) {
-    BasicPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
+    UpsidePullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
         Column(modifier = modifier.verticalScroll(rememberScrollState())) {
             UserInfoSection(
                 name = userProfileUiState.name.value,

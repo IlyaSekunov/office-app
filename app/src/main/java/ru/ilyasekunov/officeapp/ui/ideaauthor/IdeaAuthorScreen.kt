@@ -46,7 +46,7 @@ import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
-import ru.ilyasekunov.officeapp.ui.components.BasicPullToRefreshContainer
+import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
@@ -124,7 +124,7 @@ private fun IdeaAuthorScreenContent(
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BasicPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
+    BothDirectedPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
         val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour()
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
