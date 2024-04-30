@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -74,7 +75,6 @@ import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
 import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
 import ru.ilyasekunov.officeapp.ui.home.IdeaPost
@@ -128,7 +128,9 @@ fun MyOfficeScreen(
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
     ) { paddingValues ->
         when {
             currentUserUiState.isUnauthorized -> {
@@ -194,11 +196,14 @@ fun MyOfficeScreenContent(
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BothDirectedPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
+    BothDirectedPullToRefreshContainer(
+        onRefreshTrigger = onPullToRefresh,
+        modifier = modifier
+    ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
-                .background(MaterialTheme.colorScheme.surfaceContainer)
+            modifier = Modifier
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
             Title(modifier = Modifier.padding(bottom = 40.dp, top = 16.dp))
@@ -228,7 +233,7 @@ fun MyOfficeScreenContent(
                 navigateToAuthorScreen = navigateToAuthorScreen,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp, bottom = 20.dp)
+                    .padding(vertical = 20.dp)
             )
         }
     }
@@ -261,7 +266,7 @@ private fun IdeasAndEmployeesInfoSection(
             onEmployeesClick = { currentInfoGroup = InfoGroup.EMPLOYEES },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .fillMaxWidth(0.7f)
+                .fillMaxWidth(0.8f)
         )
         AnimatedIdeasGroupContent(
             visible = currentInfoGroup == InfoGroup.IDEAS,
@@ -547,7 +552,7 @@ private fun IdeasGroupExpanded(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .shadow(
-                elevation = 2.dp,
+                elevation = 3.dp,
                 shape = MaterialTheme.shapes.large
             )
             .background(MaterialTheme.colorScheme.background)
@@ -829,11 +834,9 @@ private fun IdeasGroupTitle(
         fontSize = 20.sp,
         color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = modifier
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = rememberCircleClickEffectIndication(),
-                onClick = onClick
-            )
+            .clip(MaterialTheme.shapes.medium)
+            .clickable(onClick = onClick)
+            .padding(10.dp)
     )
 }
 
@@ -848,11 +851,9 @@ private fun EmployeesGroupTitle(
         fontSize = 20.sp,
         color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = modifier
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = rememberCircleClickEffectIndication(),
-                onClick = onClick
-            )
+            .clip(MaterialTheme.shapes.medium)
+            .clickable(onClick = onClick)
+            .padding(10.dp)
     )
 }
 
