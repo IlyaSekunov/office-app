@@ -339,7 +339,10 @@ private fun Idea(
 private fun isScreenLoading(
     ideaAuthorUiState: IdeaAuthorUiState,
     ideas: LazyPagingItems<IdeaPost>
-) = ideas.isRefreshing() || ideaAuthorUiState.isLoading
+): Boolean{
+    val ideasLoading = ideas.isEmpty() && ideas.isRefreshing()
+    return ideasLoading || ideaAuthorUiState.isLoading
+}
 
 
 private fun isErrorWhileLoading(
