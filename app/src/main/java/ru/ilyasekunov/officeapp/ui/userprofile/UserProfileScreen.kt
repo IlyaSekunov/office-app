@@ -68,40 +68,40 @@ fun UserProfileScreen(
     navigateToMyOfficeScreen: () -> Unit,
     navigateToAuthGraph: () -> Unit
 ) {
-    when {
-        userProfileUiState.isLoading -> AnimatedLoadingScreen()
-        else -> {
-            val containerColor = MaterialTheme.colorScheme.background
-            Scaffold(
-                snackbarHost = { SnackbarHost(hostState = LocalSnackbarHostState.current) },
-                bottomBar = {
-                    BottomNavigationBar(
-                        selectedScreen = LocalCurrentNavigationBarScreen.current,
-                        navigateToHomeScreen = navigateToHomeScreen,
-                        navigateToFavouriteScreen = navigateToFavouriteScreen,
-                        navigateToMyOfficeScreen = navigateToMyOfficeScreen
-                    )
-                },
-                containerColor = containerColor,
-                modifier = Modifier.fillMaxSize()
-            ) { paddingValues ->
-                if (userProfileUiState.isErrorWhileUserLoading) {
-                    ErrorScreen(
-                        message = stringResource(R.string.error_connecting_to_server),
-                        onRetryButtonClick = onRetryUserLoadClick
-                    )
-                } else {
-                    UserProfileContent(
-                        userProfileUiState = userProfileUiState,
-                        userInfoSectionContainerColor = containerColor,
-                        onManageAccountClick = onManageAccountClick,
-                        onMyOfficeClick = onMyOfficeClick,
-                        onMyIdeasClick = onMyIdeasClick,
-                        onLogoutClick = onLogoutClick,
-                        onPullToRefresh = onPullToRefresh,
-                        modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
-                    )
-                }
+    val containerColor = MaterialTheme.colorScheme.background
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = LocalSnackbarHostState.current) },
+        bottomBar = {
+            BottomNavigationBar(
+                selectedScreen = LocalCurrentNavigationBarScreen.current,
+                navigateToHomeScreen = navigateToHomeScreen,
+                navigateToFavouriteScreen = navigateToFavouriteScreen,
+                navigateToMyOfficeScreen = navigateToMyOfficeScreen
+            )
+        },
+        containerColor = containerColor,
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues ->
+        when {
+            isScreenLoading(userProfileUiState) -> AnimatedLoadingScreen()
+            isErrorWhileLoading(userProfileUiState) -> {
+                ErrorScreen(
+                    message = stringResource(R.string.error_connecting_to_server),
+                    onRetryButtonClick = onRetryUserLoadClick
+                )
+            }
+
+            else -> {
+                UserProfileContent(
+                    userProfileUiState = userProfileUiState,
+                    userInfoSectionContainerColor = containerColor,
+                    onManageAccountClick = onManageAccountClick,
+                    onMyOfficeClick = onMyOfficeClick,
+                    onMyIdeasClick = onMyIdeasClick,
+                    onLogoutClick = onLogoutClick,
+                    onPullToRefresh = onPullToRefresh,
+                    modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
+                )
             }
         }
     }
@@ -273,6 +273,12 @@ private fun Option(
         )
     }
 }
+
+private fun isScreenLoading(userProfileUiState: UserProfileUiState) =
+    userProfileUiState.isLoading
+
+private fun isErrorWhileLoading(userProfileUiState: UserProfileUiState) =
+    userProfileUiState.isErrorWhileUserLoading
 
 @Preview
 @Composable
