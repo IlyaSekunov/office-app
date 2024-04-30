@@ -4,15 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -100,7 +99,9 @@ fun UserProfileScreen(
                     onMyIdeasClick = onMyIdeasClick,
                     onLogoutClick = onLogoutClick,
                     onPullToRefresh = onPullToRefresh,
-                    modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
+                    modifier = Modifier
+                        .padding(bottom = paddingValues.calculateBottomPadding())
+                        .fillMaxSize()
                 )
             }
         }
@@ -123,11 +124,7 @@ private fun UserProfileContent(
     modifier: Modifier = Modifier
 ) {
     BasicPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
+        Column(modifier = modifier.verticalScroll(rememberScrollState())) {
             UserInfoSection(
                 name = userProfileUiState.name.value,
                 surname = userProfileUiState.surname.value,
@@ -164,23 +161,33 @@ private fun UserProfileContent(
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                 color = MaterialTheme.colorScheme.primary
             )
-            Text(
-                text = stringResource(R.string.log_out),
-                style = MaterialTheme.typography.bodyMedium,
-                fontSize = 15.sp,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier
-                    .padding(start = 16.dp, top = 16.dp, bottom = 30.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = rememberCircleClickEffectIndication(
-                            circleColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                        ),
-                        onClick = onLogoutClick
-                    )
+            LogoutButton(
+                onClick = onLogoutClick,
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 30.dp)
             )
         }
     }
+}
+
+@Composable
+private fun LogoutButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = stringResource(R.string.log_out),
+        style = MaterialTheme.typography.bodyMedium,
+        fontSize = 15.sp,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = rememberCircleClickEffectIndication(
+                    circleColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                ),
+                onClick = onClick
+            )
+    )
 }
 
 @Composable
@@ -255,8 +262,9 @@ private fun Option(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(15.dp),
         modifier = Modifier
-            .clickable { onClick() }
+            .clickable(onClick = onClick)
             .then(modifier)
     ) {
         Icon(
@@ -265,7 +273,6 @@ private fun Option(
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(30.dp)
         )
-        Spacer(modifier = Modifier.width(15.dp))
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
