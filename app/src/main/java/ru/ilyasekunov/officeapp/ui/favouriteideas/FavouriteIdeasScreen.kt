@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -120,20 +118,12 @@ fun FavouriteIdeasScreen(
                     onRefreshTrigger = onPullToRefresh,
                     modifier = Modifier.padding(paddingValues)
                 ) {
-                    if (favouriteIdeas.isEmpty()) {
-                        NoFavouriteIdeas(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState())
-                        )
-                    } else {
-                        FavouriteIdeas(
-                            favouriteIdeas = favouriteIdeas,
-                            favouriteIdeaSize = 100.dp,
-                            onIdeaClick = navigateToIdeaDetailsScreen,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
+                    FavouriteIdeas(
+                        favouriteIdeas = favouriteIdeas,
+                        favouriteIdeaSize = 100.dp,
+                        onIdeaClick = navigateToIdeaDetailsScreen,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }
@@ -196,29 +186,35 @@ private fun FavouriteIdeas(
         verticalArrangement = Arrangement.spacedBy(2.dp),
         modifier = modifier
     ) {
-        items(
-            count = favouriteIdeas.itemCount,
-            key = favouriteIdeas.itemKey { it.id }
-        ) {
-            val idea = favouriteIdeas[it]!!
-            FavouriteIdea(
-                ideaPost = idea,
-                onClick = { onIdeaClick(idea.id) },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .size(favouriteIdeaSize)
-            )
-        }
-        if (favouriteIdeas.isAppending()) {
+        if (favouriteIdeas.isEmpty() && !favouriteIdeas.isRefreshing()) {
             item {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 3.dp,
+                NoFavouriteIdeas(modifier = Modifier.fillMaxSize())
+            }
+        } else {
+            items(
+                count = favouriteIdeas.itemCount,
+                key = favouriteIdeas.itemKey { it.id }
+            ) {
+                val idea = favouriteIdeas[it]!!
+                FavouriteIdea(
+                    ideaPost = idea,
+                    onClick = { onIdeaClick(idea.id) },
                     modifier = Modifier
+                        .fillMaxSize()
                         .size(favouriteIdeaSize)
-                        .wrapContentSize(Alignment.Center)
-                        .size(30.dp)
                 )
+            }
+            if (favouriteIdeas.isAppending()) {
+                item {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 3.dp,
+                        modifier = Modifier
+                            .size(favouriteIdeaSize)
+                            .wrapContentSize(Alignment.Center)
+                            .size(30.dp)
+                    )
+                }
             }
         }
     }
@@ -273,7 +269,10 @@ val ColorSaver = listSaver(
 private fun isScreenLoading(
     favouriteIdeas: LazyPagingItems<IdeaPost>,
     filtersUiState: FiltersUiState
-) = favouriteIdeas.isRefreshing() || filtersUiState.isLoading
+): Boolean {
+    val ideasLoading = favouriteIdeas.isRefreshing() && favouriteIdeas.isEmpty()
+    return ideasLoading || filtersUiState.isLoading
+}
 
 
 private fun isErrorWhileLoading(
