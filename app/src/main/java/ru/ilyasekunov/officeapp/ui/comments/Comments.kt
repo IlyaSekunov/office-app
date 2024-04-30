@@ -58,7 +58,7 @@ fun LazyListScope.comments(
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit
 ) {
     when {
-        comments.isRefreshing() && !comments.isEmpty() -> item {
+        comments.isRefreshing() && comments.isEmpty() -> item {
             CircularProgressIndicator(
                 color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 3.dp,
