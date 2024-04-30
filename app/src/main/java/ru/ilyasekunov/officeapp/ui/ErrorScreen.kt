@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,9 +49,7 @@ fun ErrorScreen(
             color = MaterialTheme.colorScheme.surfaceVariant
         )
         Spacer(modifier = Modifier.height(30.dp))
-        RetryButton(
-            onClick = onRetryButtonClick
-        )
+        RetryButton(onClick = onRetryButtonClick)
     }
 }
 
@@ -64,12 +61,13 @@ fun RetryButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val animatedScale by animateFloatAsState(
-        targetValue = if (isPressed) 0.9f else 1f,
+        targetValue = if (isPressed) 0.92f else 1f,
         animationSpec = tween(durationMillis = 100),
         label = "animated_scale"
     )
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
             .selectable(
                 selected = isPressed,
@@ -88,7 +86,6 @@ fun RetryButton(
             tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(20.dp)
         )
-        Spacer(modifier = Modifier.width(10.dp))
         Text(
             text = stringResource(R.string.retry),
             fontSize = 14.sp,
