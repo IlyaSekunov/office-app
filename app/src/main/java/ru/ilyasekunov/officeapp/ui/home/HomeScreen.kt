@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
@@ -261,19 +262,17 @@ private fun IdeaPosts(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
-    LazyColumn(
-        contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = modifier
-    ) {
-        when {
-            posts.isEmpty() && !posts.isRefreshing() -> {
-                item {
-                    NoPostsAvailable(modifier = Modifier.fillMaxSize())
-                }
-            }
+    when {
+        posts.isEmpty() && !posts.isRefreshing() -> {
+            NoPostsAvailable(modifier = Modifier.fillMaxSize())
+        }
 
-            else -> {
+        else -> {
+            LazyColumn(
+                contentPadding = contentPadding,
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = modifier
+            ) {
                 items(
                     count = posts.itemCount,
                     key = posts.itemKey { it.id }
@@ -366,20 +365,14 @@ fun HomeAppBar(
 }
 
 @Composable
-private fun NoPostsAvailable(
-    modifier: Modifier = Modifier
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-    ) {
-        Text(
-            text = stringResource(R.string.no_posts),
-            style = MaterialTheme.typography.bodyLarge,
-            fontSize = 20.sp,
-            color = MaterialTheme.colorScheme.surfaceVariant
-        )
-    }
+private fun NoPostsAvailable(modifier: Modifier = Modifier) {
+    Text(
+        text = stringResource(R.string.no_posts),
+        style = MaterialTheme.typography.bodyLarge,
+        fontSize = 20.sp,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        modifier = modifier.wrapContentSize(Alignment.Center)
+    )
 }
 
 @Composable
