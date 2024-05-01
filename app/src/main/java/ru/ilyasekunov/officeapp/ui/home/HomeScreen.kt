@@ -301,7 +301,7 @@ fun HomeScreenIdeaPosts(
 }
 
 @Composable
-fun ErrorWhileAppending(
+private fun ErrorWhileAppending(
     message: String,
     onRetryButtonClick: () -> Unit,
     modifier: Modifier = Modifier

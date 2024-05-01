@@ -46,13 +46,13 @@ import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.RetryButton
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
-import ru.ilyasekunov.officeapp.ui.home.ErrorWhileAppending
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoSection
 import ru.ilyasekunov.officeapp.util.isAppending
@@ -230,6 +230,27 @@ private fun LazyListScope.ideas(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ErrorWhileAppending(
+    message: String,
+    onRetryButtonClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Text(
+            text = message,
+            fontSize = 16.sp,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.surfaceVariant
+        )
+        RetryButton(onClick = onRetryButtonClick)
     }
 }
 

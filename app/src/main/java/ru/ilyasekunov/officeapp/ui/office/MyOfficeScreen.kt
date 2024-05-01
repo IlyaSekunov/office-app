@@ -64,6 +64,7 @@ import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
+import ru.ilyasekunov.officeapp.ui.RetryButton
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
@@ -71,7 +72,6 @@ import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsColumn
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsHorizontalGrid
 import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
-import ru.ilyasekunov.officeapp.ui.home.ErrorWhileAppending
 import ru.ilyasekunov.officeapp.ui.home.IdeaPost
 import ru.ilyasekunov.officeapp.ui.modifiers.conditional
 import ru.ilyasekunov.officeapp.util.isEmpty
@@ -402,6 +402,27 @@ private fun EmployeesGroupContent(
         verticalArrangement = Arrangement.spacedBy(40.dp),
         modifier = modifier.height(200.dp)
     )
+}
+
+@Composable
+private fun ErrorWhileAppending(
+    message: String,
+    onRetryButtonClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Text(
+            text = message,
+            fontSize = 16.sp,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.surfaceVariant
+        )
+        RetryButton(onClick = onRetryButtonClick)
+    }
 }
 
 @Composable

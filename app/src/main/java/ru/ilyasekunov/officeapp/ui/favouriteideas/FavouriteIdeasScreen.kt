@@ -38,7 +38,6 @@ import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsVerticalGrid
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
-import ru.ilyasekunov.officeapp.ui.home.ErrorWhileAppending
 import ru.ilyasekunov.officeapp.ui.home.HomeAppBar
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import ru.ilyasekunov.officeapp.ui.home.SearchUiState
@@ -162,13 +161,27 @@ fun FavouriteIdeas(
         errorWhileAppendComposable = {
             ErrorWhileAppending(
                 message = stringResource(R.string.error_while_ideas_loading),
-                onRetryButtonClick = favouriteIdeas::retry,
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier.size(favouriteIdeaSize)
             )
         },
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
         modifier = modifier
+    )
+}
+
+@Composable
+private fun ErrorWhileAppending(
+    message: String,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = message,
+        fontSize = 12.sp,
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        textAlign = TextAlign.Center,
+        modifier = modifier.wrapContentSize(Alignment.Center)
     )
 }
 

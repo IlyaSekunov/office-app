@@ -40,9 +40,9 @@ import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
+import ru.ilyasekunov.officeapp.ui.RetryButton
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
-import ru.ilyasekunov.officeapp.ui.home.ErrorWhileAppending
 import ru.ilyasekunov.officeapp.util.isAppending
 import ru.ilyasekunov.officeapp.util.isEmpty
 import ru.ilyasekunov.officeapp.util.isErrorWhileAppending
@@ -105,6 +105,27 @@ fun LazyListScope.comments(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ErrorWhileAppending(
+    message: String,
+    onRetryButtonClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Text(
+            text = message,
+            fontSize = 16.sp,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.surfaceVariant
+        )
+        RetryButton(onClick = onRetryButtonClick)
     }
 }
 
