@@ -309,6 +309,7 @@ fun rememberOnAttachImageButtonClick(
 ): () -> Unit {
     val attachedImagesCountExceededMessage = stringResource(R.string.attached_images_count_exceeded)
     val multipleImagePickerRequest = rememberMultipleImagePickerRequest(
+        maxItems = maxAttachedImagesCount,
         onResult = onAttachImagesClick
     )
     val storageAccessPermissionRequest = rememberStorageAccessPermissionRequest { granted ->

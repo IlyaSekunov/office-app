@@ -14,27 +14,34 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
 import ru.ilyasekunov.officeapp.R
+import ru.ilyasekunov.officeapp.permissions.rememberStorageAccessPermissionRequest
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
+import ru.ilyasekunov.officeapp.ui.attachedImagesCountExceededSnackbar
 import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
+import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePickerRequest
 import ru.ilyasekunov.officeapp.ui.modifiers.BorderSide
 import ru.ilyasekunov.officeapp.ui.modifiers.border
-import ru.ilyasekunov.officeapp.ui.suggestidea.rememberOnAttachImageButtonClick
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 data class SendingMessageUiState(
@@ -64,7 +71,7 @@ fun SendingMessageBottomBar(
                 attachedImages = sendingMessageUiState.attachedImages,
                 onImageRemoveClick = onImageRemoveClick,
                 imagesArrangement = Arrangement.spacedBy(12.dp),
-                modifier = modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
         }
         CommentSection(
@@ -89,10 +96,9 @@ private fun CommentSection(
     containerColor: Color,
     modifier: Modifier = Modifier
 ) {
-    val onAttachImagesClick = rememberOnAttachImageButtonClick(
+    val onAttachImagesClick = rememberOnAttachImageToCommentClick(
         attachedImagesCount = attachedImagesCount,
-        maxAttachedImagesCount = ImagePickerDefaults.COMMENTS_MAX_ATTACH_IMAGES,
-        onAttachImagesClick = { onAttachImageClick(it.first()) },
+        onAttachImageClick = onAttachImageClick,
         coroutineScope = LocalCoroutineScope.current,
         snackbarHostState = LocalSnackbarHostState.current
     )
@@ -147,6 +153,50 @@ private fun CommentSection(
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
             )
     )
+}
+
+@Composable
+private fun rememberOnAttachImageToCommentClick(
+    attachedImagesCount: Int,
+    onAttachImageClick: (Uri) -> Unit,
+    coroutineScope: CoroutineScope,
+    snackbarHostState: SnackbarHostState
+): () -> Unit {
+    val attachedImagesCountExceededMessage = stringResource(R.string.attached_images_count_exceeded)
+    val multipleImagePickerRequest = rememberSingleImagePickerRequest { uri ->
+        uri?.let { onAttachImageClick(it) }
+    }
+    val storageAccessPermissionRequest = rememberStorageAccessPermissionRequest { granted ->
+        if (granted) {
+            multipleImagePickerRequest()
+        }
+    }
+    val context = LocalContext.current
+    return remember(
+        attachedImagesCount,
+        multipleImagePickerRequest,
+        coroutineScope,
+        snackbarHostState
+    ) {
+        if (attachedImagesCount >= ImagePickerDefaults.COMMENTS_MAX_ATTACH_IMAGES) {
+            {
+                attachedImagesCountExceededSnackbar(
+                    snackbarHostState = snackbarHostState,
+                    coroutineScope = coroutineScope,
+                    duration = SnackbarDuration.Short,
+                    message = attachedImagesCountExceededMessage
+                )
+            }
+        } else {
+            {
+                onImagePickerClick(
+                    context = context,
+                    openImagePickerRequest = multipleImagePickerRequest,
+                    storageAccessPermissionRequest = storageAccessPermissionRequest
+                )
+            }
+        }
+    }
 }
 
 @Composable

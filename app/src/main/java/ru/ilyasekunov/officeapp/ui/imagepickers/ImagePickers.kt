@@ -28,11 +28,12 @@ fun rememberSingleImagePickerRequest(onResult: (Uri?) -> Unit): () -> Unit {
 }
 
 @Composable
-fun rememberMultipleImagePickerRequest(onResult: (List<Uri>) -> Unit): () -> Unit {
+fun rememberMultipleImagePickerRequest(
+    maxItems: Int,
+    onResult: (List<Uri>) -> Unit
+): () -> Unit {
     val activityResultLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(
-            maxItems = ImagePickerDefaults.MAX_ATTACH_IMAGES
-        ),
+        contract = ActivityResultContracts.PickMultipleVisualMedia(maxItems = maxItems),
         onResult = onResult
     )
     return remember(activityResultLauncher, onResult) {
