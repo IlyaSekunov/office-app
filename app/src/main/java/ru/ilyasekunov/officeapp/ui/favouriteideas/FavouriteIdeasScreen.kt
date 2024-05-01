@@ -151,12 +151,7 @@ fun FavouriteIdeas(
             )
         },
         itemsAppendComposable = {
-            LoadingScreen(
-                modifier = Modifier
-                    .size(favouriteIdeaSize)
-                    .wrapContentSize(Alignment.Center)
-                    .size(30.dp)
-            )
+            LoadingScreen(modifier = Modifier.size(favouriteIdeaSize))
         },
         errorWhileRefreshComposable = {
             ErrorScreen(
@@ -221,7 +216,7 @@ private fun NoFavouriteIdeas(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun FavouriteIdea(
+fun FavouriteIdea(
     ideaPost: IdeaPost,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
