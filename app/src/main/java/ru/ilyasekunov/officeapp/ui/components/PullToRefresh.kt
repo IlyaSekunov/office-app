@@ -442,14 +442,14 @@ fun UpsidePullToRefreshContainer(
 fun BothDirectedPullToRefreshContainer(
     onRefreshTrigger: CoroutineScope.() -> Job,
     modifier: Modifier = Modifier,
+    upsidePullToRefreshState: PullToRefreshState = rememberUpsidePullToRefreshState(),
+    downsidePullToRefreshState: PullToRefreshState = rememberDownsidePullToRefreshState(),
     shape: Shape = PullToRefreshDefaults.shape,
     containerColor: Color = MaterialTheme.colorScheme.onPrimary,
     contentColor: Color = MaterialTheme.colorScheme.primary,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val upsidePullToRefreshState = rememberUpsidePullToRefreshState()
-    val downsidePullToRefreshState = rememberDownsidePullToRefreshState()
-    if (upsidePullToRefreshState.isRefreshing || downsidePullToRefreshState.isRefreshing) {
+    if (isPullToRefreshActive(upsidePullToRefreshState, downsidePullToRefreshState)) {
         LaunchedEffect(Unit) {
             onRefreshTrigger().join()
             upsidePullToRefreshState.endRefresh()
@@ -478,3 +478,9 @@ fun BothDirectedPullToRefreshContainer(
         )
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+fun isPullToRefreshActive(
+    upsidePullToRefreshState: PullToRefreshState,
+    downsidePullToRefreshState: PullToRefreshState
+) = upsidePullToRefreshState.isRefreshing || downsidePullToRefreshState.isRefreshing

@@ -10,8 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,18 +26,23 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.itemKey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
+import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsVerticalGrid
+import ru.ilyasekunov.officeapp.ui.components.isPullToRefreshActive
+import ru.ilyasekunov.officeapp.ui.components.rememberDownsidePullToRefreshState
+import ru.ilyasekunov.officeapp.ui.components.rememberUpsidePullToRefreshState
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
+import ru.ilyasekunov.officeapp.ui.home.ErrorWhileAppending
 import ru.ilyasekunov.officeapp.ui.home.HomeAppBar
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import ru.ilyasekunov.officeapp.ui.home.SearchUiState
@@ -48,10 +52,6 @@ import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorOrange
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorPurple
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorRed
 import ru.ilyasekunov.officeapp.ui.theme.favouriteIdeaColorYellow
-import ru.ilyasekunov.officeapp.util.isAppending
-import ru.ilyasekunov.officeapp.util.isEmpty
-import ru.ilyasekunov.officeapp.util.isError
-import ru.ilyasekunov.officeapp.util.isRefreshing
 import kotlin.random.Random
 import kotlin.random.nextInt
 
@@ -64,6 +64,7 @@ private val favouriteIdeaColors = listOf(
     favouriteIdeaColorYellow
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavouriteIdeasScreen(
     favouriteIdeas: LazyPagingItems<IdeaPost>,
@@ -105,8 +106,8 @@ fun FavouriteIdeasScreen(
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         when {
-            isScreenLoading(favouriteIdeas, filtersUiState) -> AnimatedLoadingScreen()
-            isErrorWhileLoading(favouriteIdeas, filtersUiState) -> {
+            isScreenLoading(filtersUiState) -> AnimatedLoadingScreen()
+            isErrorWhileLoading(filtersUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
                     onRetryButtonClick = onRetryInfoLoad
@@ -114,12 +115,20 @@ fun FavouriteIdeasScreen(
             }
 
             else -> {
+                val upsidePullToRefreshState = rememberUpsidePullToRefreshState()
+                val downsidePullToRefreshState = rememberDownsidePullToRefreshState()
                 BothDirectedPullToRefreshContainer(
+                    upsidePullToRefreshState = upsidePullToRefreshState,
+                    downsidePullToRefreshState = downsidePullToRefreshState,
                     onRefreshTrigger = onPullToRefresh,
                     modifier = Modifier.padding(paddingValues)
                 ) {
                     FavouriteIdeas(
                         favouriteIdeas = favouriteIdeas,
+                        isPullToRefreshActive = isPullToRefreshActive(
+                            upsidePullToRefreshState,
+                            downsidePullToRefreshState
+                        ),
                         favouriteIdeaSize = 100.dp,
                         onIdeaClick = navigateToIdeaDetailsScreen,
                         modifier = Modifier.fillMaxSize()
@@ -128,6 +137,56 @@ fun FavouriteIdeasScreen(
             }
         }
     }
+}
+
+@Composable
+fun FavouriteIdeas(
+    favouriteIdeas: LazyPagingItems<IdeaPost>,
+    isPullToRefreshActive: Boolean,
+    favouriteIdeaSize: Dp,
+    onIdeaClick: (postId: Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyPagingItemsVerticalGrid(
+        items = favouriteIdeas,
+        isPullToRefreshActive = isPullToRefreshActive,
+        columns = GridCells.Adaptive(minSize = favouriteIdeaSize),
+        itemKey = { it.id },
+        itemsEmptyComposable = { NoFavouriteIdeas(modifier = Modifier.fillMaxSize()) },
+        itemComposable = { idea ->
+            FavouriteIdea(
+                ideaPost = idea,
+                onClick = { onIdeaClick(idea.id) },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .size(favouriteIdeaSize)
+            )
+        },
+        itemsAppendComposable = {
+            LoadingScreen(
+                modifier = Modifier
+                    .size(favouriteIdeaSize)
+                    .wrapContentSize(Alignment.Center)
+                    .size(30.dp)
+            )
+        },
+        errorWhileRefreshComposable = {
+            ErrorScreen(
+                message = stringResource(R.string.error_while_ideas_loading),
+                onRetryButtonClick = favouriteIdeas::retry
+            )
+        },
+        errorWhileAppendComposable = {
+            ErrorWhileAppending(
+                message = stringResource(R.string.error_while_ideas_loading),
+                onRetryButtonClick = favouriteIdeas::retry,
+                modifier = Modifier.padding(10.dp)
+            )
+        },
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -171,53 +230,6 @@ private fun NoFavouriteIdeas(modifier: Modifier = Modifier) {
         color = MaterialTheme.colorScheme.surfaceVariant,
         modifier = modifier.wrapContentSize(Alignment.Center)
     )
-}
-
-@Composable
-private fun FavouriteIdeas(
-    favouriteIdeas: LazyPagingItems<IdeaPost>,
-    favouriteIdeaSize: Dp,
-    onIdeaClick: (postId: Long) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = favouriteIdeaSize),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
-        modifier = modifier
-    ) {
-        if (favouriteIdeas.isEmpty() && !favouriteIdeas.isRefreshing()) {
-            item {
-                NoFavouriteIdeas(modifier = Modifier.fillMaxSize())
-            }
-        } else {
-            items(
-                count = favouriteIdeas.itemCount,
-                key = favouriteIdeas.itemKey { it.id }
-            ) {
-                val idea = favouriteIdeas[it]!!
-                FavouriteIdea(
-                    ideaPost = idea,
-                    onClick = { onIdeaClick(idea.id) },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .size(favouriteIdeaSize)
-                )
-            }
-            if (favouriteIdeas.isAppending()) {
-                item {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = 3.dp,
-                        modifier = Modifier
-                            .size(favouriteIdeaSize)
-                            .wrapContentSize(Alignment.Center)
-                            .size(30.dp)
-                    )
-                }
-            }
-        }
-    }
 }
 
 @Composable
@@ -266,16 +278,5 @@ val ColorSaver = listSaver(
     }
 )
 
-private fun isScreenLoading(
-    favouriteIdeas: LazyPagingItems<IdeaPost>,
-    filtersUiState: FiltersUiState
-): Boolean {
-    val ideasLoading = favouriteIdeas.isRefreshing() && favouriteIdeas.isEmpty()
-    return ideasLoading || filtersUiState.isLoading
-}
-
-
-private fun isErrorWhileLoading(
-    favouriteIdeas: LazyPagingItems<IdeaPost>,
-    filtersUiState: FiltersUiState
-) = favouriteIdeas.isError() || filtersUiState.isErrorWhileLoading
+private fun isScreenLoading(filtersUiState: FiltersUiState) = filtersUiState.isLoading
+private fun isErrorWhileLoading(filtersUiState: FiltersUiState) = filtersUiState.isErrorWhileLoading

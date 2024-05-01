@@ -29,20 +29,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -76,7 +73,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
-import androidx.paging.compose.itemKey
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.CoroutineScope
@@ -95,20 +91,21 @@ import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
+import ru.ilyasekunov.officeapp.ui.RetryButton
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
+import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsColumn
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.SuggestIdeaButton
 import ru.ilyasekunov.officeapp.ui.components.defaultSuggestIdeaFABScrollBehaviour
+import ru.ilyasekunov.officeapp.ui.components.isPullToRefreshActive
+import ru.ilyasekunov.officeapp.ui.components.rememberDownsidePullToRefreshState
+import ru.ilyasekunov.officeapp.ui.components.rememberUpsidePullToRefreshState
 import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
-import ru.ilyasekunov.officeapp.util.isAppending
-import ru.ilyasekunov.officeapp.util.isEmpty
-import ru.ilyasekunov.officeapp.util.isError
-import ru.ilyasekunov.officeapp.util.isRefreshing
 import ru.ilyasekunov.officeapp.util.toRussianString
 import ru.ilyasekunov.officeapp.util.toThousandsString
 import java.time.LocalDateTime
@@ -175,8 +172,8 @@ fun HomeScreen(
                 navigateToAuthGraph()
             }
 
-            isScreenLoading(posts, currentUserUiState, filtersUiState) -> AnimatedLoadingScreen()
-            isErrorWhileLoading(posts, currentUserUiState, filtersUiState) -> {
+            isScreenLoading(currentUserUiState, filtersUiState) -> AnimatedLoadingScreen()
+            isErrorWhileLoading(currentUserUiState, filtersUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
                     onRetryButtonClick = onRetryInfoLoad
@@ -205,6 +202,7 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreenContent(
     posts: LazyPagingItems<IdeaPost>,
@@ -220,14 +218,22 @@ private fun HomeScreenContent(
     snackbarHostState: SnackbarHostState = LocalSnackbarHostState.current,
     coroutineScope: CoroutineScope = LocalCoroutineScope.current,
 ) {
+    val downsidePullToRefreshState = rememberDownsidePullToRefreshState()
+    val upsidePullToRefreshState = rememberUpsidePullToRefreshState()
     BothDirectedPullToRefreshContainer(
         onRefreshTrigger = onPullToRefresh,
+        upsidePullToRefreshState = upsidePullToRefreshState,
+        downsidePullToRefreshState = downsidePullToRefreshState,
         modifier = modifier
     ) {
         val postDeletedMessage = stringResource(R.string.post_deleted)
         val undoLabel = stringResource(R.string.undo)
-        IdeaPosts(
+        HomeScreenIdeaPosts(
             posts = posts,
+            isPullToRefreshActive = isPullToRefreshActive(
+                upsidePullToRefreshState,
+                downsidePullToRefreshState
+            ),
             isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
             onDeletePostClick = {
                 deletePostSnackbar(
@@ -243,15 +249,15 @@ private fun HomeScreenContent(
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
             navigateToAuthorScreen = navigateToAuthorScreen,
             navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-            contentPadding = PaddingValues(vertical = 18.dp),
             modifier = Modifier.fillMaxSize()
         )
     }
 }
 
 @Composable
-private fun IdeaPosts(
+fun HomeScreenIdeaPosts(
     posts: LazyPagingItems<IdeaPost>,
+    isPullToRefreshActive: Boolean,
     isIdeaAuthorCurrentUser: (IdeaAuthor) -> Boolean,
     onDeletePostClick: (IdeaPost) -> Unit,
     onPostLikeClick: (post: IdeaPost) -> Unit,
@@ -259,57 +265,71 @@ private fun IdeaPosts(
     navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
-    modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp)
+    modifier: Modifier = Modifier
 ) {
-    when {
-        posts.isEmpty() && !posts.isRefreshing() -> {
+    LazyPagingItemsColumn(
+        items = posts,
+        itemKey = { it.id },
+        isPullToRefreshActive = isPullToRefreshActive,
+        itemComposable = { post ->
+            IdeaPost(
+                ideaPost = post,
+                isAuthorPostCurrentUser = isIdeaAuthorCurrentUser(post.ideaAuthor),
+                onPostClick = {
+                    navigateToIdeaDetailsScreen(post.id, false)
+                },
+                onLikeClick = { onPostLikeClick(post) },
+                onDislikeClick = { onPostDislikeClick(post) },
+                onCommentClick = {
+                    navigateToIdeaDetailsScreen(post.id, true)
+                },
+                navigateToAuthorScreen = navigateToAuthorScreen,
+                navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+                onDeletePostClick = onDeletePostClick,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        itemsEmptyComposable = {
             NoPostsAvailable(modifier = Modifier.fillMaxSize())
-        }
+        },
+        errorWhileRefreshComposable = {
+            ErrorScreen(
+                message = stringResource(R.string.error_while_ideas_loading),
+                onRetryButtonClick = posts::retry
+            )
+        },
+        errorWhileAppendComposable = {
+            ErrorWhileAppending(
+                message = stringResource(R.string.error_while_ideas_loading),
+                onRetryButtonClick = posts::retry,
+                modifier = Modifier.padding(10.dp)
+            )
+        },
+        contentPadding = PaddingValues(vertical = 18.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        appendIndicatorSize = 30.dp,
+        modifier = modifier
+    )
+}
 
-        else -> {
-            LazyColumn(
-                contentPadding = contentPadding,
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = modifier
-            ) {
-                items(
-                    count = posts.itemCount,
-                    key = posts.itemKey { it.id }
-                ) {
-                    val post = posts[it]!!
-                    IdeaPost(
-                        ideaPost = post,
-                        isAuthorPostCurrentUser = isIdeaAuthorCurrentUser(post.ideaAuthor),
-                        onPostClick = {
-                            navigateToIdeaDetailsScreen(post.id, false)
-                        },
-                        onLikeClick = { onPostLikeClick(post) },
-                        onDislikeClick = { onPostDislikeClick(post) },
-                        onCommentClick = {
-                            navigateToIdeaDetailsScreen(post.id, true)
-                        },
-                        navigateToAuthorScreen = navigateToAuthorScreen,
-                        navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                        onDeletePostClick = onDeletePostClick,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                if (posts.isAppending()) {
-                    item {
-                        CircularProgressIndicator(
-                            color = MaterialTheme.colorScheme.primary,
-                            strokeWidth = 3.dp,
-                            modifier = Modifier
-                                .padding(20.dp)
-                                .fillMaxWidth()
-                                .requiredSize(28.dp)
-                                .wrapContentWidth(Alignment.CenterHorizontally)
-                        )
-                    }
-                }
-            }
-        }
+@Composable
+fun ErrorWhileAppending(
+    message: String,
+    onRetryButtonClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Text(
+            text = message,
+            fontSize = 16.sp,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.surfaceVariant
+        )
+        RetryButton(onClick = onRetryButtonClick)
     }
 }
 
@@ -984,23 +1004,19 @@ fun sortingCategoryName(sortingCategory: SortingCategory) =
     }
 
 private fun isScreenLoading(
-    posts: LazyPagingItems<IdeaPost>,
     currentUserUiState: CurrentUserUiState,
     filtersUiState: FiltersUiState
 ): Boolean {
-    val postsLoading = posts.isRefreshing() && posts.isEmpty()
-    return postsLoading || currentUserUiState.isLoading || filtersUiState.isLoading
+    return currentUserUiState.isLoading || filtersUiState.isLoading
 }
 
-
 private fun isErrorWhileLoading(
-    posts: LazyPagingItems<IdeaPost>,
     currentUserUiState: CurrentUserUiState,
     filtersUiState: FiltersUiState
 ): Boolean {
     val isErrorWhileUserLoading = currentUserUiState.isErrorWhileLoading
     val isErrorWhileFiltersLoading = filtersUiState.isErrorWhileLoading
-    return posts.isError() || isErrorWhileUserLoading || isErrorWhileFiltersLoading
+    return isErrorWhileUserLoading || isErrorWhileFiltersLoading
 }
 
 @Preview

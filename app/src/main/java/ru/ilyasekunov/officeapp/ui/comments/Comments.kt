@@ -13,13 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,35 +39,34 @@ import com.valentinilk.shimmer.shimmer
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
+import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
+import ru.ilyasekunov.officeapp.ui.home.ErrorWhileAppending
 import ru.ilyasekunov.officeapp.util.isAppending
 import ru.ilyasekunov.officeapp.util.isEmpty
-import ru.ilyasekunov.officeapp.util.isError
+import ru.ilyasekunov.officeapp.util.isErrorWhileAppending
+import ru.ilyasekunov.officeapp.util.isErrorWhileRefreshing
 import ru.ilyasekunov.officeapp.util.isRefreshing
 import ru.ilyasekunov.officeapp.util.toRussianString
 
 fun LazyListScope.comments(
     comments: LazyPagingItems<Comment>,
+    isPullToRefreshActive: Boolean,
     onRetryCommentsLoad: () -> Unit,
     onCommentLikeClick: (Comment) -> Unit,
     onCommentDislikeClick: (Comment) -> Unit,
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit
 ) {
     when {
-        comments.isRefreshing() && comments.isEmpty() -> item {
-            CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.primary,
-                strokeWidth = 3.dp,
-                modifier = Modifier
-                    .padding(20.dp)
-                    .fillMaxWidth()
-                    .requiredSize(24.dp)
-                    .wrapContentWidth(Alignment.CenterHorizontally)
+        comments.isRefreshing() && !isPullToRefreshActive -> item {
+            LoadingScreen(
+                indicatorSize = 24.dp,
+                modifier = Modifier.padding(20.dp)
             )
         }
 
-        comments.isError() -> {
+        comments.isErrorWhileRefreshing() -> {
             item {
                 ErrorScreen(
                     message = stringResource(R.string.error_while_loading),
@@ -97,15 +93,14 @@ fun LazyListScope.comments(
                 )
             }
             if (comments.isAppending()) {
+                item { LoadingScreen(indicatorSize = 24.dp) }
+            }
+            if (comments.isErrorWhileAppending()) {
                 item {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = 3.dp,
-                        modifier = Modifier
-                            .padding(bottom = 20.dp)
-                            .fillMaxWidth()
-                            .requiredSize(24.dp)
-                            .wrapContentWidth(Alignment.CenterHorizontally)
+                    ErrorWhileAppending(
+                        message = stringResource(R.string.error_while_ideas_loading),
+                        onRetryButtonClick = comments::retry,
+                        modifier = Modifier.padding(10.dp)
                     )
                 }
             }

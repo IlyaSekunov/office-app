@@ -19,12 +19,12 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -70,7 +70,10 @@ import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageBottomBar
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageUiState
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
+import ru.ilyasekunov.officeapp.ui.components.isPullToRefreshActive
+import ru.ilyasekunov.officeapp.ui.components.rememberDownsidePullToRefreshState
 import ru.ilyasekunov.officeapp.ui.components.rememberNavigateBackArrowState
+import ru.ilyasekunov.officeapp.ui.components.rememberUpsidePullToRefreshState
 import ru.ilyasekunov.officeapp.ui.home.AttachedImages
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.util.toRussianString
@@ -132,9 +135,7 @@ fun IdeaDetailsScreen(
                             .imePadding()
                     )
                 },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .statusBarsPadding()
+                modifier = Modifier.fillMaxSize()
             ) { paddingValues ->
                 IdeaDetailsScreenContent(
                     ideaPost = ideaPostUiState.ideaPost!!,
@@ -165,6 +166,7 @@ fun IdeaDetailsScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun IdeaDetailsScreenContent(
     ideaPost: IdeaPost,
@@ -186,7 +188,11 @@ private fun IdeaDetailsScreenContent(
         state = rememberNavigateBackArrowState(isVisible = !initiallyScrollToComments)
     )
     val topPadding = 48.dp
+    val upsidePullToRefreshState = rememberUpsidePullToRefreshState()
+    val downsidePullToRefreshState = rememberDownsidePullToRefreshState()
     BothDirectedPullToRefreshContainer(
+        upsidePullToRefreshState = upsidePullToRefreshState,
+        downsidePullToRefreshState = downsidePullToRefreshState,
         onRefreshTrigger = onPullToRefresh,
         modifier = modifier.nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
     ) {
@@ -239,6 +245,10 @@ private fun IdeaDetailsScreenContent(
             )
             comments(
                 comments = comments,
+                isPullToRefreshActive = isPullToRefreshActive(
+                    upsidePullToRefreshState,
+                    downsidePullToRefreshState
+                ),
                 onRetryCommentsLoad = onRetryCommentsLoad,
                 onCommentLikeClick = onCommentLikeClick,
                 onCommentDislikeClick = onCommentDislikeClick,

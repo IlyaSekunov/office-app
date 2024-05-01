@@ -1,6 +1,7 @@
 package ru.ilyasekunov.officeapp.ui
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -9,6 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
@@ -32,13 +35,18 @@ fun AnimatedLoadingScreen() {
 }
 
 @Composable
-fun LoadingScreen() {
+fun LoadingScreen(
+    indicatorStrokeWidth: Dp = 3.dp,
+    indicatorColor: Color = MaterialTheme.colorScheme.primary,
+    indicatorSize: Dp = 30.dp,
+    modifier: Modifier = Modifier
+) {
     CircularProgressIndicator(
-        color = MaterialTheme.colorScheme.primary,
-        strokeWidth = 3.dp,
-        modifier = Modifier
+        color = indicatorColor,
+        strokeWidth = indicatorStrokeWidth,
+        modifier = modifier
             .fillMaxSize()
             .wrapContentSize(Alignment.Center)
-            .size(40.dp)
+            .requiredSize(indicatorSize)
     )
 }

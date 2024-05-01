@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -45,16 +46,23 @@ import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
+import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
+import ru.ilyasekunov.officeapp.ui.components.isPullToRefreshActive
+import ru.ilyasekunov.officeapp.ui.components.rememberDownsidePullToRefreshState
+import ru.ilyasekunov.officeapp.ui.components.rememberUpsidePullToRefreshState
+import ru.ilyasekunov.officeapp.ui.home.ErrorWhileAppending
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoSection
+import ru.ilyasekunov.officeapp.util.isAppending
 import ru.ilyasekunov.officeapp.util.isEmpty
-import ru.ilyasekunov.officeapp.util.isError
+import ru.ilyasekunov.officeapp.util.isErrorWhileAppending
+import ru.ilyasekunov.officeapp.util.isErrorWhileRefreshing
 import ru.ilyasekunov.officeapp.util.isRefreshing
 import ru.ilyasekunov.officeapp.util.toRussianString
 import java.time.LocalDateTime
@@ -88,8 +96,8 @@ fun IdeaAuthorScreen(
         containerColor = MaterialTheme.colorScheme.surfaceContainer
     ) { paddingValues ->
         when {
-            isScreenLoading(ideaAuthorUiState, ideas) -> AnimatedLoadingScreen()
-            isErrorWhileLoading(ideaAuthorUiState, ideas) -> {
+            isScreenLoading(ideaAuthorUiState) -> AnimatedLoadingScreen()
+            isErrorWhileLoading(ideaAuthorUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
                     onRetryButtonClick = onRetryLoadData
@@ -113,6 +121,7 @@ fun IdeaAuthorScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun IdeaAuthorScreenContent(
     ideaAuthorUiState: IdeaAuthorUiState,
@@ -124,7 +133,13 @@ private fun IdeaAuthorScreenContent(
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    BothDirectedPullToRefreshContainer(onRefreshTrigger = onPullToRefresh) {
+    val upsidePullToRefreshState = rememberUpsidePullToRefreshState()
+    val downsidePullToRefreshState = rememberDownsidePullToRefreshState()
+    BothDirectedPullToRefreshContainer(
+        onRefreshTrigger = onPullToRefresh,
+        upsidePullToRefreshState = upsidePullToRefreshState,
+        downsidePullToRefreshState = downsidePullToRefreshState
+    ) {
         val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour()
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -148,6 +163,10 @@ private fun IdeaAuthorScreenContent(
             }
             ideas(
                 ideas = ideas,
+                isPullToRefreshActive = isPullToRefreshActive(
+                    upsidePullToRefreshState,
+                    downsidePullToRefreshState
+                ),
                 onIdeaLikeClick = onIdeaLikeClick,
                 onIdeaDislikeClick = onIdeaDislikeClick,
                 navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen
@@ -166,32 +185,62 @@ private fun IdeaAuthorScreenContent(
 
 private fun LazyListScope.ideas(
     ideas: LazyPagingItems<IdeaPost>,
+    isPullToRefreshActive: Boolean,
     onIdeaLikeClick: (idea: IdeaPost) -> Unit,
     onIdeaDislikeClick: (idea: IdeaPost) -> Unit,
     navigateToIdeaDetailsScreen: (Long) -> Unit
 ) {
-    if (ideas.isEmpty()) {
-        item {
-            Text(
-                text = stringResource(R.string.list_is_empty_yet),
-                style = MaterialTheme.typography.bodyMedium,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.surfaceVariant
-            )
+    when {
+        ideas.isRefreshing() && !isPullToRefreshActive -> {
+            item { LoadingScreen() }
         }
-    } else {
-        items(
-            count = ideas.itemCount,
-            key = ideas.itemKey { it.id }
-        ) {
-            val idea = ideas[it]!!
-            Idea(
-                idea = idea,
-                onIdeaClick = { navigateToIdeaDetailsScreen(idea.id) },
-                onLikeClick = { onIdeaLikeClick(idea) },
-                onDislikeClick = { onIdeaDislikeClick(idea) },
-                modifier = Modifier.fillMaxWidth()
-            )
+
+        ideas.isErrorWhileRefreshing() -> {
+            item {
+                ErrorScreen(
+                    message = stringResource(R.string.error_while_ideas_loading),
+                    onRetryButtonClick = ideas::retry
+                )
+            }
+        }
+
+        ideas.isEmpty() -> {
+            item {
+                Text(
+                    text = stringResource(R.string.list_is_empty_yet),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                )
+            }
+        }
+
+        else -> {
+            items(
+                count = ideas.itemCount,
+                key = ideas.itemKey { it.id }
+            ) {
+                val idea = ideas[it]!!
+                Idea(
+                    idea = idea,
+                    onIdeaClick = { navigateToIdeaDetailsScreen(idea.id) },
+                    onLikeClick = { onIdeaLikeClick(idea) },
+                    onDislikeClick = { onIdeaDislikeClick(idea) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            if (ideas.isAppending()) {
+                item { LoadingScreen() }
+            }
+            if (ideas.isErrorWhileAppending()) {
+                item {
+                    ErrorWhileAppending(
+                        message = stringResource(R.string.error_while_ideas_loading),
+                        onRetryButtonClick = ideas::retry,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+            }
         }
     }
 }
@@ -336,19 +385,9 @@ private fun Idea(
     }
 }
 
-private fun isScreenLoading(
-    ideaAuthorUiState: IdeaAuthorUiState,
-    ideas: LazyPagingItems<IdeaPost>
-): Boolean{
-    val ideasLoading = ideas.isEmpty() && ideas.isRefreshing()
-    return ideasLoading || ideaAuthorUiState.isLoading
-}
-
-
-private fun isErrorWhileLoading(
-    ideaAuthorUiState: IdeaAuthorUiState,
-    ideas: LazyPagingItems<IdeaPost>
-) = ideas.isError() || ideaAuthorUiState.isErrorWhileLoading
+private fun isScreenLoading(ideaAuthorUiState: IdeaAuthorUiState) = ideaAuthorUiState.isLoading
+private fun isErrorWhileLoading(ideaAuthorUiState: IdeaAuthorUiState) =
+    ideaAuthorUiState.isErrorWhileLoading
 
 @Preview
 @Composable
