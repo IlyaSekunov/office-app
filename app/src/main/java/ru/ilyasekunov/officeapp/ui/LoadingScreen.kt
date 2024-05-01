@@ -36,10 +36,10 @@ fun AnimatedLoadingScreen() {
 
 @Composable
 fun LoadingScreen(
+    modifier: Modifier = Modifier,
     indicatorStrokeWidth: Dp = 3.dp,
     indicatorColor: Color = MaterialTheme.colorScheme.primary,
-    indicatorSize: Dp = 30.dp,
-    modifier: Modifier = Modifier
+    indicatorSize: Dp = 30.dp
 ) {
     CircularProgressIndicator(
         color = indicatorColor,

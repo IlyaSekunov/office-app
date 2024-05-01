@@ -250,8 +250,8 @@ private fun ObserveIsRegistrationSuccess(
 @Composable
 private fun RegistrationMainScreenTopAppBar(
     navigateBack: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scrollBehavior: TopAppBarScrollBehavior? = null
 ) {
     TopAppBar(
         title = {
