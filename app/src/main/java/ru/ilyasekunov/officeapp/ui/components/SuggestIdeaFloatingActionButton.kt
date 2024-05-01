@@ -6,7 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,13 +38,17 @@ class DefaultSuggestIdeaFABScrollBehaviour(
     state: SuggestIdeaFABState
 ) : SuggestIdeaFABScrollBehaviour(state) {
     override val nestedScrollConnection = object : NestedScrollConnection {
-        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-            if (available.y > 0) {
+        override fun onPostScroll(
+            consumed: Offset,
+            available: Offset,
+            source: NestedScrollSource
+        ): Offset {
+            if (consumed.y > 0) {
                 state.isVisible = true
-            } else if (available.y < 0) {
+            } else if (consumed.y < 0) {
                 state.isVisible = false
             }
-            return super.onPreScroll(available, source)
+            return super.onPostScroll(consumed, available, source)
         }
     }
 }
@@ -67,21 +71,19 @@ fun SuggestIdeaButton(
     modifier: Modifier = Modifier,
     scrollBehaviour: SuggestIdeaFABScrollBehaviour? = null
 ) {
-    val iconButton: @Composable () -> Unit = remember(onClick, modifier) {
-        {
-            FloatingActionButton(
-                onClick = onClick,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.Black,
-                shape = MaterialTheme.shapes.medium,
-                modifier = modifier
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.outline_create_24),
-                    contentDescription = "create_button",
-                    modifier = Modifier.size(30.dp)
-                )
-            }
+    val iconButton: @Composable () -> Unit = {
+        FloatingActionButton(
+            onClick = onClick,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = Color.Black,
+            shape = MaterialTheme.shapes.medium,
+            modifier = modifier
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.outline_create_24),
+                contentDescription = "create_button",
+                modifier = Modifier.requiredSize(30.dp)
+            )
         }
     }
     if (scrollBehaviour != null) {
