@@ -3,9 +3,6 @@ package ru.ilyasekunov.officeapp.ui.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val LightColorScheme = lightColorScheme(
     primary = md_theme_light_primary,
@@ -24,18 +21,6 @@ private val LightColorScheme = lightColorScheme(
 fun OfficeAppTheme(
     content: @Composable () -> Unit
 ) {
-    val systemUiController = rememberSystemUiController()
-    SideEffect {
-        systemUiController.setSystemBarsColor(
-            color = Color.Transparent,
-            darkIcons = true
-        )
-        systemUiController.setNavigationBarColor(
-            color = LightColorScheme.background,
-            darkIcons = true
-        )
-    }
-
     MaterialTheme(
         colorScheme = LightColorScheme,
         typography = Typography,
