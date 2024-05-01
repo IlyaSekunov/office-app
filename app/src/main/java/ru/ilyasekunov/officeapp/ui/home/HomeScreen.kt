@@ -408,9 +408,7 @@ fun IdeaPost(
             .clickable(onClick = onPostClick)
     ) {
         val topPadding = 16.dp
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
+        Column {
             IdeaPostAuthor(
                 ideaAuthor = ideaPost.ideaAuthor,
                 postDate = ideaPost.date,
@@ -463,8 +461,7 @@ fun IdeaPost(
                 onDislikeClick = onDislikeClick,
                 commentsCount = ideaPost.commentsCount,
                 onCommentClick = onCommentClick,
-                modifier = Modifier
-                    .padding(start = 16.dp, top = 18.dp, bottom = 14.dp)
+                modifier = Modifier.padding(start = 16.dp, top = 18.dp, bottom = 14.dp)
             )
         }
         MenuSection(
