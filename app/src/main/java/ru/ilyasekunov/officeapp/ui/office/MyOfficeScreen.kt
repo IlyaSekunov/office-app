@@ -126,6 +126,7 @@ fun MyOfficeScreen(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.surfaceContainer)
             .statusBarsPadding()
     ) { paddingValues ->
         when {
