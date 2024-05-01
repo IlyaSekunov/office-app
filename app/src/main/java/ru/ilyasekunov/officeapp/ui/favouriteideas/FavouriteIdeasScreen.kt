@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -38,9 +37,6 @@ import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsVerticalGrid
-import ru.ilyasekunov.officeapp.ui.components.isPullToRefreshActive
-import ru.ilyasekunov.officeapp.ui.components.rememberDownsidePullToRefreshState
-import ru.ilyasekunov.officeapp.ui.components.rememberUpsidePullToRefreshState
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.ErrorWhileAppending
 import ru.ilyasekunov.officeapp.ui.home.HomeAppBar
@@ -64,7 +60,6 @@ private val favouriteIdeaColors = listOf(
     favouriteIdeaColorYellow
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavouriteIdeasScreen(
     favouriteIdeas: LazyPagingItems<IdeaPost>,
@@ -115,20 +110,13 @@ fun FavouriteIdeasScreen(
             }
 
             else -> {
-                val upsidePullToRefreshState = rememberUpsidePullToRefreshState()
-                val downsidePullToRefreshState = rememberDownsidePullToRefreshState()
                 BothDirectedPullToRefreshContainer(
-                    upsidePullToRefreshState = upsidePullToRefreshState,
-                    downsidePullToRefreshState = downsidePullToRefreshState,
                     onRefreshTrigger = onPullToRefresh,
                     modifier = Modifier.padding(paddingValues)
-                ) {
+                ) { isRefreshing ->
                     FavouriteIdeas(
                         favouriteIdeas = favouriteIdeas,
-                        isPullToRefreshActive = isPullToRefreshActive(
-                            upsidePullToRefreshState,
-                            downsidePullToRefreshState
-                        ),
+                        isPullToRefreshActive = isRefreshing,
                         favouriteIdeaSize = 100.dp,
                         onIdeaClick = navigateToIdeaDetailsScreen,
                         modifier = Modifier.fillMaxSize()

@@ -27,7 +27,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -70,9 +69,6 @@ import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsColumn
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsHorizontalGrid
-import ru.ilyasekunov.officeapp.ui.components.isPullToRefreshActive
-import ru.ilyasekunov.officeapp.ui.components.rememberDownsidePullToRefreshState
-import ru.ilyasekunov.officeapp.ui.components.rememberUpsidePullToRefreshState
 import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
 import ru.ilyasekunov.officeapp.ui.home.ErrorWhileAppending
@@ -176,7 +172,6 @@ fun MyOfficeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyOfficeScreenContent(
     currentUserUiState: CurrentUserUiState,
@@ -194,14 +189,10 @@ fun MyOfficeScreenContent(
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val upsidePullToRefreshState = rememberUpsidePullToRefreshState()
-    val downsidePullToRefreshState = rememberDownsidePullToRefreshState()
     BothDirectedPullToRefreshContainer(
-        upsidePullToRefreshState = upsidePullToRefreshState,
-        downsidePullToRefreshState = downsidePullToRefreshState,
         onRefreshTrigger = onPullToRefresh,
         modifier = modifier
-    ) {
+    ) { isRefreshing ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -226,10 +217,7 @@ fun MyOfficeScreenContent(
                 ideasInProgress = ideasInProgress,
                 implementedIdeas = implementedIdeas,
                 officeEmployees = officeEmployees,
-                isPullToRefreshActive = isPullToRefreshActive(
-                    upsidePullToRefreshState,
-                    downsidePullToRefreshState
-                ),
+                isPullToRefreshActive = isRefreshing,
                 onPostLikeClick = onPostLikeClick,
                 onPostDislikeClick = onPostDislikeClick,
                 onPostCommentsClick = onPostCommentsClick,

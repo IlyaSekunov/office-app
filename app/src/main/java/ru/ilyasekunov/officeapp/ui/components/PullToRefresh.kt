@@ -416,7 +416,7 @@ fun UpsidePullToRefreshContainer(
     shape: Shape = PullToRefreshDefaults.shape,
     containerColor: Color = MaterialTheme.colorScheme.onPrimary,
     contentColor: Color = MaterialTheme.colorScheme.primary,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.(isRefreshing: Boolean) -> Unit
 ) {
     val pullToRefreshState = rememberUpsidePullToRefreshState()
     if (pullToRefreshState.isRefreshing) {
@@ -426,7 +426,7 @@ fun UpsidePullToRefreshContainer(
         }
     }
     Box(modifier = modifier.nestedScroll(pullToRefreshState.nestedScrollConnection)) {
-        content()
+        content(pullToRefreshState.isRefreshing)
         PullToRefreshContainer(
             state = pullToRefreshState,
             shape = shape,
@@ -442,14 +442,19 @@ fun UpsidePullToRefreshContainer(
 fun BothDirectedPullToRefreshContainer(
     onRefreshTrigger: CoroutineScope.() -> Job,
     modifier: Modifier = Modifier,
-    upsidePullToRefreshState: PullToRefreshState = rememberUpsidePullToRefreshState(),
-    downsidePullToRefreshState: PullToRefreshState = rememberDownsidePullToRefreshState(),
     shape: Shape = PullToRefreshDefaults.shape,
     containerColor: Color = MaterialTheme.colorScheme.onPrimary,
     contentColor: Color = MaterialTheme.colorScheme.primary,
-    content: @Composable BoxScope.() -> Unit
+    content: @Composable BoxScope.(isRefreshing: Boolean) -> Unit
 ) {
-    if (isPullToRefreshActive(upsidePullToRefreshState, downsidePullToRefreshState)) {
+    val upsidePullToRefreshState = rememberUpsidePullToRefreshState()
+    val downsidePullToRefreshState = rememberDownsidePullToRefreshState()
+    val isRefreshing by remember {
+        derivedStateOf {
+            upsidePullToRefreshState.isRefreshing || downsidePullToRefreshState.isRefreshing
+        }
+    }
+    if (isRefreshing) {
         LaunchedEffect(Unit) {
             onRefreshTrigger().join()
             upsidePullToRefreshState.endRefresh()
@@ -461,7 +466,7 @@ fun BothDirectedPullToRefreshContainer(
             .nestedScroll(upsidePullToRefreshState.nestedScrollConnection)
             .nestedScroll(downsidePullToRefreshState.nestedScrollConnection)
     ) {
-        content()
+        content(isRefreshing)
         PullToRefreshContainer(
             state = upsidePullToRefreshState,
             shape = shape,
@@ -478,9 +483,3 @@ fun BothDirectedPullToRefreshContainer(
         )
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-fun isPullToRefreshActive(
-    upsidePullToRefreshState: PullToRefreshState,
-    downsidePullToRefreshState: PullToRefreshState
-) = upsidePullToRefreshState.isRefreshing || downsidePullToRefreshState.isRefreshing

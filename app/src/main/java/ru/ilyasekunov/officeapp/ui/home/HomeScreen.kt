@@ -39,7 +39,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -99,9 +98,6 @@ import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsColumn
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.SuggestIdeaButton
 import ru.ilyasekunov.officeapp.ui.components.defaultSuggestIdeaFABScrollBehaviour
-import ru.ilyasekunov.officeapp.ui.components.isPullToRefreshActive
-import ru.ilyasekunov.officeapp.ui.components.rememberDownsidePullToRefreshState
-import ru.ilyasekunov.officeapp.ui.components.rememberUpsidePullToRefreshState
 import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
@@ -202,7 +198,6 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreenContent(
     posts: LazyPagingItems<IdeaPost>,
@@ -218,22 +213,15 @@ private fun HomeScreenContent(
     snackbarHostState: SnackbarHostState = LocalSnackbarHostState.current,
     coroutineScope: CoroutineScope = LocalCoroutineScope.current,
 ) {
-    val downsidePullToRefreshState = rememberDownsidePullToRefreshState()
-    val upsidePullToRefreshState = rememberUpsidePullToRefreshState()
     BothDirectedPullToRefreshContainer(
         onRefreshTrigger = onPullToRefresh,
-        upsidePullToRefreshState = upsidePullToRefreshState,
-        downsidePullToRefreshState = downsidePullToRefreshState,
         modifier = modifier
-    ) {
+    ) { isRefreshing ->
         val postDeletedMessage = stringResource(R.string.post_deleted)
         val undoLabel = stringResource(R.string.undo)
         HomeScreenIdeaPosts(
             posts = posts,
-            isPullToRefreshActive = isPullToRefreshActive(
-                upsidePullToRefreshState,
-                downsidePullToRefreshState
-            ),
+            isPullToRefreshActive = isRefreshing,
             isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
             onDeletePostClick = {
                 deletePostSnackbar(

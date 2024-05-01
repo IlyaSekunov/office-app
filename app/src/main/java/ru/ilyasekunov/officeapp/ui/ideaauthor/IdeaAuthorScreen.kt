@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -53,9 +52,6 @@ import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
-import ru.ilyasekunov.officeapp.ui.components.isPullToRefreshActive
-import ru.ilyasekunov.officeapp.ui.components.rememberDownsidePullToRefreshState
-import ru.ilyasekunov.officeapp.ui.components.rememberUpsidePullToRefreshState
 import ru.ilyasekunov.officeapp.ui.home.ErrorWhileAppending
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.ui.userprofile.UserInfoSection
@@ -121,7 +117,6 @@ fun IdeaAuthorScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun IdeaAuthorScreenContent(
     ideaAuthorUiState: IdeaAuthorUiState,
@@ -133,13 +128,9 @@ private fun IdeaAuthorScreenContent(
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val upsidePullToRefreshState = rememberUpsidePullToRefreshState()
-    val downsidePullToRefreshState = rememberDownsidePullToRefreshState()
     BothDirectedPullToRefreshContainer(
-        onRefreshTrigger = onPullToRefresh,
-        upsidePullToRefreshState = upsidePullToRefreshState,
-        downsidePullToRefreshState = downsidePullToRefreshState
-    ) {
+        onRefreshTrigger = onPullToRefresh
+    ) { isRefreshing ->
         val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour()
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -163,10 +154,7 @@ private fun IdeaAuthorScreenContent(
             }
             ideas(
                 ideas = ideas,
-                isPullToRefreshActive = isPullToRefreshActive(
-                    upsidePullToRefreshState,
-                    downsidePullToRefreshState
-                ),
+                isPullToRefreshActive = isRefreshing,
                 onIdeaLikeClick = onIdeaLikeClick,
                 onIdeaDislikeClick = onIdeaDislikeClick,
                 navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen
