@@ -81,4 +81,14 @@ class PostsPagingRepository(private val postsDataSource: PostsDataSource) {
             }
         }.flow
     }
+
+    fun myIdeas(): Flow<PagingData<IdeaPost>> {
+        val pagingConfig = FavouritePostsPagingDefaults.PagingConfig
+        return Pager(config = pagingConfig) {
+            val pageSize = pagingConfig.pageSize
+            PagingDataSource(postsDataSource) { page ->
+                myIdeas(page, pageSize)
+            }
+        }.flow
+    }
 }

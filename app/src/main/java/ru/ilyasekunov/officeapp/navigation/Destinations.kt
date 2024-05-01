@@ -14,6 +14,7 @@ sealed class Screen(val route: String, val arguments: List<NamedNavArgument> = e
     data object UserManageAccount : Screen("user-manage-account")
     data object FiltersScreen : Screen("filters")
     data object SuggestIdea : Screen("suggest-idea")
+    data object MyIdeas : Screen("my-ideas")
     data object EditIdea : Screen(
         route = "edit-idea/{postId}",
         arguments = listOf(

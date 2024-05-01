@@ -78,6 +78,11 @@ class PostsRemoteDataSource(
             handleResponse { postsApi.implementedIdeas(page, pageSize) }
         }
 
+    override suspend fun myIdeas(page: Int, pageSize: Int): Result<List<IdeaPost>> =
+        withContext(ioDispatcher) {
+            handleResponse { postsApi.myIdeas(page, pageSize) }
+        }
+
     override suspend fun editPostById(
         postId: Long, editedPost: EditPostDto
     ): Result<Unit> = withContext(ioDispatcher) {

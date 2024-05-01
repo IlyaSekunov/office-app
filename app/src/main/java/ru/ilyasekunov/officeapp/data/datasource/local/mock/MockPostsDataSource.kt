@@ -219,6 +219,30 @@ class MockPostsDataSource : PostsDataSource {
         )
     }
 
+    override suspend fun myIdeas(page: Int, pageSize: Int): Result<List<IdeaPost>> {
+        delay(3000L)
+        val posts = Posts.filter { it.ideaAuthor.id == User?.id }
+        val firstPostIndex = (page - 1) * pageSize
+        val lastPostIndex = firstPostIndex + pageSize
+        if (firstPostIndex > posts.lastIndex) {
+            return Result.success(emptyList())
+        }
+        if (lastPostIndex > posts.lastIndex) {
+            return Result.success(
+                posts.subList(
+                    fromIndex = firstPostIndex,
+                    toIndex = posts.lastIndex + 1
+                )
+            )
+        }
+        return Result.success(
+            posts.subList(
+                fromIndex = firstPostIndex,
+                toIndex = lastPostIndex
+            )
+        )
+    }
+
     override suspend fun editPostById(postId: Long, editedPost: EditPostDto): Result<Unit> {
         delay(3000L)
         val post = Posts.find { it.id == postId }

@@ -60,6 +60,12 @@ interface PostsApi {
         @Query("page_size") pageSize: Int
     ): Response<List<IdeaPost>>
 
+    @GET("posts/my-ideas")
+    suspend fun myIdeas(
+        @Query("page") page: Int,
+        @Query("page_size") pageSize: Int
+    ): Response<List<IdeaPost>>
+
     @GET("posts/{postId}")
     suspend fun findPostById(@Path("postId") postId: Long): Response<IdeaPost>
 

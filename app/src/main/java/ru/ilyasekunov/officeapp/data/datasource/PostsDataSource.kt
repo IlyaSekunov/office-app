@@ -55,6 +55,11 @@ interface PostsDataSource {
         pageSize: Int
     ): Result<List<IdeaPost>>
 
+    suspend fun myIdeas(
+        @IntRange(from = 1) page: Int,
+        @IntRange(from = 1) pageSize: Int
+    ): Result<List<IdeaPost>>
+
     suspend fun editPostById(
         postId: Long,
         editedPost: EditPostDto

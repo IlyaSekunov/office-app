@@ -87,4 +87,5 @@
     <string name="workers">Работники</string>
     <string name="error_while_ideas_loading">Ошибка при загрузке идей</string>
     <string name="error_while_employees_loading">Ошибка при загрузке работников офиса</string>
+    <string name="my_ideas_list_is_empty">Список ваших идей пуст</string>
 </resources>
