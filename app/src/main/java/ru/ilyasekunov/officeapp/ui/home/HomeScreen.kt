@@ -39,6 +39,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -277,9 +278,7 @@ fun HomeScreenIdeaPosts(
                 modifier = Modifier.fillMaxWidth()
             )
         },
-        itemsEmptyComposable = {
-            NoPostsAvailable(modifier = Modifier.fillMaxSize())
-        },
+        itemsEmptyComposable = { NoPostsAvailable() },
         errorWhileRefreshComposable = {
             ErrorScreen(
                 message = stringResource(R.string.error_while_ideas_loading),
@@ -379,7 +378,10 @@ private fun NoPostsAvailable(modifier: Modifier = Modifier) {
         style = MaterialTheme.typography.bodyLarge,
         fontSize = 20.sp,
         color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = modifier.wrapContentSize(Alignment.Center)
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .wrapContentSize(Alignment.Center)
     )
 }
 

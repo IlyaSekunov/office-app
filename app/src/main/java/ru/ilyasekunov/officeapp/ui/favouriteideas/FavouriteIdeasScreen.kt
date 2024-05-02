@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -139,7 +141,7 @@ fun FavouriteIdeas(
         isPullToRefreshActive = isPullToRefreshActive,
         columns = GridCells.Adaptive(minSize = favouriteIdeaSize),
         itemKey = { it.id },
-        itemsEmptyComposable = { NoFavouriteIdeas(modifier = Modifier.fillMaxSize()) },
+        itemsEmptyComposable = { NoFavouriteIdeas() },
         itemComposable = { idea ->
             FavouriteIdea(
                 ideaPost = idea,
@@ -224,7 +226,10 @@ private fun NoFavouriteIdeas(modifier: Modifier = Modifier) {
         style = MaterialTheme.typography.bodyLarge,
         fontSize = 20.sp,
         color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = modifier.wrapContentSize(Alignment.Center)
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .wrapContentSize(Alignment.Center)
     )
 }
 
