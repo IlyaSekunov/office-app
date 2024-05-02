@@ -557,6 +557,14 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                         .build()
                 )
             },
+            navigateToEditIdeaScreen = { postId ->
+                navController.navigateToEditIdeaScreen(
+                    postId = postId,
+                    navOptions = NavOptions.Builder()
+                        .setLaunchSingleTop(true)
+                        .build()
+                )
+            },
             navigateBack = navController::popBackStack
         )
     }

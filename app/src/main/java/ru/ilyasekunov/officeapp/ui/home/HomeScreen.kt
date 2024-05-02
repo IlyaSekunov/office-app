@@ -212,7 +212,7 @@ private fun HomeScreenContent(
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = LocalSnackbarHostState.current,
-    coroutineScope: CoroutineScope = LocalCoroutineScope.current,
+    coroutineScope: CoroutineScope = LocalCoroutineScope.current
 ) {
     BothDirectedPullToRefreshContainer(
         onRefreshTrigger = onPullToRefresh,

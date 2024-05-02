@@ -13,6 +13,7 @@ import ru.ilyasekunov.officeapp.ui.myideas.MyIdeasViewModel
 fun NavGraphBuilder.myIdeasScreen(
     navigateToIdeaDetailsScreen: (Long) -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
+    navigateToEditIdeaScreen: (Long) -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToProfileScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
@@ -25,8 +26,10 @@ fun NavGraphBuilder.myIdeasScreen(
         MyIdeasScreen(
             ideas = myIdeas,
             onPullToRefresh = { launch { myIdeas.refresh() } },
+            onDeleteIdeaClick = viewModel::deletePost,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
             navigateToSuggestIdeaScreen = navigateToSuggestIdeaScreen,
+            navigateToEditIdeaScreen = navigateToEditIdeaScreen,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToProfileScreen = navigateToProfileScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
