@@ -7,6 +7,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
+import ru.ilyasekunov.officeapp.ui.animations.enterSlideUp
+import ru.ilyasekunov.officeapp.ui.animations.exitSlideDown
 import ru.ilyasekunov.officeapp.ui.editidea.EditIdeaScreen
 import ru.ilyasekunov.officeapp.ui.editidea.EditIdeaViewModel
 
@@ -19,7 +21,9 @@ fun NavGraphBuilder.editIdeaScreen(
 ) {
     composable(
         route = Screen.EditIdea.route,
-        arguments = Screen.EditIdea.arguments
+        arguments = Screen.EditIdea.arguments,
+        enterTransition = { enterSlideUp() },
+        exitTransition = { exitSlideDown() }
     ) { backStackEntry ->
         val postId = backStackEntry.arguments!!.getLong("postId")
         val viewModel = setUpEditIdeaViewModel(postId)
