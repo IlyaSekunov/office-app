@@ -49,11 +49,8 @@ class SuggestIdeaViewModel @Inject constructor(
     private fun attachImage(image: Uri) {
         if (attachedImagesCount() < ImagePickerDefaults.MAX_ATTACH_IMAGES) {
             viewModelScope.launch {
-                val attachedImages = suggestIdeaUiState.attachedImages
                 synchronized(suggestIdeaUiState) {
-                    val imageId = if (attachedImages.isNotEmpty()) {
-                        attachedImages.maxOf { it.id } + 1
-                    } else 0
+                    val imageId = nextAttachedImagesId()
                     val attachedImage = AttachedImage(id = imageId, image = image)
                     attachImage(attachedImage)
                 }
@@ -122,6 +119,12 @@ class SuggestIdeaViewModel @Inject constructor(
     }
 
     private fun attachedImagesCount() = suggestIdeaUiState.attachedImages.size
+
+    private fun nextAttachedImagesId(): Int {
+        val attachedImages = suggestIdeaUiState.attachedImages
+        return if (attachedImages.isEmpty()) 0
+        else attachedImages.maxOf { it.id } + 1
+    }
 }
 
 fun SuggestIdeaUiState.toPublishPostDto(uploadedImagesUrls: List<String>) =

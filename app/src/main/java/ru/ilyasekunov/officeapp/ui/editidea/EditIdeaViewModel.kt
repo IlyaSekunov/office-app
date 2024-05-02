@@ -52,8 +52,7 @@ class EditIdeaViewModel @Inject constructor(
         if (attachedImagesCount() < ImagePickerDefaults.MAX_ATTACH_IMAGES) {
             viewModelScope.launch {
                 synchronized(editIdeaUiState) {
-                    val attachedImages = editIdeaUiState.attachedImages
-                    val imageId = attachedImages.maxOf { it.id } + 1
+                    val imageId = nextAttachedImagesId()
                     val attachedImage = AttachedImage(id = imageId, image = image)
                     attachImage(attachedImage)
                 }
@@ -107,7 +106,7 @@ class EditIdeaViewModel @Inject constructor(
                 updateIsNetworkError(true)
                 updateIsPublished(false)
             }
-            updateIsPublished(true)
+            updateIsLoading(false)
         }
     }
 
@@ -150,6 +149,12 @@ class EditIdeaViewModel @Inject constructor(
         .toList()
 
     private fun attachedImagesCount() = editIdeaUiState.attachedImages.size
+
+    private fun nextAttachedImagesId(): Int {
+        val attachedImages = editIdeaUiState.attachedImages
+        return if (attachedImages.isEmpty()) 0
+        else attachedImages.maxOf { it.id } + 1
+    }
 }
 
 fun IdeaPost.toEditIdeaUiState(): EditIdeaUiState =
