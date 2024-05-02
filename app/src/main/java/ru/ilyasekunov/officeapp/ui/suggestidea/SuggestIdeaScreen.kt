@@ -184,7 +184,7 @@ private fun SuggestIdeaScreenContent(
         snackbarHostState = snackbarHostState,
         coroutineScope = LocalCoroutineScope.current,
         onRetryClick = onRetryClick,
-        navigateToHomeScreen = navigateToHomeScreen
+        navigateBack = navigateBack
     )
 }
 
@@ -194,7 +194,7 @@ private fun ObserveStateChanges(
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     onRetryClick: () -> Unit,
-    navigateToHomeScreen: () -> Unit
+    navigateBack: () -> Unit
 ) {
     ObserveNetworkError(
         suggestIdeaUiState = suggestIdeaUiState,
@@ -206,7 +206,7 @@ private fun ObserveStateChanges(
         suggestIdeaUiState = suggestIdeaUiState,
         coroutineScope = LocalCoroutineScope.current,
         snackbarHostState = snackbarHostState,
-        navigateToHomeScreen = navigateToHomeScreen
+        navigateBack = navigateBack
     )
 }
 
@@ -239,9 +239,9 @@ private fun ObserveIsPublished(
     suggestIdeaUiState: SuggestIdeaUiState,
     coroutineScope: CoroutineScope,
     snackbarHostState: SnackbarHostState,
-    navigateToHomeScreen: () -> Unit
+    navigateBack: () -> Unit
 ) {
-    val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
+    val currentNavigateBack by rememberUpdatedState(navigateBack)
     val message = stringResource(R.string.idea_published_successfully)
     LaunchedEffect(suggestIdeaUiState) {
         if (suggestIdeaUiState.isPublished) {
@@ -252,7 +252,7 @@ private fun ObserveIsPublished(
                     duration = SnackbarDuration.Short
                 )
             }
-            currentNavigateToHomeScreen()
+            currentNavigateBack()
         }
     }
 }

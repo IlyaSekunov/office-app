@@ -154,7 +154,7 @@ private fun EditIdeaScreenContent(
         snackbarHostState = snackbarHostState,
         coroutineScope = LocalCoroutineScope.current,
         onRetryClick = onRetryClick,
-        navigateToHomeScreen = navigateToHomeScreen
+        navigateBack = navigateBack
     )
 }
 
@@ -164,7 +164,7 @@ private fun ObserveStateChanges(
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     onRetryClick: () -> Unit,
-    navigateToHomeScreen: () -> Unit
+    navigateBack: () -> Unit
 ) {
     ObserveNetworkError(
         editIdeaUiState = editIdeaUiState,
@@ -176,7 +176,7 @@ private fun ObserveStateChanges(
         editIdeaUiState = editIdeaUiState,
         snackbarHostState = snackbarHostState,
         coroutineScope = coroutineScope,
-        navigateToHomeScreen = navigateToHomeScreen
+        navigateBack = navigateBack
     )
 }
 
@@ -209,9 +209,9 @@ private fun ObserveIsPublished(
     editIdeaUiState: EditIdeaUiState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
-    navigateToHomeScreen: () -> Unit
+    navigateBack: () -> Unit
 ) {
-    val currentNavigateToHomeScreen by rememberUpdatedState(navigateToHomeScreen)
+    val currentNavigateBack by rememberUpdatedState(navigateBack)
     val message = stringResource(R.string.idea_edited_successfully)
     LaunchedEffect(editIdeaUiState) {
         if (editIdeaUiState.isPublished) {
@@ -221,7 +221,7 @@ private fun ObserveIsPublished(
                 message = message,
                 duration = SnackbarDuration.Short
             )
-            currentNavigateToHomeScreen()
+            currentNavigateBack()
         }
     }
 }
