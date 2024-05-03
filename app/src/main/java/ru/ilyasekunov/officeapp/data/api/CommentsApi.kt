@@ -4,6 +4,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -47,5 +48,18 @@ interface CommentsApi {
     suspend fun sendComment(
         @Path("postId") postId: Long,
         @Body commentDto: CommentDto
+    ): Response<Unit>
+
+    @PATCH("posts/{postId}/comments/{commentId}")
+    suspend fun editComment(
+        @Path("postId") postId: Long,
+        @Path("commentId") commentId: Long,
+        @Body commentDto: CommentDto
+    ): Response<Unit>
+
+    @DELETE("posts/{postId}/comments/{commentId}")
+    suspend fun deleteComment(
+        @Path("postId") postId: Long,
+        @Path("commentId") commentId: Long
     ): Response<Unit>
 }

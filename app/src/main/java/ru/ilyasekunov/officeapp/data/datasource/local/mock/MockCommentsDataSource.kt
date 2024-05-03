@@ -104,6 +104,32 @@ class MockCommentsDataSource : CommentsDataSource {
         Comments += commentDto.toComment()
         return Result.success(Unit)
     }
+
+    override suspend fun editComment(
+        postId: Long,
+        commentId: Long,
+        commentDto: CommentDto
+    ): Result<Unit> {
+        delay(3000L)
+        val oldComment = Comments.find { it.id == commentId }
+        oldComment?.let {
+            val editedComment = it.copy(
+                content = commentDto.content,
+                attachedImage = commentDto.attachedImage
+            )
+            Comments[Comments.indexOf(oldComment)] = editedComment
+        }
+        return Result.success(Unit)
+    }
+
+    override suspend fun deleteComment(postId: Long, commentId: Long): Result<Unit> {
+        delay(3000L)
+        val commentToDelete = Comments.find { it.id == commentId }
+        commentToDelete?.let {
+            Comments -= it
+        }
+        return Result.success(Unit)
+    }
 }
 
 private fun CommentDto.toComment() =

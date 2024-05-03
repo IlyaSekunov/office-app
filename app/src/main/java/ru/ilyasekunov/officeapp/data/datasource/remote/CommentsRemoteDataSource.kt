@@ -44,4 +44,17 @@ class CommentsRemoteDataSource(
         withContext(ioDispatcher) {
             handleResponse { commentsApi.sendComment(postId, commentDto) }
         }
+
+    override suspend fun editComment(
+        postId: Long,
+        commentId: Long,
+        commentDto: CommentDto
+    ): Result<Unit> = withContext(ioDispatcher) {
+        handleResponse { commentsApi.editComment(postId, commentId, commentDto) }
+    }
+
+    override suspend fun deleteComment(postId: Long, commentId: Long): Result<Unit> =
+        withContext(ioDispatcher) {
+            handleResponse { commentsApi.deleteComment(postId, commentId) }
+        }
 }

@@ -1,8 +1,10 @@
 package ru.ilyasekunov.officeapp.ui.comments
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,6 +54,7 @@ import ru.ilyasekunov.officeapp.util.toRussianString
 
 fun LazyListScope.comments(
     comments: LazyPagingItems<Comment>,
+    onCommentLongClick: (Comment) -> Unit,
     isPullToRefreshActive: Boolean,
     onRetryCommentsLoad: () -> Unit,
     onCommentLikeClick: (Comment) -> Unit,
@@ -87,6 +90,7 @@ fun LazyListScope.comments(
                 val comment = comments[it]!!
                 Comment(
                     comment = comment,
+                    onLongClick = { onCommentLongClick(comment) },
                     onLikeClick = { onCommentLikeClick(comment) },
                     onDislikeClick = { onCommentDislikeClick(comment) },
                     navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen
@@ -129,9 +133,11 @@ private fun ErrorWhileAppending(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Comment(
     comment: Comment,
+    onLongClick: () -> Unit,
     onLikeClick: () -> Unit,
     onDislikeClick: () -> Unit,
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit,
@@ -153,7 +159,11 @@ fun Comment(
     Row(
         horizontalArrangement = Arrangement.spacedBy(15.dp),
         modifier = modifier
-            .clickable { }
+            .combinedClickable(
+                onClick = {},
+                onLongClick = onLongClick
+            )
+            //.clickable { }
             .padding(10.dp)
     ) {
         when (authorImagePainter.state) {

@@ -41,8 +41,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -51,6 +55,8 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.data.model.CommentsSortingFilters
@@ -66,11 +72,13 @@ import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
+import ru.ilyasekunov.officeapp.ui.components.Scrim
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageBottomBar
 import ru.ilyasekunov.officeapp.ui.components.SendingMessageUiState
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
 import ru.ilyasekunov.officeapp.ui.components.rememberNavigateBackArrowState
 import ru.ilyasekunov.officeapp.ui.home.AttachedImages
+import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
 import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
 import ru.ilyasekunov.officeapp.util.toRussianString
 import java.time.LocalDateTime
@@ -81,36 +89,47 @@ private object IdeaDetailsScreenDefaults {
 
 @Composable
 fun IdeaDetailsScreen(
+    currentUserUiState: CurrentUserUiState,
     ideaPostUiState: IdeaPostUiState,
     sendingMessageUiState: SendingMessageUiState,
     currentCommentsSortingFilter: CommentsSortingFilters,
-    onRetryPostLoad: () -> Unit,
+    comments: LazyPagingItems<Comment>,
+    currentEditableComment: Comment?,
+    commentDeletingUiState: CommentDeletingUiState?,
+    initiallyScrollToComments: Boolean = false,
+    onRetryInfoLoad: () -> Unit,
     onRetryCommentsLoad: () -> Unit,
     onPullToRefresh: CoroutineScope.() -> Job,
-    comments: LazyPagingItems<Comment>,
     onCommentLikeClick: (Comment) -> Unit,
     onCommentDislikeClick: (Comment) -> Unit,
+    onEditCommentClick: (Comment) -> Unit,
+    onEditCommentDismiss: () -> Unit,
     onLikeClick: () -> Unit,
     onDislikeClick: () -> Unit,
     onAttachImage: (Uri) -> Unit,
     onRemoveImageClick: (AttachedImage) -> Unit,
     onSendCommentClick: () -> Unit,
+    onDeleteCommentClick: (Comment) -> Unit,
     onMessageValueChange: (String) -> Unit,
     onCommentsFilterSelect: (CommentsSortingFilters) -> Unit,
-    initiallyScrollToComments: Boolean = false,
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit,
     navigateBack: () -> Unit
 ) {
     when {
-        isErrorWhileLoading(ideaPostUiState) -> {
+        isErrorWhileLoading(ideaPostUiState, currentUserUiState) -> {
             ErrorScreen(
                 message = stringResource(R.string.error_connecting_to_server),
-                onRetryButtonClick = onRetryPostLoad
+                onRetryButtonClick = onRetryInfoLoad
             )
         }
 
         !ideaPostUiState.postExists -> PostsNotExists(navigateBack)
-        isScreenLoading(ideaPostUiState, sendingMessageUiState) -> AnimatedLoadingScreen()
+        isScreenLoading(
+            currentUserUiState,
+            ideaPostUiState,
+            sendingMessageUiState,
+            commentDeletingUiState
+        ) -> AnimatedLoadingScreen()
 
         else -> {
             val snackbarHostState = LocalSnackbarHostState.current
@@ -119,8 +138,9 @@ fun IdeaDetailsScreen(
                 containerColor = MaterialTheme.colorScheme.background,
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
                 bottomBar = {
-                    SendingMessageBottomBar(
+                    SendingMessageBottomBarWithEditOption(
                         sendingMessageUiState = sendingMessageUiState,
+                        currentEditableComment = currentEditableComment,
                         onMessageValueChange = onMessageValueChange,
                         onSendClick = onSendCommentClick,
                         onImageRemoveClick = onRemoveImageClick,
@@ -136,28 +156,71 @@ fun IdeaDetailsScreen(
                 IdeaDetailsScreenContent(
                     ideaPost = ideaPostUiState.ideaPost!!,
                     currentCommentsSortingFilter = currentCommentsSortingFilter,
+                    currentEditableComment = currentEditableComment,
+                    comments = comments,
+                    initiallyScrollToComments = initiallyScrollToComments,
+                    isCommentOwnerCurrentUser = {
+                        it.author.id == currentUserUiState.user?.id
+                    },
                     onFilterClick = onCommentsFilterSelect,
                     onRetryCommentsLoad = onRetryCommentsLoad,
                     onPullToRefresh = onPullToRefresh,
-                    comments = comments,
                     onCommentLikeClick = onCommentLikeClick,
                     onCommentDislikeClick = onCommentDislikeClick,
+                    onEditCommentClick = onEditCommentClick,
+                    onEditCommentDismiss = onEditCommentDismiss,
+                    onDeleteCommentClick = onDeleteCommentClick,
                     onLikeClick = onLikeClick,
                     onDislikeClick = onDislikeClick,
                     navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
                     navigateBack = navigateBack,
-                    initiallyScrollToComments = initiallyScrollToComments,
+
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
                 )
             }
-            ObserveIsErrorWhileSendingComment(
+            ObserveStateChanges(
                 sendingMessageUiState = sendingMessageUiState,
+                commentDeletingUiState = commentDeletingUiState,
                 snackbarHostState = snackbarHostState,
                 coroutineScope = coroutineScope,
-                onRetryButtonClick = onSendCommentClick
+                onRetryCommentSend = onSendCommentClick
             )
+        }
+    }
+}
+
+@Composable
+fun SendingMessageBottomBarWithEditOption(
+    sendingMessageUiState: SendingMessageUiState,
+    currentEditableComment: Comment?,
+    onMessageValueChange: (String) -> Unit,
+    onSendClick: () -> Unit,
+    onImageRemoveClick: (attachedImage: AttachedImage) -> Unit,
+    onImageAttach: (Uri) -> Unit,
+    containerColor: Color,
+    modifier: Modifier = Modifier
+) {
+    val focusRequester = remember { FocusRequester() }
+    val softwareKeyboardController = LocalSoftwareKeyboardController.current
+    SendingMessageBottomBar(
+        sendingMessageUiState = sendingMessageUiState,
+        onMessageValueChange = onMessageValueChange,
+        onSendClick = onSendClick,
+        onImageRemoveClick = onImageRemoveClick,
+        onImageAttach = onImageAttach,
+        containerColor = containerColor,
+        modifier = modifier.focusRequester(focusRequester)
+    )
+    LaunchedEffect(currentEditableComment) {
+        if (currentEditableComment != null) {
+            focusRequester.requestFocus()
+            delay(50)
+            softwareKeyboardController?.show()
+        } else {
+            focusRequester.freeFocus()
+            softwareKeyboardController?.hide()
         }
     }
 }
@@ -166,10 +229,15 @@ fun IdeaDetailsScreen(
 private fun IdeaDetailsScreenContent(
     ideaPost: IdeaPost,
     currentCommentsSortingFilter: CommentsSortingFilters,
+    currentEditableComment: Comment?,
+    comments: LazyPagingItems<Comment>,
+    isCommentOwnerCurrentUser: (Comment) -> Boolean,
     onFilterClick: (CommentsSortingFilters) -> Unit,
     onRetryCommentsLoad: () -> Unit,
     onPullToRefresh: CoroutineScope.() -> Job,
-    comments: LazyPagingItems<Comment>,
+    onEditCommentClick: (Comment) -> Unit,
+    onEditCommentDismiss: () -> Unit,
+    onDeleteCommentClick: (Comment) -> Unit,
     onCommentLikeClick: (Comment) -> Unit,
     onCommentDislikeClick: (Comment) -> Unit,
     onLikeClick: () -> Unit,
@@ -187,6 +255,7 @@ private fun IdeaDetailsScreenContent(
         onRefreshTrigger = onPullToRefresh,
         modifier = modifier.nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
     ) { isRefreshing ->
+        var contextSelectedComment by remember { mutableStateOf<Comment?>(null) }
         LazyColumn(
             state = rememberIdeaDetailsScrollState(
                 initiallyScrollToComments = initiallyScrollToComments,
@@ -236,6 +305,11 @@ private fun IdeaDetailsScreenContent(
             )
             comments(
                 comments = comments,
+                onCommentLongClick = {
+                    if (isCommentOwnerCurrentUser(it)) {
+                        contextSelectedComment = it
+                    }
+                },
                 isPullToRefreshActive = isRefreshing,
                 onRetryCommentsLoad = onRetryCommentsLoad,
                 onCommentLikeClick = onCommentLikeClick,
@@ -250,6 +324,27 @@ private fun IdeaDetailsScreenContent(
                 .align(Alignment.TopStart)
                 .padding(start = 10.dp)
         )
+        SelectedCommentDropdownMenu(
+            expanded = contextSelectedComment != null,
+            onDismiss = { contextSelectedComment = null },
+            onEditClick = {
+                onEditCommentClick(contextSelectedComment!!)
+                contextSelectedComment = null
+            },
+            onDeleteClick = {
+                onDeleteCommentClick(contextSelectedComment!!)
+                contextSelectedComment = null
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+        )
+        if (currentEditableComment != null) {
+            Scrim(
+                onClick = onEditCommentDismiss,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
     }
 }
 
@@ -386,6 +481,74 @@ private fun CommentsCountAndSortingFilter(
 }
 
 @Composable
+fun ObserveStateChanges(
+    sendingMessageUiState: SendingMessageUiState,
+    commentDeletingUiState: CommentDeletingUiState?,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onRetryCommentSend: () -> Unit
+) {
+    ObserveCommentIsPublished(
+        sendingMessageUiState = sendingMessageUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope
+    )
+    ObserveIsErrorWhileSendingComment(
+        sendingMessageUiState = sendingMessageUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
+        onRetryButtonClick = onRetryCommentSend
+    )
+    ObserveIsCommentWasDeletedSuccessfully(
+        commentDeletingUiState = commentDeletingUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope
+    )
+}
+
+@Composable
+fun ObserveIsCommentWasDeletedSuccessfully(
+    commentDeletingUiState: CommentDeletingUiState?,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope
+) {
+    commentDeletingUiState?.let {
+        val message = if (it.isDeleted) {
+            stringResource(R.string.comment_delete_success)
+        } else {
+            stringResource(R.string.comment_delete_failure)
+        }
+        LaunchedEffect(commentDeletingUiState) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ObserveCommentIsPublished(
+    sendingMessageUiState: SendingMessageUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope
+) {
+    val message = stringResource(R.string.comment_published_successfully)
+    LaunchedEffect(sendingMessageUiState) {
+        if (sendingMessageUiState.isPublished) {
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun ObserveIsErrorWhileSendingComment(
     sendingMessageUiState: SendingMessageUiState,
     snackbarHostState: SnackbarHostState,
@@ -394,7 +557,7 @@ private fun ObserveIsErrorWhileSendingComment(
 ) {
     val errorMessage = stringResource(R.string.error_while_publishing_comment)
     val retryLabel = stringResource(R.string.retry)
-    LaunchedEffect(sendingMessageUiState.isErrorWhileSending) {
+    LaunchedEffect(sendingMessageUiState) {
         if (sendingMessageUiState.isErrorWhileSending) {
             networkErrorSnackbar(
                 snackbarHostState = snackbarHostState,
@@ -556,9 +719,19 @@ fun Int.toRussianCommentsString(): String =
     }
 
 private fun isScreenLoading(
+    currentUserUiState: CurrentUserUiState,
     ideaPostUiState: IdeaPostUiState,
-    sendingMessageUiState: SendingMessageUiState
-) = ideaPostUiState.isLoading || sendingMessageUiState.isLoading
+    sendingMessageUiState: SendingMessageUiState,
+    commentDeletingUiState: CommentDeletingUiState?
+): Boolean {
+    val commentIsDeleting = commentDeletingUiState?.isDeleting ?: false
+    return commentIsDeleting ||
+            sendingMessageUiState.isLoading ||
+            ideaPostUiState.isLoading ||
+            currentUserUiState.isLoading
+}
 
-private fun isErrorWhileLoading(ideaPostUiState: IdeaPostUiState) =
-    ideaPostUiState.isErrorWhileLoading
+private fun isErrorWhileLoading(
+    ideaPostUiState: IdeaPostUiState,
+    currentUserUiState: CurrentUserUiState
+) = ideaPostUiState.isErrorWhileLoading || currentUserUiState.isErrorWhileLoading

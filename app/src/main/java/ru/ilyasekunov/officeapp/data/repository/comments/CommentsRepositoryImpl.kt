@@ -25,4 +25,16 @@ class CommentsRepositoryImpl(
     override suspend fun sendComment(postId: Long, commentDto: CommentDto): Result<Unit> {
         return commentsDataSource.sendComment(postId, commentDto)
     }
+
+    override suspend fun editComment(
+        postId: Long,
+        commentId: Long,
+        commentDto: CommentDto
+    ): Result<Unit> {
+        return commentsDataSource.editComment(postId, commentId, commentDto)
+    }
+
+    override suspend fun deleteComment(postId: Long, commentId: Long): Result<Unit> {
+        return commentsDataSource.deleteComment(postId, commentId)
+    }
 }

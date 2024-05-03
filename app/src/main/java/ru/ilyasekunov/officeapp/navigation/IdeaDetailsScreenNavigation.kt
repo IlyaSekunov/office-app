@@ -30,14 +30,25 @@ fun NavGraphBuilder.ideaDetailsScreen(
         val viewModel = setUpIdeaDetailsViewModel(postId)
         val comments = viewModel.commentsUiState.comments.collectAsLazyPagingItems()
         IdeaDetailsScreen(
+            currentUserUiState = viewModel.currentUserUiState,
             ideaPostUiState = viewModel.ideaPostUiState,
             sendingMessageUiState = viewModel.sendingMessageUiState,
             currentCommentsSortingFilter = viewModel.commentsUiState.currentSortingFilter,
+            currentEditableComment = viewModel.currentEditableComment,
+            comments = comments,
+            commentDeletingUiState = viewModel.commentDeletingUiState,
+            initiallyScrollToComments = initiallyScrollToComments,
             onCommentsFilterSelect = viewModel::updateCommentsSortingFilter,
-            onRetryPostLoad = { viewModel.loadPostById(postId) },
+            onRetryInfoLoad = {
+                viewModel.loadCurrentUser()
+                viewModel.loadPostById(postId)
+            },
             onRetryCommentsLoad = { viewModel.loadCommentsByPostId(postId) },
             onPullToRefresh = {
                 launch {
+                    launch {
+                        viewModel.refreshCurrentUser()
+                    }
                     launch {
                         viewModel.refreshPostById(postId)
                     }
@@ -46,16 +57,17 @@ fun NavGraphBuilder.ideaDetailsScreen(
                     }
                 }
             },
-            comments = comments,
             onCommentLikeClick = viewModel::updateCommentLike,
             onCommentDislikeClick = viewModel::updateCommentDislike,
+            onEditCommentClick = viewModel::startEditComment,
+            onEditCommentDismiss = viewModel::stopEditComment,
             onLikeClick = viewModel::updatePostLike,
             onDislikeClick = viewModel::updatePostDislike,
             onMessageValueChange = viewModel::updateMessage,
             onAttachImage = viewModel::attachImage,
             onRemoveImageClick = viewModel::removeImage,
             onSendCommentClick = viewModel::sendComment,
-            initiallyScrollToComments = initiallyScrollToComments,
+            onDeleteCommentClick = viewModel::deleteComment,
             navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
             navigateBack = navigateBack
         )

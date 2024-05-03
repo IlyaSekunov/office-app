@@ -90,4 +90,7 @@
     <string name="my_ideas_list_is_empty">Список ваших идей пуст</string>
     <string name="suggest_idea_to_my_office_success">Идея успешно предложена вашему офису</string>
     <string name="suggest_idea_to_my_office_failure">Ошибка при попытке предложить идею вашему офису</string>
+    <string name="comment_published_successfully">Комментарий успешно опубликован</string>
+    <string name="comment_delete_success">Комментарий удален успешно</string>
+    <string name="comment_delete_failure">Ошибка при удалении комментария</string>
 </resources>

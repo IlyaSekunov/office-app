@@ -35,4 +35,15 @@ interface CommentsDataSource {
         postId: Long,
         commentDto: CommentDto
     ): Result<Unit>
+
+    suspend fun editComment(
+        postId: Long,
+        commentId: Long,
+        commentDto: CommentDto
+    ): Result<Unit>
+
+    suspend fun deleteComment(
+        postId: Long,
+        commentId: Long
+    ): Result<Unit>
 }

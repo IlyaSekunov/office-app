@@ -48,7 +48,8 @@ data class SendingMessageUiState(
     val message: String = "",
     val attachedImages: List<AttachedImage> = emptyList(),
     val isLoading: Boolean = false,
-    val isErrorWhileSending: Boolean = false
+    val isErrorWhileSending: Boolean = false,
+    val isPublished: Boolean = false
 )
 
 @Composable

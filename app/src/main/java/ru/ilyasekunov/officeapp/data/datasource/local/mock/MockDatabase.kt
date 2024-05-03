@@ -43,7 +43,7 @@ val Offices = listOf(
 )
 
 val userInfoPreview = User(
-    id = 0,
+    id = 1,
     email = "dktinkoff@yandex.ru",
     name = "Дмитрий",
     surname = "Комарницкий",
@@ -65,7 +65,6 @@ val ideaAuthor = IdeaAuthor(
 
 val Users = mutableListOf(
     ideaAuthor,
-    User!!.toIdeaAuthor(),
     ideaAuthor.copy(id = 2),
     ideaAuthor.copy(id = 3)
 )
