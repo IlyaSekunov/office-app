@@ -33,11 +33,11 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.permissions.rememberStorageAccessPermissionRequest
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
-import ru.ilyasekunov.officeapp.ui.attachedImagesCountExceededSnackbar
 import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
 import ru.ilyasekunov.officeapp.ui.imagepickers.rememberSingleImagePickerRequest
 import ru.ilyasekunov.officeapp.ui.modifiers.BorderSide
@@ -181,12 +181,12 @@ private fun rememberOnAttachImageToCommentClick(
     ) {
         if (attachedImagesCount >= ImagePickerDefaults.COMMENTS_MAX_ATTACH_IMAGES) {
             {
-                attachedImagesCountExceededSnackbar(
-                    snackbarHostState = snackbarHostState,
-                    coroutineScope = coroutineScope,
-                    duration = SnackbarDuration.Short,
-                    message = attachedImagesCountExceededMessage
-                )
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = attachedImagesCountExceededMessage,
+                        duration = SnackbarDuration.Short
+                    )
+                }
             }
         } else {
             {

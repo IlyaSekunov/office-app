@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
@@ -32,8 +33,7 @@ import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.ideaEditedSuccessfullySnackbar
-import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
+import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 import ru.ilyasekunov.officeapp.ui.suggestidea.EditIdeaSection
 import ru.ilyasekunov.officeapp.ui.suggestidea.SuggestIdeaTopBar
 
@@ -192,14 +192,14 @@ private fun ObserveNetworkError(
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
     LaunchedEffect(editIdeaUiState) {
         if (editIdeaUiState.isNetworkError) {
-            networkErrorSnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = coroutineScope,
-                duration = SnackbarDuration.Short,
-                message = serverErrorMessage,
-                retryLabel = retryLabel,
-                onRetryClick = currentOnActionPerformedClick
-            )
+            coroutineScope.launch {
+                snackbarHostState.snackbarWithAction(
+                    message = serverErrorMessage,
+                    actionLabel = retryLabel,
+                    onActionClick = currentOnActionPerformedClick,
+                    duration = SnackbarDuration.Short
+                )
+            }
         }
     }
 }
@@ -215,12 +215,12 @@ private fun ObserveIsPublished(
     val message = stringResource(R.string.idea_edited_successfully)
     LaunchedEffect(editIdeaUiState) {
         if (editIdeaUiState.isPublished) {
-            ideaEditedSuccessfullySnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = coroutineScope,
-                message = message,
-                duration = SnackbarDuration.Short
-            )
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
+            }
             currentNavigateBack()
         }
     }

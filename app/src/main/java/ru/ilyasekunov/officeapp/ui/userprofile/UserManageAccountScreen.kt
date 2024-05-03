@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
@@ -41,7 +42,6 @@ import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
-import ru.ilyasekunov.officeapp.ui.changesSavedSuccessfullySnackbar
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.OfficePicker
@@ -49,7 +49,7 @@ import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
 import ru.ilyasekunov.officeapp.ui.components.UserJobTextField
 import ru.ilyasekunov.officeapp.ui.components.UserNameTextField
 import ru.ilyasekunov.officeapp.ui.components.UserSurnameTextField
-import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
+import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
@@ -265,14 +265,14 @@ private fun ObserveChangesSavingError(
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
     LaunchedEffect(userManageAccountUiState) {
         if (userManageAccountUiState.isChangesSavingError) {
-            networkErrorSnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = coroutineScope,
-                duration = SnackbarDuration.Short,
-                message = serverErrorMessage,
-                retryLabel = retryLabel,
-                onRetryClick = currentOnActionPerformedClick
-            )
+            coroutineScope.launch {
+                snackbarHostState.snackbarWithAction(
+                    message = serverErrorMessage,
+                    actionLabel = retryLabel,
+                    onActionClick = currentOnActionPerformedClick,
+                    duration = SnackbarDuration.Short
+                )
+            }
         }
     }
 }
@@ -288,12 +288,12 @@ private fun ObserveIsChangesSaved(
     val message = stringResource(R.string.profile_settings_changes_saved_succesfully)
     LaunchedEffect(userManageAccountUiState) {
         if (userManageAccountUiState.isChangesSaved) {
-            changesSavedSuccessfullySnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = coroutineScope,
-                message = message,
-                duration = SnackbarDuration.Short
-            )
+            coroutineScope.launch {
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
+            }
             currentNavigateToProfileScreen()
         }
     }

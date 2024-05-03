@@ -79,7 +79,7 @@ import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBeha
 import ru.ilyasekunov.officeapp.ui.components.rememberNavigateBackArrowState
 import ru.ilyasekunov.officeapp.ui.home.AttachedImages
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
-import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
+import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 import ru.ilyasekunov.officeapp.util.toRussianString
 import java.time.LocalDateTime
 
@@ -559,14 +559,14 @@ private fun ObserveIsErrorWhileSendingComment(
     val retryLabel = stringResource(R.string.retry)
     LaunchedEffect(sendingMessageUiState) {
         if (sendingMessageUiState.isErrorWhileSending) {
-            networkErrorSnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = coroutineScope,
-                duration = SnackbarDuration.Short,
-                message = errorMessage,
-                retryLabel = retryLabel,
-                onRetryClick = onRetryButtonClick
-            )
+            coroutineScope.launch {
+                snackbarHostState.snackbarWithAction(
+                    message = errorMessage,
+                    actionLabel = retryLabel,
+                    onActionClick = onRetryButtonClick,
+                    duration = SnackbarDuration.Short
+                )
+            }
         }
     }
 }

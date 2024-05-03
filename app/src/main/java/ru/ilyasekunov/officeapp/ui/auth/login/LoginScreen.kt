@@ -39,8 +39,7 @@ import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.EmailTextField
 import ru.ilyasekunov.officeapp.ui.components.PasswordTextField
 import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
-import ru.ilyasekunov.officeapp.ui.loginErrorSnackbar
-import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
+import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.validation.EmailValidationError
 import ru.ilyasekunov.officeapp.validation.PasswordValidationError
@@ -258,10 +257,9 @@ private fun ObserveCredentialsValid(
     val loginErrorMessage = stringResource(R.string.incorrect_login_or_password)
     LaunchedEffect(loginUiState) {
         if (loginUiState.credentialsInvalid) {
-            loginErrorSnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = this,
-                message = loginErrorMessage
+            snackbarHostState.showSnackbar(
+                message = loginErrorMessage,
+                withDismissAction = true
             )
         }
     }
@@ -277,13 +275,11 @@ private fun ObserveIsNetworkError(
     val retryLabel = stringResource(R.string.retry)
     LaunchedEffect(loginUiState) {
         if (loginUiState.isNetworkError) {
-            networkErrorSnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = this,
-                duration = SnackbarDuration.Long,
+            snackbarHostState.snackbarWithAction(
                 message = errorMessage,
-                retryLabel = retryLabel,
-                onRetryClick = onRetryClick
+                actionLabel = retryLabel,
+                onActionClick = onRetryClick,
+                duration = SnackbarDuration.Long
             )
         }
     }

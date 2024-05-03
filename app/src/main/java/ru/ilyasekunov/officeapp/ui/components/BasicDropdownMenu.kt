@@ -79,10 +79,10 @@ fun BasicDropdownMenu(
                                 else colors.unselectedTextColor
                             )
                         },
-                        leadingIcon = {
-                            if (it.leadingIcon != null) {
+                        leadingIcon = it.leadingIcon?.let { icon ->
+                            {
                                 Icon(
-                                    painter = painterResource(it.leadingIcon),
+                                    painter = painterResource(icon),
                                     contentDescription = "item_leading_icon",
                                     tint = if (it.isSelected) colors.selectedLeadingIconColor
                                     else colors.unselectedLeadingIconColor

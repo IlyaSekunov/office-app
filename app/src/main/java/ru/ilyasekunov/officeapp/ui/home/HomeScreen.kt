@@ -43,6 +43,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -101,10 +102,9 @@ import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsColumn
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.SuggestIdeaButton
 import ru.ilyasekunov.officeapp.ui.components.defaultSuggestIdeaFABScrollBehaviour
-import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
-import ru.ilyasekunov.officeapp.ui.suggestIdeaToMyOfficeResultSnackbar
+import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.util.toRussianString
 import ru.ilyasekunov.officeapp.util.toThousandsString
@@ -233,13 +233,14 @@ private fun HomeScreenContent(
             isPullToRefreshActive = isRefreshing,
             isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
             onDeletePostClick = {
-                deletePostSnackbar(
-                    snackbarHostState = snackbarHostState,
-                    coroutineScope = coroutineScope,
-                    message = postDeletedMessage,
-                    undoLabel = undoLabel,
-                    onSnackbarTimeOut = { onDeletePostClick(it) }
-                )
+                coroutineScope.launch {
+                    snackbarHostState.snackbarWithAction(
+                        message = postDeletedMessage,
+                        actionLabel = undoLabel,
+                        onTimeout = { onDeletePostClick(it) },
+                        duration = SnackbarDuration.Short
+                    )
+                }
             },
             onPostLikeClick = onPostLikeClick,
             onPostDislikeClick = onPostDislikeClick,
@@ -269,11 +270,12 @@ private fun CoroutineScope.suggestIdeaToMyOffice(
 ) = launch {
     val result = suggestIdeaToMyOffice().await()
     val message = if (result.isSuccess) successMessage else failureMessage
-    suggestIdeaToMyOfficeResultSnackbar(
-        snackbarHostState = snackbarHostState,
-        coroutineScope = coroutineScope,
-        message = message
-    )
+    coroutineScope.launch {
+        snackbarHostState.showSnackbar(
+            message = message,
+            duration = SnackbarDuration.Short
+        )
+    }
 }
 
 @Composable

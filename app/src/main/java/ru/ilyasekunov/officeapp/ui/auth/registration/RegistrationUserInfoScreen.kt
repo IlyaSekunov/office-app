@@ -37,6 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
@@ -49,7 +50,7 @@ import ru.ilyasekunov.officeapp.ui.components.PhotoPicker
 import ru.ilyasekunov.officeapp.ui.components.UserJobTextField
 import ru.ilyasekunov.officeapp.ui.components.UserNameTextField
 import ru.ilyasekunov.officeapp.ui.components.UserSurnameTextField
-import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
+import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
@@ -221,14 +222,14 @@ private fun ObserveIsNetworkError(
     val retryLabel = stringResource(R.string.retry)
     LaunchedEffect(registrationUiState) {
         if (registrationUiState.isNetworkError) {
-            networkErrorSnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = coroutineScope,
-                duration = SnackbarDuration.Short,
-                message = errorMessage,
-                retryLabel = retryLabel,
-                onRetryClick = currentOnRetryButtonClick
-            )
+            coroutineScope.launch {
+                snackbarHostState.snackbarWithAction(
+                    message = errorMessage,
+                    actionLabel = retryLabel,
+                    onActionClick = currentOnRetryButtonClick,
+                    duration = SnackbarDuration.Short
+                )
+            }
         }
     }
 }

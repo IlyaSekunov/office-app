@@ -31,9 +31,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -67,9 +67,9 @@ import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsVerticalGrid
-import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.favouriteideas.rememberRandomFavouriteIdeaColor
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
+import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 
 @Composable
 fun MyIdeasScreen(
@@ -195,17 +195,18 @@ private fun MyIdeasScreenContent(
                 selectedIdea = null
             },
             onDeleteClick = {
-                deletePostSnackbar(
-                    snackbarHostState = snackbarHostState,
-                    coroutineScope = coroutineScope,
-                    message = postDeletedMessage,
-                    undoLabel = undoLabel,
-                    onSnackbarTimeOut = {
-                        selectedIdea?.let { onDeleteIdeaClick(it) }
-                        selectedIdea = null
-                        coroutineScope.launch { onPullToRefresh() }
-                    }
-                )
+                coroutineScope.launch {
+                    snackbarHostState.snackbarWithAction(
+                        message = postDeletedMessage,
+                        actionLabel = undoLabel,
+                        onTimeout = {
+                            selectedIdea?.let { onDeleteIdeaClick(it) }
+                            selectedIdea = null
+                            coroutineScope.launch { onPullToRefresh() }
+                        },
+                        duration = SnackbarDuration.Short
+                    )
+                }
                 isBottomSheetVisible = false
             }
         )
@@ -220,31 +221,27 @@ private fun MyIdeaActionsBottomSheet(
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Surface(
-        contentColor = MaterialTheme.colorScheme.background
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = MaterialTheme.colorScheme.background,
+        shape = MaterialTheme.shapes.large.copy(
+            bottomEnd = CornerSize(0.dp),
+            bottomStart = CornerSize(0.dp)
+        ),
+        modifier = modifier
     ) {
-        ModalBottomSheet(
-            onDismissRequest = onDismiss,
-            containerColor = MaterialTheme.colorScheme.background,
-            shape = MaterialTheme.shapes.large.copy(
-                bottomEnd = CornerSize(0.dp),
-                bottomStart = CornerSize(0.dp)
-            ),
-            modifier = modifier
-        ) {
-            MyIdeaAction(
-                icon = R.drawable.outline_create_24,
-                text = stringResource(R.string.edit),
-                onClick = onEditClick,
-                modifier = Modifier.fillMaxWidth()
-            )
-            MyIdeaAction(
-                icon = R.drawable.outline_delete_24,
-                text = stringResource(R.string.delete),
-                onClick = onDeleteClick,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+        MyIdeaAction(
+            icon = R.drawable.outline_create_24,
+            text = stringResource(R.string.edit),
+            onClick = onEditClick,
+            modifier = Modifier.fillMaxWidth()
+        )
+        MyIdeaAction(
+            icon = R.drawable.outline_delete_24,
+            text = stringResource(R.string.delete),
+            onClick = onDeleteClick,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

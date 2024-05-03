@@ -57,14 +57,13 @@ import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
-import ru.ilyasekunov.officeapp.ui.attachedImagesCountExceededSnackbar
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.AttachedImages
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.onImagePickerClick
 import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
 import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePickerRequest
-import ru.ilyasekunov.officeapp.ui.networkErrorSnackbar
+import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Composable
@@ -222,14 +221,14 @@ private fun ObserveNetworkError(
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
     LaunchedEffect(suggestIdeaUiState) {
         if (suggestIdeaUiState.isNetworkError) {
-            networkErrorSnackbar(
-                snackbarHostState = snackbarHostState,
-                coroutineScope = coroutineScope,
-                duration = SnackbarDuration.Short,
-                message = serverErrorMessage,
-                retryLabel = retryLabel,
-                onRetryClick = currentOnActionPerformedClick
-            )
+            coroutineScope.launch {
+                snackbarHostState.snackbarWithAction(
+                    message = serverErrorMessage,
+                    actionLabel = retryLabel,
+                    onActionClick = currentOnActionPerformedClick,
+                    duration = SnackbarDuration.Short
+                )
+            }
         }
     }
 }
@@ -246,8 +245,7 @@ private fun ObserveIsPublished(
     LaunchedEffect(suggestIdeaUiState) {
         if (suggestIdeaUiState.isPublished) {
             coroutineScope.launch {
-                ideaPublishedSuccessfullySnackbar(
-                    snackbarHostState = snackbarHostState,
+                snackbarHostState.showSnackbar(
                     message = message,
                     duration = SnackbarDuration.Short
                 )
@@ -327,12 +325,12 @@ fun rememberOnAttachImageButtonClick(
     ) {
         if (attachedImagesCount >= maxAttachedImagesCount) {
             {
-                attachedImagesCountExceededSnackbar(
-                    snackbarHostState = snackbarHostState,
-                    coroutineScope = coroutineScope,
-                    duration = SnackbarDuration.Short,
-                    message = attachedImagesCountExceededMessage
-                )
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = attachedImagesCountExceededMessage,
+                        duration = SnackbarDuration.Short
+                    )
+                }
             }
         } else {
             {
@@ -523,15 +521,6 @@ private fun AttachImagesButton(
         )
     }
 }
-
-private suspend fun ideaPublishedSuccessfullySnackbar(
-    snackbarHostState: SnackbarHostState,
-    duration: SnackbarDuration,
-    message: String
-) = snackbarHostState.showSnackbar(
-    message = message,
-    duration = duration
-)
 
 @Preview
 @Composable

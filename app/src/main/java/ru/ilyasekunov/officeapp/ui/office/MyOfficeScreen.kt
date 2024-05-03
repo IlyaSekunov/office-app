@@ -31,6 +31,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,6 +56,7 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
@@ -70,10 +72,10 @@ import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsColumn
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsHorizontalGrid
-import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
 import ru.ilyasekunov.officeapp.ui.home.IdeaPost
 import ru.ilyasekunov.officeapp.ui.modifiers.conditional
+import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 import ru.ilyasekunov.officeapp.util.isEmpty
 import kotlin.math.min
 
@@ -152,13 +154,14 @@ fun MyOfficeScreen(
                     onPostDislikeClick = onPostDislikeClick,
                     onPostCommentsClick = onPostCommentsClick,
                     onDeletePostClick = {
-                        deletePostSnackbar(
-                            snackbarHostState = snackbarHostState,
-                            coroutineScope = coroutineScope,
-                            message = postDeletedMessage,
-                            undoLabel = undoLabel,
-                            onSnackbarTimeOut = { onDeletePostClick(it) }
-                        )
+                        coroutineScope.launch {
+                            snackbarHostState.snackbarWithAction(
+                                message = postDeletedMessage,
+                                actionLabel = undoLabel,
+                                onTimeout = { onDeletePostClick(it) },
+                                duration = SnackbarDuration.Short
+                            )
+                        }
                     },
                     navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
                     navigateToEditIdeaScreen = navigateToEditIdeaScreen,
