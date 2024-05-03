@@ -215,7 +215,6 @@ fun SendingMessageBottomBarWithEditOption(
     LaunchedEffect(currentEditableComment) {
         if (currentEditableComment != null) {
             focusRequester.requestFocus()
-            softwareKeyboardController?.show()
         } else {
             softwareKeyboardController?.hide()
         }
@@ -302,7 +301,7 @@ private fun IdeaDetailsScreenContent(
             )
             comments(
                 comments = comments,
-                onCommentLongClick = {
+                onCommentClick = {
                     if (isCommentOwnerCurrentUser(it)) {
                         contextSelectedComment = it
                     }
