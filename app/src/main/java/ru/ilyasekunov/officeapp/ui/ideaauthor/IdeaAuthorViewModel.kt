@@ -98,22 +98,23 @@ class IdeaAuthorViewModel @Inject constructor(
     }
 
     suspend fun refreshIdeaAuthorById(authorId: Long) {
-        val ideaAuthorResult = authorRepository.ideaAuthorById(authorId)
-        when {
-            ideaAuthorResult.isSuccess -> {
-                val ideaAuthor = ideaAuthorResult.getOrThrow()
-                ideaAuthorUiState = ideaAuthor.toIdeaAuthorUiState()
-                updateIsIdeaAuthorExists(true)
-                updateIsErrorWhileIdeaAuthorLoading(false)
-            }
+        authorRepository.ideaAuthorById(authorId).also { result ->
+            when {
+                result.isSuccess -> {
+                    val ideaAuthor = result.getOrThrow()
+                    ideaAuthorUiState = ideaAuthor.toIdeaAuthorUiState()
+                    updateIsIdeaAuthorExists(true)
+                    updateIsErrorWhileIdeaAuthorLoading(false)
+                }
 
-            ideaAuthorResult.exceptionOrNull()!! is HttpNotFoundException -> {
-                updateIsErrorWhileIdeaAuthorLoading(false)
-                updateIsIdeaAuthorExists(false)
-            }
+                result.exceptionOrNull()!! is HttpNotFoundException -> {
+                    updateIsErrorWhileIdeaAuthorLoading(false)
+                    updateIsIdeaAuthorExists(false)
+                }
 
-            else -> {
-                updateIsErrorWhileIdeaAuthorLoading(true)
+                else -> {
+                    updateIsErrorWhileIdeaAuthorLoading(true)
+                }
             }
         }
     }

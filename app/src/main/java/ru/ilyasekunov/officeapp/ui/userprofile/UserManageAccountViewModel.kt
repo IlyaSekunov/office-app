@@ -209,15 +209,11 @@ class UserManageAccountViewModel @Inject constructor(
 
                 val photoUrl = photoUrlResult.getOrThrow()
                 val userDto = userProfileUiState.toUserDto(photoUrl)
-                val saveChangesResult = userRepository.saveChanges(userDto)
-                if (saveChangesResult.isSuccess) {
-                    updateIsChangesSavingError(false)
-                    updateIsChangesSaved(true)
-                } else {
-                    updateIsChangesSavingError(true)
-                    updateIsChangesSaved(false)
+                userRepository.saveChanges(userDto).also { result ->
+                    updateIsChangesSaving(false)
+                    updateIsChangesSavingError(result.isFailure)
+                    updateIsChangesSaved(result.isSuccess)
                 }
-                updateIsChangesSaving(false)
             }
         }
     }
@@ -268,32 +264,30 @@ class UserManageAccountViewModel @Inject constructor(
     fun loadUserProfile() {
         viewModelScope.launch {
             updateIsUserLoading(true)
-            val userResult = authRepository.userInfo()
-            if (userResult.isSuccess) {
-                val user = userResult.getOrThrow()
-                val userProfileUiState = user.toUserProfileUiState()
-                updateCurrentUserProfileUiState(userProfileUiState)
-                updateMutableUserProfileUiState(userProfileUiState)
-                updateIsErrorWhileUserLoading(false)
-            } else {
-                updateIsErrorWhileUserLoading(true)
+            authRepository.userInfo().also { result ->
+                updateIsUserLoading(false)
+                updateIsErrorWhileUserLoading(result.isFailure)
+                if (result.isSuccess) {
+                    val user = result.getOrThrow()
+                    val userProfileUiState = user.toUserProfileUiState()
+                    updateCurrentUserProfileUiState(userProfileUiState)
+                    updateMutableUserProfileUiState(userProfileUiState)
+                }
             }
-            updateIsUserLoading(false)
         }
     }
 
     fun loadAvailableOffices() {
         viewModelScope.launch {
             updateIsOfficesLoading(true)
-            val availableOfficesResult = officeRepository.availableOffices()
-            if (availableOfficesResult.isSuccess) {
-                val availableOffices = availableOfficesResult.getOrThrow()
-                updateAvailableOffices(availableOffices)
-                updateIsErrorWhileOfficesLoading(false)
-            } else {
-                updateIsErrorWhileOfficesLoading(true)
+            officeRepository.availableOffices().also { result ->
+                updateIsOfficesLoading(false)
+                updateIsErrorWhileOfficesLoading(result.isFailure)
+                if (result.isSuccess) {
+                    val availableOffices = result.getOrThrow()
+                    updateAvailableOffices(availableOffices)
+                }
             }
-            updateIsOfficesLoading(false)
         }
     }
 

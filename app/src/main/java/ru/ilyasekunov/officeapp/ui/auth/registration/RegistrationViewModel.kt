@@ -151,17 +151,17 @@ class RegistrationViewModel @Inject constructor(
                 }
 
                 val photoUrl = photoUrlResult.getOrThrow()
-                val registrationForm = registrationUiState.toRegistrationForm(photoUrl)
-                val registrationResult = authRepository.register(registrationForm)
-                if (registrationResult.isSuccess) {
-                    updateIsNetworkError(false)
-                    updateIsRegistrationSuccess(true)
-                } else {
-                    updateIsNetworkError(true)
-                    updateIsRegistrationSuccess(false)
-                }
-                updateIsLoading(false)
+                register(photoUrl)
             }
+        }
+    }
+
+    private suspend fun register(photoUrl: String?) {
+        val registrationForm = registrationUiState.toRegistrationForm(photoUrl)
+        authRepository.register(registrationForm).also { result ->
+            updateIsLoading(false)
+            updateIsNetworkError(result.isFailure)
+            updateIsRegistrationSuccess(result.isSuccess)
         }
     }
 
@@ -247,16 +247,15 @@ class RegistrationViewModel @Inject constructor(
     fun loadAvailableOffices() {
         viewModelScope.launch {
             updateAvailableOfficesIsLoading(true)
-            val availableOfficesResult = officeRepository.availableOffices()
-            if (availableOfficesResult.isSuccess) {
-                updateAvailableOfficeIsError(false)
-                val availableOffices = availableOfficesResult.getOrThrow()
-                updateAvailableOffices(availableOffices)
-                updateOffice(availableOffices[0])
-            } else {
-                updateAvailableOfficeIsError(true)
+            officeRepository.availableOffices().also { result ->
+                updateAvailableOfficesIsLoading(false)
+                updateAvailableOfficeIsError(result.isFailure)
+                if (result.isSuccess) {
+                    val availableOffices = result.getOrThrow()
+                    updateAvailableOffices(availableOffices)
+                    updateOffice(availableOffices[0])
+                }
             }
-            updateAvailableOfficesIsLoading(false)
         }
     }
 
@@ -286,17 +285,17 @@ class RegistrationViewModel @Inject constructor(
 
     private suspend fun checkEmailAvailability() {
         val email = registrationUiState.emailUiState.email
-        val isEmailAvailableResult = authRepository.isEmailValid(email)
-        if (isEmailAvailableResult.isSuccess) {
-            val isEmailAvailable = isEmailAvailableResult.getOrThrow()
-            if (isEmailAvailable) {
-                updateEmailValidationError(null)
-            } else {
-                updateEmailValidationError(EmailValidationError.UNAVAILABLE)
+        authRepository.isEmailValid(email).also { result ->
+            updateIsNetworkError(result.isFailure)
+            if (result.isSuccess) {
+                val isEmailAvailable = result.getOrThrow()
+                val emailValidationError = if (isEmailAvailable) {
+                    null
+                } else {
+                    EmailValidationError.UNAVAILABLE
+                }
+                updateEmailValidationError(emailValidationError)
             }
-            updateIsNetworkError(false)
-        } else {
-            updateIsNetworkError(true)
         }
     }
 
@@ -367,12 +366,11 @@ class RegistrationViewModel @Inject constructor(
         val pickedPhotoUri = registrationUiState.userInfoRegistrationUiState.photo
         return pickedPhotoUri?.let {
             val photoUrlResult = imagesRepository.uploadImage(it)
+            updateIsNetworkError(photoUrlResult.isFailure)
             if (photoUrlResult.isSuccess) {
                 val photoUrl = photoUrlResult.getOrThrow()
-                updateIsNetworkError(false)
                 Result.success(photoUrl)
             } else {
-                updateIsNetworkError(true)
                 photoUrlResult
             }
         } ?: Result.success(null)

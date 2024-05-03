@@ -107,9 +107,10 @@ class HomeViewModel @Inject constructor(
 
     fun deletePost(post: IdeaPost) {
         viewModelScope.launch {
-            val deletePostResult = postsRepository.deletePostById(post.id)
-            if (deletePostResult.isSuccess) {
-                removePost(post)
+            postsRepository.deletePostById(post.id).also { result ->
+                if (result.isSuccess) {
+                    removePost(post)
+                }
             }
         }
     }
@@ -167,21 +168,22 @@ class HomeViewModel @Inject constructor(
     }
 
     suspend fun refreshCurrentUser() {
-        val userInfoResult = authRepository.userInfo()
-        when {
-            userInfoResult.isSuccess -> {
-                val user = userInfoResult.getOrThrow()
-                updateIsErrorWhileUserLoading(false)
-                updateIsUserUnauthorized(false)
-                updateUser(user)
-            }
+        authRepository.userInfo().also { result ->
+            when {
+                result.isSuccess -> {
+                    val user = result.getOrThrow()
+                    updateIsErrorWhileUserLoading(false)
+                    updateIsUserUnauthorized(false)
+                    updateUser(user)
+                }
 
-            userInfoResult.exceptionOrNull()!! is HttpForbiddenException -> {
-                updateIsUserUnauthorized(true)
-            }
+                result.exceptionOrNull()!! is HttpForbiddenException -> {
+                    updateIsUserUnauthorized(true)
+                }
 
-            else -> {
-                updateIsErrorWhileUserLoading(true)
+                else -> {
+                    updateIsErrorWhileUserLoading(true)
+                }
             }
         }
     }

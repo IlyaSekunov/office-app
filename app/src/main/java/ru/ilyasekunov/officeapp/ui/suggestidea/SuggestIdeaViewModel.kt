@@ -80,16 +80,16 @@ class SuggestIdeaViewModel @Inject constructor(
             }
 
             val uploadedImagesUrls = uploadedImagesResult.getOrThrow()
-            val publishPostDto = suggestIdeaUiState.toPublishPostDto(uploadedImagesUrls)
-            val publishResult = postsRepository.publishPost(publishPostDto)
-            if (publishResult.isSuccess) {
-                updateIsNetworkError(false)
-                updateIsPublished(true)
-            } else {
-                updateIsNetworkError(true)
-                updateIsPublished(false)
-            }
+            publishPost(uploadedImagesUrls)
+        }
+    }
+
+    private suspend fun publishPost(uploadedImagesUrls: List<String>) {
+        val publishPostDto = suggestIdeaUiState.toPublishPostDto(uploadedImagesUrls)
+        postsRepository.publishPost(publishPostDto).also { result ->
             updateIsLoading(false)
+            updateIsNetworkError(result.isFailure)
+            updateIsPublished(result.isSuccess)
         }
     }
 

@@ -73,40 +73,42 @@ class EditIdeaViewModel @Inject constructor(
     fun loadPostById(postId: Long) {
         viewModelScope.launch {
             updateIsLoading(true)
-            val ideaPostResult = postsRepository.findPostById(postId)
-            if (ideaPostResult.isSuccess) {
-                val ideaPost = ideaPostResult.getOrThrow()
-                editIdeaUiState = ideaPost.toEditIdeaUiState()
-                updateIsNetworkError(false)
-            } else {
-                updateIsNetworkError(true)
+            postsRepository.findPostById(postId).also { result ->
+                updateIsLoading(false)
+                if (result.isSuccess) {
+                    val ideaPost = result.getOrThrow()
+                    editIdeaUiState = ideaPost.toEditIdeaUiState()
+                    updateIsNetworkError(false)
+                } else {
+                    updateIsNetworkError(true)
+                }
             }
-            updateIsLoading(false)
         }
     }
 
     fun editPost() {
         viewModelScope.launch {
             updateIsLoading(true)
-            val uploadedImagesUrlsResult = uploadImagesFromUris()
-            if (uploadedImagesUrlsResult.isFailure) {
-                updateIsNetworkError(true)
-                updateIsPublished(false)
-                updateIsLoading(false)
-                return@launch
-            }
+            uploadImagesFromUris().also { result ->
+                if (result.isFailure) {
+                    updateIsNetworkError(true)
+                    updateIsPublished(false)
+                    updateIsLoading(false)
+                    return@launch
+                }
 
-            val uploadedImagesUrls = uploadedImagesUrlsResult.getOrThrow()
-            val editPostDto = editIdeaUiState.toEditPostDto(uploadedImagesUrls)
-            val editPostResult = postsRepository.editPostById(editIdeaUiState.postId, editPostDto)
-            if (editPostResult.isSuccess) {
-                updateIsNetworkError(false)
-                updateIsPublished(true)
-            } else {
-                updateIsNetworkError(true)
-                updateIsPublished(false)
+                val uploadedImagesUrls = result.getOrThrow()
+                editPost(uploadedImagesUrls)
             }
+        }
+    }
+
+    private suspend fun editPost(uploadedImagesUrls: List<String>) {
+        val editPostDto = editIdeaUiState.toEditPostDto(uploadedImagesUrls)
+        postsRepository.editPostById(editIdeaUiState.postId, editPostDto).also { result ->
             updateIsLoading(false)
+            updateIsNetworkError(result.isFailure)
+            updateIsPublished(result.isSuccess)
         }
     }
 

@@ -72,26 +72,23 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             if (credentialsValid()) {
                 updateIsLoading(true)
-                val loginResult = authRepository.login(loginUiState.toLoginForm())
-                when {
-                    loginResult.isSuccess -> {
-                        updateCredentialsInvalid(false)
-                        updateIsNetworkError(false)
-                        updateIsLoggedIn(true)
-                    }
+                authRepository.login(loginUiState.toLoginForm()).also { result ->
+                    updateIsLoading(false)
+                    updateIsLoggedIn(result.isSuccess)
+                    when {
+                        result.isSuccess -> {
+                            updateCredentialsInvalid(false)
+                            updateIsNetworkError(false)
+                        }
 
-                    loginResult.exceptionOrNull()!! is IncorrectCredentialsException -> {
-                        updateCredentialsInvalid(true)
-                        updateIsNetworkError(false)
-                        updateIsLoggedIn(false)
-                    }
+                        result.exceptionOrNull()!! is IncorrectCredentialsException -> {
+                            updateCredentialsInvalid(true)
+                            updateIsNetworkError(false)
+                        }
 
-                    else -> {
-                        updateIsNetworkError(true)
-                        updateIsLoggedIn(false)
+                        else -> updateIsNetworkError(true)
                     }
                 }
-                updateIsLoading(false)
             }
         }
     }

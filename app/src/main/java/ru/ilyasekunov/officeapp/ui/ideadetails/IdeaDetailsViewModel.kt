@@ -218,16 +218,17 @@ class IdeaDetailsViewModel @Inject constructor(
         if (isMessageValid()) {
             viewModelScope.launch {
                 updateIsSendingMessageStateLoading(true)
-                val uploadedImageResult = uploadAttachedImage()
-                if (uploadedImageResult.isFailure) {
-                    updateIsErrorWhileSendingComment(true)
-                    updateIsCommentPublished(false)
-                    updateIsSendingMessageStateLoading(false)
-                    return@launch
-                }
+                uploadAttachedImage().also { result ->
+                    if (result.isFailure) {
+                        updateIsErrorWhileSendingComment(true)
+                        updateIsCommentPublished(false)
+                        updateIsSendingMessageStateLoading(false)
+                        return@launch
+                    }
 
-                val uploadedImageUrl = uploadedImageResult.getOrThrow()
-                uploadComment(uploadedImageUrl)
+                    val uploadedImageUrl = result.getOrThrow()
+                    uploadComment(uploadedImageUrl)
+                }
             }
         }
     }
@@ -256,14 +257,11 @@ class IdeaDetailsViewModel @Inject constructor(
         val commentDto = sendingMessageUiState.toCommentDto(attachedImageUrl)
         processSendRequest(commentDto).also { result ->
             updateIsSendingMessageStateLoading(false)
+            updateIsErrorWhileSendingComment(result.isFailure)
+            updateIsCommentPublished(result.isSuccess)
             if (result.isSuccess) {
-                updateIsErrorWhileSendingComment(false)
                 clearSendingUiState()
                 currentEditableComment = null
-                updateIsCommentPublished(true)
-            } else {
-                updateIsErrorWhileSendingComment(true)
-                updateIsCommentPublished(false)
             }
         }
     }
@@ -316,12 +314,10 @@ class IdeaDetailsViewModel @Inject constructor(
 
     suspend fun refreshCurrentUser() {
         authRepository.userInfo().also { result ->
+            updateIsErrorWhileUserLoading(result.isFailure)
             if (result.isSuccess) {
                 val user = result.getOrThrow()
-                updateIsErrorWhileUserLoading(false)
                 updateUser(user)
-            } else {
-                updateIsErrorWhileUserLoading(true)
             }
         }
     }
