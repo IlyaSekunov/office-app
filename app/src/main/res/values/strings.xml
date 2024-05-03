@@ -88,4 +88,6 @@
     <string name="error_while_ideas_loading">Ошибка при загрузке идей</string>
     <string name="error_while_employees_loading">Ошибка при загрузке работников офиса</string>
     <string name="my_ideas_list_is_empty">Список ваших идей пуст</string>
+    <string name="suggest_idea_to_my_office_success">Идея успешно предложена вашему офису</string>
+    <string name="suggest_idea_to_my_office_failure">Ошибка при попытке предложить идею вашему офису</string>
 </resources>

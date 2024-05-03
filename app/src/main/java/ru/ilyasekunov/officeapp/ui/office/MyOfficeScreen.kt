@@ -593,6 +593,7 @@ private fun IdeasGroupExpanded(
                     onLikeClick = { onPostLikeClick(post) },
                     onDislikeClick = { onPostDislikeClick(post) },
                     onCommentClick = { onPostCommentsClick(post) },
+                    onSuggestIdeaToMyOfficeClick = {},
                     navigateToAuthorScreen = navigateToAuthorScreen,
                     navigateToEditIdeaScreen = navigateToEditIdeaScreen,
                     onDeletePostClick = onDeletePostClick,

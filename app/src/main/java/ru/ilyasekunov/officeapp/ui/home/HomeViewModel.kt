@@ -9,6 +9,7 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -184,6 +185,11 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun suggestIdeaToMyOffice(idea: IdeaPost) =
+        viewModelScope.async {
+            postsRepository.suggestIdeaToMyOffice(idea.id)
+        }
 
     private suspend fun loadPostSuspending() {
         postsPagingRepository.posts(

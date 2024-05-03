@@ -92,3 +92,15 @@ fun loginErrorSnackbar(
         duration = duration
     )
 }
+
+fun suggestIdeaToMyOfficeResultSnackbar(
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    message: String,
+    duration: SnackbarDuration = SnackbarDuration.Short
+) = coroutineScope.launch {
+    snackbarHostState.showSnackbar(
+        message = message,
+        duration = duration
+    )
+}

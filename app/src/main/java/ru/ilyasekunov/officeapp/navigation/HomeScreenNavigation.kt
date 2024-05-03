@@ -50,6 +50,7 @@ fun NavGraphBuilder.homeScreen(
                     posts.refresh()
                 }
             },
+            onSuggestIdeaToMyOfficeClick = viewModel::suggestIdeaToMyOffice,
             navigateToFiltersScreen = navigateToFiltersScreen,
             navigateToSuggestIdeaScreen = navigateToSuggestIdeaScreen,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,

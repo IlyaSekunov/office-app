@@ -76,8 +76,10 @@ import androidx.paging.compose.LazyPagingItems
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.ideaAuthor
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.ideaPost
@@ -102,6 +104,7 @@ import ru.ilyasekunov.officeapp.ui.components.defaultSuggestIdeaFABScrollBehavio
 import ru.ilyasekunov.officeapp.ui.deletePostSnackbar
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
+import ru.ilyasekunov.officeapp.ui.suggestIdeaToMyOfficeResultSnackbar
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.util.toRussianString
 import ru.ilyasekunov.officeapp.util.toThousandsString
@@ -121,6 +124,7 @@ fun HomeScreen(
     onPostDislikeClick: (IdeaPost) -> Unit,
     onRetryInfoLoad: () -> Unit,
     onPullToRefresh: CoroutineScope.() -> Job,
+    onSuggestIdeaToMyOfficeClick: (IdeaPost) -> Deferred<Result<Unit>>,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
@@ -185,6 +189,7 @@ fun HomeScreen(
                     onPostLikeClick = onPostLikeClick,
                     onPostDislikeClick = onPostDislikeClick,
                     onPullToRefresh = onPullToRefresh,
+                    onSuggestIdeaToMyOfficeClick = onSuggestIdeaToMyOfficeClick,
                     navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
                     navigateToAuthorScreen = navigateToAuthorScreen,
                     navigateToEditIdeaScreen = navigateToEditIdeaScreen,
@@ -207,6 +212,7 @@ private fun HomeScreenContent(
     onPostLikeClick: (IdeaPost) -> Unit,
     onPostDislikeClick: (IdeaPost) -> Unit,
     onPullToRefresh: CoroutineScope.() -> Job,
+    onSuggestIdeaToMyOfficeClick: (IdeaPost) -> Deferred<Result<Unit>>,
     navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
@@ -220,6 +226,8 @@ private fun HomeScreenContent(
     ) { isRefreshing ->
         val postDeletedMessage = stringResource(R.string.post_deleted)
         val undoLabel = stringResource(R.string.undo)
+        val suggestIdeaToMyOfficeSuccess = stringResource(R.string.suggest_idea_to_my_office_success)
+        val suggestIdeaToMyOfficeFailure = stringResource(R.string.suggest_idea_to_my_office_failure)
         HomeScreenIdeaPosts(
             posts = posts,
             isPullToRefreshActive = isRefreshing,
@@ -235,12 +243,37 @@ private fun HomeScreenContent(
             },
             onPostLikeClick = onPostLikeClick,
             onPostDislikeClick = onPostDislikeClick,
+            onSuggestIdeaToMyOfficeClick = { idea ->
+                coroutineScope.suggestIdeaToMyOffice(
+                    suggestIdeaToMyOffice = { onSuggestIdeaToMyOfficeClick(idea) },
+                    snackbarHostState = snackbarHostState,
+                    coroutineScope = coroutineScope,
+                    successMessage = suggestIdeaToMyOfficeSuccess,
+                    failureMessage = suggestIdeaToMyOfficeFailure
+                )
+            },
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
             navigateToAuthorScreen = navigateToAuthorScreen,
             navigateToEditIdeaScreen = navigateToEditIdeaScreen,
             modifier = Modifier.fillMaxSize()
         )
     }
+}
+
+private fun CoroutineScope.suggestIdeaToMyOffice(
+    suggestIdeaToMyOffice: () -> Deferred<Result<Unit>>,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    successMessage: String,
+    failureMessage: String
+) = launch {
+    val result = suggestIdeaToMyOffice().await()
+    val message = if (result.isSuccess) successMessage else failureMessage
+    suggestIdeaToMyOfficeResultSnackbar(
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
+        message = message
+    )
 }
 
 @Composable
@@ -251,6 +284,7 @@ fun HomeScreenIdeaPosts(
     onDeletePostClick: (IdeaPost) -> Unit,
     onPostLikeClick: (post: IdeaPost) -> Unit,
     onPostDislikeClick: (post: IdeaPost) -> Unit,
+    onSuggestIdeaToMyOfficeClick: (IdeaPost) -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
@@ -272,9 +306,10 @@ fun HomeScreenIdeaPosts(
                 onCommentClick = {
                     navigateToIdeaDetailsScreen(post.id, true)
                 },
+                onSuggestIdeaToMyOfficeClick = { onSuggestIdeaToMyOfficeClick(post) },
+                onDeletePostClick = onDeletePostClick,
                 navigateToAuthorScreen = navigateToAuthorScreen,
                 navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                onDeletePostClick = onDeletePostClick,
                 modifier = Modifier.fillMaxWidth()
             )
         },
@@ -393,6 +428,7 @@ fun IdeaPost(
     onLikeClick: () -> Unit,
     onDislikeClick: () -> Unit,
     onCommentClick: () -> Unit,
+    onSuggestIdeaToMyOfficeClick: () -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
     onDeletePostClick: (IdeaPost) -> Unit,
@@ -471,6 +507,7 @@ fun IdeaPost(
             navigateToAuthorScreen = { navigateToAuthorScreen(ideaPost.ideaAuthor.id) },
             navigateToEditIdeaScreen = { navigateToEditIdeaScreen(ideaPost.id) },
             onDeletePostClick = { onDeletePostClick(ideaPost) },
+            onSuggestIdeaToMyOfficeClick = onSuggestIdeaToMyOfficeClick,
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(top = topPadding, end = 14.dp)
@@ -484,6 +521,7 @@ private fun MenuSection(
     navigateToAuthorScreen: () -> Unit,
     navigateToEditIdeaScreen: () -> Unit,
     onDeletePostClick: () -> Unit,
+    onSuggestIdeaToMyOfficeClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
@@ -497,6 +535,7 @@ private fun MenuSection(
             onDismissClick = { isMenuVisible = false },
             isAuthorPostCurrentUser = isAuthorPostCurrentUser,
             onSuggestIdeaToMyOfficeClick = {
+                onSuggestIdeaToMyOfficeClick()
                 isMenuVisible = false
             },
             onNavigateToAuthorClick = {
@@ -1018,6 +1057,7 @@ private fun IdeaPostPreview() {
                 onLikeClick = {},
                 onDislikeClick = {},
                 onCommentClick = {},
+                onSuggestIdeaToMyOfficeClick = {},
                 navigateToAuthorScreen = {},
                 navigateToEditIdeaScreen = {},
                 onDeletePostClick = {}
