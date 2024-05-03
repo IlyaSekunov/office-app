@@ -55,7 +55,6 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Comment
@@ -216,10 +215,8 @@ fun SendingMessageBottomBarWithEditOption(
     LaunchedEffect(currentEditableComment) {
         if (currentEditableComment != null) {
             focusRequester.requestFocus()
-            delay(50)
             softwareKeyboardController?.show()
         } else {
-            focusRequester.freeFocus()
             softwareKeyboardController?.hide()
         }
     }
