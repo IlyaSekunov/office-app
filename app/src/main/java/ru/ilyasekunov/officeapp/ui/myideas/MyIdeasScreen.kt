@@ -263,12 +263,11 @@ private fun MyIdeaAction(
         Icon(
             painter = painterResource(icon),
             contentDescription = "delete_icon",
-            tint = MaterialTheme.colorScheme.surfaceVariant
+            tint = MaterialTheme.colorScheme.primary
         )
         Text(
             text = text,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.surfaceVariant,
             fontSize = 16.sp
         )
     }
