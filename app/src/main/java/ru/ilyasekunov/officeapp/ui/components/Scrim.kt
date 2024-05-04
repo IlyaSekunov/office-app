@@ -14,7 +14,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 @Composable
 fun Scrim(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    color: Color = Color.Black.copy(alpha = 0.6f)
 ) {
     Box(
         modifier = modifier
@@ -27,6 +28,6 @@ fun Scrim(
                     false
                 }
             }
-            .background(Color.Black.copy(alpha = 0.6f))
+            .background(color)
     )
 }

@@ -46,7 +46,6 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -202,7 +201,6 @@ fun SendingMessageBottomBarWithEditOption(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    val softwareKeyboardController = LocalSoftwareKeyboardController.current
     SendingMessageBottomBar(
         sendingMessageUiState = sendingMessageUiState,
         onMessageValueChange = onMessageValueChange,
@@ -215,8 +213,6 @@ fun SendingMessageBottomBarWithEditOption(
     LaunchedEffect(currentEditableComment) {
         if (currentEditableComment != null) {
             focusRequester.requestFocus()
-        } else {
-            softwareKeyboardController?.hide()
         }
     }
 }
@@ -338,7 +334,8 @@ private fun IdeaDetailsScreenContent(
         if (currentEditableComment != null) {
             Scrim(
                 onClick = onEditCommentDismiss,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background.copy(alpha = 0.5f)
             )
         }
     }
