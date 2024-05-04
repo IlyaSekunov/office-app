@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
@@ -681,17 +680,15 @@ private fun AuthorInfoSection(
 private fun rememberIdeaDetailsScrollState(
     initiallyScrollToComments: Boolean,
     scrollOffset: Int
-): LazyListState {
-    val lazyListState = rememberLazyListState()
-    if (initiallyScrollToComments) {
-        LaunchedEffect(lazyListState) {
-            lazyListState.animateScrollToItem(
+) = rememberLazyListState().also {
+    LaunchedEffect(it) {
+        if (initiallyScrollToComments) {
+            it.animateScrollToItem(
                 IdeaDetailsScreenDefaults.COMMENTS_SECTION_OFFSET_INDEX,
                 scrollOffset
             )
         }
     }
-    return lazyListState
 }
 
 @Composable
