@@ -228,6 +228,7 @@ private fun MyIdeaActionsBottomSheet(
             bottomEnd = CornerSize(0.dp),
             bottomStart = CornerSize(0.dp)
         ),
+        scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
         modifier = modifier
     ) {
         MyIdeaAction(
