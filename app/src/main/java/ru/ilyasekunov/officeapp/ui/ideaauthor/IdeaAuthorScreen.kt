@@ -30,7 +30,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -128,20 +127,36 @@ private fun IdeaAuthorScreenContent(
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour()
     BothDirectedPullToRefreshContainer(
-        onRefreshTrigger = onPullToRefresh
+        onRefreshTrigger = onPullToRefresh,
+        modifier = modifier.nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
     ) { isRefreshing ->
-        val navigateBackArrowScrollBehaviour = defaultNavigateBackArrowScrollBehaviour()
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(20.dp),
-            contentPadding = PaddingValues(bottom = 20.dp),
-            modifier = modifier.nestedScroll(navigateBackArrowScrollBehaviour.nestedScrollConnection)
+            contentPadding = PaddingValues(bottom = 20.dp)
         ) {
             item {
-                IdeaAuthorSection(
-                    ideaAuthorUiState = ideaAuthorUiState,
-                    contentTopPadding = 15.dp
+                UserInfoSection(
+                    name = ideaAuthorUiState.name,
+                    surname = ideaAuthorUiState.surname,
+                    photoUrl = ideaAuthorUiState.photoUrl,
+                    job = ideaAuthorUiState.job,
+                    containerColor = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            item {
+                OfficeSection(
+                    office = ideaAuthorUiState.office!!,
+                    officeImageSize = DpSize(height = 280.dp, width = 280.dp),
+                    modifier = Modifier.padding(vertical = 18.dp)
+                )
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(horizontal = 15.dp)
                 )
             }
             item {
@@ -251,41 +266,6 @@ private fun ErrorWhileAppending(
             color = MaterialTheme.colorScheme.surfaceVariant
         )
         RetryButton(onClick = onRetryButtonClick)
-    }
-}
-
-@Composable
-private fun IdeaAuthorSection(
-    ideaAuthorUiState: IdeaAuthorUiState,
-    contentTopPadding: Dp,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-    ) {
-        UserInfoSection(
-            name = ideaAuthorUiState.name,
-            surname = ideaAuthorUiState.surname,
-            photoUrl = ideaAuthorUiState.photoUrl,
-            job = ideaAuthorUiState.job,
-            contentTopPadding = contentTopPadding,
-            containerColor = MaterialTheme.colorScheme.background,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(18.dp))
-        if (ideaAuthorUiState.office != null) {
-            OfficeSection(
-                office = ideaAuthorUiState.office,
-                officeImageSize = DpSize(height = 280.dp, width = 280.dp)
-            )
-            Spacer(modifier = Modifier.height(18.dp))
-        }
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outline,
-            modifier = Modifier.padding(horizontal = 15.dp)
-        )
     }
 }
 

@@ -29,7 +29,7 @@ data class IdeaAuthorUiState(
     val photoUrl: String = "",
     val job: String = "",
     val office: Office? = null,
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val isExists: Boolean = true,
     val isErrorWhileLoading: Boolean = false
 )
@@ -137,5 +137,8 @@ fun IdeaAuthor.toIdeaAuthorUiState(): IdeaAuthorUiState =
         surname = surname,
         job = job,
         photoUrl = photo,
-        office = office
+        office = office,
+        isLoading = false,
+        isExists = true,
+        isErrorWhileLoading = false
     )
