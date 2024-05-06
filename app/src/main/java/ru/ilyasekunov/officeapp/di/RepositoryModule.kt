@@ -37,22 +37,22 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideUserRepository(
-        @MockDataSource userDatasource: UserDataSource
-        //@RemoteDataSource userDatasource: UserDataSource
+        //@MockDataSource userDatasource: UserDataSource
+        @RemoteDataSource userDatasource: UserDataSource
     ): UserRepository = UserRepositoryImpl(userDatasource)
 
     @Provides
     @Singleton
     fun providePostsRepository(
-        @MockDataSource postsDatasource: PostsDataSource
-        //@RemoteDataSource postsDatasource: PostsDataSource
+        //@MockDataSource postsDatasource: PostsDataSource
+        @RemoteDataSource postsDatasource: PostsDataSource
     ): PostsRepository = PostsRepositoryImpl(postsDatasource)
 
     @Provides
     @Singleton
     fun provideAuthRepository(
-        @MockDataSource authDatasource: AuthDataSource,
-        //@RemoteDataSource authDatasource: AuthDataSource,
+        //@MockDataSource authDatasource: AuthDataSource,
+        @RemoteDataSource authDatasource: AuthDataSource,
         @LocalDataSource tokenDatasource: TokenLocalDataSource
     ): AuthRepository = AuthRepositoryImpl(authDatasource, tokenDatasource)
 
@@ -65,41 +65,42 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideOfficeRepository(
-        @MockDataSource officeDataSource: OfficeDataSource
-        //@RemoteDataSource officeDataSource: OfficeDataSource
+        //@MockDataSource officeDataSource: OfficeDataSource
+        @RemoteDataSource officeDataSource: OfficeDataSource
     ): OfficeRepository = OfficeRepositoryImpl(officeDataSource)
 
     @Provides
     @Singleton
     fun providePostsPagingRepository(
-        @MockDataSource postsDatasource: PostsDataSource
-        //@RemoteDataSource postsDatasource: PostsDataSource
+        //@MockDataSource postsDatasource: PostsDataSource
+        @RemoteDataSource postsDatasource: PostsDataSource
     ): PostsPagingRepository = PostsPagingRepository(postsDatasource)
 
     @Provides
     @Singleton
     fun provideAuthorRepository(
-        //@RemoteDataSource authorDataSource: AuthorDataSource
-        @MockDataSource authorDataSource: AuthorDataSource
+        @RemoteDataSource authorDataSource: AuthorDataSource
+        //@MockDataSource authorDataSource: AuthorDataSource
     ): AuthorRepository = AuthorRepositoryImpl(authorDataSource)
 
     @Provides
     @Singleton
     fun provideAuthorsPagingRepository(
-        @MockDataSource authorDataSource: AuthorDataSource
+        @RemoteDataSource authorDataSource: AuthorDataSource
+        //@MockDataSource authorDataSource: AuthorDataSource
     ): AuthorsPagingRepository = AuthorsPagingRepository(authorDataSource)
 
     @Provides
     @Singleton
     fun provideCommentsRepository(
-        //@RemoteDataSource commentsDataSource: CommentsDataSource
-        @MockDataSource commentsDataSource: CommentsDataSource
+        @RemoteDataSource commentsDataSource: CommentsDataSource
+        //@MockDataSource commentsDataSource: CommentsDataSource
     ): CommentsRepository = CommentsRepositoryImpl(commentsDataSource)
 
     @Provides
     @Singleton
     fun provideCommentsPagingDataSource(
-        //@RemoteDataSource commentsDataSource: CommentsDataSource
-        @MockDataSource commentsDataSource: CommentsDataSource
+        @RemoteDataSource commentsDataSource: CommentsDataSource
+        //@MockDataSource commentsDataSource: CommentsDataSource
     ): CommentsPagingRepository = CommentsPagingRepository(commentsDataSource)
 }
