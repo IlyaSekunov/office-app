@@ -93,6 +93,6 @@ interface PostsApi {
     @GET("posts/filters")
     suspend fun filters(): Response<Filters>
 
-    @POST("posts/{postId}/suggest-idea")
+    @POST("posts/{postId}/suggest-idea-to-my-office")
     suspend fun suggestIdeaToMyOffice(@Path("postId") postId: Long): Response<Unit>
 }
