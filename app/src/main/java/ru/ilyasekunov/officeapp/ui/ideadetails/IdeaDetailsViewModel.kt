@@ -129,7 +129,10 @@ class IdeaDetailsViewModel @Inject constructor(
     }
 
     private fun clearSendingUiState() {
-        sendingMessageUiState = SendingMessageUiState()
+        sendingMessageUiState = sendingMessageUiState.copy(
+            message = "",
+            attachedImages = emptyList()
+        )
     }
 
     private fun updateIsPostLoading(isLoading: Boolean) {
