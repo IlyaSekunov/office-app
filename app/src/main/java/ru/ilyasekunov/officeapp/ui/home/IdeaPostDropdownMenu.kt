@@ -34,6 +34,12 @@ private fun rememberIdeaPostMenuItemsState(
         onDeleteClick
     ) {
         val optionsList = mutableListOf<MenuItemInfo>()
+        if (!isIdeaSuggestedToMyOffice) {
+            optionsList += MenuItemInfo(
+                text = suggestIdeaToMyOffice,
+                onClick = onSuggestIdeaToMyOfficeClick
+            )
+        }
         if (isAuthorPostCurrentUser) {
             optionsList += MenuItemInfo(
                 text = editPost,
@@ -47,12 +53,6 @@ private fun rememberIdeaPostMenuItemsState(
             optionsList += MenuItemInfo(
                 text = navigateToAuthor,
                 onClick = onNavigateToAuthorClick
-            )
-        }
-        if (!isIdeaSuggestedToMyOffice) {
-            optionsList += MenuItemInfo(
-                text = suggestIdeaToMyOffice,
-                onClick = onSuggestIdeaToMyOfficeClick
             )
         }
         optionsList
