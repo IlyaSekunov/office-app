@@ -506,6 +506,7 @@ fun IdeaPost(
         }
         MenuSection(
             isAuthorPostCurrentUser = isAuthorPostCurrentUser,
+            isIdeaSuggestedToMyOffice = ideaPost.isSuggestedToMyOffice,
             navigateToAuthorScreen = { navigateToAuthorScreen(ideaPost.ideaAuthor.id) },
             navigateToEditIdeaScreen = { navigateToEditIdeaScreen(ideaPost.id) },
             onDeletePostClick = { onDeletePostClick(ideaPost) },
@@ -520,6 +521,7 @@ fun IdeaPost(
 @Composable
 private fun MenuSection(
     isAuthorPostCurrentUser: Boolean,
+    isIdeaSuggestedToMyOffice: Boolean,
     navigateToAuthorScreen: () -> Unit,
     navigateToEditIdeaScreen: () -> Unit,
     onDeletePostClick: () -> Unit,
@@ -534,6 +536,7 @@ private fun MenuSection(
         )
         IdeaPostDropdownMenu(
             expanded = isMenuVisible,
+            isIdeaSuggestedToMyOffice = isIdeaSuggestedToMyOffice,
             onDismissClick = { isMenuVisible = false },
             isAuthorPostCurrentUser = isAuthorPostCurrentUser,
             onSuggestIdeaToMyOfficeClick = {

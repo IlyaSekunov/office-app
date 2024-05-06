@@ -89,7 +89,8 @@ val ideaPost = IdeaPost(
     isDislikePressed = false,
     commentsCount = 342,
     isInProgress = false,
-    isImplemented = false
+    isImplemented = false,
+    isSuggestedToMyOffice = false
 )
 
 val Comments = mutableListOf(

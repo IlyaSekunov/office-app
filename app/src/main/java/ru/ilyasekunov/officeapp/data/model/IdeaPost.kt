@@ -16,5 +16,6 @@ data class IdeaPost(
     val isDislikePressed: Boolean,
     val commentsCount: Int,
     val isImplemented: Boolean,
-    val isInProgress: Boolean
+    val isInProgress: Boolean,
+    val isSuggestedToMyOffice: Boolean
 )

@@ -433,7 +433,8 @@ private fun IdeaPreview() {
                     isDislikePressed = false,
                     commentsCount = 0,
                     isInProgress = false,
-                    isImplemented = false
+                    isImplemented = false,
+                    isSuggestedToMyOffice = false
                 ),
                 onIdeaClick = {},
                 onLikeClick = {},

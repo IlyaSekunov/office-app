@@ -339,7 +339,6 @@ class MockPostsDataSource : PostsDataSource {
         return Result.success(Unit)
     }
 
-
     private fun PublishPostDto.toIdeaPost(): IdeaPost =
         IdeaPost(
             id = if (Posts.isNotEmpty()) Posts.maxOf { it.id } + 1 else 0,
@@ -355,7 +354,8 @@ class MockPostsDataSource : PostsDataSource {
             isLikePressed = false,
             isDislikePressed = false,
             isImplemented = false,
-            isInProgress = false
+            isInProgress = false,
+            isSuggestedToMyOffice = true
         )
 }
 

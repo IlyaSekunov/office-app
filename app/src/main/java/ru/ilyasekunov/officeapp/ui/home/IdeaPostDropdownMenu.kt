@@ -16,6 +16,7 @@ import ru.ilyasekunov.officeapp.ui.components.MenuItemInfo
 @Composable
 private fun rememberIdeaPostMenuItemsState(
     isAuthorPostCurrentUser: Boolean,
+    isIdeaSuggestedToMyOffice: Boolean,
     onSuggestIdeaToMyOfficeClick: () -> Unit,
     onNavigateToAuthorClick: () -> Unit,
     onEditClick: () -> Unit,
@@ -32,40 +33,36 @@ private fun rememberIdeaPostMenuItemsState(
         onEditClick,
         onDeleteClick
     ) {
-        if (isAuthorPostCurrentUser)
-            listOf(
-                MenuItemInfo(
-                    text = suggestIdeaToMyOffice,
-                    onClick = onSuggestIdeaToMyOfficeClick
-                ),
-                MenuItemInfo(
-                    text = editPost,
-                    onClick = onEditClick
-                ),
-                MenuItemInfo(
-                    text = deletePost,
-                    onClick = onDeleteClick
-                )
+        val optionsList = mutableListOf<MenuItemInfo>()
+        if (isAuthorPostCurrentUser) {
+            optionsList += MenuItemInfo(
+                text = editPost,
+                onClick = onEditClick
             )
-
-        else {
-            listOf(
-                MenuItemInfo(
-                    text = suggestIdeaToMyOffice,
-                    onClick = onSuggestIdeaToMyOfficeClick
-                ),
-                MenuItemInfo(
-                    text = navigateToAuthor,
-                    onClick = onNavigateToAuthorClick
-                )
+            optionsList += MenuItemInfo(
+                text = deletePost,
+                onClick = onDeleteClick
+            )
+        } else {
+            optionsList += MenuItemInfo(
+                text = navigateToAuthor,
+                onClick = onNavigateToAuthorClick
             )
         }
+        if (!isIdeaSuggestedToMyOffice) {
+            optionsList += MenuItemInfo(
+                text = suggestIdeaToMyOffice,
+                onClick = onSuggestIdeaToMyOfficeClick
+            )
+        }
+        optionsList
     }
 }
 
 @Composable
 fun IdeaPostDropdownMenu(
     expanded: Boolean,
+    isIdeaSuggestedToMyOffice: Boolean,
     onDismissClick: () -> Unit,
     isAuthorPostCurrentUser: Boolean,
     onSuggestIdeaToMyOfficeClick: () -> Unit,
@@ -81,6 +78,7 @@ fun IdeaPostDropdownMenu(
 ) {
     val ideaPostMenuItemsState = rememberIdeaPostMenuItemsState(
         isAuthorPostCurrentUser = isAuthorPostCurrentUser,
+        isIdeaSuggestedToMyOffice = isIdeaSuggestedToMyOffice,
         onSuggestIdeaToMyOfficeClick = onSuggestIdeaToMyOfficeClick,
         onNavigateToAuthorClick = onNavigateToAuthorClick,
         onEditClick = onEditClick,
