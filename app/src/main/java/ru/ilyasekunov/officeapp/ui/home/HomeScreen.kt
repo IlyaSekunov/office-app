@@ -229,7 +229,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun ObserveDeletePostUiState(
+fun ObserveDeletePostUiState(
     deletePostUiState: DeletePostUiState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
@@ -252,7 +252,7 @@ private fun ObserveDeletePostUiState(
 }
 
 @Composable
-private fun ObserveDeletePostIsSuccess(
+fun ObserveDeletePostIsSuccess(
     deletePostUiState: DeletePostUiState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
@@ -279,7 +279,7 @@ private fun ObserveDeletePostIsSuccess(
 }
 
 @Composable
-private fun ObserveDeletePostIsError(
+fun ObserveDeletePostIsError(
     deletePostUiState: DeletePostUiState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,

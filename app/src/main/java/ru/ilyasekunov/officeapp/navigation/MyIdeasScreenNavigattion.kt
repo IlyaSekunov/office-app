@@ -25,8 +25,10 @@ fun NavGraphBuilder.myIdeasScreen(
         val myIdeas = viewModel.myIdeasUiState.ideas.collectAsLazyPagingItems()
         MyIdeasScreen(
             ideas = myIdeas,
+            deletePostUiState = viewModel.deleteIdeaUiState,
             onPullToRefresh = { launch { myIdeas.refresh() } },
             onDeleteIdeaClick = viewModel::deletePost,
+            onDeleteResultShown = viewModel::deletePostResultShown,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
             navigateToSuggestIdeaScreen = navigateToSuggestIdeaScreen,
             navigateToEditIdeaScreen = navigateToEditIdeaScreen,

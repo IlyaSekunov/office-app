@@ -58,6 +58,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
+import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LoadingScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
@@ -68,14 +69,18 @@ import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsVerticalGrid
 import ru.ilyasekunov.officeapp.ui.favouriteideas.rememberRandomFavouriteIdeaColor
+import ru.ilyasekunov.officeapp.ui.home.DeletePostUiState
+import ru.ilyasekunov.officeapp.ui.home.ObserveDeletePostUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.shadow
 import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 
 @Composable
 fun MyIdeasScreen(
     ideas: LazyPagingItems<IdeaPost>,
+    deletePostUiState: DeletePostUiState,
     onPullToRefresh: CoroutineScope.() -> Job,
     onDeleteIdeaClick: (IdeaPost) -> Unit,
+    onDeleteResultShown: () -> Unit,
     navigateToIdeaDetailsScreen: (Long) -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToEditIdeaScreen: (Long) -> Unit,
@@ -85,6 +90,8 @@ fun MyIdeasScreen(
     navigateToMyOfficeScreen: () -> Unit,
     navigateBack: () -> Unit
 ) {
+    val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = LocalCoroutineScope.current
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
@@ -101,21 +108,33 @@ fun MyIdeasScreen(
                 modifier = Modifier.fillMaxWidth()
             )
         },
-        snackbarHost = { SnackbarHost(hostState = LocalSnackbarHostState.current) },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
-        MyIdeasScreenContent(
-            ideas = ideas,
-            onPullToRefresh = onPullToRefresh,
-            onDeleteIdeaClick = onDeleteIdeaClick,
-            navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
-            navigateToSuggestIdeaScreen = navigateToSuggestIdeaScreen,
-            navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        )
+        when {
+            deletePostUiState.isLoading -> AnimatedLoadingScreen()
+            else -> {
+                MyIdeasScreenContent(
+                    ideas = ideas,
+                    onPullToRefresh = onPullToRefresh,
+                    onDeleteIdeaClick = onDeleteIdeaClick,
+                    navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
+                    navigateToSuggestIdeaScreen = navigateToSuggestIdeaScreen,
+                    navigateToEditIdeaScreen = navigateToEditIdeaScreen,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                )
+                ObserveDeletePostUiState(
+                    deletePostUiState = deletePostUiState,
+                    snackbarHostState = snackbarHostState,
+                    coroutineScope = coroutineScope,
+                    onResultShown = onDeleteResultShown,
+                    onDeleteSuccess = ideas::refresh
+                )
+            }
+        }
     }
 }
 
@@ -132,8 +151,7 @@ private fun MyIdeasScreenContent(
     snackbarHostState: SnackbarHostState = LocalSnackbarHostState.current,
     coroutineScope: CoroutineScope = LocalCoroutineScope.current
 ) {
-    var selectedIdea by remember { mutableStateOf<IdeaPost?>(null) }
-    var isBottomSheetVisible by remember { mutableStateOf(false) }
+    var contextSelectedIdea by remember { mutableStateOf<IdeaPost?>(null) }
     BothDirectedPullToRefreshContainer(
         onRefreshTrigger = onPullToRefresh,
         modifier = modifier
@@ -150,10 +168,7 @@ private fun MyIdeasScreenContent(
                 MyIdea(
                     ideaPost = idea,
                     onClick = { navigateToIdeaDetailsScreen(idea.id) },
-                    onLongClick = {
-                        selectedIdea = idea
-                        isBottomSheetVisible = true
-                    },
+                    onLongClick = { contextSelectedIdea = idea },
                     modifier = Modifier.size(ideaSize)
                 )
             },
@@ -181,33 +196,26 @@ private fun MyIdeasScreenContent(
             modifier = Modifier.fillMaxSize()
         )
     }
-    val postDeletedMessage = stringResource(R.string.post_deleted)
+    val postDeletedMessage = stringResource(R.string.post_will_be_deleted_in_5_seconds)
     val undoLabel = stringResource(R.string.undo)
-    if (isBottomSheetVisible) {
+    if (contextSelectedIdea != null) {
         MyIdeaActionsBottomSheet(
-            onDismiss = {
-                isBottomSheetVisible = false
-                selectedIdea = null
-            },
+            onDismiss = { contextSelectedIdea = null },
             onEditClick = {
-                selectedIdea?.let { navigateToEditIdeaScreen(it.id) }
-                isBottomSheetVisible = false
-                selectedIdea = null
+                contextSelectedIdea?.let { navigateToEditIdeaScreen(it.id) }
+                contextSelectedIdea = null
             },
             onDeleteClick = {
+                val idea = contextSelectedIdea!!
                 coroutineScope.launch {
                     snackbarHostState.snackbarWithAction(
                         message = postDeletedMessage,
                         actionLabel = undoLabel,
-                        onTimeout = {
-                            selectedIdea?.let { onDeleteIdeaClick(it) }
-                            selectedIdea = null
-                            coroutineScope.launch { onPullToRefresh() }
-                        },
+                        onTimeout = { onDeleteIdeaClick(idea) },
                         duration = SnackbarDuration.Short
                     )
                 }
-                isBottomSheetVisible = false
+                contextSelectedIdea = null
             }
         )
     }

@@ -1,5 +1,8 @@
 package ru.ilyasekunov.officeapp.ui.myideas
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -12,6 +15,7 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.ui.IdeasUiState
+import ru.ilyasekunov.officeapp.ui.home.DeletePostUiState
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,24 +24,31 @@ class MyIdeasViewModel @Inject constructor(
     private val postsPagingRepository: PostsPagingRepository
 ) : ViewModel() {
     val myIdeasUiState = IdeasUiState()
+    var deleteIdeaUiState by mutableStateOf(DeletePostUiState())
+        private set
 
     init {
         loadMyIdeas()
     }
 
-    fun deletePost(post: IdeaPost) {
-        viewModelScope.launch {
-            val deletePostResult = postsRepository.deletePostById(post.id)
-            if (deletePostResult.isSuccess) {
-                removePost(post)
-            }
-        }
+    fun deletePostResultShown() {
+        deleteIdeaUiState = deleteIdeaUiState.copy(
+            isError = false,
+            isSuccess = false
+        )
     }
 
-    private fun removePost(post: IdeaPost) {
-        val postsPagingData = myIdeasUiState.ideas.value
-        val updatedPostsPagingData = postsPagingData.filter { it.id != post.id }
-        myIdeasUiState.updateIdeas(updatedPostsPagingData)
+    fun deletePost(post: IdeaPost) {
+        viewModelScope.launch {
+            deleteIdeaUiState = deleteIdeaUiState.copy(isLoading = true)
+            postsRepository.deletePostById(post.id).also { result ->
+                deleteIdeaUiState = deleteIdeaUiState.copy(
+                    isLoading = false,
+                    isError = result.isFailure,
+                    isSuccess = result.isSuccess
+                )
+            }
+        }
     }
 
     private fun loadMyIdeas() {
