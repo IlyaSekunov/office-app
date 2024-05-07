@@ -30,6 +30,7 @@ fun NavGraphBuilder.homeScreen(
             searchUiState = viewModel.searchUiState,
             onSearchValueChange = viewModel::updateSearchValue,
             filtersUiState = viewModel.filtersUiStateHolder.filtersUiState,
+            suggestIdeaToMyOfficeUiState = viewModel.suggestIdeaToMyOfficeUiState,
             onOfficeFilterRemoveClick = viewModel.filtersUiStateHolder::removeOfficeFilter,
             onSortingFilterRemoveClick = viewModel.filtersUiStateHolder::removeSortingFilter,
             onDeletePostClick = viewModel::deletePost,
@@ -41,16 +42,13 @@ fun NavGraphBuilder.homeScreen(
             },
             onPullToRefresh = {
                 launch {
-                    launch {
-                        viewModel.refreshCurrentUser()
-                    }
-                    launch {
-                        viewModel.filtersUiStateHolder.refreshFilters()
-                    }
+                    launch { viewModel.refreshCurrentUser() }
+                    launch { viewModel.filtersUiStateHolder.refreshFilters() }
                     posts.refresh()
                 }
             },
             onSuggestIdeaToMyOfficeClick = viewModel::suggestIdeaToMyOffice,
+            onSuggestIdeaToMyOfficeResultShown = viewModel::suggestIdeaToMyOfficeResultShown,
             navigateToFiltersScreen = navigateToFiltersScreen,
             navigateToSuggestIdeaScreen = navigateToSuggestIdeaScreen,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,

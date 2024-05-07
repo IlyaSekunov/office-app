@@ -10,7 +10,6 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -56,6 +55,13 @@ data class CurrentUserUiState(
 @Immutable
 data class SearchUiState(val value: String = "")
 
+@Immutable
+data class SuggestIdeaToMyOfficeUiState(
+    val isLoading: Boolean = false,
+    val isError: Boolean = false,
+    val isSuccess: Boolean = false
+)
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val postsRepository: PostsRepository,
@@ -72,6 +78,8 @@ class HomeViewModel @Inject constructor(
     var searchUiState by mutableStateOf(SearchUiState())
         private set
     var currentUserUiState by mutableStateOf(CurrentUserUiState())
+        private set
+    var suggestIdeaToMyOfficeUiState by mutableStateOf(SuggestIdeaToMyOfficeUiState())
         private set
 
     init {
@@ -144,29 +152,11 @@ class HomeViewModel @Inject constructor(
         postsUiState.updateIdeas(updatedPostsPagingData)
     }
 
-    private fun updateIsCurrentUserLoading(isLoading: Boolean) {
-        currentUserUiState = currentUserUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsErrorWhileUserLoading(isErrorWhileLoading: Boolean) {
-        currentUserUiState = currentUserUiState.copy(
-            isErrorWhileLoading = isErrorWhileLoading
-        )
-    }
-
-    private fun updateIsUserUnauthorized(isUnauthorized: Boolean) {
-        currentUserUiState = currentUserUiState.copy(isUnauthorized = isUnauthorized)
-    }
-
-    private fun updateUser(user: User?) {
-        currentUserUiState = currentUserUiState.copy(user = user)
-    }
-
     fun loadCurrentUser() {
         viewModelScope.launch {
-            updateIsCurrentUserLoading(true)
+            currentUserUiState = currentUserUiState.copy(isLoading = true)
             refreshCurrentUser()
-            updateIsCurrentUserLoading(false)
+            currentUserUiState = currentUserUiState.copy(isLoading = false)
         }
     }
 
@@ -175,26 +165,43 @@ class HomeViewModel @Inject constructor(
             when {
                 result.isSuccess -> {
                     val user = result.getOrThrow()
-                    updateIsErrorWhileUserLoading(false)
-                    updateIsUserUnauthorized(false)
-                    updateUser(user)
+                    currentUserUiState = currentUserUiState.copy(
+                        user = user,
+                        isErrorWhileLoading = false,
+                        isUnauthorized = false
+                    )
                 }
 
                 result.exceptionOrNull()!! is HttpForbiddenException -> {
-                    updateIsUserUnauthorized(true)
+                    currentUserUiState = currentUserUiState.copy(isUnauthorized = true)
                 }
 
                 else -> {
-                    updateIsErrorWhileUserLoading(true)
+                    currentUserUiState = currentUserUiState.copy(isErrorWhileLoading = true)
                 }
             }
         }
     }
 
-    fun suggestIdeaToMyOffice(idea: IdeaPost) =
-        viewModelScope.async {
-            postsRepository.suggestIdeaToMyOffice(idea.id)
+    fun suggestIdeaToMyOffice(idea: IdeaPost) {
+        viewModelScope.launch {
+            suggestIdeaToMyOfficeUiState = suggestIdeaToMyOfficeUiState.copy(isLoading = true)
+            postsRepository.suggestIdeaToMyOffice(idea.id).also { result ->
+                suggestIdeaToMyOfficeUiState = suggestIdeaToMyOfficeUiState.copy(
+                    isLoading = false,
+                    isSuccess = result.isSuccess,
+                    isError = result.isFailure
+                )
+            }
         }
+    }
+
+    fun suggestIdeaToMyOfficeResultShown() {
+        suggestIdeaToMyOfficeUiState = suggestIdeaToMyOfficeUiState.copy(
+            isSuccess = false,
+            isError = false
+        )
+    }
 
     private suspend fun loadPostSuspending() {
         postsPagingRepository.posts(

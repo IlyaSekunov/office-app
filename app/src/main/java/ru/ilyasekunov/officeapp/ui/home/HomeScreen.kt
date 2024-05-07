@@ -56,7 +56,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,9 +79,10 @@ import androidx.paging.compose.LazyPagingItems
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.datasource.local.mock.ideaAuthor
@@ -116,6 +119,7 @@ fun HomeScreen(
     currentUserUiState: CurrentUserUiState,
     searchUiState: SearchUiState,
     filtersUiState: FiltersUiState,
+    suggestIdeaToMyOfficeUiState: SuggestIdeaToMyOfficeUiState,
     onSearchValueChange: (String) -> Unit,
     onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
     onSortingFilterRemoveClick: () -> Unit,
@@ -124,7 +128,8 @@ fun HomeScreen(
     onPostDislikeClick: (IdeaPost) -> Unit,
     onRetryInfoLoad: () -> Unit,
     onPullToRefresh: CoroutineScope.() -> Job,
-    onSuggestIdeaToMyOfficeClick: (IdeaPost) -> Deferred<Result<Unit>>,
+    onSuggestIdeaToMyOfficeClick: (IdeaPost) -> Unit,
+    onSuggestIdeaToMyOfficeResultShown: () -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
@@ -136,6 +141,7 @@ fun HomeScreen(
     navigateToAuthGraph: () -> Unit
 ) {
     val snackbarHostState = LocalSnackbarHostState.current
+    val coroutineScope = LocalCoroutineScope.current
     val suggestIdeaFABScrollBehaviour = defaultSuggestIdeaFABScrollBehaviour()
     Scaffold(
         topBar = {
@@ -169,11 +175,13 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         when {
-            currentUserUiState.isUnauthorized -> {
-                navigateToAuthGraph()
-            }
+            currentUserUiState.isUnauthorized -> navigateToAuthGraph()
+            isScreenLoading(
+                currentUserUiState,
+                filtersUiState,
+                suggestIdeaToMyOfficeUiState
+            ) -> AnimatedLoadingScreen()
 
-            isScreenLoading(currentUserUiState, filtersUiState) -> AnimatedLoadingScreen()
             isErrorWhileLoading(currentUserUiState, filtersUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
@@ -199,8 +207,83 @@ fun HomeScreen(
                         .fillMaxSize()
                         .nestedScroll(suggestIdeaFABScrollBehaviour.nestedScrollConnection)
                 )
+                ObserveSuggestIdeaToMyOfficeState(
+                    suggestIdeaToMyOfficeUiState = suggestIdeaToMyOfficeUiState,
+                    snackbarHostState = snackbarHostState,
+                    coroutineScope = coroutineScope,
+                    onResultShown = onSuggestIdeaToMyOfficeResultShown
+                )
             }
         }
+    }
+}
+
+@Composable
+fun ObserveSuggestIdeaToMyOfficeState(
+    suggestIdeaToMyOfficeUiState: SuggestIdeaToMyOfficeUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onResultShown: () -> Unit
+) {
+    ObserveSuggestIdeaToMyOfficeIsError(
+        suggestIdeaToMyOfficeUiState = suggestIdeaToMyOfficeUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
+        onErrorShown = onResultShown
+    )
+    ObserveSuggestIdeaToMyOfficeIsSuccess(
+        suggestIdeaToMyOfficeUiState = suggestIdeaToMyOfficeUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
+        onSuccessShown = onResultShown
+    )
+}
+
+@Composable
+private fun ObserveSuggestIdeaToMyOfficeIsError(
+    suggestIdeaToMyOfficeUiState: SuggestIdeaToMyOfficeUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onErrorShown: () -> Unit
+) {
+    val message = stringResource(R.string.suggest_idea_to_my_office_failure)
+    val currentOnErrorShown by rememberUpdatedState(onErrorShown)
+    LaunchedEffect(Unit) {
+        snapshotFlow { suggestIdeaToMyOfficeUiState }
+            .filter { it.isError }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short
+                    )
+                    currentOnErrorShown()
+                }
+            }
+    }
+}
+
+@Composable
+private fun ObserveSuggestIdeaToMyOfficeIsSuccess(
+    suggestIdeaToMyOfficeUiState: SuggestIdeaToMyOfficeUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onSuccessShown: () -> Unit
+) {
+    val message = stringResource(R.string.suggest_idea_to_my_office_success)
+    val currentOnSuccessShown by rememberUpdatedState(onSuccessShown)
+    LaunchedEffect(Unit) {
+        snapshotFlow { suggestIdeaToMyOfficeUiState }
+            .filter { it.isSuccess }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short
+                    )
+                    currentOnSuccessShown()
+                }
+            }
     }
 }
 
@@ -212,7 +295,7 @@ private fun HomeScreenContent(
     onPostLikeClick: (IdeaPost) -> Unit,
     onPostDislikeClick: (IdeaPost) -> Unit,
     onPullToRefresh: CoroutineScope.() -> Job,
-    onSuggestIdeaToMyOfficeClick: (IdeaPost) -> Deferred<Result<Unit>>,
+    onSuggestIdeaToMyOfficeClick: (IdeaPost) -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
@@ -226,8 +309,6 @@ private fun HomeScreenContent(
     ) { isRefreshing ->
         val postDeletedMessage = stringResource(R.string.post_deleted)
         val undoLabel = stringResource(R.string.undo)
-        val suggestIdeaToMyOfficeSuccess = stringResource(R.string.suggest_idea_to_my_office_success)
-        val suggestIdeaToMyOfficeFailure = stringResource(R.string.suggest_idea_to_my_office_failure)
         HomeScreenIdeaPosts(
             posts = posts,
             isPullToRefreshActive = isRefreshing,
@@ -244,36 +325,11 @@ private fun HomeScreenContent(
             },
             onPostLikeClick = onPostLikeClick,
             onPostDislikeClick = onPostDislikeClick,
-            onSuggestIdeaToMyOfficeClick = { idea ->
-                coroutineScope.suggestIdeaToMyOffice(
-                    suggestIdeaToMyOffice = { onSuggestIdeaToMyOfficeClick(idea) },
-                    snackbarHostState = snackbarHostState,
-                    coroutineScope = coroutineScope,
-                    successMessage = suggestIdeaToMyOfficeSuccess,
-                    failureMessage = suggestIdeaToMyOfficeFailure
-                )
-            },
+            onSuggestIdeaToMyOfficeClick = onSuggestIdeaToMyOfficeClick,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
             navigateToAuthorScreen = navigateToAuthorScreen,
             navigateToEditIdeaScreen = navigateToEditIdeaScreen,
             modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-private fun CoroutineScope.suggestIdeaToMyOffice(
-    suggestIdeaToMyOffice: () -> Deferred<Result<Unit>>,
-    snackbarHostState: SnackbarHostState,
-    coroutineScope: CoroutineScope,
-    successMessage: String,
-    failureMessage: String
-) = launch {
-    val result = suggestIdeaToMyOffice().await()
-    val message = if (result.isSuccess) successMessage else failureMessage
-    coroutineScope.launch {
-        snackbarHostState.showSnackbar(
-            message = message,
-            duration = SnackbarDuration.Short
         )
     }
 }
@@ -1036,10 +1092,10 @@ fun sortingCategoryName(sortingCategory: SortingCategory) =
 
 private fun isScreenLoading(
     currentUserUiState: CurrentUserUiState,
-    filtersUiState: FiltersUiState
-): Boolean {
-    return currentUserUiState.isLoading || filtersUiState.isLoading
-}
+    filtersUiState: FiltersUiState,
+    suggestIdeaToMyOfficeUiState: SuggestIdeaToMyOfficeUiState
+) =
+    currentUserUiState.isLoading || filtersUiState.isLoading || suggestIdeaToMyOfficeUiState.isLoading
 
 private fun isErrorWhileLoading(
     currentUserUiState: CurrentUserUiState,
