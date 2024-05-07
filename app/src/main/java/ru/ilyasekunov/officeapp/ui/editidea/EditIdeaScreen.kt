@@ -46,6 +46,7 @@ fun EditIdeaScreen(
     onPublishClick: () -> Unit,
     onAttachImagesButtonClick: (List<Uri>) -> Unit,
     onRetryClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -62,6 +63,7 @@ fun EditIdeaScreen(
             onPublishClick = onPublishClick,
             onAttachImagesButtonClick = onAttachImagesButtonClick,
             onRetryClick = onRetryClick,
+            onNetworkErrorShown = onNetworkErrorShown,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
@@ -81,6 +83,7 @@ private fun EditIdeaScreenContent(
     onPublishClick: () -> Unit,
     onAttachImagesButtonClick: (List<Uri>) -> Unit,
     onRetryClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -154,6 +157,7 @@ private fun EditIdeaScreenContent(
         snackbarHostState = snackbarHostState,
         coroutineScope = LocalCoroutineScope.current,
         onRetryClick = onRetryClick,
+        onNetworkErrorShown = onNetworkErrorShown,
         navigateBack = navigateBack
     )
 }
@@ -164,13 +168,15 @@ private fun ObserveStateChanges(
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     onRetryClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateBack: () -> Unit
 ) {
     ObserveNetworkError(
         editIdeaUiState = editIdeaUiState,
         snackbarHostState = snackbarHostState,
         coroutineScope = coroutineScope,
-        onActionPerformedClick = onRetryClick
+        onActionPerformedClick = onRetryClick,
+        onNetworkErrorShown = onNetworkErrorShown
     )
     ObserveIsPublished(
         editIdeaUiState = editIdeaUiState,
@@ -186,10 +192,12 @@ private fun ObserveNetworkError(
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     onActionPerformedClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit
 ) {
     val retryLabel = stringResource(R.string.retry)
     val serverErrorMessage = stringResource(R.string.error_connecting_to_server)
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
+    val currentOnNetworkErrorShown by rememberUpdatedState(onNetworkErrorShown)
     LaunchedEffect(editIdeaUiState) {
         if (editIdeaUiState.isNetworkError) {
             coroutineScope.launch {
@@ -199,6 +207,7 @@ private fun ObserveNetworkError(
                     onActionClick = currentOnActionPerformedClick,
                     duration = SnackbarDuration.Short
                 )
+                currentOnNetworkErrorShown()
             }
         }
     }

@@ -44,6 +44,10 @@ class EditIdeaViewModel @Inject constructor(
         editIdeaUiState = editIdeaUiState.copy(content = content)
     }
 
+    fun networkErrorShown() {
+        updateIsNetworkError(false)
+    }
+
     private fun attachImage(image: AttachedImage) {
         editIdeaUiState = editIdeaUiState.copy(
             attachedImages = editIdeaUiState.attachedImages + image

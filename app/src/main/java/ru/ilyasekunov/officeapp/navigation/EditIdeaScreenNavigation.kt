@@ -35,6 +35,7 @@ fun NavGraphBuilder.editIdeaScreen(
             onPublishClick = viewModel::editPost,
             onAttachImagesButtonClick = viewModel::attachImages,
             onRetryClick = viewModel::editPost,
+            onNetworkErrorShown = viewModel::networkErrorShown,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
