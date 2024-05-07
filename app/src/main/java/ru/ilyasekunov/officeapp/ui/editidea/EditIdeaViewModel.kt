@@ -7,6 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
@@ -15,7 +18,6 @@ import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
-import javax.inject.Inject
 
 @Immutable
 data class EditIdeaUiState(
@@ -28,13 +30,18 @@ data class EditIdeaUiState(
     val isNetworkError: Boolean = false
 )
 
-@HiltViewModel
-class EditIdeaViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = EditIdeaViewModel.Factory::class)
+class EditIdeaViewModel @AssistedInject constructor(
+    @Assisted private val postId: Long,
     private val postsRepository: PostsRepository,
     private val imagesRepository: ImagesRepository
 ) : ViewModel() {
     var editIdeaUiState by mutableStateOf(EditIdeaUiState())
         private set
+
+    init {
+        loadPost()
+    }
 
     fun updateTitle(title: String) {
         editIdeaUiState = editIdeaUiState.copy(title = title)
@@ -76,7 +83,7 @@ class EditIdeaViewModel @Inject constructor(
         )
     }
 
-    fun loadPostById(postId: Long) {
+    fun loadPost() {
         viewModelScope.launch {
             updateIsLoading(true)
             postsRepository.findPostById(postId).also { result ->
@@ -162,6 +169,11 @@ class EditIdeaViewModel @Inject constructor(
         val attachedImages = editIdeaUiState.attachedImages
         return if (attachedImages.isEmpty()) 0
         else attachedImages.maxOf { it.id } + 1
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(postId: Long): EditIdeaViewModel
     }
 }
 

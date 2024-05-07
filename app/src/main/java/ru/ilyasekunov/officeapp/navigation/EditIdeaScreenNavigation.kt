@@ -1,7 +1,6 @@
 package ru.ilyasekunov.officeapp.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -53,10 +52,9 @@ fun NavController.navigateToEditIdeaScreen(
 }
 
 @Composable
-fun setUpEditIdeaViewModel(postId: Long): EditIdeaViewModel {
-    val viewModel = hiltViewModel<EditIdeaViewModel>()
-    LaunchedEffect(Unit) {
-        viewModel.loadPostById(postId)
-    }
-    return viewModel
-}
+fun setUpEditIdeaViewModel(postId: Long): EditIdeaViewModel =
+    hiltViewModel(
+        creationCallback = { factory: EditIdeaViewModel.Factory ->
+            factory.create(postId)
+        }
+    )
