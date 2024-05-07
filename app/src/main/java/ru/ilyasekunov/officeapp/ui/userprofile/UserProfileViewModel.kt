@@ -41,7 +41,7 @@ class UserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             updateIsLoading(true)
             authRepository.logout()
-            updateIsLoggedOut(true)
+            userProfileUiState = userProfileUiState.copy(isLoggedOut = true)
             updateIsLoading(false)
         }
     }
@@ -67,10 +67,6 @@ class UserProfileViewModel @Inject constructor(
 
     private fun updateIsLoading(isLoading: Boolean) {
         userProfileUiState = userProfileUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsLoggedOut(isLoggedOut: Boolean) {
-        userProfileUiState = userProfileUiState.copy(isLoggedOut = isLoggedOut)
     }
 
     private fun updateIsErrorWhileUserLoading(isErrorWhileUserLoading: Boolean) {

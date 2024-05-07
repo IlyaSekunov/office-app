@@ -63,6 +63,7 @@ fun UserManageAccountScreen(
     onSaveButtonClick: () -> Unit,
     onRetrySaveClick: () -> Unit,
     onRetryLoadProfileClick: () -> Unit,
+    onChangesSavingErrorShown: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -87,6 +88,7 @@ fun UserManageAccountScreen(
             onOfficeChange = onOfficeChange,
             onSaveButtonClick = onSaveButtonClick,
             onRetrySaveClick = onRetrySaveClick,
+            onChangesSavingErrorShown = onChangesSavingErrorShown,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
@@ -108,6 +110,7 @@ private fun UserManageAccountScreenContent(
     onOfficeChange: (Office) -> Unit,
     onSaveButtonClick: () -> Unit,
     onRetrySaveClick: () -> Unit,
+    onChangesSavingErrorShown: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -202,6 +205,7 @@ private fun UserManageAccountScreenContent(
         snackbarHostState = snackbarHostState,
         coroutineScope = LocalCoroutineScope.current,
         onRetrySaveClick = onRetrySaveClick,
+        onChangesSavingErrorShown = onChangesSavingErrorShown,
         navigateToProfileScreen = navigateToProfileScreen
     )
 }
@@ -237,13 +241,15 @@ private fun ObserveStateChanges(
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     onRetrySaveClick: () -> Unit,
+    onChangesSavingErrorShown: () -> Unit,
     navigateToProfileScreen: () -> Unit
 ) {
     ObserveChangesSavingError(
         userManageAccountUiState = userManageAccountUiState,
         snackbarHostState = snackbarHostState,
         coroutineScope = coroutineScope,
-        onActionPerformedClick = onRetrySaveClick
+        onActionPerformedClick = onRetrySaveClick,
+        onErrorShown = onChangesSavingErrorShown
     )
     ObserveIsChangesSaved(
         userManageAccountUiState = userManageAccountUiState,
@@ -258,11 +264,13 @@ private fun ObserveChangesSavingError(
     userManageAccountUiState: UserManageAccountUiState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
-    onActionPerformedClick: () -> Unit
+    onActionPerformedClick: () -> Unit,
+    onErrorShown: () -> Unit
 ) {
     val retryLabel = stringResource(R.string.retry)
     val serverErrorMessage = stringResource(R.string.error_connecting_to_server)
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
+    val currentOnErrorShown by rememberUpdatedState(onErrorShown)
     LaunchedEffect(userManageAccountUiState) {
         if (userManageAccountUiState.isChangesSavingError) {
             coroutineScope.launch {
@@ -272,6 +280,7 @@ private fun ObserveChangesSavingError(
                     onActionClick = currentOnActionPerformedClick,
                     duration = SnackbarDuration.Short
                 )
+                currentOnErrorShown()
             }
         }
     }
@@ -344,6 +353,7 @@ private fun UserManageAccountScreenPreview() {
             onSaveButtonClick = {},
             onRetrySaveClick = {},
             onRetryLoadProfileClick = {},
+            onChangesSavingErrorShown = {},
             navigateToHomeScreen = {},
             navigateToFavouriteScreen = {},
             navigateToMyOfficeScreen = {},

@@ -99,6 +99,12 @@ class UserManageAccountViewModel @Inject constructor(
         )
     }
 
+    fun changesSavingErrorShown() {
+        userManageAccountUiState = userManageAccountUiState.copy(
+            isChangesSavingError = false
+        )
+    }
+
     private fun updateNameValidationError(error: UserInfoValidationError?) {
         val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
         userManageAccountUiState = userManageAccountUiState.copy(

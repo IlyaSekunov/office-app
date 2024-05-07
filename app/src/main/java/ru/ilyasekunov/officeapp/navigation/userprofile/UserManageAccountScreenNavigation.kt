@@ -23,20 +23,21 @@ fun NavGraphBuilder.userManageAccountScreen(
         enterTransition = { enterSlideLeft() },
         exitTransition = { exitSlideRight() }
     ) {
-        val userManageAccountViewModel = hiltViewModel<UserManageAccountViewModel>()
+        val viewModel = hiltViewModel<UserManageAccountViewModel>()
         UserManageAccountScreen(
-            userManageAccountUiState = userManageAccountViewModel.userManageAccountUiState,
-            onAttachImage = userManageAccountViewModel::updatePhoto,
-            onNameValueChange = userManageAccountViewModel::updateName,
-            onSurnameValueChange = userManageAccountViewModel::updateSurname,
-            onJobValueChange = userManageAccountViewModel::updateJob,
-            onOfficeChange = userManageAccountViewModel::updateOffice,
-            onRetrySaveClick = userManageAccountViewModel::save,
+            userManageAccountUiState = viewModel.userManageAccountUiState,
+            onAttachImage = viewModel::updatePhoto,
+            onNameValueChange = viewModel::updateName,
+            onSurnameValueChange = viewModel::updateSurname,
+            onJobValueChange = viewModel::updateJob,
+            onOfficeChange = viewModel::updateOffice,
+            onRetrySaveClick = viewModel::save,
             onRetryLoadProfileClick = {
-                userManageAccountViewModel.loadUserProfile()
-                userManageAccountViewModel.loadAvailableOffices()
+                viewModel.loadUserProfile()
+                viewModel.loadAvailableOffices()
             },
-            onSaveButtonClick = userManageAccountViewModel::save,
+            onChangesSavingErrorShown = viewModel::changesSavingErrorShown,
+            onSaveButtonClick = viewModel::save,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
