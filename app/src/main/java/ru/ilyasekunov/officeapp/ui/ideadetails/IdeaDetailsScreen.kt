@@ -195,7 +195,7 @@ fun IdeaDetailsScreen(
 }
 
 @Composable
-fun ObserveStateChanges(
+private fun ObserveStateChanges(
    deleteCommentUiState: DeleteCommentUiState,
    sendMessageUiState: SendMessageUiState,
    snackbarHostState: SnackbarHostState,
@@ -232,6 +232,113 @@ fun ObserveStateChanges(
         onRetryButtonClick = onRetryPublish,
         onPublishCommentResultShown = onPublishCommentResultShown
     )
+}
+
+@Composable
+private fun ObservePublishCommentIsSuccess(
+    sendMessageUiState: SendMessageUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onPublishSuccess: () -> Unit,
+    onPublishCommentResultShown: () -> Unit
+) {
+    val message = stringResource(R.string.comment_published_successfully)
+    val currentOnPublishSuccess by rememberUpdatedState(onPublishSuccess)
+    val currentOnPublishCommentResultShown by rememberUpdatedState(onPublishCommentResultShown)
+    LaunchedEffect(Unit) {
+        snapshotFlow { sendMessageUiState }
+            .filter { it.isPublished }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short
+                    )
+                    currentOnPublishCommentResultShown()
+                }
+                currentOnPublishSuccess()
+            }
+    }
+}
+
+@Composable
+private fun ObservePublishCommentIsError(
+    sendMessageUiState: SendMessageUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onRetryButtonClick: () -> Unit,
+    onPublishCommentResultShown: () -> Unit
+) {
+    val message = stringResource(R.string.error_while_publishing_comment)
+    val currentOnRetryClick by rememberUpdatedState(onRetryButtonClick)
+    val currentOnPublishCommentResultShown by rememberUpdatedState(onPublishCommentResultShown)
+    val retryLabel = stringResource(R.string.retry)
+    LaunchedEffect(Unit) {
+        snapshotFlow { sendMessageUiState }
+            .filter { it.isError }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.snackbarWithAction(
+                        message = message,
+                        actionLabel = retryLabel,
+                        onActionClick = currentOnRetryClick,
+                        duration = SnackbarDuration.Short
+                    )
+                    currentOnPublishCommentResultShown()
+                }
+            }
+    }
+}
+
+@Composable
+private fun ObserveDeleteCommentIsSuccess(
+    deleteCommentUiState: DeleteCommentUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onDeleteSuccess: () -> Unit,
+    onDeleteCommentResultShown: () -> Unit
+) {
+    val currentOnDeleteSuccess by rememberUpdatedState(onDeleteSuccess)
+    val currentOnDeleteCommentResultShown by rememberUpdatedState(onDeleteCommentResultShown)
+    val message = stringResource(R.string.comment_delete_success)
+    LaunchedEffect(Unit) {
+        snapshotFlow { deleteCommentUiState }
+            .filter { it.isSuccess }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short
+                    )
+                    currentOnDeleteCommentResultShown()
+                }
+                currentOnDeleteSuccess()
+            }
+    }
+}
+
+@Composable
+fun ObserveDeleteCommentIsError(
+    deleteCommentUiState: DeleteCommentUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onDeleteCommentResultShown: () -> Unit
+) {
+    val currentOnDeleteCommentResultShown by rememberUpdatedState(onDeleteCommentResultShown)
+    val message = stringResource(R.string.comment_delete_failure)
+    LaunchedEffect(Unit) {
+        snapshotFlow { deleteCommentUiState }
+            .filter { it.isError }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short
+                    )
+                    currentOnDeleteCommentResultShown()
+                }
+            }
+    }
 }
 
 @Composable
@@ -513,113 +620,6 @@ private fun CommentsCountAndSortingFilter(
                 tint = MaterialTheme.colorScheme.primary
             )
         }
-    }
-}
-
-@Composable
-private fun ObservePublishCommentIsSuccess(
-    sendMessageUiState: SendMessageUiState,
-    snackbarHostState: SnackbarHostState,
-    coroutineScope: CoroutineScope,
-    onPublishSuccess: () -> Unit,
-    onPublishCommentResultShown: () -> Unit
-) {
-    val message = stringResource(R.string.comment_published_successfully)
-    val currentOnPublishSuccess by rememberUpdatedState(onPublishSuccess)
-    val currentOnPublishCommentResultShown by rememberUpdatedState(onPublishCommentResultShown)
-    LaunchedEffect(Unit) {
-        snapshotFlow { sendMessageUiState }
-            .filter { it.isPublished }
-            .collectLatest {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        duration = SnackbarDuration.Short
-                    )
-                }
-                currentOnPublishSuccess()
-                currentOnPublishCommentResultShown()
-            }
-    }
-}
-
-@Composable
-private fun ObservePublishCommentIsError(
-    sendMessageUiState: SendMessageUiState,
-    snackbarHostState: SnackbarHostState,
-    coroutineScope: CoroutineScope,
-    onRetryButtonClick: () -> Unit,
-    onPublishCommentResultShown: () -> Unit
-) {
-    val message = stringResource(R.string.error_while_publishing_comment)
-    val currentOnRetryClick by rememberUpdatedState(onRetryButtonClick)
-    val currentOnPublishCommentResultShown by rememberUpdatedState(onPublishCommentResultShown)
-    val retryLabel = stringResource(R.string.retry)
-    LaunchedEffect(Unit) {
-        snapshotFlow { sendMessageUiState }
-            .filter { it.isError }
-            .collectLatest {
-                coroutineScope.launch {
-                    snackbarHostState.snackbarWithAction(
-                        message = message,
-                        actionLabel = retryLabel,
-                        onActionClick = currentOnRetryClick,
-                        duration = SnackbarDuration.Short
-                    )
-                }
-                currentOnPublishCommentResultShown()
-            }
-    }
-}
-
-@Composable
-private fun ObserveDeleteCommentIsSuccess(
-    deleteCommentUiState: DeleteCommentUiState,
-    snackbarHostState: SnackbarHostState,
-    coroutineScope: CoroutineScope,
-    onDeleteSuccess: () -> Unit,
-    onDeleteCommentResultShown: () -> Unit
-) {
-    val currentOnDeleteSuccess by rememberUpdatedState(onDeleteSuccess)
-    val currentOnDeleteCommentResultShown by rememberUpdatedState(onDeleteCommentResultShown)
-    val message = stringResource(R.string.comment_delete_success)
-    LaunchedEffect(Unit) {
-        snapshotFlow { deleteCommentUiState }
-            .filter { it.isSuccess }
-            .collectLatest {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        duration = SnackbarDuration.Short
-                    )
-                }
-                currentOnDeleteSuccess()
-                currentOnDeleteCommentResultShown()
-            }
-    }
-}
-
-@Composable
-fun ObserveDeleteCommentIsError(
-    deleteCommentUiState: DeleteCommentUiState,
-    snackbarHostState: SnackbarHostState,
-    coroutineScope: CoroutineScope,
-    onDeleteCommentResultShown: () -> Unit
-) {
-    val currentOnDeleteCommentResultShown by rememberUpdatedState(onDeleteCommentResultShown)
-    val message = stringResource(R.string.comment_delete_failure)
-    LaunchedEffect(Unit) {
-        snapshotFlow { deleteCommentUiState }
-            .filter { it.isError }
-            .collectLatest {
-                coroutineScope.launch {
-                    snackbarHostState.showSnackbar(
-                        message = message,
-                        duration = SnackbarDuration.Short
-                    )
-                }
-                currentOnDeleteCommentResultShown()
-            }
     }
 }
 
