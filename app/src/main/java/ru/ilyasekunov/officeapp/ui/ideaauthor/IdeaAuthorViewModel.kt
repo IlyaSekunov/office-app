@@ -8,6 +8,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.paging.map
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -22,7 +25,6 @@ import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
 import ru.ilyasekunov.officeapp.ui.IdeasUiState
 import ru.ilyasekunov.officeapp.ui.updateDislike
 import ru.ilyasekunov.officeapp.ui.updateLike
-import javax.inject.Inject
 
 @Immutable
 data class IdeaAuthorUiState(
@@ -36,8 +38,9 @@ data class IdeaAuthorUiState(
     val isErrorWhileLoading: Boolean = false
 )
 
-@HiltViewModel
-class IdeaAuthorViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = IdeaAuthorViewModel.Factory::class)
+class IdeaAuthorViewModel @AssistedInject constructor(
+    @Assisted private val authorId: Long,
     private val postsRepository: PostsRepository,
     private val postsPagingRepository: PostsPagingRepository,
     private val authorRepository: AuthorRepository
@@ -45,6 +48,15 @@ class IdeaAuthorViewModel @Inject constructor(
     var ideaAuthorUiState by mutableStateOf(IdeaAuthorUiState())
         private set
     val authorIdeasUiState = IdeasUiState()
+
+    init {
+        loadData()
+    }
+
+    fun loadData() {
+        loadIdeaAuthor()
+        loadAuthorsIdeas()
+    }
 
     fun updateLike(idea: IdeaPost) {
         viewModelScope.launch {
@@ -91,15 +103,15 @@ class IdeaAuthorViewModel @Inject constructor(
         ideaAuthorUiState = ideaAuthorUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
     }
 
-    fun loadIdeaAuthorById(authorId: Long) {
+    private fun loadIdeaAuthor() {
         viewModelScope.launch {
             updateIsIdeaAuthorLoading(true)
-            refreshIdeaAuthorById(authorId)
+            refreshIdeaAuthor()
             updateIsIdeaAuthorLoading(false)
         }
     }
 
-    suspend fun refreshIdeaAuthorById(authorId: Long) {
+    suspend fun refreshIdeaAuthor() {
         authorRepository.ideaAuthorById(authorId).also { result ->
             when {
                 result.isSuccess -> {
@@ -121,7 +133,7 @@ class IdeaAuthorViewModel @Inject constructor(
         }
     }
 
-    fun loadIdeasByAuthorId(authorId: Long) {
+    private fun loadAuthorsIdeas() {
         viewModelScope.launch {
             postsPagingRepository.postsByAuthorId(authorId)
                 .distinctUntilChanged()
@@ -130,6 +142,11 @@ class IdeaAuthorViewModel @Inject constructor(
                     authorIdeasUiState.updateIdeas(it)
                 }
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(authorId: Long): IdeaAuthorViewModel
     }
 }
 

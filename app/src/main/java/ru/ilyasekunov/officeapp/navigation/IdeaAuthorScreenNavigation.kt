@@ -1,7 +1,6 @@
 package ru.ilyasekunov.officeapp.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -30,18 +29,11 @@ fun NavGraphBuilder.ideaAuthorScreen(
         IdeaAuthorScreen(
             ideaAuthorUiState = viewModel.ideaAuthorUiState,
             ideas = ideas,
-            onRetryLoadData = {
-                viewModel.loadIdeaAuthorById(authorId)
-                ideas.refresh()
-            },
+            onRetryLoadData = viewModel::loadData,
             onPullToRefresh = {
                 launch {
-                    launch {
-                        viewModel.refreshIdeaAuthorById(authorId)
-                    }
-                    launch {
-                        ideas.refresh()
-                    }
+                    launch { viewModel.refreshIdeaAuthor() }
+                    launch { ideas.refresh() }
                 }
             },
             onIdeaLikeClick = viewModel::updateLike,
@@ -64,11 +56,9 @@ fun NavController.navigateToIdeaAuthorScreen(
 }
 
 @Composable
-private fun setUpIdeaAuthorViewModel(authorId: Long): IdeaAuthorViewModel {
-    val viewModel = hiltViewModel<IdeaAuthorViewModel>()
-    LaunchedEffect(Unit) {
-        viewModel.loadIdeaAuthorById(authorId)
-        viewModel.loadIdeasByAuthorId(authorId)
-    }
-    return viewModel
-}
+private fun setUpIdeaAuthorViewModel(authorId: Long): IdeaAuthorViewModel =
+    hiltViewModel(
+        creationCallback = { factory: IdeaAuthorViewModel.Factory ->
+            factory.create(authorId)
+        }
+    )
