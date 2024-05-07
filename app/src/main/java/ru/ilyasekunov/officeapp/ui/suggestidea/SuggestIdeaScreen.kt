@@ -37,6 +37,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,6 +51,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.permissions.rememberStorageAccessPermissionRequest
@@ -75,6 +78,7 @@ fun SuggestIdeaScreen(
     onPublishClick: () -> Unit,
     onAttachImagesButtonClick: (List<Uri>) -> Unit,
     onRetryClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -91,6 +95,7 @@ fun SuggestIdeaScreen(
             onPublishClick = onPublishClick,
             onAttachImagesButtonClick = onAttachImagesButtonClick,
             onRetryClick = onRetryClick,
+            onNetworkErrorShown = onNetworkErrorShown,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
@@ -110,6 +115,7 @@ private fun SuggestIdeaScreenContent(
     onPublishClick: () -> Unit,
     onAttachImagesButtonClick: (List<Uri>) -> Unit,
     onRetryClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -183,6 +189,7 @@ private fun SuggestIdeaScreenContent(
         snackbarHostState = snackbarHostState,
         coroutineScope = LocalCoroutineScope.current,
         onRetryClick = onRetryClick,
+        onNetworkErrorShown = onNetworkErrorShown,
         navigateBack = navigateBack
     )
 }
@@ -193,13 +200,15 @@ private fun ObserveStateChanges(
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     onRetryClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateBack: () -> Unit
 ) {
     ObserveNetworkError(
         suggestIdeaUiState = suggestIdeaUiState,
         snackbarHostState = snackbarHostState,
         coroutineScope = coroutineScope,
-        onActionPerformedClick = onRetryClick
+        onActionPerformedClick = onRetryClick,
+        onNetworkErrorShown = onNetworkErrorShown
     )
     ObserveIsPublished(
         suggestIdeaUiState = suggestIdeaUiState,
@@ -214,22 +223,27 @@ private fun ObserveNetworkError(
     suggestIdeaUiState: SuggestIdeaUiState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
-    onActionPerformedClick: () -> Unit
+    onActionPerformedClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit
 ) {
     val retryLabel = stringResource(R.string.retry)
     val serverErrorMessage = stringResource(R.string.error_connecting_to_server)
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
-    LaunchedEffect(suggestIdeaUiState) {
-        if (suggestIdeaUiState.isNetworkError) {
-            coroutineScope.launch {
-                snackbarHostState.snackbarWithAction(
-                    message = serverErrorMessage,
-                    actionLabel = retryLabel,
-                    onActionClick = currentOnActionPerformedClick,
-                    duration = SnackbarDuration.Short
-                )
+    val currentOnNetworkErrorShown by rememberUpdatedState(onNetworkErrorShown)
+    LaunchedEffect(Unit) {
+        snapshotFlow { suggestIdeaUiState }
+            .filter { it.isNetworkError }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.snackbarWithAction(
+                        message = serverErrorMessage,
+                        actionLabel = retryLabel,
+                        onActionClick = currentOnActionPerformedClick,
+                        duration = SnackbarDuration.Short
+                    )
+                    currentOnNetworkErrorShown()
+                }
             }
-        }
     }
 }
 
@@ -532,6 +546,7 @@ private fun SuggestIdeaScreenPreview() {
             onIdeaBodyValueChange = {},
             onRemoveImageClick = {},
             onPublishClick = {},
+            onNetworkErrorShown = {},
             onAttachImagesButtonClick = {},
             onRetryClick = {},
             navigateToHomeScreen = {},

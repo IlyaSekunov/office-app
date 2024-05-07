@@ -31,6 +31,7 @@ fun NavGraphBuilder.suggestIdeaScreen(
             onPublishClick = viewModel::publishPost,
             onAttachImagesButtonClick = viewModel::attachImages,
             onRetryClick = viewModel::publishPost,
+            onNetworkErrorShown = viewModel::networkErrorShown,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,

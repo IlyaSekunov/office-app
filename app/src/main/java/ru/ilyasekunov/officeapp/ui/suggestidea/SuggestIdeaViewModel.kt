@@ -42,6 +42,12 @@ class SuggestIdeaViewModel @Inject constructor(
         suggestIdeaUiState = suggestIdeaUiState.copy(content = content)
     }
 
+    fun networkErrorShown() {
+        suggestIdeaUiState = suggestIdeaUiState.copy(
+            isNetworkError = false
+        )
+    }
+
     private fun attachImage(image: AttachedImage) {
         suggestIdeaUiState = suggestIdeaUiState.copy(
             attachedImages = suggestIdeaUiState.attachedImages + image
