@@ -73,7 +73,9 @@ import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsColumn
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsHorizontalGrid
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
+import ru.ilyasekunov.officeapp.ui.home.DeletePostUiState
 import ru.ilyasekunov.officeapp.ui.home.IdeaPost
+import ru.ilyasekunov.officeapp.ui.home.ObserveDeletePostUiState
 import ru.ilyasekunov.officeapp.ui.modifiers.conditional
 import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 import ru.ilyasekunov.officeapp.util.isEmpty
@@ -94,12 +96,14 @@ fun MyOfficeScreen(
     ideasInProgress: LazyPagingItems<IdeaPost>,
     implementedIdeas: LazyPagingItems<IdeaPost>,
     officeEmployees: LazyPagingItems<IdeaAuthor>,
+    deletePostUiState: DeletePostUiState,
     onRetryDataLoad: () -> Unit,
     onPullToRefresh: CoroutineScope.() -> Job,
     onPostLikeClick: (IdeaPost) -> Unit,
     onPostDislikeClick: (IdeaPost) -> Unit,
     onPostCommentsClick: (IdeaPost) -> Unit,
     onDeletePostClick: (IdeaPost) -> Unit,
+    onDeletePostResultShown: () -> Unit,
     navigateToIdeaDetailsScreen: (Long) -> Unit,
     navigateToEditIdeaScreen: (Long) -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
@@ -132,7 +136,7 @@ fun MyOfficeScreen(
                 navigateToAuthGraph()
             }
 
-            isScreenLoading(currentUserUiState) -> AnimatedLoadingScreen()
+            isScreenLoading(currentUserUiState, deletePostUiState) -> AnimatedLoadingScreen()
             isErrorWhileLoading(currentUserUiState) -> {
                 ErrorScreen(
                     message = stringResource(R.string.error_connecting_to_server),
@@ -141,7 +145,7 @@ fun MyOfficeScreen(
             }
 
             else -> {
-                val postDeletedMessage = stringResource(R.string.post_deleted)
+                val postDeletedMessage = stringResource(R.string.post_will_be_deleted_in_5_seconds)
                 val undoLabel = stringResource(R.string.undo)
                 MyOfficeScreenContent(
                     currentUserUiState = currentUserUiState,
@@ -169,6 +173,17 @@ fun MyOfficeScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
+                )
+                ObserveDeletePostUiState(
+                    deletePostUiState = deletePostUiState,
+                    snackbarHostState = snackbarHostState,
+                    coroutineScope = coroutineScope,
+                    onResultShown = onDeletePostResultShown,
+                    onDeleteSuccess = {
+                        suggestedIdeas.refresh()
+                        ideasInProgress.refresh()
+                        implementedIdeas.refresh()
+                    }
                 )
             }
         }
@@ -820,7 +835,10 @@ private fun ideasGroupName(ideasGroup: IdeasGroup) =
         IdeasGroup.IMPLEMENTED -> stringResource(R.string.ideas_implemented)
     }
 
-private fun isScreenLoading(currentUserUiState: CurrentUserUiState) = currentUserUiState.isLoading
+private fun isScreenLoading(
+    currentUserUiState: CurrentUserUiState,
+    deletePostUiState: DeletePostUiState
+) = currentUserUiState.isLoading || deletePostUiState.isLoading
 
 private fun isErrorWhileLoading(currentUserUiState: CurrentUserUiState) =
     currentUserUiState.isErrorWhileLoading

@@ -25,6 +25,7 @@ import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpForbiddenException
 import ru.ilyasekunov.officeapp.ui.IdeasUiState
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
+import ru.ilyasekunov.officeapp.ui.home.DeletePostUiState
 import ru.ilyasekunov.officeapp.ui.updateDislike
 import ru.ilyasekunov.officeapp.ui.updateLike
 import javax.inject.Inject
@@ -50,6 +51,8 @@ class MyOfficeViewModel @Inject constructor(
     val implementedIdeasUiState = IdeasUiState()
     val officeEmployeesUiState = OfficeEmployeesUiState()
     var currentUserUiState by mutableStateOf(CurrentUserUiState())
+        private set
+    var deletePostUiState by mutableStateOf(DeletePostUiState())
         private set
 
     init {
@@ -80,14 +83,34 @@ class MyOfficeViewModel @Inject constructor(
         }
     }
 
+    fun deletePostResultShown() {
+        deletePostUiState = deletePostUiState.copy(
+            isError = false,
+            isSuccess = false
+        )
+    }
+
     fun deletePost(post: IdeaPost) {
+        viewModelScope.launch {
+            deletePostUiState = deletePostUiState.copy(isLoading = true)
+            postsRepository.deletePostById(post.id).also { result ->
+                deletePostUiState = deletePostUiState.copy(
+                    isLoading = false,
+                    isSuccess = result.isSuccess,
+                    isError = result.isFailure
+                )
+            }
+        }
+    }
+
+    /*fun deletePost(post: IdeaPost) {
         viewModelScope.launch {
             val deletePostResult = postsRepository.deletePostById(post.id)
             if (deletePostResult.isSuccess) {
                 removePost(post)
             }
         }
-    }
+    }*/
 
     private fun removePost(post: IdeaPost) {
         removePostFromSuggestedIdeas(post)

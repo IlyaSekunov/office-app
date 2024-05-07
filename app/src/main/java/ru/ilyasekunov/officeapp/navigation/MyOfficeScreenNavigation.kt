@@ -31,6 +31,7 @@ fun NavGraphBuilder.myOfficeScreen(
             ideasInProgress = ideasInProgress,
             implementedIdeas = implementedIdeas,
             officeEmployees = officeEmployees,
+            deletePostUiState = viewModel.deletePostUiState,
             onRetryDataLoad = viewModel::loadData,
             onPullToRefresh = {
                 launch {
@@ -51,6 +52,7 @@ fun NavGraphBuilder.myOfficeScreen(
                 navigateToIdeaDetailsScreen(it.id, true)
             },
             onDeletePostClick = viewModel::deletePost,
+            onDeletePostResultShown = viewModel::deletePostResultShown,
             navigateToIdeaDetailsScreen = {
                 navigateToIdeaDetailsScreen(it, false)
             },
