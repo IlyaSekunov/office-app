@@ -34,6 +34,7 @@ fun NavGraphBuilder.registrationUserInfoScreen(
             onJobValueChange = registrationViewModel::updateJob,
             onOfficeChange = registrationViewModel::updateOffice,
             onSaveButtonClick = registrationViewModel::register,
+            onNetworkErrorShown = registrationViewModel::networkErrorShown,
             navigateBack = navigateBack,
             onRetryButtonClick = registrationViewModel::loadAvailableOffices,
             navigateToHomeScreen = navigateToMainGraph

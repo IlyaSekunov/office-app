@@ -38,6 +38,7 @@ fun NavGraphBuilder.registrationMainScreen(
                     }
                 }
             },
+            onNetworkErrorShown = registrationViewModel::networkErrorShown,
             navigateToLoginScreen = navigateToLoginScreen
         )
     }

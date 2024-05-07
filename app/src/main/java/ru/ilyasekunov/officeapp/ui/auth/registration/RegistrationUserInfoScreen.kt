@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -37,6 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Office
@@ -63,6 +66,7 @@ fun RegistrationUserInfoScreen(
     onJobValueChange: (String) -> Unit,
     onOfficeChange: (Office) -> Unit,
     onSaveButtonClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     onRetryButtonClick: () -> Unit,
     navigateBack: () -> Unit,
     navigateToHomeScreen: () -> Unit
@@ -85,6 +89,7 @@ fun RegistrationUserInfoScreen(
             onJobValueChange = onJobValueChange,
             onOfficeChange = onOfficeChange,
             onSaveButtonClick = onSaveButtonClick,
+            onNetworkErrorShown = onNetworkErrorShown,
             navigateBack = navigateBack,
             navigateToHomeScreen = navigateToHomeScreen,
             modifier = Modifier.fillMaxSize()
@@ -103,6 +108,7 @@ fun RegistrationUserInfoScreenContent(
     onJobValueChange: (String) -> Unit,
     onOfficeChange: (Office) -> Unit,
     onSaveButtonClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateBack: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     modifier: Modifier = Modifier
@@ -186,6 +192,7 @@ fun RegistrationUserInfoScreenContent(
         snackbarHostState = snackbarHostState,
         coroutineScope = LocalCoroutineScope.current,
         onRetryButtonClick = onSaveButtonClick,
+        onNetworkErrorShown = onNetworkErrorShown,
         navigateToHomeScreen = navigateToHomeScreen
     )
 }
@@ -196,13 +203,15 @@ private fun ObserveStateChanges(
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     onRetryButtonClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateToHomeScreen: () -> Unit
 ) {
     ObserveIsNetworkError(
         registrationUiState = registrationUiState,
         snackbarHostState = snackbarHostState,
         coroutineScope = coroutineScope,
-        onRetryButtonClick = onRetryButtonClick
+        onRetryButtonClick = onRetryButtonClick,
+        onNetworkErrorShown = onNetworkErrorShown
     )
     ObserveIsRegistrationSuccess(
         registrationUiState = registrationUiState,
@@ -215,11 +224,26 @@ private fun ObserveIsNetworkError(
     registrationUiState: RegistrationUiState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
-    onRetryButtonClick: () -> Unit
+    onRetryButtonClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit
 ) {
     val currentOnRetryButtonClick by rememberUpdatedState(onRetryButtonClick)
+    val currentOnNetworkErrorShown by rememberUpdatedState(onNetworkErrorShown)
     val errorMessage = stringResource(R.string.error_while_registration)
     val retryLabel = stringResource(R.string.retry)
+    LaunchedEffect(Unit) {
+        snapshotFlow { registrationUiState }
+            .filter { it.isNetworkError }
+            .collectLatest {
+                snackbarHostState.snackbarWithAction(
+                    message = errorMessage,
+                    actionLabel = retryLabel,
+                    onActionClick = currentOnRetryButtonClick,
+                    duration = SnackbarDuration.Short
+                )
+                currentOnNetworkErrorShown()
+            }
+    }
     LaunchedEffect(registrationUiState) {
         if (registrationUiState.isNetworkError) {
             coroutineScope.launch {
@@ -316,6 +340,7 @@ private fun RegistrationUserInfoScreenPreview() {
             onJobValueChange = {},
             onOfficeChange = {},
             onSaveButtonClick = {},
+            onNetworkErrorShown = {},
             navigateBack = {},
             onRetryButtonClick = {},
             navigateToHomeScreen = {}

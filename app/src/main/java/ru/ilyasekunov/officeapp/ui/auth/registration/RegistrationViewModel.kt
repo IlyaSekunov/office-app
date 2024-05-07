@@ -145,6 +145,10 @@ class RegistrationViewModel @Inject constructor(
         )
     }
 
+    fun networkErrorShown() {
+        registrationUiState = registrationUiState.copy(isNetworkError = false)
+    }
+
     fun register() {
         viewModelScope.launch {
             if (registrationUiState.credentialsValid && userInfoValid()) {

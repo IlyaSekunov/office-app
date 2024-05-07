@@ -24,13 +24,18 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.auth.login.emailErrorMessage
@@ -50,6 +55,7 @@ fun RegistrationMainScreen(
     onPasswordValueChange: (String) -> Unit,
     onRepeatPasswordValueChange: (String) -> Unit,
     onRegisterButtonClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateToLoginScreen: () -> Unit
 ) {
     when {
@@ -60,6 +66,7 @@ fun RegistrationMainScreen(
             onPasswordValueChange = onPasswordValueChange,
             onRepeatPasswordValueChange = onRepeatPasswordValueChange,
             onRegisterButtonClick = onRegisterButtonClick,
+            onNetworkErrorShown = onNetworkErrorShown,
             navigateToLoginScreen = navigateToLoginScreen,
             modifier = Modifier.fillMaxSize()
         )
@@ -73,6 +80,7 @@ private fun RegistrationMainScreenContent(
     onPasswordValueChange: (String) -> Unit,
     onRepeatPasswordValueChange: (String) -> Unit,
     onRegisterButtonClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateToLoginScreen: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -133,7 +141,8 @@ private fun RegistrationMainScreenContent(
     ObserveNetworkError(
         registrationUiState = registrationUiState,
         snackbarHostState = snackbarHostState,
-        onRetryClick = onRegisterButtonClick
+        onRetryClick = onRegisterButtonClick,
+        onNetworkErrorShown = onNetworkErrorShown
     )
 }
 
@@ -228,19 +237,24 @@ private fun LoginSection(
 private fun ObserveNetworkError(
     registrationUiState: RegistrationUiState,
     snackbarHostState: SnackbarHostState,
-    onRetryClick: () -> Unit
+    onRetryClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit
 ) {
     val errorMessage = stringResource(R.string.error_connecting_to_server)
     val retryLabel = stringResource(R.string.retry)
-    LaunchedEffect(registrationUiState) {
-        if (registrationUiState.isNetworkError) {
-            snackbarHostState.snackbarWithAction(
-                message = errorMessage,
-                actionLabel = retryLabel,
-                onActionClick = onRetryClick,
-                duration = SnackbarDuration.Short
-            )
-        }
+    val currentOnNetworkErrorShown by rememberUpdatedState(onNetworkErrorShown)
+    LaunchedEffect(Unit) {
+        snapshotFlow { registrationUiState }
+            .filter { it.isNetworkError }
+            .collectLatest {
+                snackbarHostState.snackbarWithAction(
+                    message = errorMessage,
+                    actionLabel = retryLabel,
+                    onActionClick = onRetryClick,
+                    duration = SnackbarDuration.Short
+                )
+                currentOnNetworkErrorShown()
+            }
     }
 }
 
@@ -255,6 +269,7 @@ private fun RegistrationMainScreenPreview() {
                 onPasswordValueChange = {},
                 onRepeatPasswordValueChange = {},
                 onRegisterButtonClick = {},
+                onNetworkErrorShown = {},
                 navigateToLoginScreen = {}
             )
         }
