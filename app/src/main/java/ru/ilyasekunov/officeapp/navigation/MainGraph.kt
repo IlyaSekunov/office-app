@@ -377,10 +377,6 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                     initiallyScrollToComments = false,
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
-                        .setPopUpTo(
-                            route = Screen.IdeaDetails.route,
-                            inclusive = true
-                        )
                         .build()
                 )
             },
