@@ -36,7 +36,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,6 +55,8 @@ import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.data.model.Comment
@@ -70,8 +74,8 @@ import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.LikesAndDislikesSection
 import ru.ilyasekunov.officeapp.ui.components.NavigateBackArrow
 import ru.ilyasekunov.officeapp.ui.components.Scrim
-import ru.ilyasekunov.officeapp.ui.components.SendingMessageBottomBar
-import ru.ilyasekunov.officeapp.ui.components.SendingMessageUiState
+import ru.ilyasekunov.officeapp.ui.components.SendMessageBottomBar
+import ru.ilyasekunov.officeapp.ui.components.SendMessageUiState
 import ru.ilyasekunov.officeapp.ui.components.defaultNavigateBackArrowScrollBehaviour
 import ru.ilyasekunov.officeapp.ui.components.rememberNavigateBackArrowState
 import ru.ilyasekunov.officeapp.ui.home.AttachedImages
@@ -88,14 +92,13 @@ private object IdeaDetailsScreenDefaults {
 fun IdeaDetailsScreen(
     currentUserUiState: CurrentUserUiState,
     ideaPostUiState: IdeaPostUiState,
-    sendingMessageUiState: SendingMessageUiState,
+    sendMessageUiState: SendMessageUiState,
     currentCommentsSortingFilter: CommentsSortingFilters,
     comments: LazyPagingItems<Comment>,
     currentEditableComment: Comment?,
-    commentDeletingUiState: CommentDeletingUiState?,
+    deleteCommentUiState: DeleteCommentUiState,
     initiallyScrollToComments: Boolean = false,
     onRetryInfoLoad: () -> Unit,
-    onRetryCommentsLoad: () -> Unit,
     onPullToRefresh: CoroutineScope.() -> Job,
     onCommentLikeClick: (Comment) -> Unit,
     onCommentDislikeClick: (Comment) -> Unit,
@@ -105,8 +108,10 @@ fun IdeaDetailsScreen(
     onDislikeClick: () -> Unit,
     onAttachImage: (Uri) -> Unit,
     onRemoveImageClick: (AttachedImage) -> Unit,
-    onSendCommentClick: () -> Unit,
+    onPublishCommentClick: () -> Unit,
+    onPublishCommentResultShown: () -> Unit,
     onDeleteCommentClick: (Comment) -> Unit,
+    onDeleteCommentResultShown: () -> Unit,
     onMessageValueChange: (String) -> Unit,
     onCommentsFilterSelect: (CommentsSortingFilters) -> Unit,
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit,
@@ -124,8 +129,8 @@ fun IdeaDetailsScreen(
         isScreenLoading(
             currentUserUiState,
             ideaPostUiState,
-            sendingMessageUiState,
-            commentDeletingUiState
+            sendMessageUiState,
+            deleteCommentUiState
         ) -> AnimatedLoadingScreen()
 
         else -> {
@@ -135,11 +140,11 @@ fun IdeaDetailsScreen(
                 containerColor = MaterialTheme.colorScheme.background,
                 snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
                 bottomBar = {
-                    SendingMessageBottomBarWithEditOption(
-                        sendingMessageUiState = sendingMessageUiState,
+                    SendMessageBottomBarWithEditOption(
+                        sendMessageUiState = sendMessageUiState,
                         currentEditableComment = currentEditableComment,
                         onMessageValueChange = onMessageValueChange,
-                        onSendClick = onSendCommentClick,
+                        onSendClick = onPublishCommentClick,
                         onImageRemoveClick = onRemoveImageClick,
                         onImageAttach = onAttachImage,
                         containerColor = MaterialTheme.colorScheme.background,
@@ -160,7 +165,6 @@ fun IdeaDetailsScreen(
                         it.author.id == currentUserUiState.user?.id
                     },
                     onFilterClick = onCommentsFilterSelect,
-                    onRetryCommentsLoad = onRetryCommentsLoad,
                     onPullToRefresh = onPullToRefresh,
                     onCommentLikeClick = onCommentLikeClick,
                     onCommentDislikeClick = onCommentDislikeClick,
@@ -171,26 +175,68 @@ fun IdeaDetailsScreen(
                     onDislikeClick = onDislikeClick,
                     navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
                     navigateBack = navigateBack,
-
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
                 )
             }
             ObserveStateChanges(
-                sendingMessageUiState = sendingMessageUiState,
-                commentDeletingUiState = commentDeletingUiState,
+                deleteCommentUiState = deleteCommentUiState,
+                sendMessageUiState = sendMessageUiState,
                 snackbarHostState = snackbarHostState,
                 coroutineScope = coroutineScope,
-                onRetryCommentSend = onSendCommentClick
+                refreshComments = comments::refresh,
+                onDeleteCommentResultShown = onDeleteCommentResultShown,
+                onPublishCommentResultShown = onPublishCommentResultShown,
+                onRetryPublish = onPublishCommentClick
             )
         }
     }
 }
 
 @Composable
-fun SendingMessageBottomBarWithEditOption(
-    sendingMessageUiState: SendingMessageUiState,
+fun ObserveStateChanges(
+   deleteCommentUiState: DeleteCommentUiState,
+   sendMessageUiState: SendMessageUiState,
+   snackbarHostState: SnackbarHostState,
+   coroutineScope: CoroutineScope,
+   refreshComments: () -> Unit,
+   onDeleteCommentResultShown: () -> Unit,
+   onPublishCommentResultShown: () -> Unit,
+   onRetryPublish: () -> Unit
+) {
+    ObserveDeleteCommentIsSuccess(
+        deleteCommentUiState = deleteCommentUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
+        onDeleteSuccess = refreshComments,
+        onDeleteCommentResultShown = onDeleteCommentResultShown
+    )
+    ObserveDeleteCommentIsError(
+        deleteCommentUiState = deleteCommentUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
+        onDeleteCommentResultShown = onDeleteCommentResultShown
+    )
+    ObservePublishCommentIsSuccess(
+        sendMessageUiState = sendMessageUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
+        onPublishSuccess = refreshComments,
+        onPublishCommentResultShown = onPublishCommentResultShown
+    )
+    ObservePublishCommentIsError(
+        sendMessageUiState = sendMessageUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
+        onRetryButtonClick = onRetryPublish,
+        onPublishCommentResultShown = onPublishCommentResultShown
+    )
+}
+
+@Composable
+fun SendMessageBottomBarWithEditOption(
+    sendMessageUiState: SendMessageUiState,
     currentEditableComment: Comment?,
     onMessageValueChange: (String) -> Unit,
     onSendClick: () -> Unit,
@@ -200,8 +246,8 @@ fun SendingMessageBottomBarWithEditOption(
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
-    SendingMessageBottomBar(
-        sendingMessageUiState = sendingMessageUiState,
+    SendMessageBottomBar(
+        sendMessageUiState = sendMessageUiState,
         onMessageValueChange = onMessageValueChange,
         onSendClick = onSendClick,
         onImageRemoveClick = onImageRemoveClick,
@@ -224,7 +270,6 @@ private fun IdeaDetailsScreenContent(
     comments: LazyPagingItems<Comment>,
     isCommentOwnerCurrentUser: (Comment) -> Boolean,
     onFilterClick: (CommentsSortingFilters) -> Unit,
-    onRetryCommentsLoad: () -> Unit,
     onPullToRefresh: CoroutineScope.() -> Job,
     onEditCommentClick: (Comment) -> Unit,
     onEditCommentDismiss: () -> Unit,
@@ -302,7 +347,6 @@ private fun IdeaDetailsScreenContent(
                     }
                 },
                 isPullToRefreshActive = isRefreshing,
-                onRetryCommentsLoad = onRetryCommentsLoad,
                 onCommentLikeClick = onCommentLikeClick,
                 onCommentDislikeClick = onCommentDislikeClick,
                 navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen
@@ -473,93 +517,109 @@ private fun CommentsCountAndSortingFilter(
 }
 
 @Composable
-fun ObserveStateChanges(
-    sendingMessageUiState: SendingMessageUiState,
-    commentDeletingUiState: CommentDeletingUiState?,
+private fun ObservePublishCommentIsSuccess(
+    sendMessageUiState: SendMessageUiState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
-    onRetryCommentSend: () -> Unit
-) {
-    ObserveCommentIsPublished(
-        sendingMessageUiState = sendingMessageUiState,
-        snackbarHostState = snackbarHostState,
-        coroutineScope = coroutineScope
-    )
-    ObserveIsErrorWhileSendingComment(
-        sendingMessageUiState = sendingMessageUiState,
-        snackbarHostState = snackbarHostState,
-        coroutineScope = coroutineScope,
-        onRetryButtonClick = onRetryCommentSend
-    )
-    ObserveIsCommentWasDeletedSuccessfully(
-        commentDeletingUiState = commentDeletingUiState,
-        snackbarHostState = snackbarHostState,
-        coroutineScope = coroutineScope
-    )
-}
-
-@Composable
-fun ObserveIsCommentWasDeletedSuccessfully(
-    commentDeletingUiState: CommentDeletingUiState?,
-    snackbarHostState: SnackbarHostState,
-    coroutineScope: CoroutineScope
-) {
-    commentDeletingUiState?.let {
-        val message = if (it.isDeleted) {
-            stringResource(R.string.comment_delete_success)
-        } else {
-            stringResource(R.string.comment_delete_failure)
-        }
-        LaunchedEffect(commentDeletingUiState) {
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(
-                    message = message,
-                    duration = SnackbarDuration.Short
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ObserveCommentIsPublished(
-    sendingMessageUiState: SendingMessageUiState,
-    snackbarHostState: SnackbarHostState,
-    coroutineScope: CoroutineScope
+    onPublishSuccess: () -> Unit,
+    onPublishCommentResultShown: () -> Unit
 ) {
     val message = stringResource(R.string.comment_published_successfully)
-    LaunchedEffect(sendingMessageUiState) {
-        if (sendingMessageUiState.isPublished) {
-            coroutineScope.launch {
-                snackbarHostState.showSnackbar(
-                    message = message,
-                    duration = SnackbarDuration.Short
-                )
+    val currentOnPublishSuccess by rememberUpdatedState(onPublishSuccess)
+    val currentOnPublishCommentResultShown by rememberUpdatedState(onPublishCommentResultShown)
+    LaunchedEffect(Unit) {
+        snapshotFlow { sendMessageUiState }
+            .filter { it.isPublished }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+                currentOnPublishSuccess()
+                currentOnPublishCommentResultShown()
             }
-        }
     }
 }
 
 @Composable
-private fun ObserveIsErrorWhileSendingComment(
-    sendingMessageUiState: SendingMessageUiState,
+private fun ObservePublishCommentIsError(
+    sendMessageUiState: SendMessageUiState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
-    onRetryButtonClick: () -> Unit
+    onRetryButtonClick: () -> Unit,
+    onPublishCommentResultShown: () -> Unit
 ) {
-    val errorMessage = stringResource(R.string.error_while_publishing_comment)
+    val message = stringResource(R.string.error_while_publishing_comment)
+    val currentOnRetryClick by rememberUpdatedState(onRetryButtonClick)
+    val currentOnPublishCommentResultShown by rememberUpdatedState(onPublishCommentResultShown)
     val retryLabel = stringResource(R.string.retry)
-    LaunchedEffect(sendingMessageUiState) {
-        if (sendingMessageUiState.isErrorWhileSending) {
-            coroutineScope.launch {
-                snackbarHostState.snackbarWithAction(
-                    message = errorMessage,
-                    actionLabel = retryLabel,
-                    onActionClick = onRetryButtonClick,
-                    duration = SnackbarDuration.Short
-                )
+    LaunchedEffect(Unit) {
+        snapshotFlow { sendMessageUiState }
+            .filter { it.isError }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.snackbarWithAction(
+                        message = message,
+                        actionLabel = retryLabel,
+                        onActionClick = currentOnRetryClick,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+                currentOnPublishCommentResultShown()
             }
-        }
+    }
+}
+
+@Composable
+private fun ObserveDeleteCommentIsSuccess(
+    deleteCommentUiState: DeleteCommentUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onDeleteSuccess: () -> Unit,
+    onDeleteCommentResultShown: () -> Unit
+) {
+    val currentOnDeleteSuccess by rememberUpdatedState(onDeleteSuccess)
+    val currentOnDeleteCommentResultShown by rememberUpdatedState(onDeleteCommentResultShown)
+    val message = stringResource(R.string.comment_delete_success)
+    LaunchedEffect(Unit) {
+        snapshotFlow { deleteCommentUiState }
+            .filter { it.isSuccess }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+                currentOnDeleteSuccess()
+                currentOnDeleteCommentResultShown()
+            }
+    }
+}
+
+@Composable
+fun ObserveDeleteCommentIsError(
+    deleteCommentUiState: DeleteCommentUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onDeleteCommentResultShown: () -> Unit
+) {
+    val currentOnDeleteCommentResultShown by rememberUpdatedState(onDeleteCommentResultShown)
+    val message = stringResource(R.string.comment_delete_failure)
+    LaunchedEffect(Unit) {
+        snapshotFlow { deleteCommentUiState }
+            .filter { it.isError }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short
+                    )
+                }
+                currentOnDeleteCommentResultShown()
+            }
     }
 }
 
@@ -711,15 +771,12 @@ fun Int.toRussianCommentsString(): String =
 private fun isScreenLoading(
     currentUserUiState: CurrentUserUiState,
     ideaPostUiState: IdeaPostUiState,
-    sendingMessageUiState: SendingMessageUiState,
-    commentDeletingUiState: CommentDeletingUiState?
-): Boolean {
-    val commentIsDeleting = commentDeletingUiState?.isDeleting ?: false
-    return commentIsDeleting ||
-            sendingMessageUiState.isLoading ||
-            ideaPostUiState.isLoading ||
-            currentUserUiState.isLoading
-}
+    sendMessageUiState: SendMessageUiState,
+    deleteCommentUiState: DeleteCommentUiState
+) = sendMessageUiState.isLoading ||
+        ideaPostUiState.isLoading ||
+        currentUserUiState.isLoading ||
+        deleteCommentUiState.isLoading
 
 private fun isErrorWhileLoading(
     ideaPostUiState: IdeaPostUiState,

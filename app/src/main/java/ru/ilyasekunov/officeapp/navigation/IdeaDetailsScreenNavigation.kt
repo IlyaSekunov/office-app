@@ -1,7 +1,6 @@
 package ru.ilyasekunov.officeapp.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -32,29 +31,19 @@ fun NavGraphBuilder.ideaDetailsScreen(
         IdeaDetailsScreen(
             currentUserUiState = viewModel.currentUserUiState,
             ideaPostUiState = viewModel.ideaPostUiState,
-            sendingMessageUiState = viewModel.sendingMessageUiState,
+            sendMessageUiState = viewModel.sendMessageUiState,
             currentCommentsSortingFilter = viewModel.commentsUiState.currentSortingFilter,
             currentEditableComment = viewModel.currentEditableComment,
             comments = comments,
-            commentDeletingUiState = viewModel.commentDeletingUiState,
+            deleteCommentUiState = viewModel.deleteCommentUiState,
             initiallyScrollToComments = initiallyScrollToComments,
             onCommentsFilterSelect = viewModel::updateCommentsSortingFilter,
-            onRetryInfoLoad = {
-                viewModel.loadCurrentUser()
-                viewModel.loadPostById(postId)
-            },
-            onRetryCommentsLoad = { viewModel.loadCommentsByPostId(postId) },
+            onRetryInfoLoad = viewModel::loadData,
             onPullToRefresh = {
                 launch {
-                    launch {
-                        viewModel.refreshCurrentUser()
-                    }
-                    launch {
-                        viewModel.refreshPostById(postId)
-                    }
-                    launch {
-                        comments.refresh()
-                    }
+                    launch { viewModel.refreshCurrentUser() }
+                    launch { viewModel.refreshPost() }
+                    launch { comments.refresh() }
                 }
             },
             onCommentLikeClick = viewModel::updateCommentLike,
@@ -66,8 +55,10 @@ fun NavGraphBuilder.ideaDetailsScreen(
             onMessageValueChange = viewModel::updateMessage,
             onAttachImage = viewModel::attachImage,
             onRemoveImageClick = viewModel::removeImage,
-            onSendCommentClick = viewModel::sendComment,
+            onPublishCommentClick = viewModel::sendComment,
+            onPublishCommentResultShown = viewModel::publishCommentResultShown,
             onDeleteCommentClick = viewModel::deleteComment,
+            onDeleteCommentResultShown = viewModel::deleteCommentResultShown,
             navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
             navigateBack = navigateBack
         )
@@ -86,11 +77,9 @@ fun NavController.navigateToIdeaDetailsScreen(
 }
 
 @Composable
-private fun setUpIdeaDetailsViewModel(postId: Long): IdeaDetailsViewModel {
-    val viewModel = hiltViewModel<IdeaDetailsViewModel>()
-    LaunchedEffect(Unit) {
-        viewModel.loadPostById(postId)
-        viewModel.loadCommentsByPostId(postId)
-    }
-    return viewModel
-}
+private fun setUpIdeaDetailsViewModel(postId: Long): IdeaDetailsViewModel =
+    hiltViewModel(
+        creationCallback = { factory: IdeaDetailsViewModel.Factory ->
+            factory.create(postId)
+        }
+    )

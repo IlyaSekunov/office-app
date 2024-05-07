@@ -54,7 +54,6 @@ fun LazyListScope.comments(
     comments: LazyPagingItems<Comment>,
     onCommentClick: (Comment) -> Unit,
     isPullToRefreshActive: Boolean,
-    onRetryCommentsLoad: () -> Unit,
     onCommentLikeClick: (Comment) -> Unit,
     onCommentDislikeClick: (Comment) -> Unit,
     navigateToIdeaAuthorScreen: (authorId: Long) -> Unit
@@ -71,7 +70,7 @@ fun LazyListScope.comments(
             item {
                 ErrorScreen(
                     message = stringResource(R.string.error_while_loading),
-                    onRetryButtonClick = onRetryCommentsLoad
+                    onRetryButtonClick = comments::retry
                 )
             }
         }

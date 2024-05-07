@@ -10,6 +10,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,11 +31,10 @@ import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
-import ru.ilyasekunov.officeapp.ui.components.SendingMessageUiState
+import ru.ilyasekunov.officeapp.ui.components.SendMessageUiState
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
 import ru.ilyasekunov.officeapp.ui.updateDislike
 import ru.ilyasekunov.officeapp.ui.updateLike
-import javax.inject.Inject
 
 @Immutable
 data class IdeaPostUiState(
@@ -64,13 +66,15 @@ class CommentsUiState {
 }
 
 @Immutable
-data class CommentDeletingUiState(
-    val isDeleting: Boolean = false,
-    val isDeleted: Boolean = false
+data class DeleteCommentUiState(
+    val isLoading: Boolean = false,
+    val isSuccess: Boolean = false,
+    val isError: Boolean = false
 )
 
-@HiltViewModel
-class IdeaDetailsViewModel @Inject constructor(
+@HiltViewModel(assistedFactory = IdeaDetailsViewModel.Factory::class)
+class IdeaDetailsViewModel @AssistedInject constructor(
+    @Assisted private val postId: Long,
     private val authRepository: AuthRepository,
     private val postsRepository: PostsRepository,
     private val imagesRepository: ImagesRepository,
@@ -81,48 +85,48 @@ class IdeaDetailsViewModel @Inject constructor(
         private set
     var ideaPostUiState by mutableStateOf(IdeaPostUiState())
         private set
-    var sendingMessageUiState by mutableStateOf(SendingMessageUiState())
+    var sendMessageUiState by mutableStateOf(SendMessageUiState())
         private set
     val commentsUiState = CommentsUiState()
     var currentEditableComment by mutableStateOf<Comment?>(null)
         private set
-    var commentDeletingUiState by mutableStateOf<CommentDeletingUiState?>(null)
+    var deleteCommentUiState by mutableStateOf(DeleteCommentUiState())
         private set
 
     init {
-        loadCurrentUser()
+        loadData()
     }
 
     fun updateCommentsSortingFilter(commentsSortingFilter: CommentsSortingFilters) {
         if (commentsUiState.currentSortingFilter != commentsSortingFilter) {
             commentsUiState.updateSortingFilter(commentsSortingFilter)
-            loadCommentsByPostId(ideaPostUiState.ideaPost!!.id)
+            loadComments()
         }
     }
 
     fun updateMessage(message: String) {
-        sendingMessageUiState = sendingMessageUiState.copy(message = message)
+        sendMessageUiState = sendMessageUiState.copy(message = message)
     }
 
     fun attachImage(uri: Uri) {
-        synchronized(sendingMessageUiState) {
+        synchronized(sendMessageUiState) {
             val imageId = nextAttachedImagesId()
             val attachedImage = AttachedImage(imageId, uri)
-            sendingMessageUiState = sendingMessageUiState.copy(
-                attachedImages = sendingMessageUiState.attachedImages + attachedImage
+            sendMessageUiState = sendMessageUiState.copy(
+                attachedImages = sendMessageUiState.attachedImages + attachedImage
             )
         }
     }
 
     fun removeImage(attachedImage: AttachedImage) {
-        sendingMessageUiState = sendingMessageUiState.copy(
-            attachedImages = sendingMessageUiState.attachedImages - attachedImage
+        sendMessageUiState = sendMessageUiState.copy(
+            attachedImages = sendMessageUiState.attachedImages - attachedImage
         )
     }
 
     fun startEditComment(comment: Comment) {
         currentEditableComment = comment
-        sendingMessageUiState = comment.toSendingMessageUiState()
+        sendMessageUiState = comment.toSendingMessageUiState()
     }
 
     fun stopEditComment() {
@@ -131,7 +135,7 @@ class IdeaDetailsViewModel @Inject constructor(
     }
 
     private fun clearSendingUiState() {
-        sendingMessageUiState = sendingMessageUiState.copy(
+        sendMessageUiState = sendMessageUiState.copy(
             message = "",
             attachedImages = emptyList()
         )
@@ -153,18 +157,16 @@ class IdeaDetailsViewModel @Inject constructor(
         ideaPostUiState = ideaPostUiState.copy(ideaPost = post)
     }
 
-    private fun updateIsSendingMessageStateLoading(isLoading: Boolean) {
-        sendingMessageUiState = sendingMessageUiState.copy(isLoading = isLoading)
+    private fun updatePublishCommentIsLoading(isLoading: Boolean) {
+        sendMessageUiState = sendMessageUiState.copy(isLoading = isLoading)
     }
 
-    private fun updateIsErrorWhileSendingComment(isErrorWhileSending: Boolean) {
-        sendingMessageUiState = sendingMessageUiState.copy(
-            isErrorWhileSending = isErrorWhileSending
-        )
+    private fun updateCommentIsPublished(isPublished: Boolean) {
+        sendMessageUiState = sendMessageUiState.copy(isPublished = isPublished)
     }
 
-    private fun updateIsCommentPublished(isPublished: Boolean) {
-        sendingMessageUiState = sendingMessageUiState.copy(isPublished = isPublished)
+    private fun updatePublishCommentIsError(isError: Boolean) {
+        sendMessageUiState = sendMessageUiState.copy(isError = isError)
     }
 
     fun updatePostLike() {
@@ -197,7 +199,6 @@ class IdeaDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val updatedComment = comment.updateLike()
             commentsUiState.updateComment(updatedComment)
-            val postId = ideaPostUiState.ideaPost!!.id
             if (updatedComment.isLikePressed) {
                 commentsRepository.pressLike(postId, updatedComment.id)
             } else {
@@ -210,7 +211,6 @@ class IdeaDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val updatedComment = comment.updateDislike()
             commentsUiState.updateComment(updatedComment)
-            val postId = ideaPostUiState.ideaPost!!.id
             if (updatedComment.isDislikePressed) {
                 commentsRepository.pressDislike(postId, updatedComment.id)
             } else {
@@ -222,12 +222,12 @@ class IdeaDetailsViewModel @Inject constructor(
     fun sendComment() {
         if (isMessageValid()) {
             viewModelScope.launch {
-                updateIsSendingMessageStateLoading(true)
+                updatePublishCommentIsLoading(true)
                 uploadAttachedImage().also { result ->
                     if (result.isFailure) {
-                        updateIsErrorWhileSendingComment(true)
-                        updateIsCommentPublished(false)
-                        updateIsSendingMessageStateLoading(false)
+                        updatePublishCommentIsLoading(false)
+                        updateCommentIsPublished(false)
+                        updatePublishCommentIsError(true)
                         return@launch
                     }
 
@@ -238,32 +238,12 @@ class IdeaDetailsViewModel @Inject constructor(
         }
     }
 
-    fun deleteComment(comment: Comment) {
-        viewModelScope.launch {
-            commentDeletingUiState = CommentDeletingUiState()
-            updateCommentIsDeleting(true)
-            val postId = ideaPostUiState.ideaPost!!.id
-            commentsRepository.deleteComment(postId, comment.id).also { result ->
-                updateCommentIsDeleting(false)
-                updateCommentIsDeleted(result.isSuccess)
-            }
-        }
-    }
-
-    private fun updateCommentIsDeleting(isDeleting: Boolean) {
-        commentDeletingUiState = commentDeletingUiState?.copy(isDeleting = isDeleting)
-    }
-
-    private fun updateCommentIsDeleted(isDeleted: Boolean) {
-        commentDeletingUiState = commentDeletingUiState?.copy(isDeleted = isDeleted)
-    }
-
     private suspend fun uploadComment(attachedImageUrl: String?) {
-        val commentDto = sendingMessageUiState.toCommentDto(attachedImageUrl)
+        val commentDto = sendMessageUiState.toCommentDto(attachedImageUrl)
         processSendRequest(commentDto).also { result ->
-            updateIsSendingMessageStateLoading(false)
-            updateIsErrorWhileSendingComment(result.isFailure)
-            updateIsCommentPublished(result.isSuccess)
+            updatePublishCommentIsLoading(false)
+            updateCommentIsPublished(result.isSuccess)
+            updatePublishCommentIsError(result.isFailure)
             if (result.isSuccess) {
                 clearSendingUiState()
                 currentEditableComment = null
@@ -271,10 +251,41 @@ class IdeaDetailsViewModel @Inject constructor(
         }
     }
 
+    fun publishCommentResultShown() {
+        updatePublishCommentIsError(false)
+        updateCommentIsPublished(false)
+    }
+
+    fun deleteComment(comment: Comment) {
+        viewModelScope.launch {
+            updateDeleteCommentIsLoading(true)
+            commentsRepository.deleteComment(postId, comment.id).also { result ->
+                updateDeleteCommentIsLoading(false)
+                updateDeleteCommentIsSuccess(result.isSuccess)
+                updateDeleteCommentIsError(result.isFailure)
+            }
+        }
+    }
+
+    fun deleteCommentResultShown() {
+        updateDeleteCommentIsSuccess(false)
+        updateDeleteCommentIsError(false)
+    }
+
+    private fun updateDeleteCommentIsLoading(isLoading: Boolean) {
+        deleteCommentUiState = deleteCommentUiState.copy(isLoading = isLoading)
+    }
+
+    private fun updateDeleteCommentIsSuccess(isSuccess: Boolean) {
+        deleteCommentUiState = deleteCommentUiState.copy(isSuccess = isSuccess)
+    }
+
+    private fun updateDeleteCommentIsError(isError: Boolean) {
+        deleteCommentUiState = deleteCommentUiState.copy(isError = isError)
+    }
+
     private suspend fun processSendRequest(commentDto: CommentDto): Result<Unit> {
-        val ideaPostUiState = ideaPostUiState
         val currentEditableComment = currentEditableComment
-        val postId = ideaPostUiState.ideaPost!!.id
         return if (currentEditableComment != null) {
             val commentId = currentEditableComment.id
             commentsRepository.editComment(postId, commentId, commentDto)
@@ -283,15 +294,21 @@ class IdeaDetailsViewModel @Inject constructor(
         }
     }
 
-    fun loadPostById(postId: Long) {
+    fun loadData() {
+        loadCurrentUser()
+        loadPost()
+        loadComments()
+    }
+
+    private fun loadPost() {
         viewModelScope.launch {
             updateIsPostLoading(true)
-            refreshPostById(postId)
+            refreshPost()
             updateIsPostLoading(false)
         }
     }
 
-    fun loadCommentsByPostId(postId: Long) {
+    private fun loadComments() {
         viewModelScope.launch {
             commentsPagingRepository.commentsByPostId(
                 postId = postId,
@@ -305,7 +322,7 @@ class IdeaDetailsViewModel @Inject constructor(
         }
     }
 
-    fun loadCurrentUser() {
+    private fun loadCurrentUser() {
         viewModelScope.launch {
             updateIsCurrentUserLoading(true)
             refreshCurrentUser()
@@ -337,7 +354,7 @@ class IdeaDetailsViewModel @Inject constructor(
         currentUserUiState = currentUserUiState.copy(user = user)
     }
 
-    suspend fun refreshPostById(postId: Long) {
+    suspend fun refreshPost() {
         postsRepository.findPostById(postId).also { result ->
             when {
                 result.isSuccess -> {
@@ -360,10 +377,10 @@ class IdeaDetailsViewModel @Inject constructor(
     }
 
     private suspend fun uploadAttachedImage(): Result<String?> {
-        if (sendingMessageUiState.attachedImages.isEmpty()) {
+        if (sendMessageUiState.attachedImages.isEmpty()) {
             return Result.success(null)
         }
-        val imageToUpload = sendingMessageUiState.attachedImages[0]
+        val imageToUpload = sendMessageUiState.attachedImages[0]
         if (imageToUpload.image is Uri) {
             val uploadResult = imagesRepository.uploadImage(imageToUpload.image)
             if (uploadResult.isFailure) {
@@ -377,23 +394,28 @@ class IdeaDetailsViewModel @Inject constructor(
         return Result.success(null)
     }
 
-    private fun isMessageValid() = sendingMessageUiState.message.isNotBlank()
+    private fun isMessageValid() = sendMessageUiState.message.isNotBlank()
 
     private fun nextAttachedImagesId(): Int {
-        val attachedImages = sendingMessageUiState.attachedImages
+        val attachedImages = sendMessageUiState.attachedImages
         return if (attachedImages.isEmpty()) 0
         else attachedImages.maxOf { it.id } + 1
     }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(postId: Long): IdeaDetailsViewModel
+    }
 }
 
-fun SendingMessageUiState.toCommentDto(uploadedImageUrl: String?) =
+fun SendMessageUiState.toCommentDto(uploadedImageUrl: String?) =
     CommentDto(
         content = message,
         attachedImage = uploadedImageUrl
     )
 
 fun Comment.toSendingMessageUiState() =
-    SendingMessageUiState(
+    SendMessageUiState(
         message = content,
         attachedImages = if (attachedImage == null) emptyList()
         else listOf(attachedImagesToUiState()),

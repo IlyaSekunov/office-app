@@ -46,17 +46,17 @@ import ru.ilyasekunov.officeapp.ui.modifiers.border
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
 @Immutable
-data class SendingMessageUiState(
+data class SendMessageUiState(
     val message: String = "",
     val attachedImages: List<AttachedImage> = emptyList(),
     val isLoading: Boolean = false,
-    val isErrorWhileSending: Boolean = false,
-    val isPublished: Boolean = false
+    val isPublished: Boolean = false,
+    val isError: Boolean = false
 )
 
 @Composable
-fun SendingMessageBottomBar(
-    sendingMessageUiState: SendingMessageUiState,
+fun SendMessageBottomBar(
+    sendMessageUiState: SendMessageUiState,
     onMessageValueChange: (String) -> Unit,
     onSendClick: () -> Unit,
     onImageRemoveClick: (attachedImage: AttachedImage) -> Unit,
@@ -69,17 +69,17 @@ fun SendingMessageBottomBar(
             .fillMaxWidth()
             .background(containerColor)
     ) {
-        if (sendingMessageUiState.attachedImages.isNotEmpty()) {
+        if (sendMessageUiState.attachedImages.isNotEmpty()) {
             SendingMessageAttachedImagesSection(
-                attachedImages = sendingMessageUiState.attachedImages,
+                attachedImages = sendMessageUiState.attachedImages,
                 onImageRemoveClick = onImageRemoveClick,
                 imagesArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.fillMaxWidth()
             )
         }
         CommentSection(
-            message = sendingMessageUiState.message,
-            attachedImagesCount = sendingMessageUiState.attachedImages.size,
+            message = sendMessageUiState.message,
+            attachedImagesCount = sendMessageUiState.attachedImages.size,
             onMessageValueChange = onMessageValueChange,
             onSendClick = onSendClick,
             onAttachImageClick = onImageAttach,
@@ -233,11 +233,11 @@ private fun SendingMessageAttachedImagesSection(
 
 @Preview
 @Composable
-private fun SendingMessageBottomBarPreview() {
+private fun SendMessageBottomBarPreview() {
     OfficeAppTheme {
         Surface {
-            SendingMessageBottomBar(
-                sendingMessageUiState = SendingMessageUiState(),
+            SendMessageBottomBar(
+                sendMessageUiState = SendMessageUiState(),
                 onMessageValueChange = {},
                 onSendClick = {},
                 onImageRemoveClick = {},
