@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,6 +45,7 @@ import ru.ilyasekunov.officeapp.ui.modifiers.BorderSide
 import ru.ilyasekunov.officeapp.ui.modifiers.border
 import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 
+@Immutable
 data class SendingMessageUiState(
     val message: String = "",
     val attachedImages: List<AttachedImage> = emptyList(),

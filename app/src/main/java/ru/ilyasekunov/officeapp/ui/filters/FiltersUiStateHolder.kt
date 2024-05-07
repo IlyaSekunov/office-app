@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.filters
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,6 +12,7 @@ import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import ru.ilyasekunov.officeapp.ui.home.SortingFiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.toFiltersUiState
 
+@Immutable
 data class FiltersUiState(
     val sortingFiltersUiState: SortingFiltersUiState = SortingFiltersUiState(),
     val officeFiltersUiState: List<OfficeFilterUiState> = emptyList(),

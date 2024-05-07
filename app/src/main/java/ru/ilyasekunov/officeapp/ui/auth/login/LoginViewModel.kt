@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.auth.login
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,6 +19,7 @@ import ru.ilyasekunov.officeapp.validation.validateEmail
 import ru.ilyasekunov.officeapp.validation.validatePassword
 import javax.inject.Inject
 
+@Immutable
 data class LoginUiState(
     val emailUiState: EmailUiState = EmailUiState(),
     val passwordUiState: PasswordUiState = PasswordUiState(),
@@ -27,11 +29,13 @@ data class LoginUiState(
     val isNetworkError: Boolean = false
 )
 
+@Immutable
 data class EmailUiState(
     val email: String = "",
     val error: EmailValidationError? = null
 )
 
+@Immutable
 data class PasswordUiState(
     val password: String = "",
     val error: PasswordValidationError? = null

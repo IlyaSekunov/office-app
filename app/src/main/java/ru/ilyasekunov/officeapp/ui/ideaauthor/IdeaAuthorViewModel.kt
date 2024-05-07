@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.ideaauthor
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -23,6 +24,7 @@ import ru.ilyasekunov.officeapp.ui.updateDislike
 import ru.ilyasekunov.officeapp.ui.updateLike
 import javax.inject.Inject
 
+@Immutable
 data class IdeaAuthorUiState(
     val name: String = "",
     val surname: String = "",

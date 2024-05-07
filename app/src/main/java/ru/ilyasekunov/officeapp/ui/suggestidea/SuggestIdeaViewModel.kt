@@ -1,6 +1,7 @@
 package ru.ilyasekunov.officeapp.ui.suggestidea
 
 import android.net.Uri
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,6 +16,7 @@ import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
 import javax.inject.Inject
 
+@Immutable
 data class SuggestIdeaUiState(
     val title: String = "",
     val content: String = "",

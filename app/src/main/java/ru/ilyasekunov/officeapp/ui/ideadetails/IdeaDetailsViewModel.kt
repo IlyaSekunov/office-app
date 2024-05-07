@@ -1,6 +1,7 @@
 package ru.ilyasekunov.officeapp.ui.ideadetails
 
 import android.net.Uri
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,7 +12,7 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -33,6 +34,7 @@ import ru.ilyasekunov.officeapp.ui.updateDislike
 import ru.ilyasekunov.officeapp.ui.updateLike
 import javax.inject.Inject
 
+@Immutable
 data class IdeaPostUiState(
     val ideaPost: IdeaPost? = null,
     val isLoading: Boolean = true,
@@ -41,9 +43,8 @@ data class IdeaPostUiState(
 )
 
 class CommentsUiState {
-    private var _comments: MutableStateFlow<PagingData<Comment>> =
-        MutableStateFlow(PagingData.empty())
-    val comments: StateFlow<PagingData<Comment>> get() = _comments
+    private var _comments = MutableStateFlow(PagingData.empty<Comment>())
+    val comments get() = _comments.asStateFlow()
     var currentSortingFilter by mutableStateOf(CommentsSortingFilters.NEW)
         private set
 
@@ -62,6 +63,7 @@ class CommentsUiState {
     }
 }
 
+@Immutable
 data class CommentDeletingUiState(
     val isDeleting: Boolean = false,
     val isDeleted: Boolean = false

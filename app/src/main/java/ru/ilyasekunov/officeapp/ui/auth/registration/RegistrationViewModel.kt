@@ -1,6 +1,7 @@
 package ru.ilyasekunov.officeapp.ui.auth.registration
 
 import android.net.Uri
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,6 +28,7 @@ import ru.ilyasekunov.officeapp.validation.validatePassword
 import ru.ilyasekunov.officeapp.validation.validateUserInfo
 import javax.inject.Inject
 
+@Immutable
 data class RegistrationUiState(
     val emailUiState: EmailUiState = EmailUiState(),
     val passwordUiState: PasswordUiState = PasswordUiState(),
@@ -44,12 +46,14 @@ data class RegistrationUiState(
                 !passwordsDiffer
 }
 
+@Immutable
 data class AvailableOfficesUiState(
     val availableOffices: List<Office> = emptyList(),
     val isLoading: Boolean = false,
     val isErrorWhileLoading: Boolean = true
 )
 
+@Immutable
 data class UserInfoRegistrationUiState(
     val name: UserInfoFieldUiState = UserInfoFieldUiState(),
     val surname: UserInfoFieldUiState = UserInfoFieldUiState(),
@@ -59,6 +63,7 @@ data class UserInfoRegistrationUiState(
     val isLoading: Boolean = false
 )
 
+@Immutable
 data class UserInfoFieldUiState(
     val value: String = "",
     val error: UserInfoValidationError? = null

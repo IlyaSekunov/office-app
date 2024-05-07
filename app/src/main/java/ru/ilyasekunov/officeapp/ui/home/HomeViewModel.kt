@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.home
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,16 +33,19 @@ import ru.ilyasekunov.officeapp.ui.updateDislike
 import ru.ilyasekunov.officeapp.ui.updateLike
 import javax.inject.Inject
 
+@Immutable
 data class OfficeFilterUiState(
     val office: Office,
     val isSelected: Boolean = false
 )
 
+@Immutable
 data class SortingFiltersUiState(
     val filters: List<SortingCategory> = emptyList(),
     val selected: SortingCategory? = null
 )
 
+@Immutable
 data class CurrentUserUiState(
     val user: User? = null,
     val isLoading: Boolean = false,
@@ -49,9 +53,8 @@ data class CurrentUserUiState(
     val isUnauthorized: Boolean = false
 )
 
-data class SearchUiState(
-    val value: String = ""
-)
+@Immutable
+data class SearchUiState(val value: String = "")
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(

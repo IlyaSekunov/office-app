@@ -1,5 +1,6 @@
 package ru.ilyasekunov.officeapp.ui.userprofile
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +14,7 @@ import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.ui.auth.registration.UserInfoFieldUiState
 import javax.inject.Inject
 
+@Immutable
 data class UserProfileUiState(
     val name: UserInfoFieldUiState = UserInfoFieldUiState(),
     val surname: UserInfoFieldUiState = UserInfoFieldUiState(),

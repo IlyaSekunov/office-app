@@ -11,7 +11,7 @@ import androidx.paging.filter
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 class OfficeEmployeesUiState(employees: PagingData<IdeaAuthor> = PagingData.empty()) {
     private val _employees = MutableStateFlow(employees)
-    val employees: StateFlow<PagingData<IdeaAuthor>> get() = _employees
+    val employees get() = _employees.asStateFlow()
 
     fun updateIdeas(employees: PagingData<IdeaAuthor>) {
         _employees.value = employees

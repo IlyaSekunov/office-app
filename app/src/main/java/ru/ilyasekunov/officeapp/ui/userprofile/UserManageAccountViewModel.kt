@@ -1,6 +1,7 @@
 package ru.ilyasekunov.officeapp.ui.userprofile
 
 import android.net.Uri
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,6 +20,7 @@ import ru.ilyasekunov.officeapp.validation.UserInfoValidationResult
 import ru.ilyasekunov.officeapp.validation.validateUserInfo
 import javax.inject.Inject
 
+@Immutable
 data class UserManageAccountUiState(
     val currentUserProfileUiState: UserProfileUiState = UserProfileUiState(),
     val mutableUserProfileUiState: UserProfileUiState = UserProfileUiState(),
@@ -34,6 +36,7 @@ data class UserManageAccountUiState(
                 availableOfficesUiState.isLoading
 }
 
+@Immutable
 data class AvailableOfficesUiState(
     val availableOffices: List<Office> = emptyList(),
     val isLoading: Boolean = false,
