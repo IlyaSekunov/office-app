@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import androidx.paging.filter
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -62,6 +61,13 @@ data class SuggestIdeaToMyOfficeUiState(
     val isSuccess: Boolean = false
 )
 
+@Immutable
+data class DeletePostUiState(
+    val isLoading: Boolean = false,
+    val isError: Boolean = false,
+    val isSuccess: Boolean = false
+)
+
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val postsRepository: PostsRepository,
@@ -80,6 +86,8 @@ class HomeViewModel @Inject constructor(
     var currentUserUiState by mutableStateOf(CurrentUserUiState())
         private set
     var suggestIdeaToMyOfficeUiState by mutableStateOf(SuggestIdeaToMyOfficeUiState())
+        private set
+    var deletePostUiState by mutableStateOf(DeletePostUiState())
         private set
 
     init {
@@ -118,12 +126,22 @@ class HomeViewModel @Inject constructor(
 
     fun deletePost(post: IdeaPost) {
         viewModelScope.launch {
+            deletePostUiState = deletePostUiState.copy(isLoading = true)
             postsRepository.deletePostById(post.id).also { result ->
-                if (result.isSuccess) {
-                    removePost(post)
-                }
+                deletePostUiState = deletePostUiState.copy(
+                    isLoading = false,
+                    isSuccess = result.isSuccess,
+                    isError = result.isFailure
+                )
             }
         }
+    }
+
+    fun deletePostResultShown() {
+        deletePostUiState = deletePostUiState.copy(
+            isError = false,
+            isSuccess = false
+        )
     }
 
     fun loadPosts() {
@@ -143,12 +161,6 @@ class HomeViewModel @Inject constructor(
             if (it.id == updatedPost.id) updatedPost
             else it
         }
-        postsUiState.updateIdeas(updatedPostsPagingData)
-    }
-
-    private fun removePost(post: IdeaPost) {
-        val postsPagingData = postsUiState.ideas.value
-        val updatedPostsPagingData = postsPagingData.filter { it.id != post.id }
         postsUiState.updateIdeas(updatedPostsPagingData)
     }
 

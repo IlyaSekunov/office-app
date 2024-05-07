@@ -120,10 +120,12 @@ fun HomeScreen(
     searchUiState: SearchUiState,
     filtersUiState: FiltersUiState,
     suggestIdeaToMyOfficeUiState: SuggestIdeaToMyOfficeUiState,
+    deletePostUiState: DeletePostUiState,
     onSearchValueChange: (String) -> Unit,
     onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
     onSortingFilterRemoveClick: () -> Unit,
     onDeletePostClick: (IdeaPost) -> Unit,
+    onDeletePostResultShown: () -> Unit,
     onPostLikeClick: (IdeaPost) -> Unit,
     onPostDislikeClick: (IdeaPost) -> Unit,
     onRetryInfoLoad: () -> Unit,
@@ -179,7 +181,8 @@ fun HomeScreen(
             isScreenLoading(
                 currentUserUiState,
                 filtersUiState,
-                suggestIdeaToMyOfficeUiState
+                suggestIdeaToMyOfficeUiState,
+                deletePostUiState
             ) -> AnimatedLoadingScreen()
 
             isErrorWhileLoading(currentUserUiState, filtersUiState) -> {
@@ -213,13 +216,94 @@ fun HomeScreen(
                     coroutineScope = coroutineScope,
                     onResultShown = onSuggestIdeaToMyOfficeResultShown
                 )
+                ObserveDeletePostUiState(
+                    deletePostUiState = deletePostUiState,
+                    snackbarHostState = snackbarHostState,
+                    coroutineScope = coroutineScope,
+                    onResultShown = onDeletePostResultShown,
+                    onDeleteSuccess = posts::refresh
+                )
             }
         }
     }
 }
 
 @Composable
-fun ObserveSuggestIdeaToMyOfficeState(
+private fun ObserveDeletePostUiState(
+    deletePostUiState: DeletePostUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onResultShown: () -> Unit,
+    onDeleteSuccess: () -> Unit
+) {
+    ObserveDeletePostIsSuccess(
+        deletePostUiState = deletePostUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
+        onSuccessShown = onResultShown,
+        onDeleteSuccess = onDeleteSuccess
+    )
+    ObserveDeletePostIsError(
+        deletePostUiState = deletePostUiState,
+        snackbarHostState = snackbarHostState,
+        coroutineScope = coroutineScope,
+        onErrorShown = onResultShown
+    )
+}
+
+@Composable
+private fun ObserveDeletePostIsSuccess(
+    deletePostUiState: DeletePostUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onSuccessShown: () -> Unit,
+    onDeleteSuccess: () -> Unit
+) {
+    val message = stringResource(R.string.delete_post_success)
+    val currentOnSuccessShown by rememberUpdatedState(onSuccessShown)
+    val currentOnDeleteSuccess by rememberUpdatedState(onDeleteSuccess)
+    LaunchedEffect(Unit) {
+        snapshotFlow { deletePostUiState }
+            .filter { it.isSuccess }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short
+                    )
+                    currentOnSuccessShown()
+                }
+                currentOnDeleteSuccess()
+            }
+    }
+}
+
+@Composable
+private fun ObserveDeletePostIsError(
+    deletePostUiState: DeletePostUiState,
+    snackbarHostState: SnackbarHostState,
+    coroutineScope: CoroutineScope,
+    onErrorShown: () -> Unit
+) {
+    val message = stringResource(R.string.delete_post_error)
+    val currentOnErrorShown by rememberUpdatedState(onErrorShown)
+    LaunchedEffect(Unit) {
+        snapshotFlow { deletePostUiState }
+            .filter { it.isError }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short
+                    )
+                    currentOnErrorShown()
+                }
+            }
+    }
+}
+
+@Composable
+private fun ObserveSuggestIdeaToMyOfficeState(
     suggestIdeaToMyOfficeUiState: SuggestIdeaToMyOfficeUiState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
@@ -307,7 +391,7 @@ private fun HomeScreenContent(
         onRefreshTrigger = onPullToRefresh,
         modifier = modifier
     ) { isRefreshing ->
-        val postDeletedMessage = stringResource(R.string.post_deleted)
+        val postDeletedMessage = stringResource(R.string.post_will_be_deleted_in_5_seconds)
         val undoLabel = stringResource(R.string.undo)
         HomeScreenIdeaPosts(
             posts = posts,
@@ -1093,9 +1177,12 @@ fun sortingCategoryName(sortingCategory: SortingCategory) =
 private fun isScreenLoading(
     currentUserUiState: CurrentUserUiState,
     filtersUiState: FiltersUiState,
-    suggestIdeaToMyOfficeUiState: SuggestIdeaToMyOfficeUiState
-) =
-    currentUserUiState.isLoading || filtersUiState.isLoading || suggestIdeaToMyOfficeUiState.isLoading
+    suggestIdeaToMyOfficeUiState: SuggestIdeaToMyOfficeUiState,
+    deletePostUiState: DeletePostUiState
+) = currentUserUiState.isLoading ||
+        filtersUiState.isLoading ||
+        suggestIdeaToMyOfficeUiState.isLoading ||
+        deletePostUiState.isLoading
 
 private fun isErrorWhileLoading(
     currentUserUiState: CurrentUserUiState,

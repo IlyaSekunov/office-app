@@ -31,9 +31,11 @@ fun NavGraphBuilder.homeScreen(
             onSearchValueChange = viewModel::updateSearchValue,
             filtersUiState = viewModel.filtersUiStateHolder.filtersUiState,
             suggestIdeaToMyOfficeUiState = viewModel.suggestIdeaToMyOfficeUiState,
+            deletePostUiState = viewModel.deletePostUiState,
             onOfficeFilterRemoveClick = viewModel.filtersUiStateHolder::removeOfficeFilter,
             onSortingFilterRemoveClick = viewModel.filtersUiStateHolder::removeSortingFilter,
             onDeletePostClick = viewModel::deletePost,
+            onDeletePostResultShown = viewModel::deletePostResultShown,
             onPostLikeClick = viewModel::updateLike,
             onPostDislikeClick = viewModel::updateDislike,
             onRetryInfoLoad = {

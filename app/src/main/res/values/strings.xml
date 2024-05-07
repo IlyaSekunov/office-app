@@ -93,4 +93,7 @@
     <string name="comment_published_successfully">Комментарий успешно опубликован</string>
     <string name="comment_delete_success">Комментарий удален успешно</string>
     <string name="comment_delete_failure">Ошибка при удалении комментария</string>
+    <string name="post_will_be_deleted_in_5_seconds">Пост будет удален через 5 секунд</string>
+    <string name="delete_post_success">Пост удален успешно</string>
+    <string name="delete_post_error">Произошла ошибка при удалении поста</string>
 </resources>
