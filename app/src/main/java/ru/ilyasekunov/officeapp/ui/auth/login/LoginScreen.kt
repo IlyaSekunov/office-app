@@ -28,12 +28,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.components.EmailTextField
@@ -50,6 +53,8 @@ fun LoginScreen(
     onEmailValueChange: (String) -> Unit,
     onPasswordValueChange: (String) -> Unit,
     onLoginButtonClick: () -> Unit,
+    onCredentialsInvalidShown: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateToRegistrationMainScreen: () -> Unit,
     navigateToHomeScreen: () -> Unit
 ) {
@@ -60,6 +65,8 @@ fun LoginScreen(
             onEmailValueChange = onEmailValueChange,
             onPasswordValueChange = onPasswordValueChange,
             onLoginButtonClick = onLoginButtonClick,
+            onCredentialsInvalidShown = onCredentialsInvalidShown,
+            onNetworkErrorShown = onNetworkErrorShown,
             navigateToRegistrationMainScreen = navigateToRegistrationMainScreen,
             navigateToHomeScreen = navigateToHomeScreen,
             modifier = Modifier.fillMaxSize()
@@ -73,6 +80,8 @@ private fun LoginScreenContent(
     onEmailValueChange: (String) -> Unit,
     onPasswordValueChange: (String) -> Unit,
     onLoginButtonClick: () -> Unit,
+    onCredentialsInvalidShown: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateToRegistrationMainScreen: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     modifier: Modifier = Modifier
@@ -127,6 +136,8 @@ private fun LoginScreenContent(
         loginUiState = loginUiState,
         snackbarHostState = snackbarHostState,
         onLoginButtonClick = onLoginButtonClick,
+        onCredentialsInvalidShown = onCredentialsInvalidShown,
+        onNetworkErrorShown = onNetworkErrorShown,
         navigateToHomeScreen = navigateToHomeScreen
     )
 }
@@ -219,20 +230,24 @@ private fun ObserveLoginStateChanges(
     loginUiState: LoginUiState,
     snackbarHostState: SnackbarHostState,
     onLoginButtonClick: () -> Unit,
+    onCredentialsInvalidShown: () -> Unit,
+    onNetworkErrorShown: () -> Unit,
     navigateToHomeScreen: () -> Unit
 ) {
     ObserveIsLoggedIn(
         loginUiState = loginUiState,
         navigateToHomeScreen = navigateToHomeScreen
     )
-    ObserveCredentialsValid(
+    ObserveCredentialsInvalid(
         loginUiState = loginUiState,
-        snackbarHostState = snackbarHostState
+        snackbarHostState = snackbarHostState,
+        onCredentialsInvalidShown = onCredentialsInvalidShown
     )
     ObserveIsNetworkError(
         loginUiState = loginUiState,
         snackbarHostState = snackbarHostState,
-        onRetryClick = onLoginButtonClick
+        onRetryClick = onLoginButtonClick,
+        onNetworkErrorShown = onNetworkErrorShown
     )
 }
 
@@ -250,18 +265,23 @@ private fun ObserveIsLoggedIn(
 }
 
 @Composable
-private fun ObserveCredentialsValid(
+private fun ObserveCredentialsInvalid(
     loginUiState: LoginUiState,
-    snackbarHostState: SnackbarHostState
+    snackbarHostState: SnackbarHostState,
+    onCredentialsInvalidShown: () -> Unit
 ) {
     val loginErrorMessage = stringResource(R.string.incorrect_login_or_password)
-    LaunchedEffect(loginUiState) {
-        if (loginUiState.credentialsInvalid) {
-            snackbarHostState.showSnackbar(
-                message = loginErrorMessage,
-                withDismissAction = true
-            )
-        }
+    val currentOnCredentialsInvalidShown by rememberUpdatedState(onCredentialsInvalidShown)
+    LaunchedEffect(Unit) {
+        snapshotFlow { loginUiState }
+            .filter { it.credentialsInvalid }
+            .collectLatest {
+                snackbarHostState.showSnackbar(
+                    message = loginErrorMessage,
+                    withDismissAction = true
+                )
+                currentOnCredentialsInvalidShown()
+            }
     }
 }
 
@@ -269,19 +289,23 @@ private fun ObserveCredentialsValid(
 private fun ObserveIsNetworkError(
     loginUiState: LoginUiState,
     snackbarHostState: SnackbarHostState,
-    onRetryClick: () -> Unit
+    onRetryClick: () -> Unit,
+    onNetworkErrorShown: () -> Unit
 ) {
     val errorMessage = stringResource(R.string.error_connecting_to_server)
     val retryLabel = stringResource(R.string.retry)
-    LaunchedEffect(loginUiState) {
-        if (loginUiState.isNetworkError) {
-            snackbarHostState.snackbarWithAction(
-                message = errorMessage,
-                actionLabel = retryLabel,
-                onActionClick = onRetryClick,
-                duration = SnackbarDuration.Long
-            )
-        }
+    LaunchedEffect(Unit) {
+        snapshotFlow { loginUiState }
+            .filter { it.isNetworkError }
+            .collectLatest {
+                snackbarHostState.snackbarWithAction(
+                    message = errorMessage,
+                    actionLabel = retryLabel,
+                    onActionClick = onRetryClick,
+                    duration = SnackbarDuration.Short
+                )
+                onNetworkErrorShown()
+            }
     }
 }
 
@@ -312,6 +336,8 @@ private fun LoginScreenPreview() {
                 onEmailValueChange = {},
                 onPasswordValueChange = {},
                 onLoginButtonClick = {},
+                onCredentialsInvalidShown = {},
+                onNetworkErrorShown = {},
                 navigateToRegistrationMainScreen = {},
                 navigateToHomeScreen = {}
             )

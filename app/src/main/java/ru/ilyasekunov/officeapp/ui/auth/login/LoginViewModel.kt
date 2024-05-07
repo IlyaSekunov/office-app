@@ -60,6 +60,14 @@ class LoginViewModel @Inject constructor(
         )
     }
 
+    fun invalidCredentialsShown() {
+        loginUiState = loginUiState.copy(credentialsInvalid = false)
+    }
+
+    fun networkErrorShown() {
+        loginUiState = loginUiState.copy(isNetworkError = false)
+    }
+
     private fun updateEmailValidationError(error: EmailValidationError?) {
         loginUiState = loginUiState.copy(
             emailUiState = loginUiState.emailUiState.copy(error = error)
@@ -75,22 +83,35 @@ class LoginViewModel @Inject constructor(
     fun login() {
         viewModelScope.launch {
             if (credentialsValid()) {
-                updateIsLoading(true)
+                loginUiState = loginUiState.copy(isLoading = true)
+
                 authRepository.login(loginUiState.toLoginForm()).also { result ->
-                    updateIsLoading(false)
-                    updateIsLoggedIn(result.isSuccess)
+                    loginUiState = loginUiState.copy(
+                        isLoading = false,
+                        isLoggedIn = result.isSuccess
+                    )
+
                     when {
                         result.isSuccess -> {
-                            updateCredentialsInvalid(false)
-                            updateIsNetworkError(false)
+                            loginUiState = loginUiState.copy(
+                                credentialsInvalid = false,
+                                isNetworkError = false
+                            )
                         }
 
                         result.exceptionOrNull()!! is IncorrectCredentialsException -> {
-                            updateCredentialsInvalid(true)
-                            updateIsNetworkError(false)
+                            loginUiState = loginUiState.copy(
+                                credentialsInvalid = true,
+                                isNetworkError = false
+                            )
                         }
 
-                        else -> updateIsNetworkError(true)
+                        else -> {
+                            loginUiState = loginUiState.copy(
+                                isNetworkError = true,
+                                credentialsInvalid = false
+                            )
+                        }
                     }
                 }
             }
@@ -123,22 +144,6 @@ class LoginViewModel @Inject constructor(
             updatePasswordValidationError(null)
             true
         }
-    }
-
-    private fun updateIsLoading(isLoading: Boolean) {
-        loginUiState = loginUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsLoggedIn(isLoggedIn: Boolean) {
-        loginUiState = loginUiState.copy(isLoggedIn = isLoggedIn)
-    }
-
-    private fun updateCredentialsInvalid(credentialsInvalid: Boolean) {
-        loginUiState = loginUiState.copy(credentialsInvalid = credentialsInvalid)
-    }
-
-    private fun updateIsNetworkError(isNetworkError: Boolean) {
-        loginUiState = loginUiState.copy(isNetworkError = isNetworkError)
     }
 }
 

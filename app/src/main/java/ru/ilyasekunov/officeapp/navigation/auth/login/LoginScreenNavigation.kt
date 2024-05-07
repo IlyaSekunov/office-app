@@ -19,9 +19,11 @@ fun NavGraphBuilder.loginScreen(
             loginUiState = loginViewModel.loginUiState,
             onEmailValueChange = loginViewModel::updateEmail,
             onPasswordValueChange = loginViewModel::updatePassword,
+            onLoginButtonClick = loginViewModel::login,
+            onCredentialsInvalidShown = loginViewModel::invalidCredentialsShown,
+            onNetworkErrorShown = loginViewModel::networkErrorShown,
             navigateToRegistrationMainScreen = navigateToRegistration,
-            navigateToHomeScreen = navigateToMainGraph,
-            onLoginButtonClick = loginViewModel::login
+            navigateToHomeScreen = navigateToMainGraph
         )
     }
 }
