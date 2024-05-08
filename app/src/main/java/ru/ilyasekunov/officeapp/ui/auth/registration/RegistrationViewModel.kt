@@ -152,10 +152,14 @@ class RegistrationViewModel @Inject constructor(
     fun register() {
         viewModelScope.launch {
             if (registrationUiState.credentialsValid && userInfoValid()) {
-                updateIsLoading(true)
+                registrationUiState = registrationUiState.copy(isLoading = true)
                 val photoUrlResult = uploadUserPhoto()
                 if (photoUrlResult.isFailure) {
-                    updateIsLoading(false)
+                    registrationUiState = registrationUiState.copy(
+                        isLoading = false,
+                        isNetworkError = false,
+                        isRegistrationSuccess = false
+                    )
                     return@launch
                 }
 
@@ -168,28 +172,16 @@ class RegistrationViewModel @Inject constructor(
     private suspend fun register(photoUrl: String?) {
         val registrationForm = registrationUiState.toRegistrationForm(photoUrl)
         authRepository.register(registrationForm).also { result ->
-            updateIsLoading(false)
-            updateIsNetworkError(result.isFailure)
-            updateIsRegistrationSuccess(result.isSuccess)
+            registrationUiState = registrationUiState.copy(
+                isLoading = false,
+                isNetworkError = result.isFailure,
+                isRegistrationSuccess = result.isSuccess
+            )
         }
     }
 
     private fun updateAvailableOffices(availableOffices: List<Office>) {
         availableOfficesUiState = availableOfficesUiState.copy(availableOffices = availableOffices)
-    }
-
-    private fun updateIsLoading(isLoading: Boolean) {
-        registrationUiState = registrationUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateAvailableOfficesIsLoading(isLoading: Boolean) {
-        availableOfficesUiState = availableOfficesUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsRegistrationSuccess(isRegistrationSuccess: Boolean) {
-        registrationUiState = registrationUiState.copy(
-            isRegistrationSuccess = isRegistrationSuccess
-        )
     }
 
     private fun updateIsNetworkError(isNetworkError: Boolean) {
@@ -247,18 +239,14 @@ class RegistrationViewModel @Inject constructor(
         registrationUiState = registrationUiState.copy(passwordsDiffer = passwordsDiffer)
     }
 
-    private fun updateAvailableOfficeIsError(isErrorWhileLoading: Boolean) {
-        availableOfficesUiState = availableOfficesUiState.copy(
-            isErrorWhileLoading = isErrorWhileLoading
-        )
-    }
-
     fun loadAvailableOffices() {
         viewModelScope.launch {
-            updateAvailableOfficesIsLoading(true)
+            availableOfficesUiState = availableOfficesUiState.copy(isLoading = true)
             officeRepository.availableOffices().also { result ->
-                updateAvailableOfficesIsLoading(false)
-                updateAvailableOfficeIsError(result.isFailure)
+                availableOfficesUiState = availableOfficesUiState.copy(
+                    isLoading = false,
+                    isErrorWhileLoading = result.isFailure
+                )
                 if (result.isSuccess) {
                     val availableOffices = result.getOrThrow()
                     updateAvailableOffices(availableOffices)
@@ -269,7 +257,7 @@ class RegistrationViewModel @Inject constructor(
     }
 
     suspend fun validateCredentials() {
-        updateIsLoading(true)
+        registrationUiState = registrationUiState.copy(isLoading = true)
         validateEmailPattern()
         validatePasswordPattern()
         validateRepeatedPasswordPattern()
@@ -279,7 +267,7 @@ class RegistrationViewModel @Inject constructor(
         if (registrationUiState.credentialsValid) {
             checkEmailAvailability()
         }
-        updateIsLoading(false)
+        registrationUiState = registrationUiState.copy(isLoading = false)
     }
 
     private fun validateEmailPattern() {
@@ -375,7 +363,6 @@ class RegistrationViewModel @Inject constructor(
         val pickedPhotoUri = registrationUiState.userInfoRegistrationUiState.photo
         return pickedPhotoUri?.let {
             val photoUrlResult = imagesRepository.uploadImage(it)
-            updateIsNetworkError(photoUrlResult.isFailure)
             if (photoUrlResult.isSuccess) {
                 val photoUrl = photoUrlResult.getOrThrow()
                 Result.success(photoUrl)
