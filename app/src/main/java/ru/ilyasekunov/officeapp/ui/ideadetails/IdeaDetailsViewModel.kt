@@ -377,7 +377,7 @@ fun Comment.toSendingMessageUiState() =
     SendMessageUiState(
         message = content,
         attachedImages = if (attachedImage == null) emptyList()
-        else listOf(attachedImagesToUiState()),
+        else listOf(attachedImagesToUiState())
     )
 
 private fun Comment.attachedImagesToUiState() =
