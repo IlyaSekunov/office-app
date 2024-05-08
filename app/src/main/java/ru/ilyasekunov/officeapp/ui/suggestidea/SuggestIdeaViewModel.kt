@@ -78,12 +78,14 @@ class SuggestIdeaViewModel @Inject constructor(
 
     fun publishPost() {
         viewModelScope.launch {
-            updateIsLoading(true)
+            suggestIdeaUiState = suggestIdeaUiState.copy(isLoading = true)
             val uploadedImagesResult = uploadImagesFromUris()
             if (uploadedImagesResult.isFailure) {
-                updateIsPublished(false)
-                updateIsNetworkError(true)
-                updateIsLoading(false)
+                suggestIdeaUiState = suggestIdeaUiState.copy(
+                    isPublished = false,
+                    isLoading = false,
+                    isNetworkError = true
+                )
                 return@launch
             }
 
@@ -95,9 +97,11 @@ class SuggestIdeaViewModel @Inject constructor(
     private suspend fun publishPost(uploadedImagesUrls: List<String>) {
         val publishPostDto = suggestIdeaUiState.toPublishPostDto(uploadedImagesUrls)
         postsRepository.publishPost(publishPostDto).also { result ->
-            updateIsLoading(false)
-            updateIsNetworkError(result.isFailure)
-            updateIsPublished(result.isSuccess)
+            suggestIdeaUiState = suggestIdeaUiState.copy(
+                isLoading = false,
+                isNetworkError = result.isFailure,
+                isPublished = result.isSuccess
+            )
         }
     }
 
@@ -112,18 +116,6 @@ class SuggestIdeaViewModel @Inject constructor(
             }
         }
         return Result.success(imagesUrls)
-    }
-
-    private fun updateIsLoading(isLoading: Boolean) {
-        suggestIdeaUiState = suggestIdeaUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsPublished(isPublished: Boolean) {
-        suggestIdeaUiState = suggestIdeaUiState.copy(isPublished = isPublished)
-    }
-
-    private fun updateIsNetworkError(isNetworkError: Boolean) {
-        suggestIdeaUiState = suggestIdeaUiState.copy(isNetworkError = isNetworkError)
     }
 
     private fun attachedImagesCount() = suggestIdeaUiState.attachedImages.size
