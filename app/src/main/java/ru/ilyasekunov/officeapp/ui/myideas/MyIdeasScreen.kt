@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -236,7 +238,8 @@ private fun MyIdeaActionsBottomSheet(
             bottomEnd = CornerSize(0.dp),
             bottomStart = CornerSize(0.dp)
         ),
-        scrimColor = MaterialTheme.colorScheme.background.copy(alpha = 0.5f),
+        tonalElevation = 0.dp,
+        windowInsets = WindowInsets(0.dp),
         modifier = modifier
     ) {
         MyIdeaAction(
@@ -249,7 +252,9 @@ private fun MyIdeaActionsBottomSheet(
             icon = R.drawable.outline_delete_24,
             text = stringResource(R.string.delete),
             onClick = onDeleteClick,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
         )
     }
 }
@@ -266,7 +271,7 @@ private fun MyIdeaAction(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .clickable(onClick = onClick)
-            .padding(20.dp)
+            .padding(14.dp)
     ) {
         Icon(
             painter = painterResource(icon),
