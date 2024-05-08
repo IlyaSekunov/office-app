@@ -174,24 +174,12 @@ class HomeViewModel @Inject constructor(
 
     suspend fun refreshCurrentUser() {
         authRepository.userInfo().also { result ->
-            when {
-                result.isSuccess -> {
-                    val user = result.getOrThrow()
-                    currentUserUiState = currentUserUiState.copy(
-                        user = user,
-                        isErrorWhileLoading = false,
-                        isUnauthorized = false
-                    )
-                }
-
-                result.exceptionOrNull()!! is HttpForbiddenException -> {
-                    currentUserUiState = currentUserUiState.copy(isUnauthorized = true)
-                }
-
-                else -> {
-                    currentUserUiState = currentUserUiState.copy(isErrorWhileLoading = true)
-                }
-            }
+            val exception = result.exceptionOrNull()
+            currentUserUiState = currentUserUiState.copy(
+                user = result.getOrNull(),
+                isErrorWhileLoading = exception !is HttpForbiddenException,
+                isUnauthorized = exception is HttpForbiddenException
+            )
         }
     }
 
