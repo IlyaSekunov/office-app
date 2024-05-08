@@ -19,15 +19,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.R
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
+import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
 import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
@@ -46,7 +50,8 @@ fun EditIdeaScreen(
     onPublishClick: () -> Unit,
     onAttachImagesButtonClick: (List<Uri>) -> Unit,
     onRetryClick: () -> Unit,
-    onNetworkErrorShown: () -> Unit,
+    onRetryLoadPost: () -> Unit,
+    onErrorWhilePublishingShown: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -55,6 +60,13 @@ fun EditIdeaScreen(
 ) {
     when {
         editIdeaUiState.isLoading -> AnimatedLoadingScreen()
+        editIdeaUiState.isErrorWhileLoading -> {
+            ErrorScreen(
+                message = stringResource(R.string.error_connecting_to_server),
+                onRetryButtonClick = onRetryLoadPost
+            )
+        }
+
         else -> EditIdeaScreenContent(
             editIdeaUiState = editIdeaUiState,
             onTitleValueChange = onTitleValueChange,
@@ -63,7 +75,7 @@ fun EditIdeaScreen(
             onPublishClick = onPublishClick,
             onAttachImagesButtonClick = onAttachImagesButtonClick,
             onRetryClick = onRetryClick,
-            onNetworkErrorShown = onNetworkErrorShown,
+            onErrorWhilePublishingShown = onErrorWhilePublishingShown,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
@@ -83,7 +95,7 @@ private fun EditIdeaScreenContent(
     onPublishClick: () -> Unit,
     onAttachImagesButtonClick: (List<Uri>) -> Unit,
     onRetryClick: () -> Unit,
-    onNetworkErrorShown: () -> Unit,
+    onErrorWhilePublishingShown: () -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -157,7 +169,7 @@ private fun EditIdeaScreenContent(
         snackbarHostState = snackbarHostState,
         coroutineScope = LocalCoroutineScope.current,
         onRetryClick = onRetryClick,
-        onNetworkErrorShown = onNetworkErrorShown,
+        onErrorWhilePublishingShown = onErrorWhilePublishingShown,
         navigateBack = navigateBack
     )
 }
@@ -168,15 +180,15 @@ private fun ObserveStateChanges(
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     onRetryClick: () -> Unit,
-    onNetworkErrorShown: () -> Unit,
+    onErrorWhilePublishingShown: () -> Unit,
     navigateBack: () -> Unit
 ) {
-    ObserveNetworkError(
+    ObserveIsErrorWhilePublishing(
         editIdeaUiState = editIdeaUiState,
         snackbarHostState = snackbarHostState,
         coroutineScope = coroutineScope,
         onActionPerformedClick = onRetryClick,
-        onNetworkErrorShown = onNetworkErrorShown
+        onErrorShown = onErrorWhilePublishingShown
     )
     ObserveIsPublished(
         editIdeaUiState = editIdeaUiState,
@@ -187,29 +199,31 @@ private fun ObserveStateChanges(
 }
 
 @Composable
-private fun ObserveNetworkError(
+private fun ObserveIsErrorWhilePublishing(
     editIdeaUiState: EditIdeaUiState,
     snackbarHostState: SnackbarHostState,
     coroutineScope: CoroutineScope,
     onActionPerformedClick: () -> Unit,
-    onNetworkErrorShown: () -> Unit
+    onErrorShown: () -> Unit
 ) {
     val retryLabel = stringResource(R.string.retry)
     val serverErrorMessage = stringResource(R.string.error_connecting_to_server)
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
-    val currentOnNetworkErrorShown by rememberUpdatedState(onNetworkErrorShown)
-    LaunchedEffect(editIdeaUiState) {
-        if (editIdeaUiState.isNetworkError) {
-            coroutineScope.launch {
-                snackbarHostState.snackbarWithAction(
-                    message = serverErrorMessage,
-                    actionLabel = retryLabel,
-                    onActionClick = currentOnActionPerformedClick,
-                    duration = SnackbarDuration.Short
-                )
-                currentOnNetworkErrorShown()
+    val currentOnErrorShown by rememberUpdatedState(onErrorShown)
+    LaunchedEffect(Unit) {
+        snapshotFlow { editIdeaUiState }
+            .filter { it.isErrorWhilePublishing }
+            .collectLatest {
+                coroutineScope.launch {
+                    snackbarHostState.snackbarWithAction(
+                        message = serverErrorMessage,
+                        actionLabel = retryLabel,
+                        onActionClick = currentOnActionPerformedClick,
+                        duration = SnackbarDuration.Short
+                    )
+                    currentOnErrorShown()
+                }
             }
-        }
     }
 }
 

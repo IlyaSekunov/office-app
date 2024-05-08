@@ -27,7 +27,8 @@ data class EditIdeaUiState(
     val attachedImages: List<AttachedImage> = emptyList(),
     val isLoading: Boolean = false,
     val isPublished: Boolean = false,
-    val isNetworkError: Boolean = false
+    val isErrorWhilePublishing: Boolean = false,
+    val isErrorWhileLoading: Boolean = false
 )
 
 @HiltViewModel(assistedFactory = EditIdeaViewModel.Factory::class)
@@ -51,8 +52,8 @@ class EditIdeaViewModel @AssistedInject constructor(
         editIdeaUiState = editIdeaUiState.copy(content = content)
     }
 
-    fun networkErrorShown() {
-        updateIsNetworkError(false)
+    fun errorWhilePublishingShown() {
+        editIdeaUiState = editIdeaUiState.copy(isErrorWhilePublishing = false)
     }
 
     private fun attachImage(image: AttachedImage) {
@@ -85,15 +86,15 @@ class EditIdeaViewModel @AssistedInject constructor(
 
     fun loadPost() {
         viewModelScope.launch {
-            updateIsLoading(true)
+            editIdeaUiState = editIdeaUiState.copy(isLoading = true)
             postsRepository.findPostById(postId).also { result ->
-                updateIsLoading(false)
+                editIdeaUiState = editIdeaUiState.copy(
+                    isLoading = false,
+                    isErrorWhileLoading = result.isFailure
+                )
                 if (result.isSuccess) {
                     val ideaPost = result.getOrThrow()
                     editIdeaUiState = ideaPost.toEditIdeaUiState()
-                    updateIsNetworkError(false)
-                } else {
-                    updateIsNetworkError(true)
                 }
             }
         }
@@ -101,12 +102,14 @@ class EditIdeaViewModel @AssistedInject constructor(
 
     fun editPost() {
         viewModelScope.launch {
-            updateIsLoading(true)
+            editIdeaUiState = editIdeaUiState.copy(isLoading = true)
             uploadImagesFromUris().also { result ->
                 if (result.isFailure) {
-                    updateIsNetworkError(true)
-                    updateIsPublished(false)
-                    updateIsLoading(false)
+                    editIdeaUiState = editIdeaUiState.copy(
+                        isLoading = false,
+                        isPublished = false,
+                        isErrorWhilePublishing = true
+                    )
                     return@launch
                 }
 
@@ -119,9 +122,11 @@ class EditIdeaViewModel @AssistedInject constructor(
     private suspend fun editPost(uploadedImagesUrls: List<String>) {
         val editPostDto = editIdeaUiState.toEditPostDto(uploadedImagesUrls)
         postsRepository.editPostById(editIdeaUiState.postId, editPostDto).also { result ->
-            updateIsLoading(false)
-            updateIsNetworkError(result.isFailure)
-            updateIsPublished(result.isSuccess)
+            editIdeaUiState = editIdeaUiState.copy(
+                isLoading = false,
+                isErrorWhilePublishing = result.isFailure,
+                isPublished = result.isSuccess
+            )
         }
     }
 
@@ -139,18 +144,6 @@ class EditIdeaViewModel @AssistedInject constructor(
         }
         val oldAttachedImagesUrls = editIdeaUiState.attachedImages.oldAttachedImages()
         return Result.success(newAttachedImagesUrls + oldAttachedImagesUrls)
-    }
-
-    private fun updateIsLoading(isLoading: Boolean) {
-        editIdeaUiState = editIdeaUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsPublished(isPublished: Boolean) {
-        editIdeaUiState = editIdeaUiState.copy(isPublished = isPublished)
-    }
-
-    private fun updateIsNetworkError(isNetworkError: Boolean) {
-        editIdeaUiState = editIdeaUiState.copy(isNetworkError = isNetworkError)
     }
 
     private fun List<AttachedImage>.oldAttachedImages(): List<String> = asSequence()
