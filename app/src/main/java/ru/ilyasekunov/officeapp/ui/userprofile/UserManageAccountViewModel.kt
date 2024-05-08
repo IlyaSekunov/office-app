@@ -132,28 +132,12 @@ class UserManageAccountViewModel @Inject constructor(
         )
     }
 
-    private fun updateIsChangesSaving(isChangesSaving: Boolean) {
-        userManageAccountUiState = userManageAccountUiState.copy(
-            isChangesSaving = isChangesSaving
-        )
-    }
-
-    private fun updateIsChangesSavingError(isChangesSavingError: Boolean) {
-        userManageAccountUiState = userManageAccountUiState.copy(
-            isChangesSavingError = isChangesSavingError
-        )
-    }
-
     private fun updateAvailableOffices(availableOffices: List<Office>) {
         userManageAccountUiState = userManageAccountUiState.copy(
             availableOfficesUiState = userManageAccountUiState.availableOfficesUiState.copy(
                 availableOffices = availableOffices
             )
         )
-    }
-
-    private fun updateIsChangesSaved(isChangesSaved: Boolean) {
-        userManageAccountUiState = userManageAccountUiState.copy(isChangesSaved = isChangesSaved)
     }
 
     private fun updateCurrentUserProfileUiState(userProfileUiState: UserProfileUiState) {
@@ -206,22 +190,27 @@ class UserManageAccountViewModel @Inject constructor(
     fun save() {
         if (userInfoValid()) {
             viewModelScope.launch {
-                updateIsChangesSaving(true)
+                userManageAccountUiState = userManageAccountUiState.copy(isChangesSaving = true)
+
                 val userProfileUiState = userManageAccountUiState.mutableUserProfileUiState
                 val photoUrlResult = uploadUserPhoto()
                 if (photoUrlResult.isFailure) {
-                    updateIsChangesSavingError(true)
-                    updateIsChangesSaved(false)
-                    updateIsChangesSaving(false)
+                    userManageAccountUiState = userManageAccountUiState.copy(
+                        isChangesSavingError = true,
+                        isChangesSaved = false,
+                        isChangesSaving = false
+                    )
                     return@launch
                 }
 
                 val photoUrl = photoUrlResult.getOrThrow()
                 val userDto = userProfileUiState.toUserDto(photoUrl)
                 userRepository.saveChanges(userDto).also { result ->
-                    updateIsChangesSaving(false)
-                    updateIsChangesSavingError(result.isFailure)
-                    updateIsChangesSaved(result.isSuccess)
+                    userManageAccountUiState = userManageAccountUiState.copy(
+                        isChangesSaving = false,
+                        isChangesSavingError = result.isFailure,
+                        isChangesSaved = result.isSuccess
+                    )
                 }
             }
         }

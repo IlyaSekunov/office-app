@@ -39,40 +39,33 @@ class UserProfileViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-            updateIsLoading(true)
+            userProfileUiState = userProfileUiState.copy(isLoading = true)
             authRepository.logout()
-            userProfileUiState = userProfileUiState.copy(isLoggedOut = true)
-            updateIsLoading(false)
+            userProfileUiState = userProfileUiState.copy(
+                isLoggedOut = true,
+                isLoading = false
+            )
         }
     }
 
     fun loadUserProfile() {
         viewModelScope.launch {
-            updateIsLoading(true)
+            userProfileUiState = userProfileUiState.copy(isLoading = true)
             refreshUserProfile()
-            updateIsLoading(false)
+            userProfileUiState = userProfileUiState.copy(isLoading = false)
         }
     }
 
     suspend fun refreshUserProfile() {
-        val userResult = authRepository.userInfo()
-        if (userResult.isSuccess) {
-            val user = userResult.getOrThrow()
-            userProfileUiState = user.toUserProfileUiState()
-            updateIsErrorWhileUserLoading(false)
-        } else {
-            updateIsErrorWhileUserLoading(true)
+        authRepository.userInfo().also { result ->
+            userProfileUiState = userProfileUiState.copy(
+                isErrorWhileUserLoading = result.isFailure
+            )
+            if (result.isSuccess) {
+                val user = result.getOrThrow()
+                userProfileUiState = user.toUserProfileUiState()
+            }
         }
-    }
-
-    private fun updateIsLoading(isLoading: Boolean) {
-        userProfileUiState = userProfileUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsErrorWhileUserLoading(isErrorWhileUserLoading: Boolean) {
-        userProfileUiState = userProfileUiState.copy(
-            isErrorWhileUserLoading = isErrorWhileUserLoading
-        )
     }
 }
 
