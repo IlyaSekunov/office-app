@@ -23,7 +23,6 @@ import ru.ilyasekunov.officeapp.data.dto.CommentDto
 import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.data.model.CommentsSortingFilters
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
-import ru.ilyasekunov.officeapp.data.model.User
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.comments.CommentsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.comments.CommentsRepository
@@ -141,39 +140,11 @@ class IdeaDetailsViewModel @AssistedInject constructor(
         )
     }
 
-    private fun updateIsPostLoading(isLoading: Boolean) {
-        ideaPostUiState = ideaPostUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsErrorWhilePostsLoading(isErrorWhileLoading: Boolean) {
-        ideaPostUiState = ideaPostUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
-    }
-
-    private fun updatePostExists(postExists: Boolean) {
-        ideaPostUiState = ideaPostUiState.copy(postExists = postExists)
-    }
-
-    private fun updatePost(post: IdeaPost) {
-        ideaPostUiState = ideaPostUiState.copy(ideaPost = post)
-    }
-
-    private fun updatePublishCommentIsLoading(isLoading: Boolean) {
-        sendMessageUiState = sendMessageUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateCommentIsPublished(isPublished: Boolean) {
-        sendMessageUiState = sendMessageUiState.copy(isPublished = isPublished)
-    }
-
-    private fun updatePublishCommentIsError(isError: Boolean) {
-        sendMessageUiState = sendMessageUiState.copy(isError = isError)
-    }
-
     fun updatePostLike() {
         viewModelScope.launch {
             val post = ideaPostUiState.ideaPost!!
             val updatedPost = post.updateLike()
-            updatePost(updatedPost)
+            ideaPostUiState = ideaPostUiState.copy(ideaPost = updatedPost)
             if (updatedPost.isLikePressed) {
                 postsRepository.pressLike(post.id)
             } else {
@@ -186,7 +157,7 @@ class IdeaDetailsViewModel @AssistedInject constructor(
         viewModelScope.launch {
             val post = ideaPostUiState.ideaPost!!
             val updatedPost = post.updateDislike()
-            updatePost(updatedPost)
+            ideaPostUiState = ideaPostUiState.copy(ideaPost = updatedPost)
             if (updatedPost.isDislikePressed) {
                 postsRepository.pressDislike(post.id)
             } else {
@@ -222,12 +193,14 @@ class IdeaDetailsViewModel @AssistedInject constructor(
     fun sendComment() {
         if (isMessageValid()) {
             viewModelScope.launch {
-                updatePublishCommentIsLoading(true)
+                sendMessageUiState = sendMessageUiState.copy(isLoading = true)
                 uploadAttachedImage().also { result ->
                     if (result.isFailure) {
-                        updatePublishCommentIsLoading(false)
-                        updateCommentIsPublished(false)
-                        updatePublishCommentIsError(true)
+                        sendMessageUiState = sendMessageUiState.copy(
+                            isLoading = false,
+                            isPublished = false,
+                            isError = true
+                        )
                         return@launch
                     }
 
@@ -241,9 +214,11 @@ class IdeaDetailsViewModel @AssistedInject constructor(
     private suspend fun uploadComment(attachedImageUrl: String?) {
         val commentDto = sendMessageUiState.toCommentDto(attachedImageUrl)
         processSendRequest(commentDto).also { result ->
-            updatePublishCommentIsLoading(false)
-            updateCommentIsPublished(result.isSuccess)
-            updatePublishCommentIsError(result.isFailure)
+            sendMessageUiState = sendMessageUiState.copy(
+                isLoading = false,
+                isPublished = result.isSuccess,
+                isError = result.isFailure
+            )
             if (result.isSuccess) {
                 clearSendingUiState()
                 currentEditableComment = null
@@ -252,36 +227,30 @@ class IdeaDetailsViewModel @AssistedInject constructor(
     }
 
     fun publishCommentResultShown() {
-        updatePublishCommentIsError(false)
-        updateCommentIsPublished(false)
+        sendMessageUiState = sendMessageUiState.copy(
+            isError = false,
+            isPublished = false
+        )
     }
 
     fun deleteComment(comment: Comment) {
         viewModelScope.launch {
-            updateDeleteCommentIsLoading(true)
+            deleteCommentUiState = deleteCommentUiState.copy(isLoading = true)
             commentsRepository.deleteComment(postId, comment.id).also { result ->
-                updateDeleteCommentIsLoading(false)
-                updateDeleteCommentIsSuccess(result.isSuccess)
-                updateDeleteCommentIsError(result.isFailure)
+                deleteCommentUiState = deleteCommentUiState.copy(
+                    isLoading = false,
+                    isSuccess = result.isSuccess,
+                    isError = result.isFailure
+                )
             }
         }
     }
 
     fun deleteCommentResultShown() {
-        updateDeleteCommentIsSuccess(false)
-        updateDeleteCommentIsError(false)
-    }
-
-    private fun updateDeleteCommentIsLoading(isLoading: Boolean) {
-        deleteCommentUiState = deleteCommentUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateDeleteCommentIsSuccess(isSuccess: Boolean) {
-        deleteCommentUiState = deleteCommentUiState.copy(isSuccess = isSuccess)
-    }
-
-    private fun updateDeleteCommentIsError(isError: Boolean) {
-        deleteCommentUiState = deleteCommentUiState.copy(isError = isError)
+        deleteCommentUiState = deleteCommentUiState.copy(
+            isError = false,
+            isSuccess = false
+        )
     }
 
     private suspend fun processSendRequest(commentDto: CommentDto): Result<Unit> {
@@ -302,9 +271,9 @@ class IdeaDetailsViewModel @AssistedInject constructor(
 
     private fun loadPost() {
         viewModelScope.launch {
-            updateIsPostLoading(true)
+            ideaPostUiState = ideaPostUiState.copy(isLoading = true)
             refreshPost()
-            updateIsPostLoading(false)
+            ideaPostUiState = ideaPostUiState.copy(isLoading = false)
         }
     }
 
@@ -324,53 +293,43 @@ class IdeaDetailsViewModel @AssistedInject constructor(
 
     private fun loadCurrentUser() {
         viewModelScope.launch {
-            updateIsCurrentUserLoading(true)
+            currentUserUiState = currentUserUiState.copy(isLoading = true)
             refreshCurrentUser()
-            updateIsCurrentUserLoading(false)
+            currentUserUiState = currentUserUiState.copy(isLoading = false)
         }
-    }
-
-    private fun updateIsCurrentUserLoading(isLoading: Boolean) {
-        currentUserUiState = currentUserUiState.copy(isLoading = isLoading)
     }
 
     suspend fun refreshCurrentUser() {
         authRepository.userInfo().also { result ->
-            updateIsErrorWhileUserLoading(result.isFailure)
+            currentUserUiState = currentUserUiState.copy(isErrorWhileLoading = result.isFailure)
             if (result.isSuccess) {
                 val user = result.getOrThrow()
-                updateUser(user)
+                currentUserUiState = currentUserUiState.copy(user = user)
             }
         }
-    }
-
-    private fun updateIsErrorWhileUserLoading(isErrorWhileLoading: Boolean) {
-        currentUserUiState = currentUserUiState.copy(
-            isErrorWhileLoading = isErrorWhileLoading
-        )
-    }
-
-    private fun updateUser(user: User?) {
-        currentUserUiState = currentUserUiState.copy(user = user)
     }
 
     suspend fun refreshPost() {
         postsRepository.findPostById(postId).also { result ->
             when {
                 result.isSuccess -> {
-                    updateIsErrorWhilePostsLoading(false)
-                    updatePostExists(true)
                     val post = result.getOrThrow()
-                    updatePost(post)
+                    ideaPostUiState = ideaPostUiState.copy(
+                        ideaPost = post,
+                        isErrorWhileLoading = false,
+                        postExists = true
+                    )
                 }
 
                 result.exceptionOrNull()!! is HttpNotFoundException -> {
-                    updateIsErrorWhilePostsLoading(false)
-                    updatePostExists(false)
+                    ideaPostUiState = ideaPostUiState.copy(
+                        isErrorWhileLoading = false,
+                        postExists = false
+                    )
                 }
 
                 else -> {
-                    updateIsErrorWhilePostsLoading(true)
+                    ideaPostUiState = ideaPostUiState.copy(isErrorWhileLoading = true)
                 }
             }
         }
