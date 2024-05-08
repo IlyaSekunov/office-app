@@ -91,23 +91,11 @@ class IdeaAuthorViewModel @AssistedInject constructor(
         authorIdeasUiState.updateIdeas(updatedIdeas)
     }
 
-    private fun updateIsIdeaAuthorLoading(isLoading: Boolean) {
-        ideaAuthorUiState = ideaAuthorUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsIdeaAuthorExists(isExists: Boolean) {
-        ideaAuthorUiState = ideaAuthorUiState.copy(isExists = isExists)
-    }
-
-    private fun updateIsErrorWhileIdeaAuthorLoading(isErrorWhileLoading: Boolean) {
-        ideaAuthorUiState = ideaAuthorUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
-    }
-
     private fun loadIdeaAuthor() {
         viewModelScope.launch {
-            updateIsIdeaAuthorLoading(true)
+            ideaAuthorUiState = ideaAuthorUiState.copy(isLoading = true)
             refreshIdeaAuthor()
-            updateIsIdeaAuthorLoading(false)
+            ideaAuthorUiState = ideaAuthorUiState.copy(isLoading = false)
         }
     }
 
@@ -117,17 +105,17 @@ class IdeaAuthorViewModel @AssistedInject constructor(
                 result.isSuccess -> {
                     val ideaAuthor = result.getOrThrow()
                     ideaAuthorUiState = ideaAuthor.toIdeaAuthorUiState()
-                    updateIsIdeaAuthorExists(true)
-                    updateIsErrorWhileIdeaAuthorLoading(false)
                 }
 
                 result.exceptionOrNull()!! is HttpNotFoundException -> {
-                    updateIsErrorWhileIdeaAuthorLoading(false)
-                    updateIsIdeaAuthorExists(false)
+                    ideaAuthorUiState = ideaAuthorUiState.copy(
+                        isErrorWhileLoading = false,
+                        isExists = false
+                    )
                 }
 
                 else -> {
-                    updateIsErrorWhileIdeaAuthorLoading(true)
+                    ideaAuthorUiState = ideaAuthorUiState.copy(isErrorWhileLoading = true)
                 }
             }
         }
