@@ -177,7 +177,7 @@ class HomeViewModel @Inject constructor(
             val exception = result.exceptionOrNull()
             currentUserUiState = currentUserUiState.copy(
                 user = result.getOrNull(),
-                isErrorWhileLoading = exception !is HttpForbiddenException,
+                isErrorWhileLoading = result.isFailure && exception !is HttpForbiddenException,
                 isUnauthorized = exception is HttpForbiddenException
             )
         }
