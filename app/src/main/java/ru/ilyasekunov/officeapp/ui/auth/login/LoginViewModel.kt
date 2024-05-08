@@ -84,35 +84,14 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             if (credentialsValid()) {
                 loginUiState = loginUiState.copy(isLoading = true)
-
                 authRepository.login(loginUiState.toLoginForm()).also { result ->
+                    val exception = result.exceptionOrNull()
                     loginUiState = loginUiState.copy(
                         isLoading = false,
-                        isLoggedIn = result.isSuccess
+                        isLoggedIn = result.isSuccess,
+                        credentialsInvalid = exception is IncorrectCredentialsException,
+                        isNetworkError = exception !is IncorrectCredentialsException,
                     )
-
-                    when {
-                        result.isSuccess -> {
-                            loginUiState = loginUiState.copy(
-                                credentialsInvalid = false,
-                                isNetworkError = false
-                            )
-                        }
-
-                        result.exceptionOrNull()!! is IncorrectCredentialsException -> {
-                            loginUiState = loginUiState.copy(
-                                credentialsInvalid = true,
-                                isNetworkError = false
-                            )
-                        }
-
-                        else -> {
-                            loginUiState = loginUiState.copy(
-                                isNetworkError = true,
-                                credentialsInvalid = false
-                            )
-                        }
-                    }
                 }
             }
         }
