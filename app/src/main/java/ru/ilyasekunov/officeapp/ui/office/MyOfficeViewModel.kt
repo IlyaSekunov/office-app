@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.filter
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
-import ru.ilyasekunov.officeapp.data.model.User
 import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.author.AuthorsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
@@ -103,59 +101,10 @@ class MyOfficeViewModel @Inject constructor(
         }
     }
 
-    /*fun deletePost(post: IdeaPost) {
-        viewModelScope.launch {
-            val deletePostResult = postsRepository.deletePostById(post.id)
-            if (deletePostResult.isSuccess) {
-                removePost(post)
-            }
-        }
-    }*/
-
-    private fun removePost(post: IdeaPost) {
-        removePostFromSuggestedIdeas(post)
-        removePostFromIdeasInProgress(post)
-        removePostFromImplementedIdeas(post)
-    }
-
-    private fun removePostFromSuggestedIdeas(post: IdeaPost) {
-        val postsPagingData = suggestedIdeasUiState.ideas.value
-        val updatedPostsPagingData = postsPagingData.filter { it.id != post.id }
-        suggestedIdeasUiState.updateIdeas(updatedPostsPagingData)
-    }
-
-    private fun removePostFromIdeasInProgress(post: IdeaPost) {
-        val postsPagingData = ideasInProgressUiState.ideas.value
-        val updatedPostsPagingData = postsPagingData.filter { it.id != post.id }
-        ideasInProgressUiState.updateIdeas(updatedPostsPagingData)
-    }
-
-    private fun removePostFromImplementedIdeas(post: IdeaPost) {
-        val postsPagingData = implementedIdeasUiState.ideas.value
-        val updatedPostsPagingData = postsPagingData.filter { it.id != post.id }
-        implementedIdeasUiState.updateIdeas(updatedPostsPagingData)
-    }
-
     private fun updatePost(updatedPost: IdeaPost) {
         updateSuggestedIdeasPost(updatedPost)
         updateIdeasInProgressPost(updatedPost)
         updateImplementedIdeasPost(updatedPost)
-    }
-
-    private fun updateCurrentUserIsLoading(isLoading: Boolean) {
-        currentUserUiState = currentUserUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsErrorWhileUserLoading(isErrorWhileLoading: Boolean) {
-        currentUserUiState = currentUserUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
-    }
-
-    private fun updateIsUserUnauthorized(isUnauthorized: Boolean) {
-        currentUserUiState = currentUserUiState.copy(isUnauthorized = isUnauthorized)
-    }
-
-    private fun updateCurrentUser(user: User?) {
-        currentUserUiState = currentUserUiState.copy(user = user)
     }
 
     fun loadData() {
@@ -181,30 +130,20 @@ class MyOfficeViewModel @Inject constructor(
 
     private fun loadCurrentUser() {
         viewModelScope.launch {
-            updateCurrentUserIsLoading(true)
+            currentUserUiState = currentUserUiState.copy(isLoading = true)
             refreshCurrentUser()
-            updateCurrentUserIsLoading(false)
+            currentUserUiState = currentUserUiState.copy(isLoading = false)
         }
     }
 
     suspend fun refreshCurrentUser() {
         authRepository.userInfo().also { result ->
-            when {
-                result.isSuccess -> {
-                    updateIsErrorWhileUserLoading(false)
-                    updateIsUserUnauthorized(false)
-                    val user = result.getOrThrow()
-                    updateCurrentUser(user)
-                }
-
-                result.exceptionOrNull()!! is HttpForbiddenException -> {
-                    updateIsUserUnauthorized(true)
-                }
-
-                else -> {
-                    updateIsErrorWhileUserLoading(true)
-                }
-            }
+            val exception = result.exceptionOrNull()
+            currentUserUiState = currentUserUiState.copy(
+                user = result.getOrNull(),
+                isUnauthorized = exception is HttpForbiddenException,
+                isErrorWhileLoading = result.isFailure && exception !is HttpForbiddenException
+            )
         }
     }
 
