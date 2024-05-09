@@ -24,7 +24,6 @@ class AuthRepositoryImpl(
     override suspend fun userInfo(): Result<User> {
         val userResult = authDatasource.userInfo()
         return if (userResult.isSuccess) {
-            refreshTokens()
             val user = userResult.getOrThrow()
             Result.success(user)
         } else userResult
@@ -51,17 +50,5 @@ class AuthRepositoryImpl(
     private suspend fun putTokens(tokens: Tokens) {
         tokenLocalDataSource.putToken(TokenType.ACCESS, tokens.accessToken)
         tokenLocalDataSource.putToken(TokenType.REFRESH, tokens.refreshToken)
-    }
-
-    private suspend fun refreshTokens() {
-        val refreshToken = tokenLocalDataSource.token(TokenType.REFRESH)
-        refreshToken?.let {
-            authDatasource.refreshToken(it).also { result ->
-                if (result.isSuccess) {
-                    val newTokens = result.getOrThrow()
-                    putTokens(newTokens)
-                }
-            }
-        }
     }
 }
