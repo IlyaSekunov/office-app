@@ -585,7 +585,11 @@ fun IdeaPost(
                 shape = MaterialTheme.shapes.large
             )
             .background(MaterialTheme.colorScheme.background)
-            .clickable(onClick = onPostClick)
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onPostClick
+            )
     ) {
         val topPadding = 16.dp
         Column {
