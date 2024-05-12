@@ -1,5 +1,7 @@
 package ru.ilyasekunov.officeapp.navigation
 
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -24,6 +26,8 @@ fun NavGraphBuilder.homeScreen(
     composable(route = BottomNavigationScreen.Home.route) {
         val viewModel = hiltViewModel<HomeViewModel>()
         val posts = viewModel.postsUiState.ideas.collectAsLazyPagingItems()
+        val lazyListState = rememberLazyListState()
+        val coroutineScope = rememberCoroutineScope()
         HomeScreen(
             posts = posts,
             currentUserUiState = viewModel.currentUserUiState,
@@ -32,6 +36,7 @@ fun NavGraphBuilder.homeScreen(
             filtersUiState = viewModel.filtersUiStateHolder.filtersUiState,
             suggestIdeaToMyOfficeUiState = viewModel.suggestIdeaToMyOfficeUiState,
             deletePostUiState = viewModel.deletePostUiState,
+            postsLazyListState = lazyListState,
             onOfficeFilterRemoveClick = viewModel.filtersUiStateHolder::removeOfficeFilter,
             onSortingFilterRemoveClick = viewModel.filtersUiStateHolder::removeSortingFilter,
             onDeletePostClick = viewModel::deletePost,
@@ -40,7 +45,7 @@ fun NavGraphBuilder.homeScreen(
             onPostDislikeClick = viewModel::updateDislike,
             onRetryInfoLoad = {
                 viewModel.loadCurrentUser()
-                viewModel.loadPosts()
+                posts.retry()
             },
             onPullToRefresh = {
                 launch {
@@ -51,6 +56,11 @@ fun NavGraphBuilder.homeScreen(
             },
             onSuggestIdeaToMyOfficeClick = viewModel::suggestIdeaToMyOffice,
             onSuggestIdeaToMyOfficeResultShown = viewModel::suggestIdeaToMyOfficeResultShown,
+            navigateToHomeScreen = {
+                coroutineScope.launch {
+                    lazyListState.scrollToItem(0)
+                }
+            },
             navigateToFiltersScreen = navigateToFiltersScreen,
             navigateToSuggestIdeaScreen = navigateToSuggestIdeaScreen,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,

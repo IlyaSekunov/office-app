@@ -33,6 +33,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -121,6 +123,7 @@ fun HomeScreen(
     filtersUiState: FiltersUiState,
     suggestIdeaToMyOfficeUiState: SuggestIdeaToMyOfficeUiState,
     deletePostUiState: DeletePostUiState,
+    postsLazyListState: LazyListState,
     onSearchValueChange: (String) -> Unit,
     onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
     onSortingFilterRemoveClick: () -> Unit,
@@ -132,6 +135,7 @@ fun HomeScreen(
     onPullToRefresh: CoroutineScope.() -> Job,
     onSuggestIdeaToMyOfficeClick: (IdeaPost) -> Unit,
     onSuggestIdeaToMyOfficeResultShown: () -> Unit,
+    navigateToHomeScreen: () -> Unit,
     navigateToSuggestIdeaScreen: () -> Unit,
     navigateToFiltersScreen: () -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
@@ -160,6 +164,7 @@ fun HomeScreen(
         bottomBar = {
             BottomNavigationBar(
                 selectedScreen = LocalCurrentNavigationBarScreen.current,
+                navigateToHomeScreen = navigateToHomeScreen,
                 navigateToFavouriteScreen = navigateToFavouriteScreen,
                 navigateToMyOfficeScreen = navigateToMyOfficeScreen,
                 navigateToProfileScreen = navigateToProfileScreen,
@@ -195,6 +200,7 @@ fun HomeScreen(
             else -> {
                 HomeScreenContent(
                     posts = posts,
+                    postsLazyListState = postsLazyListState,
                     currentUserUiState = currentUserUiState,
                     onDeletePostClick = onDeletePostClick,
                     onPostLikeClick = onPostLikeClick,
@@ -385,7 +391,8 @@ private fun HomeScreenContent(
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = LocalSnackbarHostState.current,
-    coroutineScope: CoroutineScope = LocalCoroutineScope.current
+    coroutineScope: CoroutineScope = LocalCoroutineScope.current,
+    postsLazyListState: LazyListState = rememberLazyListState()
 ) {
     BothDirectedPullToRefreshContainer(
         onRefreshTrigger = onPullToRefresh,
@@ -396,6 +403,7 @@ private fun HomeScreenContent(
         HomeScreenIdeaPosts(
             posts = posts,
             isPullToRefreshActive = isRefreshing,
+            lazyListState = postsLazyListState,
             isIdeaAuthorCurrentUser = { it.id == currentUserUiState.user!!.id },
             onDeletePostClick = {
                 coroutineScope.launch {
@@ -430,12 +438,14 @@ fun HomeScreenIdeaPosts(
     navigateToIdeaDetailsScreen: (postId: Long, initiallyScrollToComments: Boolean) -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToEditIdeaScreen: (postId: Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState()
 ) {
     LazyPagingItemsColumn(
         items = posts,
         itemKey = { it.id },
         isPullToRefreshActive = isPullToRefreshActive,
+        lazyListState = lazyListState,
         itemComposable = { post ->
             IdeaPost(
                 ideaPost = post,
