@@ -60,35 +60,24 @@ class FiltersUiStateHolder(
         onUpdateFiltersState?.invoke()
     }
 
-    private fun updateIsFiltersLoading(isLoading: Boolean) {
-        filtersUiState = filtersUiState.copy(isLoading = isLoading)
-    }
-
-    private fun updateIsErrorWhileFiltersLoading(isErrorWhileLoading: Boolean) {
-        filtersUiState = filtersUiState.copy(isErrorWhileLoading = isErrorWhileLoading)
-    }
-
-    private fun updateFiltersIsLoaded(isLoaded: Boolean) {
-        filtersUiState = filtersUiState.copy(isLoaded = isLoaded)
-    }
-
     fun loadFilters(): Job =
         coroutineScope.launch {
-            updateIsFiltersLoading(true)
+            filtersUiState = filtersUiState.copy(isLoading = true)
             refreshFilters()
-            updateIsFiltersLoading(false)
+            filtersUiState = filtersUiState.copy(isLoading = false)
         }
 
     suspend fun refreshFilters() {
-        val filtersResult = loadFiltersRequest()
-        if (filtersResult.isSuccess) {
-            val filters = filtersResult.getOrThrow()
-            filtersUiState = filters.toFiltersUiState()
-            updateIsErrorWhileFiltersLoading(false)
-            updateFiltersIsLoaded(true)
-        } else {
-            updateIsErrorWhileFiltersLoading(true)
-            updateFiltersIsLoaded(false)
+        loadFiltersRequest().also { result ->
+            if (result.isSuccess) {
+                val filters = result.getOrThrow()
+                filtersUiState = filters.toFiltersUiState()
+            } else {
+                filtersUiState = filtersUiState.copy(
+                    isErrorWhileLoading = true,
+                    isLoaded = false
+                )
+            }
         }
     }
 }

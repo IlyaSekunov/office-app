@@ -223,7 +223,8 @@ fun Filters.toFiltersUiState(): FiltersUiState =
         ),
         officeFiltersUiState = offices.map {
             OfficeFilterUiState(office = it)
-        }
+        },
+        isLoaded = true
     )
 
 fun FiltersUiState.toFiltersDto(): FiltersDto {
