@@ -1,5 +1,7 @@
 package ru.ilyasekunov.officeapp.navigation
 
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -20,6 +22,8 @@ fun NavGraphBuilder.favouriteIdeasScreen(
     composable(route = BottomNavigationScreen.Favourite.route) {
         val viewModel = hiltViewModel<FavouriteIdeasViewModel>()
         val favouriteIdeas = viewModel.favouriteIdeasUiState.ideas.collectAsLazyPagingItems()
+        val ideasGridState = rememberLazyGridState()
+        val coroutineScope = rememberCoroutineScope()
         FavouriteIdeasScreen(
             favouriteIdeas = favouriteIdeas,
             filtersUiState = viewModel.filtersUiStateHolder.filtersUiState,
@@ -28,19 +32,15 @@ fun NavGraphBuilder.favouriteIdeasScreen(
             onSearchValueChange = viewModel::updateSearchValue,
             onSortingFilterRemoveClick = viewModel.filtersUiStateHolder::removeSortingFilter,
             onRetryInfoLoad = viewModel::loadFavouritePosts,
-            onPullToRefresh = {
-                launch {
-                    launch {
-                        viewModel.filtersUiStateHolder.refreshFilters()
-                    }
-                    launch {
-                        favouriteIdeas.refresh()
-                    }
-                }
-            },
+            onPullToRefresh = { launch { favouriteIdeas.refresh() } },
             navigateToFiltersScreen = navigateToFiltersScreen,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,
             navigateToHomeScreen = navigateToHomeScreen,
+            navigateToFavouriteScreen = {
+                coroutineScope.launch {
+                    ideasGridState.scrollToItem(0)
+                }
+            },
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
             navigateToProfileScreen = navigateToProfileScreen
         )

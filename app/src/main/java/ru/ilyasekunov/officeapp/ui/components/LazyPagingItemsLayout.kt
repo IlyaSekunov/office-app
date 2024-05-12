@@ -7,9 +7,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,6 +40,7 @@ fun <T : Any> LazyPagingItemsColumn(
     errorWhileRefreshComposable: @Composable () -> Unit,
     errorWhileAppendComposable: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
@@ -60,6 +65,7 @@ fun <T : Any> LazyPagingItemsColumn(
         items.isEmpty() -> itemsEmptyComposable()
         else -> {
             LazyColumn(
+                state = lazyListState,
                 contentPadding = contentPadding,
                 verticalArrangement = verticalArrangement,
                 horizontalAlignment = horizontalAlignment,
@@ -183,6 +189,7 @@ fun <T : Any> LazyPagingItemsVerticalGrid(
     errorWhileRefreshComposable: @Composable () -> Unit,
     errorWhileAppendComposable: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    lazyGridState: LazyGridState = rememberLazyGridState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
@@ -203,6 +210,7 @@ fun <T : Any> LazyPagingItemsVerticalGrid(
         items.isEmpty() -> itemsEmptyComposable()
         else -> {
             LazyVerticalGrid(
+                state = lazyGridState,
                 columns = columns,
                 contentPadding = contentPadding,
                 verticalArrangement = verticalArrangement,

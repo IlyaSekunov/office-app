@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -67,6 +69,7 @@ fun FavouriteIdeasScreen(
     filtersUiState: FiltersUiState,
     onOfficeFilterRemoveClick: (OfficeFilterUiState) -> Unit,
     searchUiState: SearchUiState,
+    ideasGridState: LazyGridState = rememberLazyGridState(),
     onSearchValueChange: (String) -> Unit,
     onSortingFilterRemoveClick: () -> Unit,
     onRetryInfoLoad: () -> Unit,
@@ -74,6 +77,7 @@ fun FavouriteIdeasScreen(
     navigateToFiltersScreen: () -> Unit,
     navigateToIdeaDetailsScreen: (postId: Long) -> Unit,
     navigateToHomeScreen: () -> Unit,
+    navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
     navigateToProfileScreen: () -> Unit
 ) {
@@ -93,6 +97,7 @@ fun FavouriteIdeasScreen(
             BottomNavigationBar(
                 selectedScreen = LocalCurrentNavigationBarScreen.current,
                 navigateToHomeScreen = navigateToHomeScreen,
+                navigateToFavouriteScreen = navigateToFavouriteScreen,
                 navigateToMyOfficeScreen = navigateToMyOfficeScreen,
                 navigateToProfileScreen = navigateToProfileScreen,
                 modifier = Modifier.background(MaterialTheme.colorScheme.background)
@@ -117,6 +122,7 @@ fun FavouriteIdeasScreen(
                 ) { isRefreshing ->
                     FavouriteIdeas(
                         favouriteIdeas = favouriteIdeas,
+                        lazyGridState = ideasGridState,
                         isPullToRefreshActive = isRefreshing,
                         favouriteIdeaSize = 100.dp,
                         onIdeaClick = navigateToIdeaDetailsScreen,
@@ -134,10 +140,12 @@ fun FavouriteIdeas(
     isPullToRefreshActive: Boolean,
     favouriteIdeaSize: Dp,
     onIdeaClick: (postId: Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    lazyGridState: LazyGridState = rememberLazyGridState()
 ) {
     LazyPagingItemsVerticalGrid(
         items = favouriteIdeas,
+        lazyGridState = lazyGridState,
         isPullToRefreshActive = isPullToRefreshActive,
         columns = GridCells.Adaptive(minSize = favouriteIdeaSize),
         itemKey = { it.id },
