@@ -1,5 +1,7 @@
 package ru.ilyasekunov.officeapp.navigation
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -25,6 +27,8 @@ fun NavGraphBuilder.myOfficeScreen(
         val ideasInProgress = viewModel.ideasInProgressUiState.ideas.collectAsLazyPagingItems()
         val implementedIdeas = viewModel.implementedIdeasUiState.ideas.collectAsLazyPagingItems()
         val officeEmployees = viewModel.officeEmployeesUiState.employees.collectAsLazyPagingItems()
+        val scrollState = rememberScrollState()
+        val coroutineScope = rememberCoroutineScope()
         MyOfficeScreen(
             currentUserUiState = viewModel.currentUserUiState,
             suggestedIdeas = suggestedIdeas,
@@ -32,18 +36,23 @@ fun NavGraphBuilder.myOfficeScreen(
             implementedIdeas = implementedIdeas,
             officeEmployees = officeEmployees,
             deletePostUiState = viewModel.deletePostUiState,
-            onRetryDataLoad = viewModel::loadData,
+            scrollState = scrollState,
+            onRetryDataLoad = {
+                viewModel.loadCurrentUser()
+                suggestedIdeas.retry()
+                ideasInProgress.retry()
+                implementedIdeas.retry()
+                officeEmployees.retry()
+            },
             onPullToRefresh = {
                 launch {
                     launch {
                         viewModel.refreshCurrentUser()
                     }
-                    launch {
-                        suggestedIdeas.refresh()
-                        ideasInProgress.refresh()
-                        implementedIdeas.refresh()
-                        officeEmployees.refresh()
-                    }
+                    suggestedIdeas.refresh()
+                    ideasInProgress.refresh()
+                    implementedIdeas.refresh()
+                    officeEmployees.refresh()
                 }
             },
             onPostLikeClick = viewModel::updateLike,
@@ -53,6 +62,11 @@ fun NavGraphBuilder.myOfficeScreen(
             },
             onDeletePostClick = viewModel::deletePost,
             onDeletePostResultShown = viewModel::deletePostResultShown,
+            onDeletePostSuccess = {
+                suggestedIdeas.refresh()
+                ideasInProgress.refresh()
+                implementedIdeas.refresh()
+            },
             navigateToIdeaDetailsScreen = {
                 navigateToIdeaDetailsScreen(it, false)
             },
@@ -60,6 +74,11 @@ fun NavGraphBuilder.myOfficeScreen(
             navigateToAuthorScreen = navigateToAuthorScreen,
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
+            navigateToMyOfficeScreen = {
+                coroutineScope.launch {
+                    scrollState.scrollTo(0)
+                }
+            },
             navigateToProfileScreen = navigateToProfileScreen,
             navigateToAuthGraph = navigateToAuthGraph
         )

@@ -107,14 +107,12 @@ class MyOfficeViewModel @Inject constructor(
         updateImplementedIdeasPost(updatedPost)
     }
 
-    fun loadData() {
-        viewModelScope.launch {
-            loadCurrentUser()
-            loadSuggestedIdeas()
-            loadIdeasInProgress()
-            loadImplementedIdeas()
-            loadOfficeEmployees()
-        }
+    private fun loadData() {
+        loadCurrentUser()
+        loadSuggestedIdeas()
+        loadIdeasInProgress()
+        loadImplementedIdeas()
+        loadOfficeEmployees()
     }
 
     private fun loadOfficeEmployees() {
@@ -128,7 +126,7 @@ class MyOfficeViewModel @Inject constructor(
         }
     }
 
-    private fun loadCurrentUser() {
+    fun loadCurrentUser() {
         viewModelScope.launch {
             currentUserUiState = currentUserUiState.copy(isLoading = true)
             refreshCurrentUser()

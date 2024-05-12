@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -68,10 +69,10 @@ import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
 import ru.ilyasekunov.officeapp.ui.RetryButton
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
-import ru.ilyasekunov.officeapp.ui.components.BothDirectedPullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsColumn
 import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsHorizontalGrid
+import ru.ilyasekunov.officeapp.ui.components.UpsidePullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
 import ru.ilyasekunov.officeapp.ui.home.DeletePostUiState
 import ru.ilyasekunov.officeapp.ui.home.IdeaPost
@@ -97,6 +98,7 @@ fun MyOfficeScreen(
     implementedIdeas: LazyPagingItems<IdeaPost>,
     officeEmployees: LazyPagingItems<IdeaAuthor>,
     deletePostUiState: DeletePostUiState,
+    scrollState: ScrollState = rememberScrollState(),
     onRetryDataLoad: () -> Unit,
     onPullToRefresh: CoroutineScope.() -> Job,
     onPostLikeClick: (IdeaPost) -> Unit,
@@ -104,11 +106,13 @@ fun MyOfficeScreen(
     onPostCommentsClick: (IdeaPost) -> Unit,
     onDeletePostClick: (IdeaPost) -> Unit,
     onDeletePostResultShown: () -> Unit,
+    onDeletePostSuccess: () -> Unit,
     navigateToIdeaDetailsScreen: (Long) -> Unit,
     navigateToEditIdeaScreen: (Long) -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
+    navigateToMyOfficeScreen: () -> Unit,
     navigateToProfileScreen: () -> Unit,
     navigateToAuthGraph: () -> Unit
 ) {
@@ -120,6 +124,7 @@ fun MyOfficeScreen(
                 selectedScreen = LocalCurrentNavigationBarScreen.current,
                 navigateToHomeScreen = navigateToHomeScreen,
                 navigateToFavouriteScreen = navigateToFavouriteScreen,
+                navigateToMyOfficeScreen = navigateToMyOfficeScreen,
                 navigateToProfileScreen = navigateToProfileScreen,
                 modifier = Modifier.background(MaterialTheme.colorScheme.background)
             )
@@ -132,10 +137,7 @@ fun MyOfficeScreen(
             .statusBarsPadding()
     ) { paddingValues ->
         when {
-            currentUserUiState.isUnauthorized -> {
-                navigateToAuthGraph()
-            }
-
+            currentUserUiState.isUnauthorized -> navigateToAuthGraph()
             isScreenLoading(currentUserUiState, deletePostUiState) -> AnimatedLoadingScreen()
             isErrorWhileLoading(currentUserUiState) -> {
                 ErrorScreen(
@@ -153,6 +155,7 @@ fun MyOfficeScreen(
                     ideasInProgress = ideasInProgress,
                     implementedIdeas = implementedIdeas,
                     officeEmployees = officeEmployees,
+                    scrollState = scrollState,
                     onPullToRefresh = onPullToRefresh,
                     onPostLikeClick = onPostLikeClick,
                     onPostDislikeClick = onPostDislikeClick,
@@ -179,11 +182,7 @@ fun MyOfficeScreen(
                     snackbarHostState = snackbarHostState,
                     coroutineScope = coroutineScope,
                     onResultShown = onDeletePostResultShown,
-                    onDeleteSuccess = {
-                        suggestedIdeas.refresh()
-                        ideasInProgress.refresh()
-                        implementedIdeas.refresh()
-                    }
+                    onDeleteSuccess = onDeletePostSuccess
                 )
             }
         }
@@ -205,9 +204,10 @@ fun MyOfficeScreenContent(
     navigateToIdeaDetailsScreen: (Long) -> Unit,
     navigateToEditIdeaScreen: (Long) -> Unit,
     navigateToAuthorScreen: (authorId: Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState()
 ) {
-    BothDirectedPullToRefreshContainer(
+    UpsidePullToRefreshContainer(
         onRefreshTrigger = onPullToRefresh,
         modifier = modifier
     ) { isRefreshing ->
@@ -215,7 +215,7 @@ fun MyOfficeScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
             Title(modifier = Modifier.padding(bottom = 40.dp, top = 16.dp))
             OfficeInfo(
