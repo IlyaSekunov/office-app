@@ -144,7 +144,7 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private fun loadPosts() {
+    fun loadPosts() {
         viewModelScope.launch {
             if (!filtersUiStateHolder.isLoaded) {
                 filtersUiStateHolder.loadFilters().join()

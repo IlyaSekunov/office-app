@@ -60,14 +60,8 @@ class FiltersUiStateHolder(
         onUpdateFiltersState?.invoke()
     }
 
-    fun loadFilters(): Job =
-        coroutineScope.launch {
-            filtersUiState = filtersUiState.copy(isLoading = true)
-            refreshFilters()
-            filtersUiState = filtersUiState.copy(isLoading = false)
-        }
-
-    suspend fun refreshFilters() {
+    fun loadFilters(): Job = coroutineScope.launch {
+        filtersUiState = filtersUiState.copy(isLoading = true)
         loadFiltersRequest().also { result ->
             if (result.isSuccess) {
                 val filters = result.getOrThrow()
@@ -75,7 +69,8 @@ class FiltersUiStateHolder(
             } else {
                 filtersUiState = filtersUiState.copy(
                     isErrorWhileLoading = true,
-                    isLoaded = false
+                    isLoaded = false,
+                    isLoading = false
                 )
             }
         }

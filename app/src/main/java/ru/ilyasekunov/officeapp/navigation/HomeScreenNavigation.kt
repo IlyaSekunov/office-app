@@ -45,12 +45,11 @@ fun NavGraphBuilder.homeScreen(
             onPostDislikeClick = viewModel::updateDislike,
             onRetryInfoLoad = {
                 viewModel.loadCurrentUser()
-                posts.retry()
+                viewModel.loadPosts()
             },
             onPullToRefresh = {
                 launch {
                     launch { viewModel.refreshCurrentUser() }
-                    launch { viewModel.filtersUiStateHolder.refreshFilters() }
                     posts.refresh()
                 }
             },
