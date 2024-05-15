@@ -116,6 +116,7 @@ private fun RegistrationMainScreenContent(
                 password = registrationUiState.passwordUiState.password,
                 passwordsDiffer = registrationUiState.passwordsDiffer,
                 onPasswordValueChange = onPasswordValueChange,
+                passwordPlaceholder = stringResource(R.string.password),
                 passwordValidationError = registrationUiState.passwordUiState.error,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -126,6 +127,7 @@ private fun RegistrationMainScreenContent(
                 password = registrationUiState.repeatedPasswordUiState.password,
                 passwordsDiffer = registrationUiState.passwordsDiffer,
                 onPasswordValueChange = onRepeatPasswordValueChange,
+                passwordPlaceholder = stringResource(R.string.repeat_password),
                 passwordValidationError = registrationUiState.repeatedPasswordUiState.error,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -167,6 +169,7 @@ private fun RegistrationPasswordTextField(
     password: String,
     passwordsDiffer: Boolean,
     onPasswordValueChange: (String) -> Unit,
+    passwordPlaceholder: String,
     passwordValidationError: PasswordValidationError?,
     modifier: Modifier = Modifier
 ) {
@@ -179,7 +182,7 @@ private fun RegistrationPasswordTextField(
         value = password,
         errorMessage = passwordErrorMessage,
         onValueChange = onPasswordValueChange,
-        placeholder = stringResource(R.string.password),
+        placeholder = passwordPlaceholder,
         modifier = modifier
     )
 }
