@@ -11,13 +11,13 @@ import ru.ilyasekunov.officeapp.data.model.IdeaPost
 
 object PostsPagingDefaults {
     val PagingConfig = PagingConfig(
-        pageSize = 10
+        pageSize = 20
     )
 }
 
 object FavouritePostsPagingDefaults {
     val PagingConfig = PagingConfig(
-        pageSize = 20
+        pageSize = 40
     )
 }
 

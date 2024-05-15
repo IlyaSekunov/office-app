@@ -10,7 +10,7 @@ import ru.ilyasekunov.officeapp.data.model.Comment
 
 object CommentsPagingDefaults {
     val PagingConfig = PagingConfig(
-        pageSize = 20
+        pageSize = 40
     )
 }
 

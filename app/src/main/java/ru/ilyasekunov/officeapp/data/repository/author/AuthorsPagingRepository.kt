@@ -10,7 +10,7 @@ import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 
 object AuthorsPagingDefaults {
     val PagingConfig = PagingConfig(
-        pageSize = 10
+        pageSize = 20
     )
 }
 
