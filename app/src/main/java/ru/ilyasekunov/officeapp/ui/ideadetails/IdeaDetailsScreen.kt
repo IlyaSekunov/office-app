@@ -9,18 +9,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
@@ -30,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +48,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.paging.compose.LazyPagingItems
@@ -63,6 +62,7 @@ import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.data.model.CommentsSortingFilters
 import ru.ilyasekunov.officeapp.data.model.IdeaAuthor
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
+import ru.ilyasekunov.officeapp.data.model.Office
 import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.officeapp.ui.ErrorScreen
 import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
@@ -81,6 +81,7 @@ import ru.ilyasekunov.officeapp.ui.components.rememberNavigateBackArrowState
 import ru.ilyasekunov.officeapp.ui.home.AttachedImages
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
 import ru.ilyasekunov.officeapp.ui.snackbarWithAction
+import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.util.toRussianString
 import java.time.LocalDateTime
 
@@ -407,30 +408,48 @@ private fun IdeaDetailsScreenContent(
             contentPadding = PaddingValues(top = topPadding, bottom = 14.dp),
             modifier = Modifier.fillMaxSize()
         ) {
-            authorInfoSection(
-                ideaPost = ideaPost,
-                navigateToIdeaAuthorScreen = navigateToIdeaAuthorScreen,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 10.dp)
-            )
             item {
-                HorizontalDivider(
-                    thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.padding(10.dp)
+                AuthorInfoSection(
+                    ideaAuthor = ideaPost.ideaAuthor,
+                    date = ideaPost.date,
+                    onClick = { navigateToIdeaAuthorScreen(ideaPost.ideaAuthor.id) },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 10.dp)
                 )
             }
-            ideaPostDetailSection(
-                ideaPost = ideaPost,
-                modifier = Modifier.padding(bottom = 18.dp)
-            )
-            commentsAndDislikeSection(
-                ideaPost = ideaPost,
-                onLikeClick = onLikeClick,
-                onDislikeClick = onDislikeClick,
-                modifier = Modifier.padding(horizontal = 10.dp)
-            )
+            if (ideaPost.attachedImages.isNotEmpty()) {
+                item {
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.outline,
+                        modifier = Modifier.padding(10.dp)
+                    )
+                }
+            }
+            item {
+                IdeaPostDetailSection(
+                    ideaPost = ideaPost,
+                    modifier = Modifier.padding(bottom = 18.dp)
+                )
+            }
+            item {
+                LikesAndDislikesSection(
+                    isLikePressed = ideaPost.isLikePressed,
+                    likesCount = ideaPost.likesCount,
+                    onLikeClick = onLikeClick,
+                    isDislikePressed = ideaPost.isDislikePressed,
+                    dislikesCount = ideaPost.dislikesCount,
+                    onDislikeClick = onDislikeClick,
+                    likesIconSize = 16.dp,
+                    dislikesIconSize = 16.dp,
+                    textSize = 14.sp,
+                    spaceBetweenCategories = 15.dp,
+                    buttonsWithBackground = true,
+                    buttonsWithRippleEffect = true,
+                    modifier = Modifier.padding(horizontal = 10.dp)
+                )
+            }
             item {
                 HorizontalDivider(
                     thickness = 1.dp,
@@ -438,14 +457,16 @@ private fun IdeaDetailsScreenContent(
                     modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 16.dp)
                 )
             }
-            commentsInfoSection(
-                commentsCount = ideaPost.commentsCount,
-                currentSortingFilter = currentCommentsSortingFilter,
-                onFilterClick = onFilterClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            )
+            item {
+                CommentsWithFilters(
+                    commentsCount = ideaPost.commentsCount,
+                    currentSortingFilter = currentCommentsSortingFilter,
+                    onFilterClick = onFilterClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                )
+            }
             comments(
                 comments = comments,
                 onCommentClick = {
@@ -491,92 +512,39 @@ private fun IdeaDetailsScreenContent(
     }
 }
 
-private fun LazyListScope.ideaPostDetailSection(
-    ideaPost: IdeaPost,
-    modifier: Modifier = Modifier
-) {
-    item {
-        IdeaPostDetailSection(
-            ideaPost = ideaPost,
-            modifier = modifier
-        )
-    }
-}
-
-private fun LazyListScope.commentsAndDislikeSection(
-    ideaPost: IdeaPost,
-    onLikeClick: () -> Unit,
-    onDislikeClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    item {
-        LikesAndDislikesSection(
-            isLikePressed = ideaPost.isLikePressed,
-            likesCount = ideaPost.likesCount,
-            onLikeClick = onLikeClick,
-            isDislikePressed = ideaPost.isDislikePressed,
-            dislikesCount = ideaPost.dislikesCount,
-            onDislikeClick = onDislikeClick,
-            likesIconSize = 16.dp,
-            dislikesIconSize = 16.dp,
-            textSize = 14.sp,
-            spaceBetweenCategories = 15.dp,
-            buttonsWithBackground = true,
-            buttonsWithRippleEffect = true,
-            modifier = modifier
-        )
-    }
-}
-
-private fun LazyListScope.authorInfoSection(
-    ideaPost: IdeaPost,
-    navigateToIdeaAuthorScreen: (authorId: Long) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    item {
-        AuthorInfoSection(
-            ideaAuthor = ideaPost.ideaAuthor,
-            date = ideaPost.date,
-            onClick = { navigateToIdeaAuthorScreen(ideaPost.ideaAuthor.id) },
-            modifier = modifier
-        )
-    }
-}
-
-private fun LazyListScope.commentsInfoSection(
+@Composable
+private fun CommentsWithFilters(
     commentsCount: Int,
     currentSortingFilter: CommentsSortingFilters,
     onFilterClick: (CommentsSortingFilters) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    item {
-        Box(modifier = modifier) {
-            var isMenuVisible by remember { mutableStateOf(false) }
-            CommentsCountAndSortingFilter(
-                commentsCount = commentsCount,
-                currentSortingFilter = currentSortingFilter,
-                onSortingFilterClick = { isMenuVisible = true },
-                modifier = Modifier.fillMaxWidth()
-            )
-            CommentsFiltersDropdownMenu(
-                currentCommentsFilter = currentSortingFilter,
-                onFilterClick = {
-                    onFilterClick(it)
-                    isMenuVisible = false
-                },
-                expanded = isMenuVisible,
-                onDismissClick = { isMenuVisible = false },
-                shape = MaterialTheme.shapes.medium,
-                containerColor = MaterialTheme.colorScheme.background,
-                textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
-                menuItemPaddings = PaddingValues(13.dp),
-                borderStroke = BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
-                ),
-                modifier = Modifier.align(Alignment.TopEnd)
-            )
-        }
+    Box(modifier = modifier) {
+        var isMenuVisible by remember { mutableStateOf(false) }
+        CommentsCountAndSortingFilter(
+            commentsCount = commentsCount,
+            currentSortingFilter = currentSortingFilter,
+            onSortingFilterClick = { isMenuVisible = true },
+            modifier = Modifier.fillMaxWidth()
+        )
+        CommentsFiltersDropdownMenu(
+            currentCommentsFilter = currentSortingFilter,
+            onFilterClick = {
+                onFilterClick(it)
+                isMenuVisible = false
+            },
+            expanded = isMenuVisible,
+            onDismissClick = { isMenuVisible = false },
+            shape = MaterialTheme.shapes.medium,
+            containerColor = MaterialTheme.colorScheme.background,
+            textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 15.sp),
+            menuItemPaddings = PaddingValues(13.dp),
+            borderStroke = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f)
+            ),
+            modifier = Modifier.align(Alignment.TopEnd)
+        )
     }
 }
 
@@ -674,14 +642,17 @@ private fun IdeaPostDetailSection(
                     .fillMaxWidth()
                     .aspectRatio(1f / 0.85f)
             )
+            HorizontalDivider(
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline,
+                modifier = Modifier.padding(
+                    start = 10.dp,
+                    end = 10.dp,
+                    top = 25.dp,
+                    bottom = 20.dp
+                )
+            )
         }
-        Spacer(modifier = Modifier.height(25.dp))
-        HorizontalDivider(
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outline,
-            modifier = Modifier.padding(horizontal = 10.dp)
-        )
-        Spacer(modifier = Modifier.height(20.dp))
         Text(
             text = ideaPost.content,
             fontSize = 16.sp,
@@ -719,13 +690,12 @@ private fun AuthorInfoSection(
                 fontSize = 16.sp,
                 style = MaterialTheme.typography.titleMedium
             )
-            Spacer(modifier = Modifier.height(14.dp))
             Text(
                 text = ideaAuthor.job,
                 fontSize = 14.sp,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(top = 14.dp, bottom = 22.dp)
             )
-            Spacer(modifier = Modifier.height(22.dp))
             Text(
                 text = date.toRussianString(),
                 fontSize = 12.sp,
@@ -782,3 +752,46 @@ private fun isErrorWhileLoading(
     ideaPostUiState: IdeaPostUiState,
     currentUserUiState: CurrentUserUiState
 ) = ideaPostUiState.isErrorWhileLoading || currentUserUiState.isErrorWhileLoading
+
+@Preview
+@Composable
+private fun IdeaPostDetailSectionPreview() {
+    OfficeAppTheme {
+        Surface {
+            IdeaPostDetailSection(
+                ideaPost = IdeaPost(
+                    id = 1,
+                    title = "",
+                    content = "",
+                    date = LocalDateTime.now(),
+                    ideaAuthor = IdeaAuthor(
+                        id = 1,
+                        name = "Дмитрий",
+                        surname = "Комарницкий",
+                        job = "Сотрудник Tinkoff",
+                        photo = "",
+                        office = Office(
+                            id = 1,
+                            imageUrl = "",
+                            address = ""
+                        )
+                    ),
+                    attachedImages = emptyList(),
+                    office = Office(
+                        id = 1,
+                        imageUrl = "",
+                        address = ""
+                    ),
+                    likesCount = 111,
+                    isLikePressed = true,
+                    dislikesCount = 111,
+                    isDislikePressed = false,
+                    commentsCount = 111,
+                    isImplemented = false,
+                    isInProgress = false,
+                    isSuggestedToMyOffice = false
+                )
+            )
+        }
+    }
+}
