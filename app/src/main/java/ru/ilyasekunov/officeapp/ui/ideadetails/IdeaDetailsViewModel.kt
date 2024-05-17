@@ -5,6 +5,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -14,10 +15,10 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.CommentDto
 import ru.ilyasekunov.officeapp.data.model.Comment
@@ -29,6 +30,7 @@ import ru.ilyasekunov.officeapp.data.repository.comments.CommentsRepository
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
+import ru.ilyasekunov.officeapp.ui.PagingDataUiState
 import ru.ilyasekunov.officeapp.ui.components.AttachedImage
 import ru.ilyasekunov.officeapp.ui.components.SendMessageUiState
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
@@ -44,15 +46,15 @@ data class IdeaPostUiState(
 )
 
 class CommentsUiState {
-    private var _comments = MutableStateFlow(PagingData.empty<Comment>())
-    val comments get() = _comments.asStateFlow()
+    val comments = PagingDataUiState<Comment>()
     var currentSortingFilter by mutableStateOf(CommentsSortingFilters.NEW)
         private set
 
     fun updateComment(comment: Comment) {
-        _comments.update { pagingData ->
-            pagingData.map { if (it.id == comment.id) comment else it }
+        val updatedData = comments.data.value.map {
+            if (it.id == comment.id) comment else it
         }
+        comments.updateData(updatedData)
     }
 
     fun updateSortingFilter(sortingFilter: CommentsSortingFilters) {
@@ -60,7 +62,7 @@ class CommentsUiState {
     }
 
     fun updateComments(commentsPagingData: PagingData<Comment>) {
-        _comments.value = commentsPagingData
+        comments.updateData(commentsPagingData)
     }
 }
 
@@ -94,12 +96,12 @@ class IdeaDetailsViewModel @AssistedInject constructor(
 
     init {
         loadData()
+        observeSortingCommentsFilterState()
     }
 
     fun updateCommentsSortingFilter(commentsSortingFilter: CommentsSortingFilters) {
         if (commentsUiState.currentSortingFilter != commentsSortingFilter) {
             commentsUiState.updateSortingFilter(commentsSortingFilter)
-            loadComments()
         }
     }
 
@@ -266,7 +268,6 @@ class IdeaDetailsViewModel @AssistedInject constructor(
     fun loadData() {
         loadCurrentUser()
         loadPost()
-        loadComments()
     }
 
     private fun loadPost() {
@@ -277,17 +278,19 @@ class IdeaDetailsViewModel @AssistedInject constructor(
         }
     }
 
-    private fun loadComments() {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun observeSortingCommentsFilterState() {
         viewModelScope.launch {
-            commentsPagingRepository.commentsByPostId(
-                postId = postId,
-                sortingFilterId = commentsUiState.currentSortingFilter.id
-            )
-                .distinctUntilChanged()
-                .cachedIn(viewModelScope)
-                .collect {
-                    commentsUiState.updateComments(it)
-                }
+            snapshotFlow {
+                commentsPagingRepository.commentsByPostId(
+                    postId = postId,
+                    sortingFilterId = commentsUiState.currentSortingFilter.id
+                )
+                    .distinctUntilChanged()
+                    .cachedIn(viewModelScope)
+            }
+                .flatMapLatest { it }
+                .collectLatest { commentsUiState.updateComments(it) }
         }
     }
 

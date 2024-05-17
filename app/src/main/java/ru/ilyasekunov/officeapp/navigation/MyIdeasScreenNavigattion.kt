@@ -22,7 +22,7 @@ fun NavGraphBuilder.myIdeasScreen(
 ) {
     composable(route = Screen.MyIdeas.route) {
         val viewModel = hiltViewModel<MyIdeasViewModel>()
-        val myIdeas = viewModel.myIdeasUiState.ideas.collectAsLazyPagingItems()
+        val myIdeas = viewModel.myIdeasUiState.data.collectAsLazyPagingItems()
         MyIdeasScreen(
             ideas = myIdeas,
             deletePostUiState = viewModel.deleteIdeaUiState,

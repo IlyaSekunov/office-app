@@ -27,7 +27,7 @@ fun NavGraphBuilder.ideaDetailsScreen(
         val postId = navArguments.getLong("postId")
         val initiallyScrollToComments = navArguments.getBoolean("initiallyScrollToComments")
         val viewModel = setUpIdeaDetailsViewModel(postId)
-        val comments = viewModel.commentsUiState.comments.collectAsLazyPagingItems()
+        val comments = viewModel.commentsUiState.comments.data.collectAsLazyPagingItems()
         IdeaDetailsScreen(
             currentUserUiState = viewModel.currentUserUiState,
             ideaPostUiState = viewModel.ideaPostUiState,
@@ -38,12 +38,15 @@ fun NavGraphBuilder.ideaDetailsScreen(
             deleteCommentUiState = viewModel.deleteCommentUiState,
             initiallyScrollToComments = initiallyScrollToComments,
             onCommentsFilterSelect = viewModel::updateCommentsSortingFilter,
-            onRetryInfoLoad = viewModel::loadData,
+            onRetryInfoLoad = {
+                viewModel.loadData()
+                comments.retry()
+            },
             onPullToRefresh = {
                 launch {
                     launch { viewModel.refreshCurrentUser() }
                     launch { viewModel.refreshPost() }
-                    launch { comments.refresh() }
+                    comments.refresh()
                 }
             },
             onCommentLikeClick = viewModel::updateCommentLike,

@@ -4,13 +4,18 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.dto.FiltersDto
 import ru.ilyasekunov.officeapp.data.dto.SearchDto
@@ -24,7 +29,7 @@ import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpForbiddenException
-import ru.ilyasekunov.officeapp.ui.IdeasUiState
+import ru.ilyasekunov.officeapp.ui.PagingDataUiState
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiState
 import ru.ilyasekunov.officeapp.ui.filters.FiltersUiStateHolder
 import ru.ilyasekunov.officeapp.ui.updateDislike
@@ -74,12 +79,11 @@ class HomeViewModel @Inject constructor(
     private val postsPagingRepository: PostsPagingRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {
-    val postsUiState = IdeasUiState()
+    val postsUiState = PagingDataUiState<IdeaPost>()
     val filtersUiStateHolder = FiltersUiStateHolder(
         initialFiltersUiState = FiltersUiState(),
         coroutineScope = viewModelScope,
-        loadFiltersRequest = postsRepository::filters,
-        onUpdateFiltersState = ::loadPosts
+        loadFiltersRequest = postsRepository::filters
     )
     var searchUiState by mutableStateOf(SearchUiState())
         private set
@@ -91,13 +95,17 @@ class HomeViewModel @Inject constructor(
         private set
 
     init {
+        loadData()
+        observeFiltersStateChanges()
+    }
+
+    fun loadData() {
         loadCurrentUser()
-        loadPosts()
+        filtersUiStateHolder.loadFilters()
     }
 
     fun updateSearchValue(searchValue: String) {
         searchUiState = searchUiState.copy(value = searchValue)
-        loadPosts()
     }
 
     fun updateLike(post: IdeaPost) {
@@ -144,27 +152,16 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    fun loadPosts() {
-        viewModelScope.launch {
-            if (!filtersUiStateHolder.isLoaded) {
-                filtersUiStateHolder.loadFilters().join()
-            }
-            if (filtersUiStateHolder.isLoaded) {
-                loadPostSuspending()
-            }
-        }
-    }
-
     private fun updatePost(updatedPost: IdeaPost) {
-        val postsPagingData = postsUiState.ideas.value
+        val postsPagingData = postsUiState.data.value
         val updatedPostsPagingData = postsPagingData.map {
             if (it.id == updatedPost.id) updatedPost
             else it
         }
-        postsUiState.updateIdeas(updatedPostsPagingData)
+        postsUiState.updateData(updatedPostsPagingData)
     }
 
-    fun loadCurrentUser() {
+    private fun loadCurrentUser() {
         viewModelScope.launch {
             currentUserUiState = currentUserUiState.copy(isLoading = true)
             refreshCurrentUser()
@@ -203,16 +200,26 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private suspend fun loadPostSuspending() {
-        postsPagingRepository.posts(
-            searchPostsDto = SearchPostsDto(
-                filtersDto = filtersUiStateHolder.filtersUiState.toFiltersDto(),
-                searchDto = searchUiState.toSearchDto()
-            ),
-        )
-            .distinctUntilChanged()
-            .cachedIn(viewModelScope)
-            .collectLatest { postsUiState.updateIdeas(it) }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun observeFiltersStateChanges() {
+        viewModelScope.launch {
+            snapshotFlow {
+                if (filtersUiStateHolder.isLoaded) {
+                    postsPagingRepository.posts(
+                        searchPostsDto = SearchPostsDto(
+                            filtersDto = filtersUiStateHolder.filtersUiState.toFiltersDto(),
+                            searchDto = searchUiState.toSearchDto()
+                        )
+                    )
+                        .distinctUntilChanged()
+                        .cachedIn(viewModelScope)
+                } else {
+                    flowOf(PagingData.empty())
+                }
+            }
+                .flatMapLatest { it }
+                .collectLatest { postsUiState.updateData(it) }
+        }
     }
 }
 

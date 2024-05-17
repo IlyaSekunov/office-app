@@ -21,7 +21,7 @@ fun NavGraphBuilder.favouriteIdeasScreen(
 ) {
     composable(route = BottomNavigationScreen.Favourite.route) {
         val viewModel = hiltViewModel<FavouriteIdeasViewModel>()
-        val favouriteIdeas = viewModel.favouriteIdeasUiState.ideas.collectAsLazyPagingItems()
+        val favouriteIdeas = viewModel.favouriteIdeasUiState.data.collectAsLazyPagingItems()
         val ideasGridState = rememberLazyGridState()
         val coroutineScope = rememberCoroutineScope()
         FavouriteIdeasScreen(
@@ -31,7 +31,10 @@ fun NavGraphBuilder.favouriteIdeasScreen(
             searchUiState = viewModel.searchUiState,
             onSearchValueChange = viewModel::updateSearchValue,
             onSortingFilterRemoveClick = viewModel.filtersUiStateHolder::removeSortingFilter,
-            onRetryInfoLoad = viewModel::loadFavouritePosts,
+            onRetryInfoLoad = {
+                viewModel.loadData()
+                favouriteIdeas.retry()
+            },
             onPullToRefresh = { launch { favouriteIdeas.refresh() } },
             navigateToFiltersScreen = navigateToFiltersScreen,
             navigateToIdeaDetailsScreen = navigateToIdeaDetailsScreen,

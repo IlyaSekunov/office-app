@@ -23,10 +23,10 @@ fun NavGraphBuilder.myOfficeScreen(
 ) {
     composable(route = BottomNavigationScreen.MyOffice.route) {
         val viewModel = hiltViewModel<MyOfficeViewModel>()
-        val suggestedIdeas = viewModel.suggestedIdeasUiState.ideas.collectAsLazyPagingItems()
-        val ideasInProgress = viewModel.ideasInProgressUiState.ideas.collectAsLazyPagingItems()
-        val implementedIdeas = viewModel.implementedIdeasUiState.ideas.collectAsLazyPagingItems()
-        val officeEmployees = viewModel.officeEmployeesUiState.employees.collectAsLazyPagingItems()
+        val suggestedIdeas = viewModel.suggestedIdeasUiState.data.collectAsLazyPagingItems()
+        val ideasInProgress = viewModel.ideasInProgressUiState.data.collectAsLazyPagingItems()
+        val implementedIdeas = viewModel.implementedIdeasUiState.data.collectAsLazyPagingItems()
+        val officeEmployees = viewModel.officeEmployeesUiState.data.collectAsLazyPagingItems()
         val scrollState = rememberScrollState()
         val coroutineScope = rememberCoroutineScope()
         MyOfficeScreen(

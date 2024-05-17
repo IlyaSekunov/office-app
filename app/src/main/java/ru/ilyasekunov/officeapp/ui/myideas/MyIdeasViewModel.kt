@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
-import ru.ilyasekunov.officeapp.ui.IdeasUiState
+import ru.ilyasekunov.officeapp.ui.PagingDataUiState
 import ru.ilyasekunov.officeapp.ui.home.DeletePostUiState
 import javax.inject.Inject
 
@@ -22,7 +22,7 @@ class MyIdeasViewModel @Inject constructor(
     private val postsRepository: PostsRepository,
     private val postsPagingRepository: PostsPagingRepository
 ) : ViewModel() {
-    val myIdeasUiState = IdeasUiState()
+    val myIdeasUiState = PagingDataUiState<IdeaPost>()
     var deleteIdeaUiState by mutableStateOf(DeletePostUiState())
         private set
 
@@ -55,7 +55,7 @@ class MyIdeasViewModel @Inject constructor(
             postsPagingRepository.myIdeas()
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
-                .collectLatest { myIdeasUiState.updateIdeas(it) }
+                .collectLatest { myIdeasUiState.updateData(it) }
         }
     }
 }

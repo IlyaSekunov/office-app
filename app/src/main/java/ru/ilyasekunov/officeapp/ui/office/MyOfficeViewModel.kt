@@ -5,12 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -21,21 +18,12 @@ import ru.ilyasekunov.officeapp.data.repository.author.AuthorsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpForbiddenException
-import ru.ilyasekunov.officeapp.ui.IdeasUiState
+import ru.ilyasekunov.officeapp.ui.PagingDataUiState
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
 import ru.ilyasekunov.officeapp.ui.home.DeletePostUiState
 import ru.ilyasekunov.officeapp.ui.updateDislike
 import ru.ilyasekunov.officeapp.ui.updateLike
 import javax.inject.Inject
-
-class OfficeEmployeesUiState(employees: PagingData<IdeaAuthor> = PagingData.empty()) {
-    private val _employees = MutableStateFlow(employees)
-    val employees get() = _employees.asStateFlow()
-
-    fun updateIdeas(employees: PagingData<IdeaAuthor>) {
-        _employees.value = employees
-    }
-}
 
 @HiltViewModel
 class MyOfficeViewModel @Inject constructor(
@@ -44,10 +32,10 @@ class MyOfficeViewModel @Inject constructor(
     private val authorPagingRepository: AuthorsPagingRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {
-    val suggestedIdeasUiState = IdeasUiState()
-    val ideasInProgressUiState = IdeasUiState()
-    val implementedIdeasUiState = IdeasUiState()
-    val officeEmployeesUiState = OfficeEmployeesUiState()
+    val suggestedIdeasUiState = PagingDataUiState<IdeaPost>()
+    val ideasInProgressUiState = PagingDataUiState<IdeaPost>()
+    val implementedIdeasUiState = PagingDataUiState<IdeaPost>()
+    val officeEmployeesUiState = PagingDataUiState<IdeaAuthor>()
     var currentUserUiState by mutableStateOf(CurrentUserUiState())
         private set
     var deletePostUiState by mutableStateOf(DeletePostUiState())
@@ -121,7 +109,7 @@ class MyOfficeViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collectLatest {
-                    officeEmployeesUiState.updateIdeas(it)
+                    officeEmployeesUiState.updateData(it)
                 }
         }
     }
@@ -151,7 +139,7 @@ class MyOfficeViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collectLatest {
-                    suggestedIdeasUiState.updateIdeas(it)
+                    suggestedIdeasUiState.updateData(it)
                 }
         }
     }
@@ -162,7 +150,7 @@ class MyOfficeViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collectLatest {
-                    ideasInProgressUiState.updateIdeas(it)
+                    ideasInProgressUiState.updateData(it)
                 }
         }
     }
@@ -173,35 +161,35 @@ class MyOfficeViewModel @Inject constructor(
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collectLatest {
-                    implementedIdeasUiState.updateIdeas(it)
+                    implementedIdeasUiState.updateData(it)
                 }
         }
     }
 
     private fun updateSuggestedIdeasPost(updatedPost: IdeaPost) {
-        val postsPagingData = suggestedIdeasUiState.ideas.value
+        val postsPagingData = suggestedIdeasUiState.data.value
         val updatedPostsPagingData = postsPagingData.map {
             if (it.id == updatedPost.id) updatedPost
             else it
         }
-        suggestedIdeasUiState.updateIdeas(updatedPostsPagingData)
+        suggestedIdeasUiState.updateData(updatedPostsPagingData)
     }
 
     private fun updateIdeasInProgressPost(updatedPost: IdeaPost) {
-        val postsPagingData = ideasInProgressUiState.ideas.value
+        val postsPagingData = ideasInProgressUiState.data.value
         val updatedPostsPagingData = postsPagingData.map {
             if (it.id == updatedPost.id) updatedPost
             else it
         }
-        ideasInProgressUiState.updateIdeas(updatedPostsPagingData)
+        ideasInProgressUiState.updateData(updatedPostsPagingData)
     }
 
     private fun updateImplementedIdeasPost(updatedPost: IdeaPost) {
-        val postsPagingData = implementedIdeasUiState.ideas.value
+        val postsPagingData = implementedIdeasUiState.data.value
         val updatedPostsPagingData = postsPagingData.map {
             if (it.id == updatedPost.id) updatedPost
             else it
         }
-        implementedIdeasUiState.updateIdeas(updatedPostsPagingData)
+        implementedIdeasUiState.updateData(updatedPostsPagingData)
     }
 }

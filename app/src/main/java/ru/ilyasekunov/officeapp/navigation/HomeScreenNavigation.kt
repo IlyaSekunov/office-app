@@ -25,7 +25,7 @@ fun NavGraphBuilder.homeScreen(
 ) {
     composable(route = BottomNavigationScreen.Home.route) {
         val viewModel = hiltViewModel<HomeViewModel>()
-        val posts = viewModel.postsUiState.ideas.collectAsLazyPagingItems()
+        val posts = viewModel.postsUiState.data.collectAsLazyPagingItems()
         val lazyListState = rememberLazyListState()
         val coroutineScope = rememberCoroutineScope()
         HomeScreen(
@@ -44,8 +44,8 @@ fun NavGraphBuilder.homeScreen(
             onPostLikeClick = viewModel::updateLike,
             onPostDislikeClick = viewModel::updateDislike,
             onRetryInfoLoad = {
-                viewModel.loadCurrentUser()
-                viewModel.loadPosts()
+                viewModel.loadData()
+                posts.retry()
             },
             onPullToRefresh = {
                 launch {

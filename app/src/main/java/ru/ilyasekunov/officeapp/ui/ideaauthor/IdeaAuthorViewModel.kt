@@ -22,7 +22,7 @@ import ru.ilyasekunov.officeapp.data.repository.author.AuthorRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsPagingRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
 import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
-import ru.ilyasekunov.officeapp.ui.IdeasUiState
+import ru.ilyasekunov.officeapp.ui.PagingDataUiState
 import ru.ilyasekunov.officeapp.ui.updateDislike
 import ru.ilyasekunov.officeapp.ui.updateLike
 
@@ -35,7 +35,8 @@ data class IdeaAuthorUiState(
     val office: Office? = null,
     val isLoading: Boolean = true,
     val isExists: Boolean = true,
-    val isErrorWhileLoading: Boolean = false
+    val isErrorWhileLoading: Boolean = false,
+    val isLoaded: Boolean = false
 )
 
 @HiltViewModel(assistedFactory = IdeaAuthorViewModel.Factory::class)
@@ -47,13 +48,9 @@ class IdeaAuthorViewModel @AssistedInject constructor(
 ) : ViewModel() {
     var ideaAuthorUiState by mutableStateOf(IdeaAuthorUiState())
         private set
-    val authorIdeasUiState = IdeasUiState()
+    val authorIdeasUiState = PagingDataUiState<IdeaPost>()
 
     init {
-        loadData()
-    }
-
-    fun loadData() {
         loadIdeaAuthor()
         loadAuthorsIdeas()
     }
@@ -83,15 +80,15 @@ class IdeaAuthorViewModel @AssistedInject constructor(
     }
 
     private fun updateIdea(updatedPost: IdeaPost) {
-        val authorIdeas = authorIdeasUiState.ideas
+        val authorIdeas = authorIdeasUiState.data
         val updatedIdeas = authorIdeas.value.map {
             if (it.id == updatedPost.id) updatedPost
             else it
         }
-        authorIdeasUiState.updateIdeas(updatedIdeas)
+        authorIdeasUiState.updateData(updatedIdeas)
     }
 
-    private fun loadIdeaAuthor() {
+    fun loadIdeaAuthor() {
         viewModelScope.launch {
             ideaAuthorUiState = ideaAuthorUiState.copy(isLoading = true)
             refreshIdeaAuthor()
@@ -110,12 +107,16 @@ class IdeaAuthorViewModel @AssistedInject constructor(
                 result.exceptionOrNull()!! is HttpNotFoundException -> {
                     ideaAuthorUiState = ideaAuthorUiState.copy(
                         isErrorWhileLoading = false,
-                        isExists = false
+                        isExists = false,
+                        isLoaded = false
                     )
                 }
 
                 else -> {
-                    ideaAuthorUiState = ideaAuthorUiState.copy(isErrorWhileLoading = true)
+                    ideaAuthorUiState = ideaAuthorUiState.copy(
+                        isErrorWhileLoading = true,
+                        isLoaded = false
+                    )
                 }
             }
         }
@@ -127,7 +128,7 @@ class IdeaAuthorViewModel @AssistedInject constructor(
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
                 .collectLatest {
-                    authorIdeasUiState.updateIdeas(it)
+                    authorIdeasUiState.updateData(it)
                 }
         }
     }
@@ -147,5 +148,6 @@ fun IdeaAuthor.toIdeaAuthorUiState(): IdeaAuthorUiState =
         office = office,
         isLoading = false,
         isExists = true,
-        isErrorWhileLoading = false
+        isErrorWhileLoading = false,
+        isLoaded = true
     )

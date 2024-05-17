@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.model.Filters
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
@@ -24,8 +23,7 @@ data class FiltersUiState(
 class FiltersUiStateHolder(
     initialFiltersUiState: FiltersUiState,
     private val coroutineScope: CoroutineScope,
-    private val loadFiltersRequest: suspend () -> Result<Filters>,
-    private val onUpdateFiltersState: (() -> Unit)? = null
+    private val loadFiltersRequest: suspend () -> Result<Filters>
 ) {
     var filtersUiState by mutableStateOf(initialFiltersUiState)
         private set
@@ -36,7 +34,6 @@ class FiltersUiStateHolder(
 
     fun updateFiltersUiState(filtersUiState: FiltersUiState) {
         this.filtersUiState = filtersUiState
-        onUpdateFiltersState?.invoke()
     }
 
     fun removeSortingFilter() {
@@ -44,7 +41,6 @@ class FiltersUiStateHolder(
         filtersUiState = filtersUiState.copy(
             sortingFiltersUiState = sortingFiltersUiState.copy(selected = null)
         )
-        onUpdateFiltersState?.invoke()
     }
 
     fun removeOfficeFilter(officeFilter: OfficeFilterUiState) {
@@ -57,21 +53,22 @@ class FiltersUiStateHolder(
                 }
             }
         )
-        onUpdateFiltersState?.invoke()
     }
 
-    fun loadFilters(): Job = coroutineScope.launch {
-        filtersUiState = filtersUiState.copy(isLoading = true)
-        loadFiltersRequest().also { result ->
-            if (result.isSuccess) {
-                val filters = result.getOrThrow()
-                filtersUiState = filters.toFiltersUiState()
-            } else {
-                filtersUiState = filtersUiState.copy(
-                    isErrorWhileLoading = true,
-                    isLoaded = false,
-                    isLoading = false
-                )
+    fun loadFilters() {
+        coroutineScope.launch {
+            filtersUiState = filtersUiState.copy(isLoading = true)
+            loadFiltersRequest().also { result ->
+                if (result.isSuccess) {
+                    val filters = result.getOrThrow()
+                    filtersUiState = filters.toFiltersUiState()
+                } else {
+                    filtersUiState = filtersUiState.copy(
+                        isErrorWhileLoading = true,
+                        isLoaded = false,
+                        isLoading = false
+                    )
+                }
             }
         }
     }

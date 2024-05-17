@@ -25,15 +25,18 @@ fun NavGraphBuilder.ideaAuthorScreen(
     ) { backStackEntry ->
         val authorId = backStackEntry.arguments!!.getLong("authorId")
         val viewModel = setUpIdeaAuthorViewModel(authorId)
-        val ideas = viewModel.authorIdeasUiState.ideas.collectAsLazyPagingItems()
+        val ideas = viewModel.authorIdeasUiState.data.collectAsLazyPagingItems()
         IdeaAuthorScreen(
             ideaAuthorUiState = viewModel.ideaAuthorUiState,
             ideas = ideas,
-            onRetryLoadData = viewModel::loadData,
+            onRetryLoadData = {
+                viewModel.loadIdeaAuthor()
+                ideas.retry()
+            },
             onPullToRefresh = {
                 launch {
                     launch { viewModel.refreshIdeaAuthor() }
-                    launch { ideas.refresh() }
+                    ideas.refresh()
                 }
             },
             onIdeaLikeClick = viewModel::updateLike,
