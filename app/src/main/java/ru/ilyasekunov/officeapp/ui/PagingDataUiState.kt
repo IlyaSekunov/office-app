@@ -14,12 +14,6 @@ class PagingDataUiState<T : Any>(initialData: PagingData<T> = PagingData.empty()
         _data.value = data
     }
 
-    fun updateEntity(oldEntity: T, newEntity: T) {
-        _data.update { pagingData ->
-            pagingData.map { if (it == oldEntity) newEntity else oldEntity }
-        }
-    }
-
     fun updateEntity(newEntity: T, condition: (T) -> Boolean) {
         _data.update { pagingData ->
             pagingData.map {

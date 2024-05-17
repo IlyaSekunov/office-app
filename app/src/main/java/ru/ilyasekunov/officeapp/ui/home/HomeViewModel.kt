@@ -110,7 +110,7 @@ class HomeViewModel @Inject constructor(
     fun updateLike(post: IdeaPost) {
         viewModelScope.launch {
             val updatedPost = post.updateLike()
-            postsUiState.updateEntity(post, updatedPost)
+            postsUiState.updateEntity(updatedPost) { it.id == updatedPost.id }
             if (updatedPost.isLikePressed) {
                 postsRepository.pressLike(updatedPost.id)
             } else {
@@ -122,7 +122,7 @@ class HomeViewModel @Inject constructor(
     fun updateDislike(post: IdeaPost) {
         viewModelScope.launch {
             val updatedPost = post.updateDislike()
-            postsUiState.updateEntity(post, updatedPost)
+            postsUiState.updateEntity(updatedPost) { it.id == updatedPost.id }
             if (updatedPost.isDislikePressed) {
                 postsRepository.pressDislike(updatedPost.id)
             } else {
