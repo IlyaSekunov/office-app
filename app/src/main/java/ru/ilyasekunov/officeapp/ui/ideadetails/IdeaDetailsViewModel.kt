@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -51,10 +50,7 @@ class CommentsUiState {
         private set
 
     fun updateComment(comment: Comment) {
-        val updatedData = comments.data.value.map {
-            if (it.id == comment.id) comment else it
-        }
-        comments.updateData(updatedData)
+        comments.updateEntity(comment) { it.id == comment.id }
     }
 
     fun updateSortingFilter(sortingFilter: CommentsSortingFilters) {

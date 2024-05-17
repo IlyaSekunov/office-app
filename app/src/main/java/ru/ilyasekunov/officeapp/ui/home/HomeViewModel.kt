@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -111,7 +110,7 @@ class HomeViewModel @Inject constructor(
     fun updateLike(post: IdeaPost) {
         viewModelScope.launch {
             val updatedPost = post.updateLike()
-            updatePost(updatedPost)
+            postsUiState.updateEntity(post, updatedPost)
             if (updatedPost.isLikePressed) {
                 postsRepository.pressLike(updatedPost.id)
             } else {
@@ -123,7 +122,7 @@ class HomeViewModel @Inject constructor(
     fun updateDislike(post: IdeaPost) {
         viewModelScope.launch {
             val updatedPost = post.updateDislike()
-            updatePost(updatedPost)
+            postsUiState.updateEntity(post, updatedPost)
             if (updatedPost.isDislikePressed) {
                 postsRepository.pressDislike(updatedPost.id)
             } else {
@@ -150,15 +149,6 @@ class HomeViewModel @Inject constructor(
             isError = false,
             isSuccess = false
         )
-    }
-
-    private fun updatePost(updatedPost: IdeaPost) {
-        val postsPagingData = postsUiState.data.value
-        val updatedPostsPagingData = postsPagingData.map {
-            if (it.id == updatedPost.id) updatedPost
-            else it
-        }
-        postsUiState.updateData(updatedPostsPagingData)
     }
 
     private fun loadCurrentUser() {

@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -167,29 +166,14 @@ class MyOfficeViewModel @Inject constructor(
     }
 
     private fun updateSuggestedIdeasPost(updatedPost: IdeaPost) {
-        val postsPagingData = suggestedIdeasUiState.data.value
-        val updatedPostsPagingData = postsPagingData.map {
-            if (it.id == updatedPost.id) updatedPost
-            else it
-        }
-        suggestedIdeasUiState.updateData(updatedPostsPagingData)
+        suggestedIdeasUiState.updateEntity(updatedPost) { it.id == updatedPost.id }
     }
 
     private fun updateIdeasInProgressPost(updatedPost: IdeaPost) {
-        val postsPagingData = ideasInProgressUiState.data.value
-        val updatedPostsPagingData = postsPagingData.map {
-            if (it.id == updatedPost.id) updatedPost
-            else it
-        }
-        ideasInProgressUiState.updateData(updatedPostsPagingData)
+        ideasInProgressUiState.updateEntity(updatedPost) { it.id == updatedPost.id }
     }
 
     private fun updateImplementedIdeasPost(updatedPost: IdeaPost) {
-        val postsPagingData = implementedIdeasUiState.data.value
-        val updatedPostsPagingData = postsPagingData.map {
-            if (it.id == updatedPost.id) updatedPost
-            else it
-        }
-        implementedIdeasUiState.updateData(updatedPostsPagingData)
+        implementedIdeasUiState.updateEntity(updatedPost) { it.id == updatedPost.id }
     }
 }

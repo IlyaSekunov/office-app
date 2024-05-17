@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import androidx.paging.map
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -80,12 +79,7 @@ class IdeaAuthorViewModel @AssistedInject constructor(
     }
 
     private fun updateIdea(updatedPost: IdeaPost) {
-        val authorIdeas = authorIdeasUiState.data
-        val updatedIdeas = authorIdeas.value.map {
-            if (it.id == updatedPost.id) updatedPost
-            else it
-        }
-        authorIdeasUiState.updateData(updatedIdeas)
+        authorIdeasUiState.updateEntity(updatedPost) { it.id == updatedPost.id }
     }
 
     fun loadIdeaAuthor() {
