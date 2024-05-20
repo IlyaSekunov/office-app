@@ -1,0 +1,56 @@
+[versions]
+activity-compose-version = "1.9.0"
+coil-compose-version = "2.5.0"
+compose-bom-version = "2024.05.00"
+compose-shimmer-version = "1.2.0"
+datastore-preferences-version = "1.1.1"
+espresso-core-version = "3.5.1"
+hilt-android-version = "2.50"
+hilt-navigation-compose-version = "1.2.0"
+junit = "1.1.5"
+junit-version = "4.13.2"
+ktx = "1.13.1"
+lifecycle-runtime = "2.8.0"
+lottie-compose-version = "6.4.0"
+material3-version = "1.2.1"
+mockito-core-version = "5.10.0"
+mockito-kotlin-version = "5.2.1"
+navigation-compose-version = "2.7.7"
+paging-compose-version = "3.3.0"
+retrofit-version = "2.9.0"
+ui-version = "1.7.0-beta01"
+
+androidGraglePlugin = "8.4.1"
+kotlinAndroid = "1.9.22"
+
+[libraries]
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose-version" }
+androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom-version" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore-preferences-version" }
+androidx-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso-core-version" }
+androidx-hilt-navigation-compose = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation-compose-version" }
+androidx-junit = { module = "androidx.test.ext:junit", version.ref = "junit" }
+androidx-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "ktx" }
+androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime" }
+androidx-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3-version" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose-version" }
+androidx-paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging-compose-version" }
+androidx-ui = { module = "androidx.compose.ui:ui", version.ref = "ui-version" }
+androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
+androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil-compose-version" }
+compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "compose-shimmer-version" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit-version" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt-android-version" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt-android-version" }
+junit = { module = "junit:junit", version.ref = "junit-version" }
+lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie-compose-version" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito-core-version" }
+mockito-kotlin = { module = "org.mockito.kotlin:mockito-kotlin", version.ref = "mockito-kotlin-version" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit-version" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "androidGraglePlugin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinAndroid" }
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt-android-version" }
