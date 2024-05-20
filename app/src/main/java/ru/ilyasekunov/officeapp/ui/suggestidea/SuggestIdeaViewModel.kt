@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
 import ru.ilyasekunov.officeapp.data.repository.posts.PostsRepository
@@ -33,6 +35,7 @@ class SuggestIdeaViewModel @Inject constructor(
 ) : ViewModel() {
     var suggestIdeaUiState by mutableStateOf(SuggestIdeaUiState())
         private set
+    private val lock = Mutex()
 
     fun updateTitle(title: String) {
         suggestIdeaUiState = suggestIdeaUiState.copy(title = title)
@@ -57,7 +60,7 @@ class SuggestIdeaViewModel @Inject constructor(
     private fun attachImage(image: Uri) {
         if (attachedImagesCount() < ImagePickerDefaults.MAX_ATTACH_IMAGES) {
             viewModelScope.launch {
-                synchronized(suggestIdeaUiState) {
+                lock.withLock {
                     val imageId = nextAttachedImagesId()
                     val attachedImage = AttachedImage(id = imageId, image = image)
                     attachImage(attachedImage)

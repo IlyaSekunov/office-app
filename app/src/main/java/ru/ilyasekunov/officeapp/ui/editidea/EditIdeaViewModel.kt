@@ -12,6 +12,8 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.model.IdeaPost
 import ru.ilyasekunov.officeapp.data.repository.images.ImagesRepository
@@ -39,6 +41,7 @@ class EditIdeaViewModel @AssistedInject constructor(
 ) : ViewModel() {
     var editIdeaUiState by mutableStateOf(EditIdeaUiState())
         private set
+    private val lock = Mutex()
 
     init {
         loadPost()
@@ -65,7 +68,7 @@ class EditIdeaViewModel @AssistedInject constructor(
     private fun attachImage(image: Uri) {
         if (attachedImagesCount() < ImagePickerDefaults.MAX_ATTACH_IMAGES) {
             viewModelScope.launch {
-                synchronized(editIdeaUiState) {
+                lock.withLock {
                     val imageId = nextAttachedImagesId()
                     val attachedImage = AttachedImage(id = imageId, image = image)
                     attachImage(attachedImage)

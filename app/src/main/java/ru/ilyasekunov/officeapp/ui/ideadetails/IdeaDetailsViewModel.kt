@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import ru.ilyasekunov.officeapp.data.dto.CommentDto
 import ru.ilyasekunov.officeapp.data.model.Comment
 import ru.ilyasekunov.officeapp.data.model.CommentsSortingFilters
@@ -89,6 +91,7 @@ class IdeaDetailsViewModel @AssistedInject constructor(
         private set
     var deleteCommentUiState by mutableStateOf(DeleteCommentUiState())
         private set
+    private val lock = Mutex()
 
     init {
         loadData()
@@ -106,12 +109,14 @@ class IdeaDetailsViewModel @AssistedInject constructor(
     }
 
     fun attachImage(uri: Uri) {
-        synchronized(sendMessageUiState) {
-            val imageId = nextAttachedImagesId()
-            val attachedImage = AttachedImage(imageId, uri)
-            sendMessageUiState = sendMessageUiState.copy(
-                attachedImages = sendMessageUiState.attachedImages + attachedImage
-            )
+        viewModelScope.launch {
+            lock.withLock {
+                val imageId = nextAttachedImagesId()
+                val attachedImage = AttachedImage(imageId, uri)
+                sendMessageUiState = sendMessageUiState.copy(
+                    attachedImages = sendMessageUiState.attachedImages + attachedImage
+                )
+            }
         }
     }
 

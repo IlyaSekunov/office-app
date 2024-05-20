@@ -1,6 +1,8 @@
 package ru.ilyasekunov.officeapp.data.datasource.local.mock
 
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import ru.ilyasekunov.officeapp.data.datasource.PostsDataSource
 import ru.ilyasekunov.officeapp.data.dto.EditPostDto
 import ru.ilyasekunov.officeapp.data.dto.PublishPostDto
@@ -13,11 +15,11 @@ import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
 import java.time.LocalDateTime
 
 class MockPostsDataSource : PostsDataSource {
+    private val lock = Mutex()
+
     override suspend fun publishPost(post: PublishPostDto): Result<Unit> {
         delay(3000L)
-        synchronized(Posts) {
-            Posts += post.toIdeaPost()
-        }
+        lock.withLock { Posts += post.toIdeaPost() }
         return Result.success(Unit)
     }
 
@@ -269,7 +271,7 @@ class MockPostsDataSource : PostsDataSource {
     override suspend fun pressLike(postId: Long): Result<Unit> {
         val post = Posts.find { it.id == postId }
         post?.let {
-            synchronized(this) {
+            lock.withLock {
                 Posts[Posts.indexOf(it)] = it.copy(
                     isLikePressed = true,
                     likesCount = it.likesCount + 1
@@ -285,7 +287,7 @@ class MockPostsDataSource : PostsDataSource {
     override suspend fun removeLike(postId: Long): Result<Unit> {
         val post = Posts.find { it.id == postId }
         post?.let {
-            synchronized(this) {
+            lock.withLock {
                 Posts[Posts.indexOf(it)] = it.copy(
                     isLikePressed = false,
                     likesCount = it.likesCount - 1
@@ -298,7 +300,7 @@ class MockPostsDataSource : PostsDataSource {
     override suspend fun pressDislike(postId: Long): Result<Unit> {
         val post = Posts.find { it.id == postId }
         post?.let {
-            synchronized(this) {
+            lock.withLock {
                 Posts[Posts.indexOf(it)] = it.copy(
                     isDislikePressed = true,
                     dislikesCount = it.dislikesCount + 1
@@ -314,7 +316,7 @@ class MockPostsDataSource : PostsDataSource {
     override suspend fun removeDislike(postId: Long): Result<Unit> {
         val post = Posts.find { it.id == postId }
         post?.let {
-            synchronized(this) {
+            lock.withLock {
                 Posts[Posts.indexOf(it)] = it.copy(
                     isDislikePressed = false,
                     dislikesCount = it.dislikesCount - 1
