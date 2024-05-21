@@ -4,15 +4,45 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.data.model.SortingCategory
+import ru.ilyasekunov.officeapp.data.repository.auth.AuthRepository
+import ru.ilyasekunov.officeapp.exceptions.HttpForbiddenException
+import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import javax.inject.Inject
 
 @HiltViewModel
-class FiltersViewModel @Inject constructor(): ViewModel() {
+class FiltersViewModel @Inject constructor(
+    private val authRepository: AuthRepository
+): ViewModel() {
     var filtersUiState by mutableStateOf(FiltersUiState())
         private set
+    var currentUserUiState by mutableStateOf(CurrentUserUiState())
+        private set
+
+    init {
+        loadCurrentUser()
+    }
+
+    fun loadCurrentUser() {
+        viewModelScope.launch {
+            currentUserUiState = currentUserUiState.copy(isLoading = true)
+
+            authRepository.userInfo().also { result ->
+                val exception = result.exceptionOrNull()
+                currentUserUiState = currentUserUiState.copy(
+                    user = result.getOrNull(),
+                    isErrorWhileLoading = result.isFailure && exception !is HttpForbiddenException,
+                    isUnauthorized = exception is HttpForbiddenException
+                )
+            }
+
+            currentUserUiState = currentUserUiState.copy(isLoading = false)
+        }
+    }
 
     fun updateFiltersUiState(filtersUiState: FiltersUiState) {
         this.filtersUiState = filtersUiState

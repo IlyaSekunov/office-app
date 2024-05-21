@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -42,6 +43,7 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -71,6 +73,7 @@ import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
 import ru.ilyasekunov.officeapp.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
 import ru.ilyasekunov.officeapp.ui.components.rememberCircleClickEffectIndication
+import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
 import ru.ilyasekunov.officeapp.ui.home.OfficeFilterUiState
 import ru.ilyasekunov.officeapp.ui.home.SortingFiltersUiState
 import ru.ilyasekunov.officeapp.ui.home.sortingCategoryName
@@ -79,6 +82,7 @@ import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
 @Composable
 fun FiltersScreen(
     filtersUiState: FiltersUiState,
+    currentUserUiState: CurrentUserUiState,
     onSortingCategoryClick: (SortingCategory) -> Unit,
     onOfficeFilterClick: (OfficeFilterUiState) -> Unit,
     onResetClick: () -> Unit,
@@ -91,9 +95,10 @@ fun FiltersScreen(
     navigateBack: () -> Unit
 ) {
     when {
-        filtersUiState.isLoading -> AnimatedLoadingScreen()
+        isScreenLoading(filtersUiState, currentUserUiState) -> AnimatedLoadingScreen()
         else -> FiltersScreenContent(
             filtersUiState = filtersUiState,
+            currentUserUiState = currentUserUiState,
             onSortingCategoryClick = onSortingCategoryClick,
             onOfficeFilterClick = onOfficeFilterClick,
             onResetClick = onResetClick,
@@ -113,6 +118,7 @@ fun FiltersScreen(
 @Composable
 private fun FiltersScreenContent(
     filtersUiState: FiltersUiState,
+    currentUserUiState: CurrentUserUiState,
     onSortingCategoryClick: (SortingCategory) -> Unit,
     onOfficeFilterClick: (OfficeFilterUiState) -> Unit,
     onResetClick: () -> Unit,
@@ -147,7 +153,7 @@ private fun FiltersScreenContent(
         },
         modifier = modifier
     ) { paddingValues ->
-        if (filtersUiState.isErrorWhileLoading) {
+        if (isErrorWhileScreenLoading(filtersUiState, currentUserUiState)) {
             ErrorScreen(
                 message = stringResource(R.string.error_connecting_to_server),
                 onRetryButtonClick = onRetryLoad
@@ -161,6 +167,7 @@ private fun FiltersScreenContent(
             ) {
                 OfficeFiltersSection(
                     officeList = filtersUiState.officeFiltersUiState,
+                    isMyOffice = { it == currentUserUiState.user!!.office },
                     onOfficeClick = onOfficeFilterClick,
                     officeFilterSize = DpSize(width = 345.dp, height = 80.dp),
                     modifier = Modifier.padding(start = 20.dp, end = 20.dp)
@@ -231,6 +238,7 @@ fun FiltersTopAppBar(
 @Composable
 private fun OfficeFiltersSection(
     officeList: List<OfficeFilterUiState>,
+    isMyOffice: (Office) -> Boolean,
     onOfficeClick: (OfficeFilterUiState) -> Unit,
     officeFilterSize: DpSize,
     modifier: Modifier = Modifier
@@ -249,6 +257,7 @@ private fun OfficeFiltersSection(
         officeList.forEach {
             OfficeFilter(
                 officeFilterUiState = it,
+                isMyOffice = isMyOffice(it.office),
                 onOfficeClick = { onOfficeClick(it) },
                 modifier = Modifier.size(
                     width = officeFilterSize.width,
@@ -262,6 +271,7 @@ private fun OfficeFiltersSection(
 @Composable
 private fun OfficeFilter(
     officeFilterUiState: OfficeFilterUiState,
+    isMyOffice: Boolean,
     onOfficeClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -269,6 +279,7 @@ private fun OfficeFilter(
         MaterialTheme.colorScheme.primary
     else
         MaterialTheme.colorScheme.surfaceVariant
+
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -282,8 +293,9 @@ private fun OfficeFilter(
             .background(color.copy(alpha = 0.15f))
             .clickable(onClick = onOfficeClick)
     ) {
-        AsyncImageWithLoading(
-            model = officeFilterUiState.office.imageUrl,
+        OfficeFilterImage(
+            imageUrl = officeFilterUiState.office.imageUrl,
+            isMyOffice = isMyOffice,
             modifier = Modifier
                 .fillMaxHeight()
                 .aspectRatio(1f / 1f)
@@ -305,6 +317,58 @@ private fun OfficeFilter(
                 uncheckedColor = MaterialTheme.colorScheme.surfaceVariant
             ),
             modifier = Modifier.padding(end = 20.dp)
+        )
+    }
+}
+
+@Composable
+private fun OfficeFilterImage(
+    imageUrl: String,
+    isMyOffice: Boolean,
+    modifier: Modifier = Modifier
+) {
+    var imageHeightPx by remember { mutableIntStateOf(0) }
+    val myOfficePromptYOffsetPercent = 0.125
+    val density = LocalDensity.current
+
+    Box(modifier = modifier) {
+        AsyncImageWithLoading(
+            model = imageUrl,
+            modifier = Modifier
+                .fillMaxSize()
+                .onSizeChanged { imageHeightPx = it.height }
+        )
+        if (isMyOffice) {
+            MyOfficePrompt(
+                modifier = Modifier
+                    .offset(
+                        y = with(density) {
+                            (imageHeightPx * myOfficePromptYOffsetPercent).toInt().toDp()
+                        }
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+private fun MyOfficePrompt(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .clip(
+                MaterialTheme.shapes.small.copy(
+                    topStart = CornerSize(0.dp),
+                    bottomStart = CornerSize(0.dp)
+                )
+            )
+            .background(MaterialTheme.colorScheme.primary)
+            .padding(4.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.my_office),
+            style = MaterialTheme.typography.labelMedium,
+            fontSize = 10.sp,
+            color = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -464,6 +528,16 @@ private fun calculateSortingFilterWidth(
     return with(density) { oneFilterWidthPx.toDp() }
 }
 
+private fun isScreenLoading(
+    filtersUiState: FiltersUiState,
+    currentUserUiState: CurrentUserUiState
+) = filtersUiState.isLoading || currentUserUiState.isLoading
+
+private fun isErrorWhileScreenLoading(
+    filtersUiState: FiltersUiState,
+    currentUserUiState: CurrentUserUiState
+) = filtersUiState.isErrorWhileLoading || currentUserUiState.isErrorWhileLoading
+
 @Preview
 @Composable
 private fun OfficeFilterPreview() {
@@ -476,6 +550,7 @@ private fun OfficeFilterPreview() {
                     address = "Пушкинская"
                 )
             ),
+            isMyOffice = true,
             onOfficeClick = {},
             modifier = Modifier.size(width = 325.dp, height = 80.dp)
         )

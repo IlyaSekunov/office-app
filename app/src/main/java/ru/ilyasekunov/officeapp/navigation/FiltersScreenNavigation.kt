@@ -30,6 +30,7 @@ fun NavGraphBuilder.filtersScreen(
         val viewModel = setUpFiltersViewModel(filtersUiStateHolder.filtersUiState)
         FiltersScreen(
             filtersUiState = viewModel.filtersUiState,
+            currentUserUiState = viewModel.currentUserUiState,
             onSortingCategoryClick = viewModel::updateSortingCategory,
             onOfficeFilterClick = viewModel::updateOfficeFilterIsSelected,
             onResetClick = viewModel::reset,
@@ -37,7 +38,10 @@ fun NavGraphBuilder.filtersScreen(
                 filtersUiStateHolder.updateFiltersUiState(viewModel.filtersUiState)
                 navigateBack()
             },
-            onRetryLoad = filtersUiStateHolder::loadFilters,
+            onRetryLoad = {
+                filtersUiStateHolder.loadFilters()
+                viewModel.loadCurrentUser()
+            },
             navigateToHomeScreen = navigateToHomeScreen,
             navigateToFavouriteScreen = navigateToFavouriteScreen,
             navigateToMyOfficeScreen = navigateToMyOfficeScreen,
