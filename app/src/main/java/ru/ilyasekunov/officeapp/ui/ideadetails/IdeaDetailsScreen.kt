@@ -417,15 +417,11 @@ private fun IdeaDetailsScreenContent(
                         .fillMaxSize()
                         .padding(horizontal = 10.dp)
                 )
-            }
-            if (ideaPost.attachedImages.isNotEmpty()) {
-                item {
-                    HorizontalDivider(
-                        thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.outline,
-                        modifier = Modifier.padding(10.dp)
-                    )
-                }
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(10.dp)
+                )
             }
             item {
                 IdeaPostDetailSection(
@@ -642,17 +638,17 @@ private fun IdeaPostDetailSection(
                     .fillMaxWidth()
                     .aspectRatio(1f / 0.85f)
             )
-            HorizontalDivider(
-                thickness = 1.dp,
-                color = MaterialTheme.colorScheme.outline,
-                modifier = Modifier.padding(
-                    start = 10.dp,
-                    end = 10.dp,
-                    top = 25.dp,
-                    bottom = 20.dp
-                )
-            )
         }
+        HorizontalDivider(
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outline,
+            modifier = Modifier.padding(
+                start = 10.dp,
+                end = 10.dp,
+                top = 10.dp,
+                bottom = 20.dp
+            )
+        )
         Text(
             text = ideaPost.content,
             fontSize = 16.sp,
