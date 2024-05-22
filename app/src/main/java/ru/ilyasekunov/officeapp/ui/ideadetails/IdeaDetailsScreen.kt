@@ -86,7 +86,7 @@ import ru.ilyasekunov.officeapp.util.toRussianString
 import java.time.LocalDateTime
 
 private object IdeaDetailsScreenDefaults {
-    const val COMMENTS_SECTION_OFFSET_INDEX = 5
+    const val COMMENTS_SECTION_OFFSET_INDEX = 4
 }
 
 @Composable
@@ -445,8 +445,6 @@ private fun IdeaDetailsScreenContent(
                     buttonsWithRippleEffect = true,
                     modifier = Modifier.padding(horizontal = 10.dp)
                 )
-            }
-            item {
                 HorizontalDivider(
                     thickness = 1.dp,
                     color = MaterialTheme.colorScheme.outline,

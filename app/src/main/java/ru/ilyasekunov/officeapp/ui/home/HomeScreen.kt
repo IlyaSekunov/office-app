@@ -449,21 +449,17 @@ fun HomeScreenIdeaPosts(
         isPullToRefreshActive = isPullToRefreshActive,
         lazyListState = lazyListState,
         itemComposable = { post ->
-            IdeaPost(
-                ideaPost = post,
+            PostCard(
+                post = post,
                 isAuthorPostCurrentUser = isIdeaAuthorCurrentUser(post.ideaAuthor),
-                onPostClick = {
-                    navigateToIdeaDetailsScreen(post.id, false)
-                },
+                onClick = { navigateToIdeaDetailsScreen(post.id, false) },
+                onAuthorClick = { navigateToAuthorScreen(post.ideaAuthor.id) },
                 onLikeClick = { onPostLikeClick(post) },
                 onDislikeClick = { onPostDislikeClick(post) },
-                onCommentClick = {
-                    navigateToIdeaDetailsScreen(post.id, true)
-                },
+                onCommentsClick = { navigateToIdeaDetailsScreen(post.id, true) },
+                onEditPostClick = { navigateToEditIdeaScreen(post.id) },
+                onDeletePostClick = { onDeletePostClick(post) },
                 onSuggestIdeaToMyOfficeClick = { onSuggestIdeaToMyOfficeClick(post) },
-                onDeletePostClick = onDeletePostClick,
-                navigateToAuthorScreen = navigateToAuthorScreen,
-                navigateToEditIdeaScreen = navigateToEditIdeaScreen,
                 modifier = Modifier.fillMaxWidth()
             )
         },
@@ -575,102 +571,101 @@ private fun NoPostsAvailable(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun IdeaPost(
-    ideaPost: IdeaPost,
+fun PostCard(
+    post: IdeaPost,
     isAuthorPostCurrentUser: Boolean,
-    onPostClick: () -> Unit,
+    onClick: () -> Unit,
+    onAuthorClick: () -> Unit,
     onLikeClick: () -> Unit,
     onDislikeClick: () -> Unit,
-    onCommentClick: () -> Unit,
+    onCommentsClick: () -> Unit,
+    onEditPostClick: () -> Unit,
+    onDeletePostClick: () -> Unit,
     onSuggestIdeaToMyOfficeClick: () -> Unit,
-    navigateToAuthorScreen: (authorId: Long) -> Unit,
-    navigateToEditIdeaScreen: (postId: Long) -> Unit,
-    onDeletePostClick: (IdeaPost) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box {
-        val topPadding = 16.dp
-        Card(
-            shape = MaterialTheme.shapes.large,
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.background
-            ),
-            border = BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
-            ),
-            modifier = modifier
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onPostClick
+    Card(
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        border = BorderStroke(
+            width = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+        ),
+        modifier = modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            )
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 20.dp,
+                    top = 16.dp,
+                    bottom = 10.dp,
+                    end = 20.dp
                 )
         ) {
             IdeaPostAuthor(
-                ideaAuthor = ideaPost.ideaAuthor,
-                postDate = ideaPost.date,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { navigateToAuthorScreen(ideaPost.ideaAuthor.id) }
-                    .padding(
-                        start = 20.dp,
-                        top = topPadding,
-                        bottom = 10.dp,
-                        end = 20.dp
-                    )
+                ideaAuthor = post.ideaAuthor,
+                postDate = post.date,
+                onClick = onAuthorClick,
+                modifier = Modifier.clickable(onClick = onAuthorClick)
             )
-            Text(
-                text = ideaPost.title,
-                style = MaterialTheme.typography.titleLarge,
-                fontSize = 20.sp,
-                modifier = Modifier.padding(start = 20.dp, bottom = 25.dp)
-            )
-            Text(
-                text = ideaPost.content,
-                style = MaterialTheme.typography.bodyMedium,
-                fontSize = 14.sp,
-                overflow = TextOverflow.Ellipsis,
-                textAlign = TextAlign.Justify,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .heightIn(max = 85.dp)
-            )
-            if (ideaPost.attachedImages.isNotEmpty()) {
-                AttachedImages(
-                    attachedImages = ideaPost.attachedImages,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(1f / 0.85f)
-                        .padding(start = 5.dp, top = 15.dp, end = 5.dp)
-                )
-            }
-            IdeaPostOffice(
-                office = ideaPost.office,
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp)
-            )
-            LikesDislikesCommentsSection(
-                likesCount = ideaPost.likesCount,
-                isLikePressed = ideaPost.isLikePressed,
-                onLikeClick = onLikeClick,
-                dislikesCount = ideaPost.dislikesCount,
-                isDislikePressed = ideaPost.isDislikePressed,
-                onDislikeClick = onDislikeClick,
-                commentsCount = ideaPost.commentsCount,
-                onCommentClick = onCommentClick,
-                modifier = Modifier.padding(start = 16.dp, top = 18.dp, bottom = 14.dp)
+            MenuSection(
+                isAuthorPostCurrentUser = isAuthorPostCurrentUser,
+                isIdeaSuggestedToMyOffice = post.isSuggestedToMyOffice,
+                navigateToAuthorScreen = onAuthorClick,
+                navigateToEditIdeaScreen = onEditPostClick,
+                onDeletePostClick = onDeletePostClick,
+                onSuggestIdeaToMyOfficeClick = onSuggestIdeaToMyOfficeClick
             )
         }
-        MenuSection(
-            isAuthorPostCurrentUser = isAuthorPostCurrentUser,
-            isIdeaSuggestedToMyOffice = ideaPost.isSuggestedToMyOffice,
-            navigateToAuthorScreen = { navigateToAuthorScreen(ideaPost.ideaAuthor.id) },
-            navigateToEditIdeaScreen = { navigateToEditIdeaScreen(ideaPost.id) },
-            onDeletePostClick = { onDeletePostClick(ideaPost) },
-            onSuggestIdeaToMyOfficeClick = onSuggestIdeaToMyOfficeClick,
+        Text(
+            text = post.title,
+            style = MaterialTheme.typography.titleLarge,
+            fontSize = 20.sp,
+            modifier = Modifier.padding(start = 20.dp, bottom = 25.dp)
+        )
+        Text(
+            text = post.content,
+            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 14.sp,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Justify,
             modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = topPadding, end = 14.dp)
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .heightIn(max = 85.dp)
+        )
+        if (post.attachedImages.isNotEmpty()) {
+            AttachedImages(
+                attachedImages = post.attachedImages,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(1f / 0.85f)
+                    .padding(start = 5.dp, top = 15.dp, end = 5.dp)
+            )
+        }
+        IdeaPostOffice(
+            office = post.office,
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp)
+        )
+        LikesDislikesCommentsSection(
+            likesCount = post.likesCount,
+            isLikePressed = post.isLikePressed,
+            onLikeClick = onLikeClick,
+            dislikesCount = post.dislikesCount,
+            isDislikePressed = post.isDislikePressed,
+            onDislikeClick = onDislikeClick,
+            commentsCount = post.commentsCount,
+            onCommentClick = onCommentsClick,
+            modifier = Modifier.padding(start = 16.dp, top = 18.dp, bottom = 14.dp)
         )
     }
 }
@@ -729,11 +724,18 @@ private fun MenuSection(
 private fun IdeaPostAuthor(
     ideaAuthor: IdeaAuthor,
     postDate: LocalDateTime,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+                onClick = onClick
+            )
     ) {
         AsyncImage(
             model = ideaAuthor.photo,
@@ -743,14 +745,14 @@ private fun IdeaPostAuthor(
                 .size(60.dp)
                 .clip(CircleShape)
         )
-        Spacer(modifier = Modifier.width(10.dp))
-        Column {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(13.dp)
+        ) {
             Text(
                 text = "${ideaAuthor.name} ${ideaAuthor.surname}",
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 14.sp
             )
-            Spacer(modifier = Modifier.height(13.dp))
             Text(
                 text = postDate.toRussianString(),
                 style = MaterialTheme.typography.bodyMedium,
@@ -956,6 +958,7 @@ private fun SortingCategoryFilter(
     val closeIconSize = 20.dp
     var textWidth by remember { mutableStateOf(0.dp) }
     val density = LocalDensity.current
+
     Box(
         modifier = modifier.height(30.dp)
     ) {
@@ -1084,6 +1087,7 @@ fun LikesDislikesCommentsSection(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(15.dp),
         modifier = modifier
     ) {
         LikesAndDislikesSection(
@@ -1100,7 +1104,6 @@ fun LikesDislikesCommentsSection(
             buttonsWithBackground = true,
             buttonsWithRippleEffect = true
         )
-        Spacer(modifier = Modifier.width(15.dp))
         ActionItem(
             iconId = R.drawable.outline_chat_bubble_outline_24,
             count = commentsCount,
@@ -1156,6 +1159,7 @@ fun CurrentImageSection(
         delay(durationVisibility)
         visible = false
     }
+
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn(animationSpec = tween(durationMillis = 200)),
@@ -1212,20 +1216,21 @@ private fun isErrorWhileLoading(
 
 @Preview
 @Composable
-private fun IdeaPostPreview() {
+private fun PostCardPreview() {
     OfficeAppTheme {
         Surface {
-            IdeaPost(
-                ideaPost = ideaPost,
+            PostCard(
+                post = ideaPost,
                 isAuthorPostCurrentUser = true,
-                onPostClick = {},
+                onClick = {},
+                onAuthorClick = {},
                 onLikeClick = {},
                 onDislikeClick = {},
-                onCommentClick = {},
+                onCommentsClick = {},
+                onEditPostClick = {},
+                onDeletePostClick = {},
                 onSuggestIdeaToMyOfficeClick = {},
-                navigateToAuthorScreen = {},
-                navigateToEditIdeaScreen = {},
-                onDeletePostClick = {}
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -1254,7 +1259,8 @@ private fun IdeaPostAuthorPreview() {
         Surface {
             IdeaPostAuthor(
                 ideaAuthor = ideaAuthor,
-                postDate = LocalDateTime.now()
+                postDate = LocalDateTime.now(),
+                onClick = {}
             )
         }
     }
@@ -1280,23 +1286,14 @@ private fun OfficeFilterSearchPreview() {
 
 @Preview
 @Composable
-private fun SortingCategoryFilterPreview() {
-    OfficeAppTheme {
-        Surface {
-            SortingCategoryFilter(sortingCategory = SortingCategory(id = 0, "Комментариям"),
-                onRemoveClick = {})
-        }
-    }
-}
-
-@Preview
-@Composable
 private fun IdeaPostOfficePreview() {
     OfficeAppTheme {
         Surface {
             IdeaPostOffice(
                 office = Office(
-                    id = 1, imageUrl = "", address = ""
+                    id = 1,
+                    imageUrl = "",
+                    address = "ул. Нижегородская 2"
                 )
             )
         }

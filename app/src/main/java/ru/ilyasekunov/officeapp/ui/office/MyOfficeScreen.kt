@@ -75,8 +75,8 @@ import ru.ilyasekunov.officeapp.ui.components.LazyPagingItemsHorizontalGrid
 import ru.ilyasekunov.officeapp.ui.components.UpsidePullToRefreshContainer
 import ru.ilyasekunov.officeapp.ui.home.CurrentUserUiState
 import ru.ilyasekunov.officeapp.ui.home.DeletePostUiState
-import ru.ilyasekunov.officeapp.ui.home.IdeaPost
 import ru.ilyasekunov.officeapp.ui.home.ObserveDeletePostUiState
+import ru.ilyasekunov.officeapp.ui.home.PostCard
 import ru.ilyasekunov.officeapp.ui.modifiers.conditional
 import ru.ilyasekunov.officeapp.ui.snackbarWithAction
 import ru.ilyasekunov.officeapp.util.isEmpty
@@ -604,17 +604,17 @@ private fun IdeasGroupExpanded(
             itemKey = { it.id },
             itemsEmptyComposable = {},
             itemComposable = { post ->
-                IdeaPost(
-                    ideaPost = post,
+                PostCard(
+                    post = post,
                     isAuthorPostCurrentUser = post.ideaAuthor.id == currentUserUiState.user!!.id,
-                    onPostClick = { navigateToIdeaDetailsScreen(post.id) },
+                    onClick = { navigateToIdeaDetailsScreen(post.id) },
+                    onAuthorClick = { navigateToAuthorScreen(post.ideaAuthor.id) },
                     onLikeClick = { onPostLikeClick(post) },
                     onDislikeClick = { onPostDislikeClick(post) },
-                    onCommentClick = { onPostCommentsClick(post) },
+                    onCommentsClick = { onPostCommentsClick(post) },
+                    onEditPostClick = { navigateToEditIdeaScreen(post.id) },
+                    onDeletePostClick = { onDeletePostClick(post) },
                     onSuggestIdeaToMyOfficeClick = {},
-                    navigateToAuthorScreen = navigateToAuthorScreen,
-                    navigateToEditIdeaScreen = navigateToEditIdeaScreen,
-                    onDeletePostClick = onDeletePostClick,
                     modifier = Modifier.fillMaxWidth()
                 )
             },
