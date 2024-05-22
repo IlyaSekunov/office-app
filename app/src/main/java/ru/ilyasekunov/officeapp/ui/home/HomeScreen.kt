@@ -9,7 +9,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -771,6 +770,7 @@ private fun AppliedSortingFilter(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
     ) {
         Text(
@@ -779,7 +779,6 @@ private fun AppliedSortingFilter(
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.outline
         )
-        Spacer(modifier = Modifier.width(8.dp))
         SortingCategoryFilter(
             sortingCategory = sortingCategory,
             onRemoveClick = onSortingFilterRemoveClick
@@ -794,6 +793,7 @@ private fun AppliedOfficeFilters(
     modifier: Modifier = Modifier
 ) {
     Row(
+        horizontalArrangement = Arrangement.spacedBy(18.dp),
         modifier = modifier.horizontalScroll(rememberScrollState())
     ) {
         Text(
@@ -802,7 +802,6 @@ private fun AppliedOfficeFilters(
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.outline
         )
-        Spacer(modifier = Modifier.width(18.dp))
         officeFilters.forEach {
             if (it.isSelected) {
                 OfficeFilterSearch(
@@ -1039,22 +1038,26 @@ fun AttachedImages(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun IdeaPostOffice(
     office: Office,
     modifier: Modifier = Modifier
 ) {
+    val officeShape = RoundedCornerShape(30.dp)
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .clip(RoundedCornerShape(30.dp))
+            .clip(officeShape)
             .border(
                 width = 1.dp,
                 color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(30.dp)
+                shape = officeShape
             )
-            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+            .background(
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                shape = officeShape
+            )
     ) {
         AsyncImageWithLoading(
             model = office.imageUrl,
@@ -1066,9 +1069,8 @@ private fun IdeaPostOffice(
             text = office.address,
             style = MaterialTheme.typography.bodyMedium,
             fontSize = 14.sp,
-            modifier = Modifier
-                .padding(start = 10.dp, end = 20.dp)
-                .basicMarquee()
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(start = 10.dp, end = 20.dp)
         )
     }
 }
