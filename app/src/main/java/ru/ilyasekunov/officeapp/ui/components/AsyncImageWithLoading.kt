@@ -19,7 +19,7 @@ fun AsyncImageWithLoading(
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Crop
 ) {
-    var shouldShowShimmer by rememberSaveable { mutableStateOf(false) }
+    var shouldShowShimmer by rememberSaveable { mutableStateOf(true) }
     val shimmerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
 
     AsyncImage(
