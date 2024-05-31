@@ -6,7 +6,7 @@ import ru.ilyasekunov.officeapp.data.model.Office
 
 class MockOfficeDataSource : OfficeDataSource {
     override suspend fun availableOffices(): Result<List<Office>> {
-        delay(3000L)
+        delay(1200L)
         return Result.success(Offices)
     }
 }

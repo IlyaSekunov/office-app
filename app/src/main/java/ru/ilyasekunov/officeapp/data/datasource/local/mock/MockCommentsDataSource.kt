@@ -49,8 +49,8 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun pressLike(postId: Long, commentId: Long): Result<Unit> {
-        val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
-        val comment = Comments[commentIndex]
+        val comment = Comments.find { it.id == commentId }!!
+        val commentIndex = Comments.indexOf(comment)
         lock.withLock {
             Comments[commentIndex] = comment.copy(
                 isLikePressed = true,
@@ -64,8 +64,8 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun removeLike(postId: Long, commentId: Long): Result<Unit> {
-        val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
-        val comment = Comments[commentIndex]
+        val comment = Comments.find { it.id == commentId }!!
+        val commentIndex = Comments.indexOf(comment)
         lock.withLock {
             Comments[commentIndex] = comment.copy(
                 isLikePressed = false,
@@ -76,8 +76,8 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun pressDislike(postId: Long, commentId: Long): Result<Unit> {
-        val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
-        val comment = Comments[commentIndex]
+        val comment = Comments.find { it.id == commentId }!!
+        val commentIndex = Comments.indexOf(comment)
         lock.withLock {
             Comments[commentIndex] = comment.copy(
                 isDislikePressed = true,
@@ -91,8 +91,8 @@ class MockCommentsDataSource : CommentsDataSource {
     }
 
     override suspend fun removeDislike(postId: Long, commentId: Long): Result<Unit> {
-        val commentIndex = Comments.indexOf(Comments.find { it.id == postId }!!)
-        val comment = Comments[commentIndex]
+        val comment = Comments.find { it.id == commentId }!!
+        val commentIndex = Comments.indexOf(comment)
         lock.withLock {
             Comments[commentIndex] = comment.copy(
                 isDislikePressed = false,

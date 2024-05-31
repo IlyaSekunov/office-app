@@ -18,7 +18,7 @@ class MockPostsDataSource : PostsDataSource {
     private val lock = Mutex()
 
     override suspend fun publishPost(post: PublishPostDto): Result<Unit> {
-        delay(3000L)
+        delay(1200L)
         lock.withLock { Posts += post.toIdeaPost() }
         return Result.success(Unit)
     }
@@ -28,7 +28,7 @@ class MockPostsDataSource : PostsDataSource {
         page: Int,
         pageSize: Int
     ): Result<List<IdeaPost>> {
-        delay(3000L)
+        delay(1200L)
         val searchDto = searchPostsDto.searchDto
         val filtersDto = searchPostsDto.filtersDto
         val posts = Posts.filter {
@@ -72,7 +72,7 @@ class MockPostsDataSource : PostsDataSource {
         page: Int,
         pageSize: Int
     ): Result<List<IdeaPost>> {
-        delay(3000L)
+        delay(1200L)
         val searchDto = searchPostsDto.searchDto
         val filtersDto = searchPostsDto.filtersDto
         val posts = Posts.asSequence()
@@ -114,7 +114,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun findPostById(postId: Long): Result<IdeaPost> {
-        delay(3000L)
+        delay(1200L)
         val post = Posts.find { it.id == postId }
         return post?.let {
             Result.success(it)
@@ -126,7 +126,7 @@ class MockPostsDataSource : PostsDataSource {
         page: Int,
         pageSize: Int
     ): Result<List<IdeaPost>> {
-        delay(3000L)
+        delay(1200L)
         val posts = Posts.filter { it.ideaAuthor.id == authorId }
         val firstPostIndex = (page - 1) * pageSize
         val lastPostIndex = firstPostIndex + pageSize
@@ -150,7 +150,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun suggestedIdeas(page: Int, pageSize: Int): Result<List<IdeaPost>> {
-        delay(3000L)
+        delay(1200L)
         val posts = Posts.filter { !it.isInProgress && !it.isImplemented }
         val firstPostIndex = (page - 1) * pageSize
         val lastPostIndex = firstPostIndex + pageSize
@@ -174,7 +174,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun ideasInProgress(page: Int, pageSize: Int): Result<List<IdeaPost>> {
-        delay(3000L)
+        delay(1200L)
         val posts = Posts.filter { it.isInProgress }
         val firstPostIndex = (page - 1) * pageSize
         val lastPostIndex = firstPostIndex + pageSize
@@ -198,7 +198,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun implementedIdeas(page: Int, pageSize: Int): Result<List<IdeaPost>> {
-        delay(3000L)
+        delay(1200L)
         val posts = Posts.filter { it.isImplemented }
         val firstPostIndex = (page - 1) * pageSize
         val lastPostIndex = firstPostIndex + pageSize
@@ -222,7 +222,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun myIdeas(page: Int, pageSize: Int): Result<List<IdeaPost>> {
-        delay(3000L)
+        delay(1200L)
         val posts = Posts.filter { it.ideaAuthor.id == User?.id }
         val firstPostIndex = (page - 1) * pageSize
         val lastPostIndex = firstPostIndex + pageSize
@@ -246,7 +246,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun editPostById(postId: Long, editedPost: EditPostDto): Result<Unit> {
-        delay(3000L)
+        delay(1200L)
         val post = Posts.find { it.id == postId }
         post?.let {
             val updatedPost = it.copy(
@@ -260,7 +260,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun deletePostById(postId: Long): Result<Unit> {
-        delay(3000L)
+        delay(1200L)
         val post = Posts.find { it.id == postId }
         post?.let {
             Posts -= it
@@ -327,7 +327,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun filters(): Result<Filters> {
-        delay(3000L)
+        delay(1200L)
         return Result.success(
             Filters(
                 offices = Offices,
@@ -337,7 +337,7 @@ class MockPostsDataSource : PostsDataSource {
     }
 
     override suspend fun suggestIdeaToMyOffice(postId: Long): Result<Unit> {
-        delay(3000L)
+        delay(1200L)
         return Result.success(Unit)
     }
 

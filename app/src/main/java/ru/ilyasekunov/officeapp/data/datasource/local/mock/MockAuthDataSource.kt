@@ -13,7 +13,7 @@ class MockAuthDataSource : AuthDataSource {
     }
 
     override suspend fun userInfo(): Result<User> {
-        delay(3000L)
+        delay(1200L)
         return if (User != null) {
             Result.success(User!!)
         } else {
@@ -31,7 +31,7 @@ class MockAuthDataSource : AuthDataSource {
     }
 
     override suspend fun isEmailValid(email: String): Result<Boolean> {
-        delay(3000L)
+        delay(1200L)
         return Result.success(true)
     }
 }

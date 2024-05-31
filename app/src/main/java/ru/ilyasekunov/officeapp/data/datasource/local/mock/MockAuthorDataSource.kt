@@ -7,7 +7,7 @@ import ru.ilyasekunov.officeapp.exceptions.HttpNotFoundException
 
 class MockAuthorDataSource : AuthorDataSource {
     override suspend fun ideaAuthorById(authorId: Long): Result<IdeaAuthor> {
-        delay(3000L)
+        delay(1200L)
         val user = Users.find { it.id == authorId }
         return if (user == null) {
             Result.failure(HttpNotFoundException())
@@ -15,7 +15,7 @@ class MockAuthorDataSource : AuthorDataSource {
     }
 
     override suspend fun officeEmployees(page: Int, pageSize: Int): Result<List<IdeaAuthor>> {
-        delay(3000L)
+        delay(1200L)
         val employees = Users.filter { User?.office?.id == it.office.id }
         val firstPostIndex = (page - 1) * pageSize
         val lastPostIndex = firstPostIndex + pageSize

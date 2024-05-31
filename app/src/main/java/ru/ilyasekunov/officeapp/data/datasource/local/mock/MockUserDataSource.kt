@@ -6,7 +6,7 @@ import ru.ilyasekunov.officeapp.data.dto.UserDto
 
 class MockUserDataSource : UserDataSource {
     override suspend fun saveChanges(userDto: UserDto): Result<Unit> {
-        delay(3000L)
+        delay(1200L)
         User = User?.copy(
             name = userDto.name,
             surname = userDto.surname,
