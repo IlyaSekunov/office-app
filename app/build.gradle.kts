@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     kotlin("kapt")
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -42,9 +43,6 @@ android {
     }
     buildFeatures {
         compose = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.9"
     }
     packaging {
         resources {
@@ -103,7 +101,7 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
 
-    debugImplementation(libs.androidx.ui.tooling)
+    implementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 }
 
