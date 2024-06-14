@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google()
         mavenCentral()
@@ -13,5 +14,13 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Office App"
+rootProject.name = "OfficeApp"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
+include(":data:dto")
+include(":data:auth")
+include(":data:model")
+include(":data:token")
+include(":core:network")
+include(":core:common")

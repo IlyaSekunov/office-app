@@ -1,9 +1,7 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    kotlin("kapt")
-    alias(libs.plugins.hilt.android)
-    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.officeapp.android.application)
+    alias(libs.plugins.officeapp.android.application.compose)
+    alias(libs.plugins.officeapp.android.hilt)
 }
 
 android {
@@ -12,8 +10,6 @@ android {
 
     defaultConfig {
         applicationId = "ru.ilyasekunov.officeapp"
-        minSdk = 26
-        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -33,16 +29,6 @@ android {
                 "proguard-rules.pro"
             )
         }
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-    buildFeatures {
-        compose = true
     }
     packaging {
         resources {
@@ -87,7 +73,7 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
-    kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.android.compiler)
 
     // JUnit
     testImplementation(libs.junit)
@@ -103,8 +89,4 @@ dependencies {
 
     implementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-}
-
-kapt {
-    correctErrorTypes = true
 }

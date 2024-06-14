@@ -1,6 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="21" />
+    <bytecodeTargetLevel target="17">
+      <module name="Office_App.app" target="21" />
+      <module name="Office_App.data" target="21" />
+      <module name="Office_App.data.auth" target="21" />
+      <module name="Office_App.data.auth.main" target="21" />
+      <module name="Office_App.data.auth.test" target="21" />
+      <module name="Office_App.data.main" target="21" />
+      <module name="Office_App.data.test" target="21" />
+      <module name="Office_App.dto" target="21" />
+      <module name="Office_App.dto.main" target="21" />
+      <module name="Office_App.dto.test" target="21" />
+      <module name="Office_App.model" target="21" />
+      <module name="Office_App.model.main" target="21" />
+      <module name="Office_App.model.test" target="21" />
+    </bytecodeTargetLevel>
   </component>
 </project>
