@@ -23,9 +23,19 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 internal abstract class AuthDataModule {
+    @Binds
+    abstract fun bindAuthDataSource(
+        authRemoteDataSource: AuthRemoteDataSource
+    ): AuthDataSource
+
+    @Binds
+    abstract fun bindAuthRepository(
+        authRepositoryImpl: AuthRepositoryImpl
+    ): AuthRepository
+
     companion object {
         @Provides
-        internal fun provideAuthApi(
+        fun provideAuthApi(
             retrofit: Retrofit,
         ): AuthApi = retrofit.create()
 
@@ -48,14 +58,4 @@ internal abstract class AuthDataModule {
                 .build()
         }
     }
-
-    @Binds
-    internal abstract fun bindAuthDataSource(
-        authRemoteDataSource: AuthRemoteDataSource
-    ): AuthDataSource
-
-    @Binds
-    internal abstract fun bindAuthRepository(
-        authRepositoryImpl: AuthRepositoryImpl
-    ): AuthRepository
 }

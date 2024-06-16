@@ -17,19 +17,6 @@ internal class OkHttpAuthenticator @Inject constructor(
     private val tokenDataSource: TokenDataSource,
     private val authApi: AuthApi
 ) : Authenticator {
-    /*private val authApi = Retrofit.Builder()
-        .baseUrl(BASE_URl)
-        .addConverterFactory(
-            GsonConverterFactory.create(
-                GsonBuilder()
-                    .setPrettyPrinting()
-                    .registerTypeAdapter(LocalDateTime::class.java, JsonLocalDateTimeDeserializer())
-                    .create()
-            )
-        )
-        .build()
-        .create(AuthApi::class.java)*/
-
     /** There might be situations when multiple threads or coroutines tend to refresh tokens.
      They all run this method, so to prevent multiple refreshes firstly we take refresh token,
      then synchronized block goes, which guarantee that there will be just one refresh at the same time.

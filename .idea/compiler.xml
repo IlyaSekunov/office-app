@@ -15,6 +15,20 @@
       <module name="Office_App.model" target="21" />
       <module name="Office_App.model.main" target="21" />
       <module name="Office_App.model.test" target="21" />
+      <module name="OfficeApp.core.navigation.test" target="21" />
+      <module name="OfficeApp.core.ui.test" target="21" />
+      <module name="OfficeApp.data.author.test" target="21" />
+      <module name="OfficeApp.data.comments.test" target="21" />
+      <module name="OfficeApp.data.images.test" target="21" />
+      <module name="OfficeApp.data.office.test" target="21" />
+      <module name="OfficeApp.data.pager.test" target="21" />
+      <module name="OfficeApp.data.posts.test" target="21" />
+      <module name="OfficeApp.data.user.test" target="21" />
+      <module name="OfficeApp.data.util.test" target="21" />
+      <module name="OfficeApp.feature.auth.test" target="21" />
+      <module name="OfficeApp.feature.editidea.test" target="21" />
+      <module name="OfficeApp.feature.main" target="21" />
+      <module name="OfficeApp.feature.test" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

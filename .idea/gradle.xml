@@ -27,12 +27,26 @@
             <option value="$PROJECT_DIR$/build-logic/convention" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/common" />
+            <option value="$PROJECT_DIR$/core/navigation" />
             <option value="$PROJECT_DIR$/core/network" />
+            <option value="$PROJECT_DIR$/core/ui" />
             <option value="$PROJECT_DIR$/data" />
             <option value="$PROJECT_DIR$/data/auth" />
+            <option value="$PROJECT_DIR$/data/author" />
+            <option value="$PROJECT_DIR$/data/comments" />
             <option value="$PROJECT_DIR$/data/dto" />
+            <option value="$PROJECT_DIR$/data/images" />
             <option value="$PROJECT_DIR$/data/model" />
+            <option value="$PROJECT_DIR$/data/office" />
+            <option value="$PROJECT_DIR$/data/pager" />
+            <option value="$PROJECT_DIR$/data/posts" />
             <option value="$PROJECT_DIR$/data/token" />
+            <option value="$PROJECT_DIR$/data/user" />
+            <option value="$PROJECT_DIR$/data/util" />
+            <option value="$PROJECT_DIR$/data/validation" />
+            <option value="$PROJECT_DIR$/feature" />
+            <option value="$PROJECT_DIR$/feature/auth" />
+            <option value="$PROJECT_DIR$/feature/editidea" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

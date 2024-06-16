@@ -1,7 +1,5 @@
-import com.android.build.gradle.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import ru.ilyasekunov.convention.ru.ilyasekunov.officeapp.libs
 
@@ -12,15 +10,13 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 apply("officeapp.android.library")
                 apply("officeapp.android.hilt")
             }
-            extensions.configure<LibraryExtension> {
-                testOptions.animationsDisabled = true
-            }
 
             dependencies {
                 add("implementation", project(":core:ui"))
-                add("implementation", project(":core:designsystem"))
+                add("implementation", project(":data:model"))
+                add("implementation", project(":core:navigation"))
 
-                add("implementation", libs.findLibrary("androidx.hilt.navigation.compose").get())
+                add("implementation", libs.findLibrary("hilt.navigation.compose").get())
                 add("implementation", libs.findLibrary("androidx.lifecycle.runtimeCompose").get())
                 add("implementation", libs.findLibrary("androidx.lifecycle.viewModelCompose").get())
             }

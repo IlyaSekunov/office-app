@@ -26,10 +26,15 @@ private const val DATA_STORE_NAME = "user-preferences"
 @Module
 @InstallIn(SingletonComponent::class)
 internal abstract class TokenDataSourceModule {
+    @Binds
+    abstract fun bindsTokenDataSource(
+        tokenLocalDataSource: TokenLocalDataSource
+    ): TokenDataSource
+
     companion object {
         @Provides
         @Singleton
-        internal fun providePreferencesDataStore(
+        fun providePreferencesDataStore(
             @ApplicationContext appContext: Context,
             @IoDispatcher ioDispatcher: CoroutineDispatcher
         ): DataStore<Preferences> =
@@ -41,9 +46,4 @@ internal abstract class TokenDataSourceModule {
                 produceFile = { appContext.preferencesDataStoreFile(DATA_STORE_NAME) }
             )
     }
-
-    @Binds
-    internal abstract fun bindsTokenDataSource(
-        tokenLocalDataSource: TokenLocalDataSource
-    ): TokenDataSource
 }
