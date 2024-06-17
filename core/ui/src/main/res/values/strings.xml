@@ -4,7 +4,7 @@
     <string name="core_ui_save">Сохранить</string>
     <string name="core_ui_my_office">Мой офис</string>
     <string name="core_ui_my_ideas">Мои идеи</string>
-    <string name="ideas">Идеи</string>
+    <string name="core_ui_ideas">Идеи</string>
     <string name="home_screen_label">Главная</string>
     <string name="favourite_screen_label">Избранное</string>
     <string name="my_office_screen_label">Мой офис</string>
@@ -42,7 +42,7 @@
     <string name="password_error_no_capital_letter">Пароль должен иметь хотя бы одну заглавную букву</string>
     <string name="repeated_password_error_differ_from_password">Пароли должны совпадать</string>
     <string name="user_info_field_error_is_blank">Поле не можеть быть пустым</string>
-    <string name="list_is_empty_yet">Список пока пуст</string>
+    <string name="core_ui_list_is_empty_yet">Список пока пуст</string>
     <string name="user_not_exists">Пользователя не существует</string>
     <string name="incorrect_login_or_password">Неверный логин или пароль</string>
     <string name="email_is_unavailable">Данный email уже используется в системе</string>

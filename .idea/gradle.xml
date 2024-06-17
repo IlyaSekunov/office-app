@@ -50,6 +50,7 @@
             <option value="$PROJECT_DIR$/feature/favouriteideas" />
             <option value="$PROJECT_DIR$/feature/filters" />
             <option value="$PROJECT_DIR$/feature/home" />
+            <option value="$PROJECT_DIR$/feature/ideaauthor" />
             <option value="$PROJECT_DIR$/feature/suggestidea" />
             <option value="$PROJECT_DIR$/feature/user" />
             <option value="$PROJECT_DIR$/feature/user/manage" />
