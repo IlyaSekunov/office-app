@@ -1,0 +1,6 @@
+<resources>
+    <string name="feature_suggestidea_title">Заголовок</string>
+    <string name="feature_suggestidea_description">Описание</string>
+    <string name="feature_suggestidea_idea_published_successfully">Идея успешно опубликована</string>
+    <string name="feature_suggestidea_suggest_idea">Предложить идею</string>
+</resources>

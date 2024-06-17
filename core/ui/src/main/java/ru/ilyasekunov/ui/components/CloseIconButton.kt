@@ -23,7 +23,7 @@ fun CloseIconButton(
         modifier = modifier.clickable(onClick = onClick)
     ) {
         Icon(
-            painter = painterResource(R.drawable.baseline_close_24),
+            painter = painterResource(R.drawable.core_ui_baseline_close_24),
             contentDescription = "close_icon",
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier

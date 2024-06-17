@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.suggestidea
+package ru.ilyasekunov.suggestidea
 
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -54,20 +54,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import ru.ilyasekunov.officeapp.R
-import ru.ilyasekunov.officeapp.permissions.rememberStorageAccessPermissionRequest
-import ru.ilyasekunov.officeapp.ui.AnimatedLoadingScreen
-import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
-import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
-import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
-import ru.ilyasekunov.officeapp.ui.components.AttachedImage
-import ru.ilyasekunov.officeapp.ui.components.AttachedImages
-import ru.ilyasekunov.officeapp.ui.components.BottomNavigationBar
-import ru.ilyasekunov.officeapp.ui.components.onImagePickerClick
-import ru.ilyasekunov.officeapp.ui.imagepickers.ImagePickerDefaults
-import ru.ilyasekunov.officeapp.ui.imagepickers.rememberMultipleImagePickerRequest
-import ru.ilyasekunov.officeapp.ui.snackbarWithAction
-import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
+import ru.ilyasekunov.officeapp.feature.suggestidea.R
+import ru.ilyasekunov.ui.AnimatedLoadingScreen
+import ru.ilyasekunov.ui.LocalCoroutineScope
+import ru.ilyasekunov.ui.LocalCurrentNavigationBarScreen
+import ru.ilyasekunov.ui.LocalSnackbarHostState
+import ru.ilyasekunov.ui.components.AttachedImage
+import ru.ilyasekunov.ui.components.AttachedImages
+import ru.ilyasekunov.ui.components.BottomNavigationBar
+import ru.ilyasekunov.ui.components.onImagePickerClick
+import ru.ilyasekunov.ui.imagepickers.ImagePickerDefaults
+import ru.ilyasekunov.ui.imagepickers.rememberMultipleImagePickerRequest
+import ru.ilyasekunov.ui.permissions.rememberStorageAccessPermissionRequest
+import ru.ilyasekunov.ui.snackbarWithAction
+import ru.ilyasekunov.ui.theme.OfficeAppTheme
+import ru.ilyasekunov.officeapp.core.ui.R as coreUiResources
 
 @Composable
 fun SuggestIdeaScreen(
@@ -152,7 +153,7 @@ private fun SuggestIdeaScreenContent(
                 .padding(top = 10.dp)
         ) {
             Text(
-                text = stringResource(R.string.suggest_an_idea),
+                text = stringResource(R.string.feature_suggestidea_suggest_idea),
                 style = MaterialTheme.typography.titleLarge,
                 fontSize = 24.sp,
                 modifier = Modifier.padding(start = 20.dp)
@@ -226,10 +227,11 @@ private fun ObserveNetworkError(
     onActionPerformedClick: () -> Unit,
     onNetworkErrorShown: () -> Unit
 ) {
-    val retryLabel = stringResource(R.string.retry)
-    val serverErrorMessage = stringResource(R.string.error_connecting_to_server)
+    val retryLabel = stringResource(coreUiResources.string.core_ui_retry)
+    val serverErrorMessage = stringResource(coreUiResources.string.core_ui_error_connecting_to_server)
     val currentOnActionPerformedClick by rememberUpdatedState(onActionPerformedClick)
     val currentOnNetworkErrorShown by rememberUpdatedState(onNetworkErrorShown)
+
     LaunchedEffect(Unit) {
         snapshotFlow { suggestIdeaUiState }
             .filter { it.isNetworkError }
@@ -255,7 +257,8 @@ private fun ObserveIsPublished(
     navigateBack: () -> Unit
 ) {
     val currentNavigateBack by rememberUpdatedState(navigateBack)
-    val message = stringResource(R.string.idea_published_successfully)
+    val message = stringResource(R.string.feature_suggestidea_idea_published_successfully)
+
     LaunchedEffect(suggestIdeaUiState) {
         if (suggestIdeaUiState.isPublished) {
             coroutineScope.launch {
@@ -319,7 +322,7 @@ fun rememberOnAttachImageButtonClick(
     coroutineScope: CoroutineScope,
     snackbarHostState: SnackbarHostState
 ): () -> Unit {
-    val attachedImagesCountExceededMessage = stringResource(R.string.attached_images_count_exceeded)
+    val attachedImagesCountExceededMessage = stringResource(coreUiResources.string.core_ui_attached_images_count_exceeded)
     val multipleImagePickerRequest = rememberMultipleImagePickerRequest(
         maxItems = maxAttachedImagesCount,
         onResult = onAttachImagesClick
@@ -383,7 +386,7 @@ fun TextFieldsWithImagesSection(
             textStyle = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
             placeholder = {
                 Text(
-                    text = stringResource(R.string.title),
+                    text = stringResource(R.string.feature_suggestidea_title),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     fontSize = 20.sp
@@ -405,7 +408,7 @@ fun TextFieldsWithImagesSection(
             textStyle = MaterialTheme.typography.bodyMedium.copy(fontSize = 16.sp),
             placeholder = {
                 Text(
-                    text = stringResource(R.string.description),
+                    text = stringResource(R.string.feature_suggestidea_description),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     fontSize = 16.sp
@@ -440,7 +443,7 @@ fun SuggestIdeaTopBar(
         title = {},
         navigationIcon = {
             Icon(
-                painter = painterResource(R.drawable.baseline_close_24),
+                painter = painterResource(coreUiResources.drawable.core_ui_baseline_close_24),
                 contentDescription = "close_icon",
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
@@ -463,27 +466,6 @@ fun SuggestIdeaTopBar(
 }
 
 @Composable
-fun CloseIconButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .clickable(onClick = onClick)
-    ) {
-        Icon(
-            painter = painterResource(R.drawable.baseline_close_24),
-            contentDescription = "close_icon",
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .padding(4.dp)
-                .fillMaxSize()
-        )
-    }
-}
-
-@Composable
 private fun PublishButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -503,7 +485,7 @@ private fun PublishButton(
             .padding(contentPadding)
     ) {
         Text(
-            text = stringResource(R.string.publish),
+            text = stringResource(coreUiResources.string.core_ui_publish),
             style = MaterialTheme.typography.bodySmall,
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.primary
@@ -527,7 +509,7 @@ private fun AttachImagesButton(
     ) {
         val iconSize = (size.value * 0.6).dp
         Icon(
-            painter = painterResource(R.drawable.outline_image_24),
+            painter = painterResource(R.drawable.feature_suggestidea_outline_image_24),
             contentDescription = "image_icon",
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier

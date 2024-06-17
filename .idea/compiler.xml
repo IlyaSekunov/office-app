@@ -28,6 +28,7 @@
       <module name="OfficeApp.feature.auth.test" target="21" />
       <module name="OfficeApp.feature.editidea.test" target="21" />
       <module name="OfficeApp.feature.main" target="21" />
+      <module name="OfficeApp.feature.suggestidea.test" target="21" />
       <module name="OfficeApp.feature.test" target="21" />
     </bytecodeTargetLevel>
   </component>
