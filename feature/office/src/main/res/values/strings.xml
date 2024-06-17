@@ -1,0 +1,7 @@
+<resources>
+    <string name="feature_office_error_while_employees_loading">Ошибка при загрузке работников офиса</string>
+    <string name="feature_office_ideas_suggested">Предложенные</string>
+    <string name="feature_office_ideas_in_progress">В разработке</string>
+    <string name="feature_office_ideas_implemented">Реализованные</string>
+    <string name="feature_office_workers">Работники</string>
+</resources>

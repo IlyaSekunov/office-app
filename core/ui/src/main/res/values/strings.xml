@@ -52,12 +52,7 @@
     <string name="no_favourites_ideas">Понравившихся идей пока нет</string>
     <string name="core_ui_attached_images_count_exceeded">Вы не можете прикрепить больше изображений</string>
     <string name="idea_edited_successfully">Идея успешна отредактирована</string>
-    <string name="ideas_suggested">Предложенные</string>
-    <string name="ideas_in_progress">В разработке</string>
-    <string name="ideas_implemented">Реализованные</string>
-    <string name="workers">Работники</string>
     <string name="core_ui_error_while_ideas_loading">Ошибка при загрузке идей</string>
-    <string name="error_while_employees_loading">Ошибка при загрузке работников офиса</string>
     <string name="core_ui_my_ideas_list_is_empty">Список ваших идей пуст</string>
     <string name="core_ui_suggest_idea_to_my_office_success">Идея успешно предложена вашему офису</string>
     <string name="core_ui_suggest_idea_to_my_office_failure">Ошибка при попытке предложить идею вашему офису</string>
