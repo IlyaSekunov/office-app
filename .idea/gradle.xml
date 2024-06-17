@@ -47,7 +47,12 @@
             <option value="$PROJECT_DIR$/feature" />
             <option value="$PROJECT_DIR$/feature/auth" />
             <option value="$PROJECT_DIR$/feature/editidea" />
+            <option value="$PROJECT_DIR$/feature/favouriteideas" />
+            <option value="$PROJECT_DIR$/feature/filters" />
+            <option value="$PROJECT_DIR$/feature/home" />
             <option value="$PROJECT_DIR$/feature/suggestidea" />
+            <option value="$PROJECT_DIR$/feature/user" />
+            <option value="$PROJECT_DIR$/feature/user/profile" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

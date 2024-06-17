@@ -1,0 +1,10 @@
+<resources>
+    <string name="feature_filters_by_comments">Комментариям</string>
+    <string name="feature_filters_by_likes">Лайкам</string>
+    <string name="feature_filters_by_dislikes">Дизлайкам</string>
+    <string name="feature_filters_search_for_best_ideas">Поиск лучших идей</string>
+    <string name="feature_filters_discard">Сбросить</string>
+    <string name="feature_filters_show">Показать</string>
+    <string name="feature_filters_offices">Офисы</string>
+    <string name="feature_filters_sort_by">Сортировать по</string>
+</resources>

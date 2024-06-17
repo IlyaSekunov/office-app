@@ -1,0 +1,4 @@
+<resources>
+    <string name="feature_favouriteideas_favourite_ideas">Понравившиеся идеи</string>
+    <string name="feature_favouriteideas_no_favourites_ideas">Понравившихся идей пока нет</string>
+</resources>

@@ -27,9 +27,15 @@
       <module name="OfficeApp.data.util.test" target="21" />
       <module name="OfficeApp.feature.auth.test" target="21" />
       <module name="OfficeApp.feature.editidea.test" target="21" />
+      <module name="OfficeApp.feature.favouriteideas.test" target="21" />
+      <module name="OfficeApp.feature.filters.test" target="21" />
+      <module name="OfficeApp.feature.home.test" target="21" />
       <module name="OfficeApp.feature.main" target="21" />
       <module name="OfficeApp.feature.suggestidea.test" target="21" />
       <module name="OfficeApp.feature.test" target="21" />
+      <module name="OfficeApp.feature.user.main" target="21" />
+      <module name="OfficeApp.feature.user.profile.test" target="21" />
+      <module name="OfficeApp.feature.user.test" target="21" />
     </bytecodeTargetLevel>
   </component>
 </project>

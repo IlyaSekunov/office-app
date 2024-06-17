@@ -1,4 +1,4 @@
-package ru.ilyasekunov.officeapp.ui.components
+package ru.ilyasekunov.ui.components
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField

@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import ru.ilyasekunov.officeapp.core.ui.R
-import ru.ilyasekunov.officeapp.ui.components.UserInfoTextField
 import ru.ilyasekunov.validation.UserInfoValidationError
 
 @Composable
