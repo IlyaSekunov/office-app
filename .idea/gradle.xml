@@ -52,6 +52,7 @@
             <option value="$PROJECT_DIR$/feature/home" />
             <option value="$PROJECT_DIR$/feature/suggestidea" />
             <option value="$PROJECT_DIR$/feature/user" />
+            <option value="$PROJECT_DIR$/feature/user/manage" />
             <option value="$PROJECT_DIR$/feature/user/profile" />
           </set>
         </option>

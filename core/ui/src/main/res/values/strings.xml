@@ -52,7 +52,6 @@
     <string name="error_while_publishing_comment">Ошибка при отправке комментария</string>
     <string name="favourite_ideas">Понравившиеся идеи</string>
     <string name="no_favourites_ideas">Понравившихся идей пока нет</string>
-    <string name="profile_settings_changes_saved_succesfully">Настройки успешно сохранены</string>
     <string name="core_ui_attached_images_count_exceeded">Вы не можете прикрепить больше изображений</string>
     <string name="idea_edited_successfully">Идея успешна отредактирована</string>
     <string name="comments_filter_new">Сначала новые</string>
