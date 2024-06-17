@@ -33,6 +33,7 @@
       <module name="OfficeApp.feature.ideaauthor.test" target="21" />
       <module name="OfficeApp.feature.ideadetails.test" target="21" />
       <module name="OfficeApp.feature.main" target="21" />
+      <module name="OfficeApp.feature.myideas.test" target="21" />
       <module name="OfficeApp.feature.suggestidea.test" target="21" />
       <module name="OfficeApp.feature.test" target="21" />
       <module name="OfficeApp.feature.user.main" target="21" />
