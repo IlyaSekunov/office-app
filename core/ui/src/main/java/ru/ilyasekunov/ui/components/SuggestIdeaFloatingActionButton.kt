@@ -80,7 +80,7 @@ fun SuggestIdeaButton(
             modifier = modifier
         ) {
             Icon(
-                painter = painterResource(R.drawable.outline_create_24),
+                painter = painterResource(R.drawable.core_ui_outline_create_24),
                 contentDescription = "create_button",
                 modifier = Modifier.requiredSize(30.dp)
             )

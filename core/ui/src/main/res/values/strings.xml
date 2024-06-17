@@ -47,17 +47,11 @@
     <string name="incorrect_login_or_password">Неверный логин или пароль</string>
     <string name="email_is_unavailable">Данный email уже используется в системе</string>
     <string name="comments_list_is_empty">Комментариев пока нет</string>
-    <string name="posts_not_exists">Данной записи не существует</string>
     <string name="message">Сообщение</string>
-    <string name="error_while_publishing_comment">Ошибка при отправке комментария</string>
     <string name="favourite_ideas">Понравившиеся идеи</string>
     <string name="no_favourites_ideas">Понравившихся идей пока нет</string>
     <string name="core_ui_attached_images_count_exceeded">Вы не можете прикрепить больше изображений</string>
     <string name="idea_edited_successfully">Идея успешна отредактирована</string>
-    <string name="comments_filter_new">Сначала новые</string>
-    <string name="comments_filter_old">Сначала старые</string>
-    <string name="comments_filter_popular">Сначала популярные</string>
-    <string name="comments_filter_unpopular">Сначала непопулярные</string>
     <string name="ideas_suggested">Предложенные</string>
     <string name="ideas_in_progress">В разработке</string>
     <string name="ideas_implemented">Реализованные</string>
@@ -67,9 +61,6 @@
     <string name="my_ideas_list_is_empty">Список ваших идей пуст</string>
     <string name="core_ui_suggest_idea_to_my_office_success">Идея успешно предложена вашему офису</string>
     <string name="core_ui_suggest_idea_to_my_office_failure">Ошибка при попытке предложить идею вашему офису</string>
-    <string name="comment_published_successfully">Комментарий успешно опубликован</string>
-    <string name="comment_delete_success">Комментарий удален успешно</string>
-    <string name="comment_delete_failure">Ошибка при удалении комментария</string>
     <string name="core_ui_post_will_be_deleted_in_5_seconds">Пост будет удален через 5 секунд</string>
     <string name="core_ui_delete_post_success">Пост удален успешно</string>
     <string name="core_ui_delete_post_error">Произошла ошибка при удалении поста</string>

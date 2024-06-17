@@ -1,0 +1,11 @@
+<resources>
+    <string name="feature_ideadetails_comment_published_successfully">Комментарий успешно опубликован</string>
+    <string name="feature_ideadetails_comment_delete_success">Комментарий удален успешно</string>
+    <string name="feature_ideadetails_comment_delete_failure">Ошибка при удалении комментария</string>
+    <string name="feature_ideadetails_error_while_publishing_comment">Ошибка при отправке комментария</string>
+    <string name="feature_ideadetails_posts_not_exists">Данной записи не существует</string>
+    <string name="feature_ideadetails_comments_filter_new">Сначала новые</string>
+    <string name="feature_ideadetails_comments_filter_old">Сначала старые</string>
+    <string name="feature_ideadetails_comments_filter_popular">Сначала популярные</string>
+    <string name="feature_ideadetails_comments_filter_unpopular">Сначала непопулярные</string>
+</resources>
