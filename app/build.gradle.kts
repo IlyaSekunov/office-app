@@ -1,9 +1,15 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     kotlin("kapt")
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.compose.compiler)
+}
+
+private val imgurApiClientId: String by lazy {
+    gradleLocalProperties(rootDir, providers).getProperty("IMGUR_CLIENT_ID").orEmpty()
 }
 
 android {
@@ -21,6 +27,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "IMGUR_CLIENT_ID", "\"$imgurApiClientId\"")
     }
 
     buildTypes {
@@ -43,6 +51,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     packaging {
         resources {

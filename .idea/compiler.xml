@@ -1,6 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel target="21" />
+    <bytecodeTargetLevel target="21">
+      <module name="OfficeApp.app" target="21" />
+      <module name="OfficeApp.core.common" target="21" />
+      <module name="OfficeApp.core.navigation" target="21" />
+      <module name="OfficeApp.core.navigation.main" target="21" />
+      <module name="OfficeApp.core.network" target="21" />
+      <module name="OfficeApp.core.ui" target="21" />
+      <module name="OfficeApp.core.ui.main" target="21" />
+      <module name="OfficeApp.data.auth" target="21" />
+      <module name="OfficeApp.data.author" target="21" />
+      <module name="OfficeApp.data.author.main" target="21" />
+      <module name="OfficeApp.data.comments" target="21" />
+      <module name="OfficeApp.data.comments.main" target="21" />
+      <module name="OfficeApp.data.images" target="21" />
+      <module name="OfficeApp.data.images.main" target="21" />
+      <module name="OfficeApp.data.office" target="21" />
+      <module name="OfficeApp.data.office.main" target="21" />
+      <module name="OfficeApp.data.pager" target="21" />
+      <module name="OfficeApp.data.pager.main" target="21" />
+      <module name="OfficeApp.data.posts" target="21" />
+      <module name="OfficeApp.data.posts.main" target="21" />
+      <module name="OfficeApp.data.token" target="21" />
+      <module name="OfficeApp.data.user" target="21" />
+      <module name="OfficeApp.data.user.main" target="21" />
+      <module name="OfficeApp.data.util" target="21" />
+      <module name="OfficeApp.data.util.main" target="21" />
+      <module name="OfficeApp.data.validation" target="21" />
+      <module name="OfficeApp.feature.auth" target="21" />
+      <module name="OfficeApp.feature.auth.main" target="21" />
+      <module name="OfficeApp.feature.editidea" target="21" />
+      <module name="OfficeApp.feature.editidea.main" target="21" />
+      <module name="OfficeApp.feature.favouriteideas" target="21" />
+      <module name="OfficeApp.feature.favouriteideas.main" target="21" />
+      <module name="OfficeApp.feature.filters" target="21" />
+      <module name="OfficeApp.feature.filters.main" target="21" />
+      <module name="OfficeApp.feature.home" target="21" />
+      <module name="OfficeApp.feature.home.main" target="21" />
+      <module name="OfficeApp.feature.ideaauthor" target="21" />
+      <module name="OfficeApp.feature.ideaauthor.main" target="21" />
+      <module name="OfficeApp.feature.ideadetails" target="21" />
+      <module name="OfficeApp.feature.ideadetails.main" target="21" />
+      <module name="OfficeApp.feature.myideas" target="21" />
+      <module name="OfficeApp.feature.myideas.main" target="21" />
+      <module name="OfficeApp.feature.office" target="21" />
+      <module name="OfficeApp.feature.office.main" target="21" />
+      <module name="OfficeApp.feature.suggestidea" target="21" />
+      <module name="OfficeApp.feature.suggestidea.main" target="21" />
+      <module name="OfficeApp.feature.user.manage" target="21" />
+      <module name="OfficeApp.feature.user.manage.main" target="21" />
+      <module name="OfficeApp.feature.user.profile" target="21" />
+      <module name="OfficeApp.feature.user.profile.main" target="21" />
+    </bytecodeTargetLevel>
   </component>
 </project>
