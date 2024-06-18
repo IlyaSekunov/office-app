@@ -6,7 +6,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.Authenticator
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -15,6 +14,7 @@ import ru.ilyasekunov.auth.api.AuthApi
 import ru.ilyasekunov.auth.datasource.AuthDataSource
 import ru.ilyasekunov.auth.datasource.AuthRemoteDataSource
 import ru.ilyasekunov.auth.interceptors.HttpAccessTokenInterceptor
+import ru.ilyasekunov.auth.interceptors.OkHttpAuthenticator
 import ru.ilyasekunov.auth.repository.AuthRepository
 import ru.ilyasekunov.auth.repository.AuthRepositoryImpl
 import ru.ilyasekunov.network.di.BASE_URl
@@ -43,7 +43,7 @@ internal abstract class AuthDataModule {
         @Singleton
         fun provideRetrofit(
             gson: Gson,
-            authenticator: Authenticator,
+            authenticator: OkHttpAuthenticator,
             httpAccessTokenInterceptor: HttpAccessTokenInterceptor
         ): Retrofit {
             val okHttpClient = OkHttpClient()

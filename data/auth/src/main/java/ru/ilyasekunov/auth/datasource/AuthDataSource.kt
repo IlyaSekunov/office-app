@@ -5,7 +5,7 @@ import ru.ilyasekunov.dto.RegistrationForm
 import ru.ilyasekunov.model.Tokens
 import ru.ilyasekunov.model.User
 
-interface AuthDataSource {
+internal interface AuthDataSource {
     suspend fun register(registrationForm: RegistrationForm): Result<Tokens>
     suspend fun userInfo(): Result<User>
     suspend fun login(loginForm: LoginForm): Result<Tokens>

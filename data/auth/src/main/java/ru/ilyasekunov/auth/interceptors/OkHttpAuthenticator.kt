@@ -1,22 +1,42 @@
 package ru.ilyasekunov.auth.interceptors
 
+import com.google.gson.GsonBuilder
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Request
 import okhttp3.Response
 import okhttp3.Route
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import ru.ilyasekunov.auth.api.AuthApi
 import ru.ilyasekunov.dto.RefreshTokenDto
+import ru.ilyasekunov.network.JsonLocalDateTimeDeserializer
+import ru.ilyasekunov.network.di.BASE_URl
 import ru.ilyasekunov.token.datasource.TokenDataSource
 import ru.ilyasekunov.token.datasource.TokenType
+import java.time.LocalDateTime
 import javax.inject.Inject
+import javax.inject.Singleton
 
 private const val MAX_ALLOWABLE_RETRY_ATTEMPTS = 1
 
+@Singleton
 internal class OkHttpAuthenticator @Inject constructor(
-    private val tokenDataSource: TokenDataSource,
-    private val authApi: AuthApi
+    private val tokenDataSource: TokenDataSource
 ) : Authenticator {
+    private val authApi = Retrofit.Builder()
+        .baseUrl(BASE_URl)
+        .addConverterFactory(
+            GsonConverterFactory.create(
+                GsonBuilder()
+                    .setPrettyPrinting()
+                    .registerTypeAdapter(LocalDateTime::class.java, JsonLocalDateTimeDeserializer())
+                    .create()
+            )
+        )
+        .build()
+        .create(AuthApi::class.java)
+
     /** There might be situations when multiple threads or coroutines tend to refresh tokens.
      They all run this method, so to prevent multiple refreshes firstly we take refresh token,
      then synchronized block goes, which guarantee that there will be just one refresh at the same time.

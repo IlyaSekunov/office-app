@@ -1,7 +1,7 @@
-package ru.ilyasekunov.officeapp.di
+package ru.ilyasekunov.officeapp
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class App : Application()
+class OfficeApplication : Application()

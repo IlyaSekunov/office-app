@@ -8,8 +8,9 @@ android {
 }
 
 dependencies {
+    api(projects.data.validation)
+
     implementation(projects.data.auth)
-    implementation(projects.data.validation)
     implementation(projects.data.images)
     implementation(projects.data.office)
     implementation(projects.data.dto)

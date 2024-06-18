@@ -328,7 +328,6 @@ private fun OfficeFilterImage(
 ) {
     var imageHeightPx by remember { mutableIntStateOf(0) }
     val myOfficePromptYOffsetPercent = 0.125
-    val density = LocalDensity.current
 
     Box(modifier = modifier) {
         AsyncImageWithLoading(
@@ -340,11 +339,12 @@ private fun OfficeFilterImage(
         if (isMyOffice) {
             MyOfficePrompt(
                 modifier = Modifier
-                    .offset(
-                        y = with(density) {
-                            (imageHeightPx * myOfficePromptYOffsetPercent).toInt().toDp()
-                        }
-                    )
+                    .offset {
+                        IntOffset(
+                            x = 0,
+                            y = (imageHeightPx * myOfficePromptYOffsetPercent).toInt()
+                        )
+                    }
             )
         }
     }
@@ -485,6 +485,7 @@ private fun SortingFilter(
     val sortingCategoryName = sortingCategoryName(sortingCategory)
     val sortingFilterColor =
         if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+
     Text(
         text = sortingCategoryName,
         style = MaterialTheme.typography.bodyMedium,

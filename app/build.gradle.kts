@@ -38,13 +38,41 @@ android {
 }
 
 dependencies {
+    implementation(projects.feature.auth)
+    implementation(projects.feature.user.profile)
+    implementation(projects.feature.user.manage)
+    implementation(projects.feature.home)
+    implementation(projects.feature.suggestidea)
+    implementation(projects.feature.favouriteideas)
+    implementation(projects.feature.filters)
+    implementation(projects.feature.editidea)
+    implementation(projects.feature.ideaauthor)
+    implementation(projects.feature.ideadetails)
+    implementation(projects.feature.myideas)
+    implementation(projects.feature.office)
+
+    implementation(projects.core.ui)
+    implementation(projects.core.navigation)
+
+    implementation(libs.activity.compose)
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.lifecycle.runtime)
-    implementation(libs.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
 
-    // Lottie
+    // Material
+    implementation(libs.androidx.material3)
+    runtimeOnly(libs.androidx.material3)
+
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+
+    // Hilt
+    implementation(libs.hilt.android)
+    implementation(libs.hilt.navigation.compose)
+    ksp(libs.hilt.android.compiler)
+
+    /*// Lottie
     implementation(libs.lottie.compose)
 
     // Paging library
@@ -56,24 +84,12 @@ dependencies {
     // DataStore
     implementation(libs.androidx.datastore.preferences)
 
-    // Material
-    implementation(libs.androidx.material3)
-    runtimeOnly(libs.androidx.material3)
-
     // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
 
     // Coil
     implementation(libs.coil.compose)
-
-    // Navigation
-    implementation(libs.androidx.navigation.compose)
-
-    // Hilt
-    implementation(libs.hilt.android)
-    implementation(libs.hilt.navigation.compose)
-    ksp(libs.hilt.android.compiler)
 
     // JUnit
     testImplementation(libs.junit)
@@ -88,5 +104,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
 
     implementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    debugImplementation(libs.androidx.ui.test.manifest)*/
 }

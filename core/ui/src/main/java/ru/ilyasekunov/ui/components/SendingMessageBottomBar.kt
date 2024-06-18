@@ -165,7 +165,7 @@ private fun rememberOnAttachImageToCommentClick(
     coroutineScope: CoroutineScope,
     snackbarHostState: SnackbarHostState
 ): () -> Unit {
-    val attachedImagesCountExceededMessage = stringResource(R.string.attached_images_count_exceeded)
+    val attachedImagesCountExceededMessage = stringResource(R.string.core_ui_attached_images_count_exceeded)
     val multipleImagePickerRequest = rememberSingleImagePickerRequest { uri ->
         uri?.let { onAttachImageClick(it) }
     }

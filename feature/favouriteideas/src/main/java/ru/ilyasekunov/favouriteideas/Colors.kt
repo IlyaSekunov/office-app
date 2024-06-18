@@ -8,3 +8,12 @@ val favouriteIdeaColorGreen = Color(0xFFC8FBDD)
 val favouriteIdeaColorBlue = Color(0xFFB5B4FF)
 val favouriteIdeaColorPurple = Color(0xFFFBC4F9)
 val favouriteIdeaColorOrange = Color(0xFFFEC56F)
+
+val favouriteIdeaColors = listOf(
+    favouriteIdeaColorBlue,
+    favouriteIdeaColorGreen,
+    favouriteIdeaColorOrange,
+    favouriteIdeaColorPurple,
+    favouriteIdeaColorRed,
+    favouriteIdeaColorYellow
+)

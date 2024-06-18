@@ -40,9 +40,7 @@ class FiltersUiStateHolder(
     var filtersUiState by mutableStateOf(initialFiltersUiState)
         private set
 
-    val isLoading get() = filtersUiState.isLoading
     val isLoaded get() = filtersUiState.isLoaded
-    val isErrorWhileLoading get() = filtersUiState.isErrorWhileLoading
 
     fun updateFiltersUiState(filtersUiState: FiltersUiState) {
         this.filtersUiState = filtersUiState

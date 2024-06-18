@@ -16,7 +16,7 @@ import ru.ilyasekunov.navigation.Screen
 data object FiltersScreen : Screen("filters")
 
 fun NavGraphBuilder.filtersScreen(
-    filtersUiStateHolderProvider: () -> FiltersUiStateHolder,
+    filtersUiStateHolderProvider: @Composable () -> FiltersUiStateHolder?,
     navigateToHomeScreen: () -> Unit,
     navigateToFavouriteScreen: () -> Unit,
     navigateToMyOfficeScreen: () -> Unit,
@@ -25,7 +25,7 @@ fun NavGraphBuilder.filtersScreen(
 ) {
     composable(route = FiltersScreen.route) {
         val filtersUiStateHolder = filtersUiStateHolderProvider()
-        val viewModel = setUpFiltersViewModel(filtersUiStateHolder.filtersUiState)
+        val viewModel = setUpFiltersViewModel(filtersUiStateHolder?.filtersUiState)
 
         FiltersScreen(
             filtersUiState = viewModel.filtersUiState,
@@ -34,11 +34,11 @@ fun NavGraphBuilder.filtersScreen(
             onOfficeFilterClick = viewModel::updateOfficeFilterIsSelected,
             onResetClick = viewModel::reset,
             onShowClick = {
-                filtersUiStateHolder.updateFiltersUiState(viewModel.filtersUiState)
+                filtersUiStateHolder?.updateFiltersUiState(viewModel.filtersUiState)
                 navigateBack()
             },
             onRetryLoad = {
-                filtersUiStateHolder.loadFilters()
+                filtersUiStateHolder?.loadFilters()
                 viewModel.loadCurrentUser()
             },
             navigateToHomeScreen = navigateToHomeScreen,
@@ -54,10 +54,11 @@ fun NavController.navigateToFiltersScreen(navOptions: NavOptions? = null) =
     navigate(FiltersScreen.route, navOptions)
 
 @Composable
-fun setUpFiltersViewModel(filtersUiState: FiltersUiState): FiltersViewModel {
-    val viewModel = hiltViewModel<FiltersViewModel>()
-    LaunchedEffect(filtersUiState) {
-        viewModel.updateFiltersUiState(filtersUiState)
+fun setUpFiltersViewModel(filtersUiState: FiltersUiState?) =
+    hiltViewModel<FiltersViewModel>().also { viewModel ->
+        LaunchedEffect(filtersUiState) {
+            filtersUiState?.let {
+                viewModel.updateFiltersUiState(it)
+            }
+        }
     }
-    return viewModel
-}

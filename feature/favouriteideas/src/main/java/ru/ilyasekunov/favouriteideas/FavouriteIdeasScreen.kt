@@ -49,15 +49,6 @@ import kotlin.random.Random
 import kotlin.random.nextInt
 import ru.ilyasekunov.officeapp.core.ui.R.string as coreUiStrings
 
-private val favouriteIdeaColors = listOf(
-    favouriteIdeaColorBlue,
-    favouriteIdeaColorGreen,
-    favouriteIdeaColorOrange,
-    favouriteIdeaColorPurple,
-    favouriteIdeaColorRed,
-    favouriteIdeaColorYellow
-)
-
 @Composable
 fun FavouriteIdeasScreen(
     favouriteIdeas: LazyPagingItems<IdeaPost>,

@@ -1,14 +1,40 @@
 package ru.ilyasekunov.officeapp.navigation
 
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.navigation
-import ru.ilyasekunov.officeapp.navigation.auth.navigateToAuthGraph
-import ru.ilyasekunov.officeapp.navigation.userprofile.navigateToProfileScreen
-import ru.ilyasekunov.officeapp.navigation.userprofile.navigateToUserManageAccountScreen
-import ru.ilyasekunov.officeapp.navigation.userprofile.profileScreen
-import ru.ilyasekunov.officeapp.navigation.userprofile.userManageAccountScreen
+import ru.ilyasekunov.auth.navigation.navigateToAuthGraph
+import ru.ilyasekunov.editidea.navigation.editIdeaScreen
+import ru.ilyasekunov.editidea.navigation.navigateToEditIdeaScreen
+import ru.ilyasekunov.favouriteideas.FavouriteIdeasViewModel
+import ru.ilyasekunov.favouriteideas.navigation.favouriteIdeasScreen
+import ru.ilyasekunov.favouriteideas.navigation.navigateToFavouriteIdeasScreen
+import ru.ilyasekunov.filters.navigation.FiltersScreen
+import ru.ilyasekunov.filters.navigation.filtersScreen
+import ru.ilyasekunov.filters.navigation.navigateToFiltersScreen
+import ru.ilyasekunov.home.HomeViewModel
+import ru.ilyasekunov.home.navigation.homeScreen
+import ru.ilyasekunov.home.navigation.navigateToHomeScreen
+import ru.ilyasekunov.ideaauthor.navigation.ideaAuthorScreen
+import ru.ilyasekunov.ideaauthor.navigation.navigateToIdeaAuthorScreen
+import ru.ilyasekunov.ideadetails.navigation.ideaDetailsScreen
+import ru.ilyasekunov.ideadetails.navigation.navigateToIdeaDetailsScreen
+import ru.ilyasekunov.manage.navigation.navigateToUserManageAccountScreen
+import ru.ilyasekunov.manage.navigation.userManageAccountScreen
+import ru.ilyasekunov.myideas.navigation.myIdeasScreen
+import ru.ilyasekunov.myideas.navigation.navigateToMyIdeasScreen
+import ru.ilyasekunov.navigation.BottomNavigationScreen
+import ru.ilyasekunov.office.navigation.myOfficeScreen
+import ru.ilyasekunov.office.navigation.navigateToMyOfficeScreen
+import ru.ilyasekunov.profile.navigation.navigateToProfileScreen
+import ru.ilyasekunov.profile.navigation.profileScreen
+import ru.ilyasekunov.suggestidea.navigation.SuggestIdeaScreen
+import ru.ilyasekunov.suggestidea.navigation.navigateToSuggestIdeaScreen
+import ru.ilyasekunov.suggestidea.navigation.suggestIdeaScreen
+
+const val MainGraphRoute = "app-graph"
 
 fun NavGraphBuilder.mainGraph(navController: NavController) {
     navigation(
@@ -68,7 +94,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
                         .setPopUpTo(
-                            route = Screen.FiltersScreen.route,
+                            route = FiltersScreen.route,
                             inclusive = true
                         )
                         .build()
@@ -79,7 +105,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
                         .setPopUpTo(
-                            route = Screen.SuggestIdea.route,
+                            route = SuggestIdeaScreen.route,
                             inclusive = true
                         )
                         .build()
@@ -114,7 +140,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                     navOptions = NavOptions.Builder()
                         .setLaunchSingleTop(true)
                         .setPopUpTo(
-                            route = Screen.FiltersScreen.route,
+                            route = FiltersScreen.route,
                             inclusive = true
                         )
                         .build()
@@ -255,8 +281,19 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
             navigateBack = navController::popBackStack
         )
         filtersScreen(
-            previousBackStackEntryProvider = {
-                navController.previousBackStackEntry!!
+            filtersUiStateHolderProvider = {
+                val previousBackStackEntry = navController.previousBackStackEntry
+                when (previousBackStackEntry?.destination?.route) {
+                    BottomNavigationScreen.Home.route -> {
+                        hiltViewModel<HomeViewModel>(previousBackStackEntry).filtersUiStateHolder
+                    }
+
+                    BottomNavigationScreen.Favourite.route -> {
+                        hiltViewModel<FavouriteIdeasViewModel>(previousBackStackEntry).filtersUiStateHolder
+                    }
+
+                    else -> null
+                }
             },
             navigateToHomeScreen = {
                 navController.navigateToHomeScreen(
