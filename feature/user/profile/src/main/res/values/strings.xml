@@ -1,0 +1,4 @@
+<resources>
+    <string name="feature_user_profile_manage_account">Настроить профиль</string>
+    <string name="feature_user_profile_logout">Выйти</string>
+</resources>

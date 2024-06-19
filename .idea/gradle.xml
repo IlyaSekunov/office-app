@@ -4,6 +4,18 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <compositeConfiguration>
+          <compositeBuild compositeDefinitionSource="SCRIPT">
+            <builds>
+              <build path="$PROJECT_DIR$/build-logic" name="build-logic">
+                <projects>
+                  <project path="$PROJECT_DIR$/build-logic" />
+                  <project path="$PROJECT_DIR$/build-logic/convention" />
+                </projects>
+              </build>
+            </builds>
+          </compositeBuild>
+        </compositeConfiguration>
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleHome" value="$PROJECT_DIR$/../../../../Program Files/Gradle/gradle-8.5" />
         <option name="gradleJvm" value="21" />
@@ -11,6 +23,42 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/build-logic" />
+            <option value="$PROJECT_DIR$/build-logic/convention" />
+            <option value="$PROJECT_DIR$/core" />
+            <option value="$PROJECT_DIR$/core/common" />
+            <option value="$PROJECT_DIR$/core/navigation" />
+            <option value="$PROJECT_DIR$/core/network" />
+            <option value="$PROJECT_DIR$/core/ui" />
+            <option value="$PROJECT_DIR$/data" />
+            <option value="$PROJECT_DIR$/data/auth" />
+            <option value="$PROJECT_DIR$/data/author" />
+            <option value="$PROJECT_DIR$/data/comments" />
+            <option value="$PROJECT_DIR$/data/dto" />
+            <option value="$PROJECT_DIR$/data/images" />
+            <option value="$PROJECT_DIR$/data/model" />
+            <option value="$PROJECT_DIR$/data/office" />
+            <option value="$PROJECT_DIR$/data/pager" />
+            <option value="$PROJECT_DIR$/data/posts" />
+            <option value="$PROJECT_DIR$/data/test" />
+            <option value="$PROJECT_DIR$/data/token" />
+            <option value="$PROJECT_DIR$/data/user" />
+            <option value="$PROJECT_DIR$/data/util" />
+            <option value="$PROJECT_DIR$/data/validation" />
+            <option value="$PROJECT_DIR$/feature" />
+            <option value="$PROJECT_DIR$/feature/auth" />
+            <option value="$PROJECT_DIR$/feature/editidea" />
+            <option value="$PROJECT_DIR$/feature/favouriteideas" />
+            <option value="$PROJECT_DIR$/feature/filters" />
+            <option value="$PROJECT_DIR$/feature/home" />
+            <option value="$PROJECT_DIR$/feature/ideaauthor" />
+            <option value="$PROJECT_DIR$/feature/ideadetails" />
+            <option value="$PROJECT_DIR$/feature/myideas" />
+            <option value="$PROJECT_DIR$/feature/office" />
+            <option value="$PROJECT_DIR$/feature/suggestidea" />
+            <option value="$PROJECT_DIR$/feature/user" />
+            <option value="$PROJECT_DIR$/feature/user/manage" />
+            <option value="$PROJECT_DIR$/feature/user/profile" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />

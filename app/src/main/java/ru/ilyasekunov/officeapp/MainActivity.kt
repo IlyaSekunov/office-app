@@ -13,18 +13,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import ru.ilyasekunov.officeapp.navigation.BottomNavigationScreen
+import ru.ilyasekunov.auth.navigation.AuthGraphRoute
+import ru.ilyasekunov.auth.navigation.authGraph
+import ru.ilyasekunov.navigation.BottomNavigationScreen
+import ru.ilyasekunov.navigation.bottomNavigationDestinations
 import ru.ilyasekunov.officeapp.navigation.MainGraphRoute
-import ru.ilyasekunov.officeapp.navigation.auth.authGraph
-import ru.ilyasekunov.officeapp.navigation.bottomNavigationDestinations
 import ru.ilyasekunov.officeapp.navigation.mainGraph
-import ru.ilyasekunov.officeapp.ui.LocalCoroutineScope
-import ru.ilyasekunov.officeapp.ui.LocalCurrentNavigationBarScreen
-import ru.ilyasekunov.officeapp.ui.LocalSnackbarHostState
-import ru.ilyasekunov.officeapp.ui.theme.OfficeAppTheme
+import ru.ilyasekunov.officeapp.navigation.navigateToMainGraph
+import ru.ilyasekunov.ui.LocalCoroutineScope
+import ru.ilyasekunov.ui.LocalCurrentNavigationBarScreen
+import ru.ilyasekunov.ui.LocalSnackbarHostState
+import ru.ilyasekunov.ui.theme.OfficeAppTheme
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -42,6 +45,7 @@ fun OfficeApp() {
     OfficeAppTheme {
         val navController = rememberNavController()
         val currentBottomNavigationScreen = navController.currentBottomNavigationScreen()
+
         CompositionLocalProvider(
             values = arrayOf(
                 LocalSnackbarHostState provides remember { SnackbarHostState() },
@@ -53,7 +57,20 @@ fun OfficeApp() {
                 navController = navController,
                 startDestination = MainGraphRoute
             ) {
-                authGraph(navController)
+                authGraph(
+                    navController = navController,
+                    navigateToMainGraph = {
+                        navController.navigateToMainGraph(
+                            navOptions = NavOptions.Builder()
+                                .setLaunchSingleTop(true)
+                                .setPopUpTo(
+                                    route = AuthGraphRoute,
+                                    inclusive = true
+                                )
+                                .build()
+                        )
+                    }
+                )
                 mainGraph(navController)
             }
         }

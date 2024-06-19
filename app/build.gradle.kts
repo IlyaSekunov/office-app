@@ -1,15 +1,10 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import ru.ilyasekunov.convention.ru.ilyasekunov.officeapp.OfficeBuildType
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    kotlin("kapt")
-    alias(libs.plugins.hilt.android)
-    alias(libs.plugins.compose.compiler)
-}
-
-private val imgurApiClientId: String by lazy {
-    gradleLocalProperties(rootDir, providers).getProperty("IMGUR_CLIENT_ID").orEmpty()
+    alias(libs.plugins.officeapp.android.application)
+    alias(libs.plugins.officeapp.android.application.flavors)
+    alias(libs.plugins.officeapp.android.application.compose)
+    alias(libs.plugins.officeapp.android.hilt)
 }
 
 android {
@@ -18,8 +13,6 @@ android {
 
     defaultConfig {
         applicationId = "ru.ilyasekunov.officeapp"
-        minSdk = 26
-        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -27,12 +20,14 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-
-        buildConfigField("String", "IMGUR_CLIENT_ID", "\"$imgurApiClientId\"")
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = OfficeBuildType.DEBUG.applicationIdSuffix
+        }
         release {
+            applicationIdSuffix = OfficeBuildType.RELEASE.applicationIdSuffix
             isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
@@ -42,17 +37,6 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-    buildFeatures {
-        compose = true
-        buildConfig = true
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -61,42 +45,39 @@ android {
 }
 
 dependencies {
+    implementation(projects.feature.auth)
+    implementation(projects.feature.user.profile)
+    implementation(projects.feature.user.manage)
+    implementation(projects.feature.home)
+    implementation(projects.feature.suggestidea)
+    implementation(projects.feature.favouriteideas)
+    implementation(projects.feature.filters)
+    implementation(projects.feature.editidea)
+    implementation(projects.feature.ideaauthor)
+    implementation(projects.feature.ideadetails)
+    implementation(projects.feature.myideas)
+    implementation(projects.feature.office)
+
+    implementation(projects.core.ui)
+    implementation(projects.core.navigation)
+
+    implementation(libs.activity.compose)
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.lifecycle.runtime)
-    implementation(libs.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
-
-    // Lottie
-    implementation(libs.lottie.compose)
-
-    // Paging library
-    implementation(libs.androidx.paging.compose)
-
-    // Shimmer effect
-    implementation(libs.compose.shimmer)
-
-    // DataStore
-    implementation(libs.androidx.datastore.preferences)
 
     // Material
     implementation(libs.androidx.material3)
     runtimeOnly(libs.androidx.material3)
-
-    // Retrofit
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-
-    // Coil
-    implementation(libs.coil.compose)
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
     // Hilt
     implementation(libs.hilt.android)
-    implementation(libs.androidx.hilt.navigation.compose)
-    kapt(libs.hilt.android.compiler)
+    implementation(libs.hilt.navigation.compose)
+    ksp(libs.hilt.android.compiler)
 
     // JUnit
     testImplementation(libs.junit)
@@ -112,8 +93,4 @@ dependencies {
 
     implementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-}
-
-kapt {
-    correctErrorTypes = true
 }
