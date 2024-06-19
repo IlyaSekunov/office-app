@@ -27,6 +27,13 @@ dependencies {
     compileOnly(libs.ksp.gradlePlugin)
 }
 
+tasks {
+    validatePlugins {
+        enableStricterValidation = true
+        failOnWarning = true
+    }
+}
+
 gradlePlugin {
     plugins {
         register("androidApplicationCompose") {
@@ -56,6 +63,10 @@ gradlePlugin {
         register("jvmLibrary") {
             id = "officeapp.jvm.library"
             implementationClass = "JvmLibraryConventionPlugin"
+        }
+        register("androidFlavors") {
+            id = "officeapp.android.application.flavors"
+            implementationClass = "AndroidApplicationFlavorsConventionPlugin"
         }
     }
 }

@@ -8,8 +8,6 @@ import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.create
 import ru.ilyasekunov.author.api.AuthorApi
-import ru.ilyasekunov.author.datasource.AuthorDataSource
-import ru.ilyasekunov.author.datasource.AuthorRemoteDataSource
 import ru.ilyasekunov.author.repository.AuthorRepository
 import ru.ilyasekunov.author.repository.AuthorRepositoryImpl
 import ru.ilyasekunov.author.repository.AuthorsPagingRepository
@@ -19,11 +17,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 internal abstract class AuthorDataModule {
-    @Binds
-    abstract fun bindAuthorDataSource(
-        authorRemoteDataSource: AuthorRemoteDataSource
-    ): AuthorDataSource
-
     @Binds
     abstract fun bindAuthorRepository(
         authorRepositoryImpl: AuthorRepositoryImpl

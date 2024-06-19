@@ -12,6 +12,7 @@ dependencies {
     implementation(projects.core.network)
     implementation(projects.core.common)
     implementation(projects.data.dto)
+    implementation(projects.data.test)
 
     implementation(libs.retrofit)
 }

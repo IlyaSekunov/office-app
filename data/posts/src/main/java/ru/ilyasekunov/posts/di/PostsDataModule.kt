@@ -8,8 +8,6 @@ import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.create
 import ru.ilyasekunov.posts.api.PostsApi
-import ru.ilyasekunov.posts.datasource.PostsDataSource
-import ru.ilyasekunov.posts.datasource.PostsRemoteDataSource
 import ru.ilyasekunov.posts.repository.PostsPagingRepository
 import ru.ilyasekunov.posts.repository.PostsPagingRepositoryImpl
 import ru.ilyasekunov.posts.repository.PostsRepository
@@ -19,11 +17,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 internal abstract class PostsDataModule {
-    @Binds
-    abstract fun bindPostsDataSource(
-        postsRemoteDataSource: PostsRemoteDataSource
-    ): PostsDataSource
-
     @Binds
     abstract fun bindPostsRepository(
         postsRepositoryImpl: PostsRepositoryImpl

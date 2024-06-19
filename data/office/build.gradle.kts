@@ -11,6 +11,7 @@ dependencies {
     implementation(projects.data.model)
     implementation(projects.core.network)
     implementation(projects.core.common)
+    implementation(projects.data.test)
 
     implementation(libs.retrofit)
 }

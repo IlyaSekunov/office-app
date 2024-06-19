@@ -40,6 +40,7 @@
             <option value="$PROJECT_DIR$/data/office" />
             <option value="$PROJECT_DIR$/data/pager" />
             <option value="$PROJECT_DIR$/data/posts" />
+            <option value="$PROJECT_DIR$/data/test" />
             <option value="$PROJECT_DIR$/data/token" />
             <option value="$PROJECT_DIR$/data/user" />
             <option value="$PROJECT_DIR$/data/util" />

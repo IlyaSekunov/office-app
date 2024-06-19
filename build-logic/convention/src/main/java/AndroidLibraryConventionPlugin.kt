@@ -4,6 +4,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
+import ru.ilyasekunov.convention.ru.ilyasekunov.officeapp.configureFlavors
 import ru.ilyasekunov.convention.ru.ilyasekunov.officeapp.configureKotlinAndroid
 
 class AndroidLibraryConventionPlugin : Plugin<Project> {
@@ -18,7 +19,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 configureKotlinAndroid(this)
                 defaultConfig.targetSdk = 34
                 testOptions.animationsDisabled = true
-                //configureFlavors(this)
+                configureFlavors(this)
                 // The resource prefix is derived from the module name,
                 // so resources inside ":core:module1" must be prefixed with "core_module1_"
                 resourcePrefix = path.split("""\W""".toRegex()).drop(1).distinct().joinToString(separator = "_").lowercase() + "_"

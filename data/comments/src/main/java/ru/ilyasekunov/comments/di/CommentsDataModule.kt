@@ -8,8 +8,6 @@ import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.create
 import ru.ilyasekunov.comments.api.CommentsApi
-import ru.ilyasekunov.comments.datasource.CommentsDataSource
-import ru.ilyasekunov.comments.datasource.CommentsRemoteDataSource
 import ru.ilyasekunov.comments.repository.CommentsPagingRepository
 import ru.ilyasekunov.comments.repository.CommentsPagingRepositoryImpl
 import ru.ilyasekunov.comments.repository.CommentsRepository
@@ -19,11 +17,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 internal abstract class CommentsDataModule {
-    @Binds
-    abstract fun bindCommentsDataSource(
-        commentsRemoteDataSource: CommentsRemoteDataSource
-    ): CommentsDataSource
-
     @Binds
     abstract fun bindCommentsRepository(
         commentsRepositoryImpl: CommentsRepositoryImpl

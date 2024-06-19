@@ -13,6 +13,7 @@ dependencies {
     implementation(projects.core.network)
     implementation(projects.core.common)
     implementation(projects.data.token)
+    implementation(projects.data.test)
 
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

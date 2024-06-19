@@ -1,5 +1,8 @@
+import ru.ilyasekunov.convention.ru.ilyasekunov.officeapp.OfficeBuildType
+
 plugins {
     alias(libs.plugins.officeapp.android.application)
+    alias(libs.plugins.officeapp.android.application.flavors)
     alias(libs.plugins.officeapp.android.application.compose)
     alias(libs.plugins.officeapp.android.hilt)
 }
@@ -20,7 +23,11 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = OfficeBuildType.DEBUG.applicationIdSuffix
+        }
         release {
+            applicationIdSuffix = OfficeBuildType.RELEASE.applicationIdSuffix
             isDebuggable = false
             isMinifyEnabled = true
             isShrinkResources = true
@@ -72,25 +79,6 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
 
-    /*// Lottie
-    implementation(libs.lottie.compose)
-
-    // Paging library
-    implementation(libs.androidx.paging.compose)
-
-    // Shimmer effect
-    implementation(libs.compose.shimmer)
-
-    // DataStore
-    implementation(libs.androidx.datastore.preferences)
-
-    // Retrofit
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-
-    // Coil
-    implementation(libs.coil.compose)
-
     // JUnit
     testImplementation(libs.junit)
 
@@ -104,5 +92,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
 
     implementation(libs.androidx.ui.tooling)
-    debugImplementation(libs.androidx.ui.test.manifest)*/
+    debugImplementation(libs.androidx.ui.test.manifest)
 }

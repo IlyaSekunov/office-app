@@ -11,8 +11,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
 import ru.ilyasekunov.auth.api.AuthApi
-import ru.ilyasekunov.auth.datasource.AuthDataSource
-import ru.ilyasekunov.auth.datasource.AuthRemoteDataSource
 import ru.ilyasekunov.auth.interceptors.HttpAccessTokenInterceptor
 import ru.ilyasekunov.auth.interceptors.OkHttpAuthenticator
 import ru.ilyasekunov.auth.repository.AuthRepository
@@ -23,11 +21,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 internal abstract class AuthDataModule {
-    @Binds
-    abstract fun bindAuthDataSource(
-        authRemoteDataSource: AuthRemoteDataSource
-    ): AuthDataSource
-
     @Binds
     abstract fun bindAuthRepository(
         authRepositoryImpl: AuthRepositoryImpl
