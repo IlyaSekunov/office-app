@@ -17,7 +17,6 @@
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.kotlin
 import ru.ilyasekunov.convention.ru.ilyasekunov.officeapp.libs
 
 class AndroidHiltConventionPlugin : Plugin<Project> {
