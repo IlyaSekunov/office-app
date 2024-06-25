@@ -82,7 +82,7 @@ fun RetryButton(
             .padding(horizontal = 10.dp, vertical = 5.dp)
     ) {
         Icon(
-            painter = painterResource(R.drawable.baseline_refresh_24),
+            painter = painterResource(R.drawable.core_ui_baseline_refresh_24),
             contentDescription = "refresh_button",
             tint = MaterialTheme.colorScheme.onPrimary,
             modifier = Modifier.size(20.dp)

@@ -63,5 +63,5 @@ fun UserJobTextField(
 @Composable
 private fun userInfoFieldErrorMessage(error: UserInfoValidationError) =
     when (error) {
-        UserInfoValidationError.BLANK -> stringResource(R.string.user_info_field_error_is_blank)
+        UserInfoValidationError.BLANK -> stringResource(R.string.core_ui_user_info_field_error_is_blank)
     }

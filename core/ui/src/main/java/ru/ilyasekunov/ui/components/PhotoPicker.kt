@@ -93,7 +93,7 @@ fun PhotoPicker(
                         modifier = Modifier.fillMaxSize()
                     )
                     Icon(
-                        painter = painterResource(R.drawable.outline_photo_camera_24),
+                        painter = painterResource(R.drawable.core_ui_outline_photo_camera_24),
                         contentDescription = "photo_icon",
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(30.dp)
@@ -102,7 +102,7 @@ fun PhotoPicker(
 
                 else -> {
                     Icon(
-                        painter = painterResource(R.drawable.outline_photo_camera_24),
+                        painter = painterResource(R.drawable.core_ui_outline_photo_camera_24),
                         contentDescription = "photo_icon",
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(30.dp)

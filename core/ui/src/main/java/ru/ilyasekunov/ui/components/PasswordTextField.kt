@@ -57,8 +57,8 @@ fun PasswordTextField(
             ) {
                 Icon(
                     painter = if (isValueHidden)
-                        painterResource(R.drawable.outline_visibility_24)
-                    else painterResource(R.drawable.outline_visibility_off_24),
+                        painterResource(R.drawable.core_ui_outline_visibility_24)
+                    else painterResource(R.drawable.core_ui_outline_visibility_off_24),
                     contentDescription = "visibility_icon"
                 )
             }

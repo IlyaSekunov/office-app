@@ -274,7 +274,7 @@ private fun CommentIsLoading(modifier: Modifier = Modifier) {
 @Composable
 private fun CommentsListIsEmpty(modifier: Modifier = Modifier) {
     Text(
-        text = stringResource(R.string.comments_list_is_empty),
+        text = stringResource(R.string.core_ui_comments_list_is_empty),
         style = MaterialTheme.typography.bodyLarge,
         fontSize = 20.sp,
         color = MaterialTheme.colorScheme.surfaceVariant,

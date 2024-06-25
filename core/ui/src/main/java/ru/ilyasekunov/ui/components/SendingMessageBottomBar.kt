@@ -114,7 +114,7 @@ private fun CommentSection(
         leadingIcon = {
             IconButton(onClick = onAttachImagesClick) {
                 Icon(
-                    painter = painterResource(R.drawable.outline_attach_file_24),
+                    painter = painterResource(R.drawable.core_ui_outline_attach_file_24),
                     contentDescription = "attach_icon",
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -131,7 +131,7 @@ private fun CommentSection(
         },
         placeholder = {
             Text(
-                text = stringResource(R.string.message),
+                text = stringResource(R.string.core_ui_message),
                 fontSize = 14.sp,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.surfaceVariant

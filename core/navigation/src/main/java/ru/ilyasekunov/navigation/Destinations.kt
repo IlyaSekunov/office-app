@@ -17,25 +17,25 @@ sealed class BottomNavigationScreen(
 ) : Screen(route) {
     data object Home : BottomNavigationScreen(
         route = "home",
-        iconId = R.drawable.outline_home_24,
+        iconId = R.drawable.core_navigation_outline_home_24,
         labelId = R.string.core_navigation_home_screen_label
     )
 
     data object Favourite : BottomNavigationScreen(
         route = "favourite",
-        iconId = R.drawable.outline_favorite_border_24,
+        iconId = R.drawable.core_navigation_outline_favorite_border_24,
         labelId = R.string.core_navigation_favourite_screen_label
     )
 
     data object MyOffice : BottomNavigationScreen(
         route = "my-office",
-        iconId = R.drawable.outline_business_center_24,
+        iconId = R.drawable.core_navigation_outline_business_center_24,
         labelId = R.string.core_navigation_my_office_screen_label
     )
 
     data object Profile : BottomNavigationScreen(
         route = "profile",
-        iconId = R.drawable.outline_person_24,
+        iconId = R.drawable.core_navigation_outline_person_24,
         labelId = R.string.core_navigation_profile_screen_label
     )
 }

@@ -98,7 +98,7 @@ fun LikeButton(
             .conditional(withBackground) { background(color.copy(alpha = 0.2f)) }
     ) {
         Icon(
-            painter = painterResource(R.drawable.outline_thumb_up_24),
+            painter = painterResource(R.drawable.core_ui_outline_thumb_up_24),
             contentDescription = "like_icon",
             tint = color,
             modifier = Modifier
