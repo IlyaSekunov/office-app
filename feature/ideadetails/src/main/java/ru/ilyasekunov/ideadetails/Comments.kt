@@ -1,4 +1,4 @@
-package ru.ilyasekunov.ui.comments
+package ru.ilyasekunov.ideadetails
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

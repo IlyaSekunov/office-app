@@ -69,7 +69,6 @@ import ru.ilyasekunov.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.ui.ErrorScreen
 import ru.ilyasekunov.ui.LocalCoroutineScope
 import ru.ilyasekunov.ui.LocalSnackbarHostState
-import ru.ilyasekunov.ui.comments.comments
 import ru.ilyasekunov.ui.components.AsyncImageWithLoading
 import ru.ilyasekunov.ui.components.AttachedImage
 import ru.ilyasekunov.ui.components.BothDirectedPullToRefreshContainer
