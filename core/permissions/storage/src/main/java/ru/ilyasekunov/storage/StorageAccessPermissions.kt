@@ -1,4 +1,4 @@
-package ru.ilyasekunov.ui.permissions
+package ru.ilyasekunov.storage
 
 import android.Manifest
 import android.content.Context
@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.core.content.ContextCompat
 
-fun currentStorageAccessPermissions(): Array<String> =
+internal fun currentStorageAccessPermissions(): Array<String> =
     when {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE -> {
             arrayOf(

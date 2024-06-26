@@ -11,4 +11,5 @@ dependencies {
     implementation(projects.data.posts)
     implementation(projects.data.images)
     implementation(projects.data.dto)
+    implementation(projects.core.permissions.storage)
 }

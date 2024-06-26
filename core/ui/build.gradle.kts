@@ -20,4 +20,5 @@ dependencies {
     implementation(projects.core.navigation)
     implementation(projects.data.model)
     implementation(projects.data.validation)
+    implementation(projects.core.permissions.storage)
 }

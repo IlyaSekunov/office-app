@@ -33,9 +33,9 @@ import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import ru.ilyasekunov.officeapp.core.ui.R
+import ru.ilyasekunov.storage.rememberStorageAccessPermissionRequest
+import ru.ilyasekunov.storage.storageAccessPermissionsGranted
 import ru.ilyasekunov.ui.imagepickers.rememberSingleImagePickerRequest
-import ru.ilyasekunov.ui.permissions.rememberStorageAccessPermissionRequest
-import ru.ilyasekunov.ui.permissions.storageAccessPermissionsGranted
 import ru.ilyasekunov.ui.theme.OfficeAppTheme
 
 @Composable

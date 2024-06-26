@@ -16,6 +16,9 @@
       <module name="Office_App.model.main" target="21" />
       <module name="Office_App.model.test" target="21" />
       <module name="OfficeApp.core.navigation.test" target="21" />
+      <module name="OfficeApp.core.permissions.main" target="21" />
+      <module name="OfficeApp.core.permissions.storage.test" target="21" />
+      <module name="OfficeApp.core.permissions.test" target="21" />
       <module name="OfficeApp.core.ui.test" target="21" />
       <module name="OfficeApp.data.author.test" target="21" />
       <module name="OfficeApp.data.comments.test" target="21" />

@@ -36,13 +36,13 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.core.ui.R
+import ru.ilyasekunov.storage.rememberStorageAccessPermissionRequest
 import ru.ilyasekunov.ui.LocalCoroutineScope
 import ru.ilyasekunov.ui.LocalSnackbarHostState
 import ru.ilyasekunov.ui.imagepickers.ImagePickerDefaults
 import ru.ilyasekunov.ui.imagepickers.rememberSingleImagePickerRequest
 import ru.ilyasekunov.ui.modifiers.BorderSide
 import ru.ilyasekunov.ui.modifiers.border
-import ru.ilyasekunov.ui.permissions.rememberStorageAccessPermissionRequest
 import ru.ilyasekunov.ui.theme.OfficeAppTheme
 
 @Immutable

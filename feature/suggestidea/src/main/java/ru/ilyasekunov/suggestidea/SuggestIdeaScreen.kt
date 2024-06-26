@@ -55,6 +55,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import ru.ilyasekunov.officeapp.feature.suggestidea.R
+import ru.ilyasekunov.storage.rememberStorageAccessPermissionRequest
 import ru.ilyasekunov.ui.AnimatedLoadingScreen
 import ru.ilyasekunov.ui.LocalCoroutineScope
 import ru.ilyasekunov.ui.LocalCurrentNavigationBarScreen
@@ -65,7 +66,6 @@ import ru.ilyasekunov.ui.components.BottomNavigationBar
 import ru.ilyasekunov.ui.components.onImagePickerClick
 import ru.ilyasekunov.ui.imagepickers.ImagePickerDefaults
 import ru.ilyasekunov.ui.imagepickers.rememberMultipleImagePickerRequest
-import ru.ilyasekunov.ui.permissions.rememberStorageAccessPermissionRequest
 import ru.ilyasekunov.ui.snackbarWithAction
 import ru.ilyasekunov.ui.theme.OfficeAppTheme
 import ru.ilyasekunov.officeapp.core.ui.R as coreUiResources
