@@ -64,7 +64,7 @@ fun NavController.navigateToEditIdeaScreen(
 }
 
 @Composable
-fun setUpEditIdeaViewModel(postId: Long): EditIdeaViewModel =
+private fun setUpEditIdeaViewModel(postId: Long): EditIdeaViewModel =
     hiltViewModel(
         creationCallback = { factory: EditIdeaViewModel.Factory ->
             factory.create(postId)
