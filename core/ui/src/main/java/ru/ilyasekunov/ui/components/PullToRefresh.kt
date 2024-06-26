@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -50,8 +51,7 @@ private val Elevation = 3.0.dp
 class DownsidePullToRefreshState(
     initialRefreshing: Boolean,
     override val positionalThreshold: Float,
-    enabled: () -> Boolean,
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
 ) : PullToRefreshState {
     override val progress get() = adjustedDistancePulled / positionalThreshold
     override val verticalOffset get() = _verticalOffset
@@ -72,7 +72,6 @@ class DownsidePullToRefreshState(
             available: Offset,
             source: NestedScrollSource,
         ): Offset = when {
-            !enabled() -> Offset.Zero
             // Screen is going to be scrolled up -> y > 0
             source == NestedScrollSource.UserInput && available.y > 0 -> {
                 consumeAvailableOffset(available)
@@ -86,7 +85,6 @@ class DownsidePullToRefreshState(
             available: Offset,
             source: NestedScrollSource
         ): Offset = when {
-            !enabled() -> Offset.Zero
             // Screen is going to be scrolled down -> y < 0
             source == NestedScrollSource.UserInput && available.y < 0 -> {
                 consumeAvailableOffset(available)
@@ -160,16 +158,14 @@ class DownsidePullToRefreshState(
     companion object {
         fun Saver(
             positionalThreshold: Float,
-            enabled: () -> Boolean,
             coroutineScope: CoroutineScope
-        ) = androidx.compose.runtime.saveable.Saver<PullToRefreshState, Boolean>(
+        ) = Saver<PullToRefreshState, Boolean>(
             save = { it.isRefreshing },
             restore = { isRefreshing ->
                 DownsidePullToRefreshState(
                     initialRefreshing = isRefreshing,
                     positionalThreshold = positionalThreshold,
-                    enabled = enabled,
-                    coroutineScope = coroutineScope
+                    coroutineScope = coroutineScope,
                 )
             }
         )
@@ -185,23 +181,20 @@ class DownsidePullToRefreshState(
 @Composable
 fun rememberDownsidePullToRefreshState(
     positionalThreshold: Dp = PullToRefreshDefaults.PositionalThreshold,
-    enabled: () -> Boolean = { true },
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ): PullToRefreshState {
     val density = LocalDensity.current
     val positionalThresholdPx = with(density) { positionalThreshold.toPx() }
     return rememberSaveable(
-        positionalThresholdPx, enabled,
+        positionalThresholdPx, coroutineScope,
         saver = DownsidePullToRefreshState.Saver(
             positionalThreshold = positionalThresholdPx,
-            enabled = enabled,
             coroutineScope = coroutineScope
         )
     ) {
         DownsidePullToRefreshState(
             initialRefreshing = false,
             positionalThreshold = positionalThresholdPx,
-            enabled = enabled,
             coroutineScope = coroutineScope
         )
     }
@@ -249,13 +242,10 @@ fun DownsidePullToRefreshContainer(
 private class UpsidePullToRefreshState(
     initialRefreshing: Boolean,
     override val positionalThreshold: Float,
-    enabled: () -> Boolean,
-    private val coroutineScope: CoroutineScope
+    private val coroutineScope: CoroutineScope,
 ) : PullToRefreshState {
-
     override val progress get() = adjustedDistancePulled / positionalThreshold
     override val verticalOffset get() = _verticalOffset
-
     override val isRefreshing get() = _refreshing
 
     override fun startRefresh() {
@@ -273,7 +263,6 @@ private class UpsidePullToRefreshState(
             available: Offset,
             source: NestedScrollSource,
         ): Offset = when {
-            !enabled() -> Offset.Zero
             // Swiping up
             source == NestedScrollSource.UserInput && available.y < 0 -> {
                 consumeAvailableOffset(available)
@@ -287,7 +276,6 @@ private class UpsidePullToRefreshState(
             available: Offset,
             source: NestedScrollSource
         ): Offset = when {
-            !enabled() -> Offset.Zero
             // Swiping down
             source == NestedScrollSource.UserInput && available.y > 0 -> {
                 consumeAvailableOffset(available)
@@ -361,15 +349,13 @@ private class UpsidePullToRefreshState(
     companion object {
         fun Saver(
             positionalThreshold: Float,
-            enabled: () -> Boolean,
-            coroutineScope: CoroutineScope
-        ) = androidx.compose.runtime.saveable.Saver<PullToRefreshState, Boolean>(
+            coroutineScope: CoroutineScope,
+        ) = Saver<PullToRefreshState, Boolean>(
             save = { it.isRefreshing },
             restore = { isRefreshing ->
                 UpsidePullToRefreshState(
                     initialRefreshing = isRefreshing,
                     positionalThreshold = positionalThreshold,
-                    enabled = enabled,
                     coroutineScope = coroutineScope
                 )
             }
@@ -386,24 +372,21 @@ private class UpsidePullToRefreshState(
 @Composable
 fun rememberUpsidePullToRefreshState(
     positionalThreshold: Dp = PullToRefreshDefaults.PositionalThreshold,
-    enabled: () -> Boolean = { true },
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ): PullToRefreshState {
     val density = LocalDensity.current
     val positionalThresholdPx = with(density) { positionalThreshold.toPx() }
     return rememberSaveable(
-        positionalThresholdPx, enabled,
+        positionalThresholdPx, coroutineScope,
         saver = UpsidePullToRefreshState.Saver(
             positionalThreshold = positionalThresholdPx,
-            enabled = enabled,
-            coroutineScope = coroutineScope
+            coroutineScope = coroutineScope,
         )
     ) {
         UpsidePullToRefreshState(
             initialRefreshing = false,
             positionalThreshold = positionalThresholdPx,
-            enabled = enabled,
-            coroutineScope = coroutineScope
+            coroutineScope = coroutineScope,
         )
     }
 }
@@ -416,7 +399,7 @@ fun UpsidePullToRefreshContainer(
     shape: Shape = PullToRefreshDefaults.shape,
     containerColor: Color = MaterialTheme.colorScheme.onPrimary,
     contentColor: Color = MaterialTheme.colorScheme.primary,
-    content: @Composable BoxScope.(isRefreshing: Boolean) -> Unit
+    content: @Composable BoxScope.(isRefreshing: Boolean) -> Unit,
 ) {
     val pullToRefreshState = rememberUpsidePullToRefreshState()
 
@@ -447,15 +430,15 @@ fun BothDirectedPullToRefreshContainer(
     shape: Shape = PullToRefreshDefaults.shape,
     containerColor: Color = MaterialTheme.colorScheme.onPrimary,
     contentColor: Color = MaterialTheme.colorScheme.primary,
-    content: @Composable BoxScope.(isRefreshing: Boolean) -> Unit
+    content: @Composable BoxScope.(isRefreshing: Boolean) -> Unit,
 ) {
     val upsidePullToRefreshState = rememberUpsidePullToRefreshState()
+    val isUpsideRefreshing = upsidePullToRefreshState.isRefreshing
+
     val downsidePullToRefreshState = rememberDownsidePullToRefreshState()
-    val isRefreshing by remember {
-        derivedStateOf {
-            upsidePullToRefreshState.isRefreshing || downsidePullToRefreshState.isRefreshing
-        }
-    }
+    val isDownsideRefreshing = downsidePullToRefreshState.isRefreshing
+
+    val isRefreshing = isUpsideRefreshing || isDownsideRefreshing
 
     if (isRefreshing) {
         LaunchedEffect(Unit) {
