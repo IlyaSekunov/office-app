@@ -1,7 +1,8 @@
 plugins {
-    alias(libs.plugins.officeapp.android.library)
+    alias(libs.plugins.officeapp.jvm.library)
 }
 
-android {
-    namespace = "ru.ilyasekunov.officeapp.data.validation"
+dependencies {
+    testImplementation(kotlin("test"))
+    testImplementation(libs.assertk)
 }

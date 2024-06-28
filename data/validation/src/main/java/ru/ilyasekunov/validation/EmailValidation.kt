@@ -1,6 +1,16 @@
 package ru.ilyasekunov.validation
 
-import android.util.Patterns
+import java.util.regex.Pattern
+
+private val EMAIL_ADDRESS = Pattern.compile(
+    "[a-zA-Z0-9+._%\\-]{1,256}" +
+            "@" +
+            "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" +
+            "(" +
+            "\\." +
+            "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" +
+            ")+"
+)
 
 enum class EmailValidationError {
     BLANK, NOT_EMAIL_PATTERN, UNAVAILABLE
@@ -18,4 +28,4 @@ fun validateEmail(email: String): EmailValidationResult =
         else -> EmailValidationResult.Success
     }
 
-internal fun String.notMatchesEmailPattern() = !Patterns.EMAIL_ADDRESS.matcher(this).matches()
+private fun String.notMatchesEmailPattern() = !EMAIL_ADDRESS.matcher(this).matches()
