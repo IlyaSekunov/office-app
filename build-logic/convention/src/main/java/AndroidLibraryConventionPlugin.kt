@@ -6,6 +6,7 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
 import ru.ilyasekunov.convention.ru.ilyasekunov.officeapp.configureFlavors
 import ru.ilyasekunov.convention.ru.ilyasekunov.officeapp.configureKotlinAndroid
+import ru.ilyasekunov.convention.ru.ilyasekunov.officeapp.libs
 
 class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -26,6 +27,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             }
             dependencies {
                 add("testImplementation", kotlin("test"))
+                add("testImplementation", libs.findLibrary("assertk").get())
             }
         }
     }
